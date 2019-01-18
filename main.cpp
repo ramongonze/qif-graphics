@@ -1,48 +1,9 @@
 // Tags to compile -lglfw -lrt -lm -ldl -lGLEW -lGL
 
-// Include standard headers
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-
-// Include GLEW
-#include <GL/glew.h>
-
-// Include GLFW
-#include <GLFW/glfw3.h>
-
-// Include GLM
-#include <glm/glm.hpp>
-// #include <glm/gtx/transform.hpp>
-
-// QIF Library
-#include "qif/qif.hpp"
+#include "graphics.hpp"
 
 using namespace std;
 using namespace glm;
-
-typedef struct Point{
-	long double x;
-	long double y;
-}Point;
-
-Point* dist2BaryCoord(Distribution &prior){
-	Point *baryc = (Point*) malloc(sizeof(Point));
-
-	baryc->x = prior.prob[2] + prior.prob[0]/2.0f;
-	baryc->y = prior.prob[0];
-
-	return baryc;
-}
-
-Point* dist2BaryCoord(long double x, long double y, long double z){
-	Point *baryc = (Point*) malloc(sizeof(Point));
-
-	baryc->x = z + x/2.0f;
-	baryc->y = x;
-
-	return baryc;
-}
 
 int main(){
 	
@@ -111,8 +72,6 @@ int main(){
 			glVertex2f(p->x + 0.05f,p->y + 0.05f);
 			glVertex2f(p->x - 0.05f,p->y + 0.05f);
 		glEnd();
-
-		
 
 		for(int i = 0; i < hyper.channel->num_out; i++){
 			// printf("(%Lf, %Lf)\n", inners[i]->x, inners[i]->y);
