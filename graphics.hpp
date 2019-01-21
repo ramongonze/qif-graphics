@@ -1,14 +1,10 @@
 #ifndef _graphics
 #define _graphics
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include "qif/qif.hpp"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
+#include "qif/qif.hpp"
 
 using namespace std;
 
