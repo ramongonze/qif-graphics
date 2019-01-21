@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
+#include <stdio.h>
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
@@ -28,6 +29,12 @@ int main( void )
     
     // Make the window's context current
     glfwMakeContextCurrent( window );
+
+glewExperimental = GL_TRUE;
+	if(glewInit() != GLEW_OK){
+		fprintf(stderr, "Error initializing GLEW!\n");
+		exit(EXIT_FAILURE);
+	}
     
     glViewport( 0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT ); // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
     glMatrixMode( GL_PROJECTION ); // projection matrix defines the properties of the camera that views the objects in the world coordinate frame. Here you typically set the zoom factor, aspect ratio and the near and far clipping planes
@@ -42,7 +49,7 @@ int main( void )
         glClear( GL_COLOR_BUFFER_BIT );
 
         // render OpenGL here
-        drawCircle( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 4, 0, 120, 10 );
+        drawCircle( SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, 0, 120, 300 );
         
         // Swap front and back buffers
         glfwSwapBuffers( window );
