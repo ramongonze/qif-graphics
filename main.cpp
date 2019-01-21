@@ -3,11 +3,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "graphics.hpp"
-#include <math.h>
+#include <cmath>
+#include <exception>
 
 #define GLEW_STATIC
 #define SCREEN_WIDTH 800
-#define SCREEN_HEIGHT 600
+#define SCREEN_HEIGHT 800
 #define CIRCLES_SIDES 50
 
 /* Read a shader source from a file and compile the shader.
@@ -15,7 +16,7 @@
  * It returns the shader id. */
 GLuint compileShader(string file, string type);
 
-float* createCircle(GLfloat x, GLfloat y, GLfloat radius);
+double* createCircle(GLdouble x, GLdouble y, GLdouble radius);
 
 int main(){
 	
@@ -57,13 +58,6 @@ int main(){
 	glGenVertexArrays(1, &vaoTriangle);
 	glBindVertexArray(vaoTriangle);
 	
-	// glViewport(0.0f, 0.0f, SCREEN_WIDTH, SCREEN_HEIGHT); // specifies the part of the window to which OpenGL will draw (in pixels), convert from normalised to pixels
-    // glMatrixMode(GL_PROJECTION); // projection matrix defines the properties of the camera that views the objects in the world coordinate frame. Here you typically set the zoom factor, aspect ratio and the near and far clipping planes
-    // glLoadIdentity(); // replace the current matrix with the identity matrix and starts us a fresh because matrix transforms such as glOrpho and glRotate cumulate, basically puts us at (0, 0, 0)
-    // glOrtho(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, 0, 1); // essentially set coordinate system
-    // glMatrixMode(GL_MODELVIEW); // (default matrix mode) modelview matrix defines how your objects are transformed (meaning translation, rotation and scaling) in your world
-    // glLoadIdentity(); // same as above comment
-	
 	// Creating shaders and the program
 	GLuint vertexShader = compileShader("vertexShader.glsl", "vertex");
 	GLuint fragmentShader = compileShader("fragmentShader.glsl", "fragment");
@@ -80,7 +74,7 @@ int main(){
 	glLinkProgram(shaderProgram);
 	glUseProgram(shaderProgram); // Only one program can be active at a time.
 
-	float main_triangle[] = {
+	double main_triangle[] = {
 		-0.5, -0.5,
 		0.0, 0.5,
 		0.0, 0.5,
@@ -94,35 +88,55 @@ int main(){
 	glBindBuffer(GL_ARRAY_BUFFER, vboTriangle); // Select a buffer to put some data in it
 	glBufferData(GL_ARRAY_BUFFER, sizeof(main_triangle), main_triangle, GL_STATIC_DRAW);
 	posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(posAttrib, 2, GL_DOUBLE, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posAttrib);
 
-	// float main_triangle2[] = {
-	// 	-0.5+0.1, -0.5+0.1,
-	// 	0.0+0.1, 0.5+0.1,
-	// 	0.0+0.1, 0.5+0.1,
-	// 	0.5+0.1, -0.5+0.1,
-	// 	0.5+0.1, -0.5+0.1,
-	// 	-0.5+0.1, -0.5+0.1,
-	// };
+	// QIF ----------------
+	Hyper hyper("prior", "channel");
+	Point *p = dist2BaryCoord(*(hyper.prior));
+	// --------------------
 
-	GLuint vaoCircles;
-	glGenVertexArrays(1, &vaoCircles);
-	glBindVertexArray(vaoCircles);
+	double **circlesVertices = (double**) malloc((hyper.channel->num_out+1) * sizeof(double*));
 
-	float *circleVertices = createCircle(0, 0, 0.4);
+	GLuint *vaoCircles = (GLuint*) malloc((hyper.channel->num_out+1) * sizeof(GLuint));
+	glGenVertexArrays(hyper.channel->num_out+1, vaoCircles);
+	glBindVertexArray(vaoCircles[0]);
 
-	// for(int i = 0; i < (CIRCLES_SIDES+2)*2; i+=2){
-	// 	printf("(%.2f,%.2f)\n", circleVertices[i], circleVertices[i+1]);
-	// }
+	// Prior vertices
+	circlesVertices[0] = createCircle(p->x + ORIGIN_X, p->y + ORIGIN_Y, 0.1);
 
-	GLuint vboCircles;
-	glGenBuffers(1, &vboCircles); // Generate 1 buffer
-	glBindBuffer(GL_ARRAY_BUFFER, vboCircles); // Select a buffer to put some data in it
-	glBufferData(GL_ARRAY_BUFFER, 2 * (CIRCLES_SIDES+2) * sizeof(float), circleVertices, GL_STATIC_DRAW);
+	GLuint *vboCircles = (GLuint*) malloc((hyper.channel->num_out+1) * sizeof(GLuint));
+	glGenBuffers(hyper.channel->num_out+1, vboCircles); // Generate 1 buffer
+
+	// Prior distribution buffer
+	glBindBuffer(GL_ARRAY_BUFFER, vboCircles[0]); // Select a buffer to put some data in it
+	glBufferData(GL_ARRAY_BUFFER, 2 * (CIRCLES_SIDES+2) * sizeof(double), circlesVertices[0], GL_STATIC_DRAW);
 	posAttrib = glGetAttribLocation(shaderProgram, "position");
-	glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(posAttrib, 2, GL_DOUBLE, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(posAttrib);
+
+	free(p);
+
+	for(int i = 0; i < hyper.channel->num_out; i++){
+		glBindVertexArray(vaoCircles[i+1]);
+		
+		long double x1 = hyper.inners[0][i];
+		long double x2 = hyper.inners[1][i];
+		long double x3 = hyper.inners[2][i];
+		long double radius = 0.1 * hyper.outer.prob[i];
+
+		p = dist2BaryCoord(x1,x2,x3);
+
+		circlesVertices[i+1] = createCircle(p->x + ORIGIN_X, p->y + ORIGIN_Y, radius);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vboCircles[i+1]); // Select a buffer to put some data in it
+		glBufferData(GL_ARRAY_BUFFER, 2 * (CIRCLES_SIDES+2) * sizeof(double), circlesVertices[i+1], GL_STATIC_DRAW);
+		posAttrib = glGetAttribLocation(shaderProgram, "position");
+		glVertexAttribPointer(posAttrib, 2, GL_DOUBLE, GL_FALSE, 0, 0);
+		glEnableVertexAttribArray(posAttrib);
+
+		free(p);
+	}
 
 	/* Use glDrawBuffers when rendering to multiple buffers, because only
 	 * the first output will be enabled by default. */
@@ -135,8 +149,10 @@ int main(){
 		glBindVertexArray(vaoTriangle);
 		glDrawArrays(GL_LINES, 0, 6);
 
-		glBindVertexArray(vaoCircles);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, CIRCLES_SIDES+2);
+		for(int i = 0; i < hyper.channel->num_out+1; i++){
+			glBindVertexArray(vaoCircles[i]);
+			glDrawArrays(GL_TRIANGLE_FAN, 0, CIRCLES_SIDES+2);
+		}
 
 		// Swap front and back buffers
 		glfwSwapBuffers(window);
@@ -189,13 +205,13 @@ GLuint compileShader(string file, string type){
 	return shader;
 }
 
-float* createCircle(GLfloat x, GLfloat y, GLfloat radius){
+double* createCircle(GLdouble x, GLdouble y, GLdouble radius){
 	int numberOfVertices = CIRCLES_SIDES + 2;
     
-	GLfloat twicePi = 2.0f * M_PI;
+	GLdouble twicePi = 2.0f * M_PI;
     
-	GLfloat *circleVerticesX = (GLfloat*) malloc(numberOfVertices * sizeof(float));
-	GLfloat *circleVerticesY = (GLfloat*) malloc(numberOfVertices * sizeof(float));
+	GLdouble *circleVerticesX = (GLdouble*) malloc(numberOfVertices * sizeof(double));
+	GLdouble *circleVerticesY = (GLdouble*) malloc(numberOfVertices * sizeof(double));
 	
 	circleVerticesX[0] = x;
 	circleVerticesY[0] = y;
@@ -205,7 +221,7 @@ float* createCircle(GLfloat x, GLfloat y, GLfloat radius){
 		circleVerticesY[i] = y + (radius * sin(i * twicePi / CIRCLES_SIDES));
 	}
 	
-	GLfloat *allCircleVertices = (GLfloat*) malloc(numberOfVertices * 2 * sizeof(float));
+	double *allCircleVertices = (double*) malloc(numberOfVertices * 2 * sizeof(double));
 	
 	for(int i = 0; i < numberOfVertices; i++){
 		allCircleVertices[i * 2] = circleVerticesX[i];

@@ -9,11 +9,11 @@ Point* dist2BaryCoord(Distribution &prior){
 	return baryc;
 }
 
-Point* dist2BaryCoord(long double x, long double y, long double z){
+Point* dist2BaryCoord(long double x1, long double x2, long double x3){
 	Point *baryc = (Point*) malloc(sizeof(Point));
 
-	baryc->x = z + x/2.0f;
-	baryc->y = x;
+	baryc->x = x3 + x1/2.0f;
+	baryc->y = x1;
 
 	return baryc;
 }
