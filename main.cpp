@@ -9,7 +9,8 @@
 #define GLEW_STATIC
 #define SCREEN_WIDTH 800
 #define SCREEN_HEIGHT 800
-#define CIRCLES_SIDES 50
+#define CIRCLES_SIDES 300
+#define PRIOR_RADIUS 0.1f
 
 /* Read a shader source from a file and compile the shader.
  * The second parameter must be "vertex" or "fragment". 
@@ -103,7 +104,7 @@ int main(){
 	glBindVertexArray(vaoCircles[0]);
 
 	// Prior vertices
-	circlesVertices[0] = createCircle(p->x + ORIGIN_X, p->y + ORIGIN_Y, 0.1);
+	circlesVertices[0] = createCircle(p->x + ORIGIN_X, p->y + ORIGIN_Y, PRIOR_RADIUS);
 
 	GLuint *vboCircles = (GLuint*) malloc((hyper.channel->num_out+1) * sizeof(GLuint));
 	glGenBuffers(hyper.channel->num_out+1, vboCircles); // Generate 1 buffer
@@ -117,13 +118,14 @@ int main(){
 
 	free(p);
 
+	// Inners distributions buffers
 	for(int i = 0; i < hyper.channel->num_out; i++){
 		glBindVertexArray(vaoCircles[i+1]);
 		
 		long double x1 = hyper.inners[0][i];
 		long double x2 = hyper.inners[1][i];
 		long double x3 = hyper.inners[2][i];
-		long double radius = 0.1 * hyper.outer.prob[i];
+		long double radius = sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
 
 		p = dist2BaryCoord(x1,x2,x3);
 
@@ -217,8 +219,9 @@ double* createCircle(GLdouble x, GLdouble y, GLdouble radius){
 	circleVerticesY[0] = y;
 	
 	for(int i = 1; i < numberOfVertices; i++){
-		circleVerticesX[i] = x + (radius * cos(i * twicePi / CIRCLES_SIDES));
-		circleVerticesY[i] = y + (radius * sin(i * twicePi / CIRCLES_SIDES));
+		GLdouble ang = twicePi/CIRCLES_SIDES * i;
+		circleVerticesX[i] = x + (radius * cos(ang));
+		circleVerticesY[i] = y + (radius * sin(ang));
 	}
 	
 	double *allCircleVertices = (double*) malloc(numberOfVertices * 2 * sizeof(double));
