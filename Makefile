@@ -8,4 +8,4 @@ main: graphics.o
 	g++ main.cpp graphics.o qif/qif.a -lglfw -lrt -lm -ldl -lGLEW -lGL
 
 graphics.o:
-	g++ -c graphics.cpp
+	g++ -c ./src/graphics.cpp
