@@ -54,7 +54,6 @@ GLuint compileShader(string file, string type){
 		char buffer[512];
 		glGetShaderInfoLog(shader, 512, NULL, buffer);
 		fprintf(stderr, "Error compiling %s shader\n%s\n", type.c_str(), buffer);
-		exit(EXIT_FAILURE);
 	}
 
 	return shader;
