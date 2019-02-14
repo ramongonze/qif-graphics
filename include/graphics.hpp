@@ -6,8 +6,13 @@
 #include <iostream>
 #include "../qif/qif.hpp"
 
+// Cartesian plan origin
 #define ORIGIN_X -0.5
 #define ORIGIN_Y -0.5
+#define CIRCLES_SIDES 300
+#define PRIOR_RADIUS 0.1f
+#define WINDOW_WIDTH 700	
+#define WINDOW_HEIGHT 700	
 
 using namespace std;
 
@@ -41,5 +46,11 @@ bool baryCoord2Dist(Point p, vector<long double> &prob);
 
 // Euclidian distance between two points
 long double euclidianDistance(Point a, Point b);
+
+void pixelCoord2ScreenCoord(double x, double y, Point &p);
+
+void screenCoord2PixelCoord(double x, double y, Point &p);
+
+void createCircle(double x, double y, double radius, double r, double g, double b, double circleVertices[6 * (CIRCLES_SIDES+2)]);
 
 #endif
