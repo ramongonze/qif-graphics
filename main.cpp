@@ -8,7 +8,7 @@
 #include "./include/shader.hpp"
 #include "./include/graphics.hpp"
 // GLEW
-#define GLEW_STATIC
+// #define GLEW_STATIC
 // #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
@@ -85,6 +85,18 @@ int main(){
     // Makes the context of the specified window current
     glfwMakeContextCurrent(window);
 
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+		fprintf(stderr, "Failed to initialize GLAD\n");
+		exit(EXIT_FAILURE);
+	}
+
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    Shader textShader(TEXT_V_SHADER, TEXT_F_SHADER);
+    glm::mat4 projection = glm::ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT);
+	textShader.use();
+   	textShader.setMat4("projection", projection); 
+
     FT_Library ft;
     if (FT_Init_FreeType(&ft))
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
@@ -98,14 +110,14 @@ int main(){
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // Disable byte-alignment restriction
     loadCharacters(face);
 
+    glBindTexture(GL_TEXTURE_2D, 0);
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
 
-    glm::mat4 projection = glm::ortho(0.0f, (float)WINDOW_WIDTH, 0.0f, (float)WINDOW_HEIGHT);
-
+   	
     GLuint VAOText, VBOText;
     glGenVertexArrays(1, &VAOText);
     glGenBuffers(1, &VBOText);
@@ -118,9 +130,6 @@ int main(){
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);      
 
-    Shader textShader(TEXT_V_SHADER, TEXT_F_SHADER);
-
-
 
     /* Tell to GLFW we want to call the function "framebuffer_size_callback" 
      * when the user resizes the window */
@@ -130,8 +139,6 @@ int main(){
         fprintf(stderr, "Failed to initialize GLAD\n");
         exit(EXIT_FAILURE);
     }
-
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     Shader mainShader(MAIN_V_SHADER, MAIN_F_SHADER);
 
@@ -198,8 +205,42 @@ int main(){
                 glBindVertexArray(0);
             }
 
-            RenderText(VAOText, VBOText, textShader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-            RenderText(VAOText, VBOText, textShader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));  
+            // Circles' names
+            	stringstream priorInfo;
+            	priorInfo << "Prior: " << fixed << setprecision(4) << hyper.prior->prob[0] << "  " << hyper.prior->prob[1] << "  " << hyper.prior->prob[2];
+            	RenderText(VAOText, VBOText, textShader, priorInfo.str(), 20.0f, WINDOW_HEIGHT - 40.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+
+            	// Prior
+            	dist2BaryCoord(*(hyper.prior), p);
+            	p.x += (ORIGIN_X - 0.05f);
+            	p.y += (ORIGIN_Y - 0.02f);
+            	screenCoord2PixelCoord(p.x, p.y, p);
+            	RenderText(VAOText, VBOText, textShader, "prior", p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+            	
+            	// Inners
+            	for(int i = 0; i < hyper.channel->num_out; i++){
+	                stringstream info, circleName;
+	                circleName << "y" << i+1;
+	                
+	                long double x1 = hyper.inners[0][i];
+			        long double x2 = hyper.inners[1][i];
+			        long double x3 = hyper.inners[2][i];
+
+			        dist2BaryCoord(x1,x2,x3, p);
+			        p.x += (ORIGIN_X - 0.02f);
+			        p.y += (ORIGIN_Y - 0.02f);
+
+	                screenCoord2PixelCoord(p.x, p.y, p);
+	                RenderText(VAOText, VBOText, textShader, circleName.str(), p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+     				
+	                info << circleName.str() << ": " << fixed << setprecision(4) << hyper.outer.prob[i];
+	                RenderText(VAOText, VBOText, textShader, info.str(), 20.0f, WINDOW_HEIGHT - (40.0f*(i+2)), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+
+            	}
+
+
+            // RenderText(VAOText, VBOText, textShader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
+            // RenderText(VAOText, VBOText, textShader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));  
         // --------------------------------------
 
         // Check and call events and swap the buffers
@@ -261,6 +302,19 @@ void processInput(GLFWwindow *window, unsigned int *VAO, unsigned int *VBO, Hype
         // Check if the new vector of 3 elements make up a probability distribution
         if(baryCoord2Dist(newPriorPos, prob)){
             baryCoord2Dist(newPriorPos, hyper.prior->prob);
+            if(hyper.prior->prob[0] >= 0.985f){
+            	hyper.prior->prob[0] = 1.0f;
+            	hyper.prior->prob[1] = 0.0f;
+            	hyper.prior->prob[2] = 0.0f;
+            }else if(hyper.prior->prob[1] >= 0.985f){
+            	hyper.prior->prob[1] = 1.0f;
+            	hyper.prior->prob[0] = 0.0f;
+            	hyper.prior->prob[2] = 0.0f;
+            }else if(hyper.prior->prob[2] >= 0.985f){
+            	hyper.prior->prob[2] = 1.0f;
+            	hyper.prior->prob[0] = 0.0f;
+            	hyper.prior->prob[1] = 0.0f;
+            }
             hyper.channel = new Channel(*(hyper.prior), hyper.channel->matrix);
             hyper.buildHyper(*(hyper.prior), *(hyper.channel));
 
@@ -394,7 +448,7 @@ void loadCharacters(FT_Face &face){
             texture, 
             glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
             glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-            face->glyph->advance.x
+            (unsigned int)face->glyph->advance.x
         };
         Characters.insert(std::pair<GLchar, Character>(c, character));
     }
