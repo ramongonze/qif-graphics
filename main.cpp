@@ -7,9 +7,6 @@
 // Other includes
 #include "./include/shader.hpp"
 #include "./include/graphics.hpp"
-// GLEW
-// #define GLEW_STATIC
-// #include <GL/glew.h>
 // GLFW
 #include <GLFW/glfw3.h>
 // GLM
@@ -19,11 +16,16 @@
 // FreeType
 #include <ft2build.h>
 #include FT_FREETYPE_H 
+// ImGui
+#include "./imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
 
 #define MAIN_V_SHADER "./shaders/main_v_shader.glsl"
 #define MAIN_F_SHADER "./shaders/main_f_shader.glsl"
 #define TEXT_V_SHADER "./shaders/text_v_shader.glsl"
 #define TEXT_F_SHADER "./shaders/text_f_shader.glsl"
+
+#define FREESANS_PATH "./fonts/FreeSans.ttf"
 
 using namespace std;
 
@@ -47,8 +49,10 @@ void processInput(GLFWwindow *window, unsigned int *VAO, unsigned int *VBO, Hype
 /* Using the given hyper distribution, create the circles for prior and posterior distributions */
 void buildCircles(unsigned int *VAO, unsigned int *VBO, Hyper &hyper);
 
+/* Load the 128 character of ASCII. */
 void loadCharacters(FT_Face &face);
 
+/* Render the given text in the screen in the given coordinates. */
 void RenderText(unsigned int VAO, unsigned int VBO, Shader &s, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
 
 int main(){
@@ -102,7 +106,7 @@ int main(){
         std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
 
     FT_Face face;
-    if (FT_New_Face(ft, "FreeSans.ttf", 0, &face))
+    if (FT_New_Face(ft, FREESANS_PATH, 0, &face))
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl; 
 
     FT_Set_Pixel_Sizes(face, 0, 48);
@@ -177,6 +181,15 @@ int main(){
         glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
+    // ImGui
+    ImGui::CreateContext();
+    ImGui_ImplGlfwGL3_Init(window, true);
+    ImGui::StyleColorsDark();
+    
+    bool show_options_window = true;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    // ------------
+
     bool moveCircles = false;
     Point oldMousePos;
     buildCircles(VAO, VBO, hyper);
@@ -185,8 +198,10 @@ int main(){
         processInput(window, VAO, VBO, hyper, &moveCircles, oldMousePos);
         
         // Rendering commands here
-        glClearColor(0.85f, 0.85f, 0.85f, 1.0f);
+        glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        ImGui_ImplGlfwGL3_NewFrame();
 
         // Draw ---------------------------------
             mainShader.use();
@@ -206,42 +221,63 @@ int main(){
             }
 
             // Circles' names
-            	stringstream priorInfo;
-            	priorInfo << "Prior: " << fixed << setprecision(4) << hyper.prior->prob[0] << "  " << hyper.prior->prob[1] << "  " << hyper.prior->prob[2];
-            	RenderText(VAOText, VBOText, textShader, priorInfo.str(), 20.0f, WINDOW_HEIGHT - 40.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+        	stringstream priorInfo;
+        	priorInfo << "Prior: " << fixed << setprecision(4) << hyper.prior->prob[0] << "  " << hyper.prior->prob[1] << "  " << hyper.prior->prob[2];
+        	RenderText(VAOText, VBOText, textShader, priorInfo.str(), 20.0f, WINDOW_HEIGHT - 40.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
 
-            	// Prior
-            	dist2BaryCoord(*(hyper.prior), p);
-            	p.x += (ORIGIN_X - 0.05f);
-            	p.y += (ORIGIN_Y - 0.02f);
-            	screenCoord2PixelCoord(p.x, p.y, p);
-            	RenderText(VAOText, VBOText, textShader, "prior", p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
-            	
-            	// Inners
-            	for(int i = 0; i < hyper.channel->num_out; i++){
-	                stringstream info, circleName;
-	                circleName << "y" << i+1;
-	                
-	                long double x1 = hyper.inners[0][i];
-			        long double x2 = hyper.inners[1][i];
-			        long double x3 = hyper.inners[2][i];
+        	// Prior
+        	dist2BaryCoord(*(hyper.prior), p);
+        	p.x += (ORIGIN_X - 0.05f);
+        	p.y += (ORIGIN_Y - 0.02f);
+        	screenCoord2PixelCoord(p.x, p.y, p);
+        	RenderText(VAOText, VBOText, textShader, "prior", p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+        	
+        	// Inners
+        	for(int i = 0; i < hyper.channel->num_out; i++){
+                stringstream info, circleName;
+                circleName << "y" << i+1;
+                
+                long double x1 = hyper.inners[0][i];
+		        long double x2 = hyper.inners[1][i];
+		        long double x3 = hyper.inners[2][i];
 
-			        dist2BaryCoord(x1,x2,x3, p);
-			        p.x += (ORIGIN_X - 0.02f);
-			        p.y += (ORIGIN_Y - 0.02f);
+		        dist2BaryCoord(x1,x2,x3, p);
+		        p.x += (ORIGIN_X - 0.02f);
+		        p.y += (ORIGIN_Y - 0.02f);
 
-	                screenCoord2PixelCoord(p.x, p.y, p);
-	                RenderText(VAOText, VBOText, textShader, circleName.str(), p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
-     				
-	                info << circleName.str() << ": " << fixed << setprecision(4) << hyper.outer.prob[i];
-	                RenderText(VAOText, VBOText, textShader, info.str(), 20.0f, WINDOW_HEIGHT - (40.0f*(i+2)), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
-
-            	}
-
-
-            // RenderText(VAOText, VBOText, textShader, "This is sample text", 25.0f, 25.0f, 1.0f, glm::vec3(0.5, 0.8f, 0.2f));
-            // RenderText(VAOText, VBOText, textShader, "(C) LearnOpenGL.com", 540.0f, 570.0f, 0.5f, glm::vec3(0.3, 0.7f, 0.9f));  
+                screenCoord2PixelCoord(p.x, p.y, p);
+                RenderText(VAOText, VBOText, textShader, circleName.str(), p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+ 				
+                info << circleName.str() << ": " << fixed << setprecision(4) << hyper.outer.prob[i];
+                RenderText(VAOText, VBOText, textShader, info.str(), 20.0f, WINDOW_HEIGHT - (40.0f*(i+2)), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+        	}
         // --------------------------------------
+
+        // 1. Show a simple window.
+        // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
+        if(show_options_window){
+            static float f = 0.0f;
+            static int counter = 0;
+            ImGui::Begin("Options", &show_options_window);
+            ImGui::Text("Prior values:");
+            ImGui::InputText("x1", 0, "");
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f    
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            ImGui::Checkbox("Demo Window", &show_options_window);      // Edit bools storing our windows open/close state
+            // ImGui::Checkbox("Another Window", &show_another_window);
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (NB: most widgets return true when edited/activated)
+                counter++;
+            // ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        	ImGui::End();
+        }
+
+        ImGui::Render();
+        ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
 
         // Check and call events and swap the buffers
         glfwSwapBuffers(window);
@@ -251,6 +287,8 @@ int main(){
     glDeleteVertexArrays(hyper.channel->num_out+2, VAO);
     glDeleteBuffers(hyper.channel->num_out+2, VBO);
 
+    ImGui_ImplGlfwGL3_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }

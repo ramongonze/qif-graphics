@@ -7,10 +7,16 @@
 #include "../qif/qif.hpp"
 
 // Cartesian plan origin
-#define ORIGIN_X -0.5
+#define ORIGIN_X -0.5 
 #define ORIGIN_Y -0.5
+
+// Number of triangles that make up a circle
 #define CIRCLES_SIDES 300
+
+// Prior probability distribution radius
 #define PRIOR_RADIUS 0.1f
+
+// Main Window dimensions
 #define WINDOW_WIDTH 700	
 #define WINDOW_HEIGHT 700	
 
@@ -47,10 +53,13 @@ bool baryCoord2Dist(Point p, vector<long double> &prob);
 // Euclidian distance between two points
 long double euclidianDistance(Point a, Point b);
 
+// Transforms a pixel coordinates (window width and height) into screen coordinates (from (-1,-1) to (1,1))
 void pixelCoord2ScreenCoord(double x, double y, Point &p);
 
+// Transforms a pixel coordinates (window width and height) into screen coordinates (from (-1,-1) to (1,1))
 void screenCoord2PixelCoord(double x, double y, Point &p);
 
+// Creates the array buffer of a circle, including the color as the second attribute
 void createCircle(double x, double y, double radius, double r, double g, double b, double circleVertices[6 * (CIRCLES_SIDES+2)]);
 
 #endif
