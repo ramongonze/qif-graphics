@@ -7,7 +7,7 @@
 #include "../qif/qif.hpp"
 
 // Cartesian plan origin
-#define ORIGIN_X -0.5 
+#define ORIGIN_X -0.2 
 #define ORIGIN_Y -0.5
 
 // Number of triangles that make up a circle
@@ -17,8 +17,8 @@
 #define PRIOR_RADIUS 0.1f
 
 // Main Window dimensions
-#define WINDOW_WIDTH 700	
-#define WINDOW_HEIGHT 700	
+#define WINDOW_WIDTH 800	
+#define WINDOW_HEIGHT 800	
 
 using namespace std;
 
