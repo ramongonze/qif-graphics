@@ -28,7 +28,9 @@
 #define FREESANS_PATH "./fonts/FreeSans.ttf"
 
 // ImGui
+#define WINDOW_COLOR 0.75f, 0.75f, 0.75f
 #define TEXT_COLOR ImVec4(0.0f, 0.0f, 0.0f, 1.0f)
+#define POPUP_COLOR ImVec4(0.65f, 0.65f, 0.65f, 1.0f)
 
 using namespace std;
 
@@ -57,6 +59,8 @@ void loadCharacters(FT_Face &face);
 
 /* Render the given text in the screen in the given coordinates. */
 void RenderText(unsigned int VAO, unsigned int VBO, Shader &s, std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
+
+static void ShowHelpMarker(const char* desc);
 
 int main(){
 
@@ -189,160 +193,151 @@ int main(){
     ImGui_ImplGlfwGL3_Init(window, true);
     ImGui::StyleColorsDark();
     
-    bool show_options_window = true;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    ImGuiIO& io = ImGui::GetIO();
+    ImFont* font = io.Fonts->AddFontFromFileTTF("./fonts/FreeSans.ttf", 20.0f);
     // ------------
 
     bool moveCircles = false;
     Point oldMousePos;
     buildCircles(VAO, VBO, hyper);
-    char x1[64] = "";
-    char x2[64] = "";
-    char x3[64] = "";
+    double x1, x2, x3;
+    x1 = x2 = x3 = 0.0f;
     int number_outputs = 0;
-    ImGuiIO& io = ImGui::GetIO();
-    ImFont* font = io.Fonts->AddFontFromFileTTF("./fonts/FreeSans.ttf", 20.0f);
     bool prior_is_a_distribution = true;
+    bool draw_figures = false;
     while(!glfwWindowShouldClose(window)){
         // Input
         processInput(window, VAO, VBO, hyper, &moveCircles, oldMousePos);
         
         // Rendering commands here
-        glClearColor(0.75f, 0.75f, 0.75f, 1.0f);
+        glClearColor(WINDOW_COLOR, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
         ImGui_ImplGlfwGL3_NewFrame();
 
-               // 1. Show a simple window.
-        // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
-        if(show_options_window){
-            static float f = 0.0f;
-            static int counter = 0;
-
-            // Prior distribution
-            // ImFont* font = atlas->Fonts[i];
-            // ImGui::PushID(font);
-            // ImGui::PushFont(font);
-            ImGuiStyle& style = ImGui::GetStyle();
-            style.FrameBorderSize = 1.0f;
-            style.GrabRounding = 0.0f;
-            style.Colors[0] = TEXT_COLOR;
-            style.WindowBorderSize = 0.0f; // No borders
-            ImGui::SetNextWindowBgAlpha(0.0f);
-            ImGui::SetNextWindowPos(ImVec2(0,0));
-            ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT));
-            ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-            ImGui::Text("Prior probability distribution\n\n");
-
-            if(prior_is_a_distribution){
-                stringstream ss;
-                ss << fixed << setprecision(4) << hyper.prior->prob[0];
-                strcpy(x1, ss.str().c_str());
-                ss.str("");
-                ss << fixed << setprecision(4) << hyper.prior->prob[1];
-                strcpy(x2, ss.str().c_str());
-                ss.str("");
-                ss << fixed << setprecision(4) << hyper.prior->prob[2];
-                strcpy(x3, ss.str().c_str());
-            }
-            ImGui::PushItemWidth(80);
-            ImGui::Text("x1 "); ImGui::SameLine();
-            ImGui::InputText("", x1, 64, ImGuiInputTextFlags_CharsDecimal);
-            ImGui::Text("x2 "); ImGui::SameLine();
-            ImGui::InputText(" ", x2, 64, ImGuiInputTextFlags_CharsDecimal);
-            ImGui::Text("x3 "); ImGui::SameLine();
-            ImGui::InputText("    ", x3, 64, ImGuiInputTextFlags_CharsDecimal);
-            ImGui::Text("\n\n");
-
-            // Avoid segmentation fault
-            if(strcmp(x1, "") == 0) x1[0] = '0';
-            if(strcmp(x2, "") == 0) x2[0] = '0';
-            if(strcmp(x3, "") == 0) x3[0] = '0';
-
-            // Check if the new values in x1, x2 and x3 make up a probability distribution
-            vector<long double> new_prob({stold(x1), stold(x2), stold(x3)});
-            if(Distribution::isDistribution(new_prob)){
-                hyper.prior->prob = new_prob;
-                hyper.channel = new Channel(*(hyper.prior), hyper.channel->matrix);
-                hyper.buildHyper(*(hyper.prior), *(hyper.channel));
-                buildCircles(VAO, VBO, hyper);
-                prior_is_a_distribution = true;
-            }else{
-                // ImGui::Text("The prior does not make up a probability distribution!"); ImGui::SameLine();    
-                prior_is_a_distribution = false;
-            }
-
-
+		// Option bar		
+		ImGuiStyle& style = ImGui::GetStyle();
+		style.FrameBorderSize = 1.0f;
+		style.GrabRounding = 0.0f;
+		style.Colors[0] = TEXT_COLOR; // Background window color
+		style.Colors[4] = POPUP_COLOR; // Background window color
+		style.WindowBorderSize = 0.0f; // No borders
+		ImGui::SetNextWindowBgAlpha(0.0f);
+		ImGui::SetNextWindowPos(ImVec2(0,0));
+		ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT));
+		
+		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+			if(!draw_figures){
+				ImGui::Text("Enter the probability distribution on the set of secrets {x1,x2,x3}\n\n");
+				
+				ImGui::PushItemWidth(80);
+				ImGui::Text("x1 "); ImGui::SameLine();
+				ImGui::InputDouble("##1", &x1, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific); ImGui::SameLine();
+				ShowHelpMarker("Probability of x1 occurs");
+				ImGui::Text("x2 "); ImGui::SameLine();
+				ImGui::InputDouble("##2", &x2, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific); ImGui::SameLine();
+				ShowHelpMarker("Probability of x2 occurs");
+				ImGui::Text("x3 "); ImGui::SameLine();
+				ImGui::InputDouble("##3", &x3, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific); ImGui::SameLine();
+				ShowHelpMarker("Probability of x3 occurs");
+				ImGui::Text("\n\n");
+	            ImGui::PopItemWidth();
+			}
+			
             // Distribution
-
-            ImGui::PopItemWidth();
             ImGui::Text("Number of outputs"); ImGui::SameLine();
             ImGui::PushItemWidth(130);
             ImGui::InputInt("       ", &number_outputs);
             if(number_outputs < 0) number_outputs = 0;
             ImGui::PopItemWidth();
-            // ImGui::PopFont();
 
-            ImGui::End();
-        }
+            vector<vector<long double > > channel(3, vector<long double>(number_outputs));
+
+            ImGui::Text("\n\nEnter the channel"); ImGui::SameLine();
+            ImGui::PushItemWidth(30);
+            for(int i = 0; i < 3; i++){
+            	for(int j = 0; j < number_outputs; j++){
+            		sstringstream ss;
+            		ss << "##" << j+4;
+            		ImGui::InputDouble(ss.str().c_str(), )
+            	}
+            }
+            ImGui::PopItemWidth();
+
+
+
+            // ImGui::PopFont();
+        ImGui::End();
+
+			// // Check if the new values in x1, x2 and x3 make up a probability distribution
+			// vector<long double> new_prob({stold(x1), stold(x2), stold(x3)});
+			// if(Distribution::isDistribution(new_prob)){
+			// 	hyper.prior->prob = new_prob;
+			// 	hyper.channel = new Channel(*(hyper.prior), hyper.channel->matrix);
+			// 	hyper.buildHyper(*(hyper.prior), *(hyper.channel));
+			// 	buildCircles(VAO, VBO, hyper);
+			// 	prior_is_a_distribution = true;
+			// }else{
+			// 	// ImGui::Text("The prior does not make up a probability distribution!"); ImGui::SameLine();    
+			// 	prior_is_a_distribution = false;
+			// }
 
         // Draw ---------------------------------
-            mainShader.use();
-            
-            // Main Triangle
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glBindVertexArray(VAO[0]);          
-                glDrawArrays(GL_TRIANGLES, 0, 3);
-            glBindVertexArray(0);
-
-        if(prior_is_a_distribution){
-            // Circles
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            for(int i = 1; i <= hyper.channel->num_out+1; i++){
-                glBindVertexArray(VAO[i]);
-                    glDrawArrays(GL_TRIANGLE_FAN, 0, (CIRCLES_SIDES+2));
-                glBindVertexArray(0);
-            }
-
-            // Circles' names
-        	stringstream priorInfo;
-        	priorInfo << "Prior: " << fixed << setprecision(4) << hyper.prior->prob[0] << "  " << hyper.prior->prob[1] << "  " << hyper.prior->prob[2];
-        	// RenderText(VAOText, VBOText, textShader, priorInfo.str(), 20.0f, WINDOW_HEIGHT - 40.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
-
-        	// Prior
-        	dist2BaryCoord(*(hyper.prior), p);
-        	p.x += (ORIGIN_X - 0.05f);
-        	p.y += (ORIGIN_Y - 0.02f);
-        	screenCoord2PixelCoord(p.x, p.y, p);
-        	RenderText(VAOText, VBOText, textShader, "prior", p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
-        	
-        	// Inners
-        	for(int i = 0; i < hyper.channel->num_out; i++){
-
-                stringstream info, circleName;
-                circleName << "y" << i+1;
-                
-                long double x1 = hyper.inners[0][i];
-                long double x2 = hyper.inners[1][i];
-                long double x3 = hyper.inners[2][i];
-
-                dist2BaryCoord(x1,x2,x3, p);
-                p.x += (ORIGIN_X - 0.02f);
-                p.y += (ORIGIN_Y - 0.02f);
-
-                info << circleName.str() << ": " << fixed << setprecision(4) << hyper.outer.prob[i];
-                // RenderText(VAOText, VBOText, textShader, info.str(), 20.0f, WINDOW_HEIGHT - (40.0f*(i+2)), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
-                
-                // Do not write the text if the output probability is 0
-                if(hyper.outer.prob[i] == 0.0f)
-                    continue;
-                
-                screenCoord2PixelCoord(p.x, p.y, p);
-                RenderText(VAOText, VBOText, textShader, circleName.str(), p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
-                
-        	}
-        // --------------------------------------
+        if(draw_figures){
+			mainShader.use();
+			
+			// Main Triangle
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			glBindVertexArray(VAO[0]);          
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+			glBindVertexArray(0);
+			
+			// Circles
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			for(int i = 1; i <= hyper.channel->num_out+1; i++){
+				glBindVertexArray(VAO[i]);
+				glDrawArrays(GL_TRIANGLE_FAN, 0, (CIRCLES_SIDES+2));
+				glBindVertexArray(0);
+			}
+			
+			// Circles' names
+			stringstream priorInfo;
+			priorInfo << "Prior: " << fixed << setprecision(4) << hyper.prior->prob[0] << "  " << hyper.prior->prob[1] << "  " << hyper.prior->prob[2];
+			// RenderText(VAOText, VBOText, textShader, priorInfo.str(), 20.0f, WINDOW_HEIGHT - 40.0f, 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+			
+			// Prior
+			dist2BaryCoord(*(hyper.prior), p);
+			p.x += (ORIGIN_X - 0.05f);
+			p.y += (ORIGIN_Y - 0.02f);
+			screenCoord2PixelCoord(p.x, p.y, p);
+			RenderText(VAOText, VBOText, textShader, "prior", p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+			
+			// Inners
+			for(int i = 0; i < hyper.channel->num_out; i++){
+				stringstream info, circleName;
+				circleName << "y" << i+1;
+				
+				long double x1 = hyper.inners[0][i];
+				long double x2 = hyper.inners[1][i];
+				long double x3 = hyper.inners[2][i];
+				
+				dist2BaryCoord(x1,x2,x3, p);
+				p.x += (ORIGIN_X - 0.02f);
+				p.y += (ORIGIN_Y - 0.02f);
+				
+				info << circleName.str() << ": " << fixed << setprecision(4) << hyper.outer.prob[i];
+				// RenderText(VAOText, VBOText, textShader, info.str(), 20.0f, WINDOW_HEIGHT - (40.0f*(i+2)), 0.5f, glm::vec3(0.0f, 0.0f, 0.0f));
+				
+				// Do not write the text if the output probability is 0
+				if(hyper.outer.prob[i] == 0.0f)
+					continue;
+				
+				screenCoord2PixelCoord(p.x, p.y, p);
+				RenderText(VAOText, VBOText, textShader, circleName.str(), p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+			}
         }
+        // --------------------------------------
 
         ImGui::Render();
         ImGui_ImplGlfwGL3_RenderDrawData(ImGui::GetDrawData());
@@ -557,5 +552,17 @@ void loadCharacters(FT_Face &face){
             (unsigned int)face->glyph->advance.x
         };
         Characters.insert(std::pair<GLchar, Character>(c, character));
+    }
+}
+
+static void ShowHelpMarker(const char* desc){
+    ImGui::TextDisabled("(?)");
+    if (ImGui::IsItemHovered())
+    {
+        ImGui::BeginTooltip();
+        ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+        ImGui::TextUnformatted(desc);
+        ImGui::PopTextWrapPos();
+        ImGui::EndTooltip();
     }
 }

@@ -17,8 +17,8 @@
 #define PRIOR_RADIUS 0.1f
 
 // Main Window dimensions
-#define WINDOW_WIDTH 800	
-#define WINDOW_HEIGHT 800	
+#define WINDOW_WIDTH 700	
+#define WINDOW_HEIGHT 700
 
 using namespace std;
 
