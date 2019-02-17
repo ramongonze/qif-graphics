@@ -24,13 +24,15 @@
 #define MAIN_F_SHADER "./shaders/main_f_shader.glsl"
 #define TEXT_V_SHADER "./shaders/text_v_shader.glsl"
 #define TEXT_F_SHADER "./shaders/text_f_shader.glsl"
-
 #define FREESANS_PATH "./fonts/FreeSans.ttf"
+
+#define MAX_OUTPUTS 100 // Max number of outputs
 
 // ImGui
 #define WINDOW_COLOR 0.75f, 0.75f, 0.75f
 #define TEXT_COLOR ImVec4(0.0f, 0.0f, 0.0f, 1.0f)
 #define POPUP_COLOR ImVec4(0.65f, 0.65f, 0.65f, 1.0f)
+#define FRAME_COLOR ImVec4(0.16f, 0.29f, 0.478f, 1.0f)
 
 using namespace std;
 
@@ -68,6 +70,7 @@ int main(){
     Point p;
 
     unsigned int *VAO, *VBO;
+    int window_width, window_height;
 
     // Initialize GLFW Library
     if(glfwInit() == GL_FALSE){
@@ -206,6 +209,13 @@ int main(){
     int number_outputs = 0;
     bool prior_is_a_distribution = true;
     bool draw_figures = false;
+    
+    // Initialize the channel
+    double channel[3][MAX_OUTPUTS];
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < MAX_OUTPUTS; j++)
+            channel[i][j] = 0;
+            
     while(!glfwWindowShouldClose(window)){
         // Input
         processInput(window, VAO, VBO, hyper, &moveCircles, oldMousePos);
@@ -220,54 +230,81 @@ int main(){
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.FrameBorderSize = 1.0f;
 		style.GrabRounding = 0.0f;
-		style.Colors[0] = TEXT_COLOR; // Background window color
-		style.Colors[4] = POPUP_COLOR; // Background window color
+		style.Colors[0] = TEXT_COLOR; // Window background color
+		style.Colors[4] = POPUP_COLOR; // Pop up background color
+        style.Colors[7] = FRAME_COLOR; // Frame background color
 		style.WindowBorderSize = 0.0f; // No borders
 		ImGui::SetNextWindowBgAlpha(0.0f);
 		ImGui::SetNextWindowPos(ImVec2(0,0));
 		ImGui::SetNextWindowSize(ImVec2(WINDOW_WIDTH, WINDOW_HEIGHT));
 		
 		ImGui::Begin("Options", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
-			if(!draw_figures){
-				ImGui::Text("Enter the probability distribution on the set of secrets {x1,x2,x3}\n\n");
-				
-				ImGui::PushItemWidth(80);
-				ImGui::Text("x1 "); ImGui::SameLine();
-				ImGui::InputDouble("##1", &x1, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific); ImGui::SameLine();
-				ShowHelpMarker("Probability of x1 occurs");
-				ImGui::Text("x2 "); ImGui::SameLine();
-				ImGui::InputDouble("##2", &x2, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific); ImGui::SameLine();
-				ShowHelpMarker("Probability of x2 occurs");
-				ImGui::Text("x3 "); ImGui::SameLine();
-				ImGui::InputDouble("##3", &x3, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific); ImGui::SameLine();
-				ShowHelpMarker("Probability of x3 occurs");
-				ImGui::Text("\n\n");
-	            ImGui::PopItemWidth();
-			}
+			ImGui::Text("Enter the probability distribution on the set of secrets {x1,x2,x3}\n\n");
+			
+			ImGui::PushItemWidth(80);
+			ImGui::Text("x1 "); ImGui::SameLine();
+			ImGui::InputDouble("##x1", &x1, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific | (draw_figures ? ImGuiInputTextFlags_ReadOnly : 0)); ImGui::SameLine();
+			ShowHelpMarker("Probability of x1 occurs");
+			ImGui::Text("x2 "); ImGui::SameLine();
+			ImGui::InputDouble("##x2", &x2, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific | (draw_figures ? ImGuiInputTextFlags_ReadOnly : 0)); ImGui::SameLine();
+			ShowHelpMarker("Probability of x2 occurs");
+			ImGui::Text("x3 "); ImGui::SameLine();
+			ImGui::InputDouble("##x3", &x3, 0.0f, 0.0f, "%.4f", ImGuiInputTextFlags_CharsScientific | (draw_figures ? ImGuiInputTextFlags_ReadOnly : 0)); ImGui::SameLine();
+			ShowHelpMarker("Probability of x3 occurs");
+			ImGui::Text("\n\n");
+            ImGui::PopItemWidth();
 			
             // Distribution
             ImGui::Text("Number of outputs"); ImGui::SameLine();
             ImGui::PushItemWidth(130);
-            ImGui::InputInt("       ", &number_outputs);
+            ImGui::InputInt("##num_out", &number_outputs);
             if(number_outputs < 0) number_outputs = 0;
             ImGui::PopItemWidth();
 
-            vector<vector<long double > > channel(3, vector<long double>(number_outputs));
+            ImGui::Text("\n\nEnter the channel\n");
+            ImGui::PushItemWidth(50);
+            style.FrameBorderSize = 0.0f;
+            style.Colors[7] = ImVec4(WINDOW_COLOR, 1.0f);
+            char h[7] = "p(y|x)";
+            ImGui::InputText("##00", h, sizeof(h), ImGuiInputTextFlags_ReadOnly);
 
-            ImGui::Text("\n\nEnter the channel"); ImGui::SameLine();
-            ImGui::PushItemWidth(30);
+            for(int i = 0; i < number_outputs; i++){
+                char buf1[64], buf2[64];
+                sprintf(buf1, "##0%d", i+1);
+                sprintf(buf2, "   y%d", i+1);
+
+                ImGui::SameLine();
+                ImGui::InputText(buf1, buf2, sizeof(buf2), ImGuiInputTextFlags_ReadOnly);
+            }
+
             for(int i = 0; i < 3; i++){
-            	for(int j = 0; j < number_outputs; j++){
-            		sstringstream ss;
-            		ss << "##" << j+4;
-            		ImGui::InputDouble(ss.str().c_str(), )
-            	}
+                for(int j = 0; j <= number_outputs; j++){
+                    char buf[64];
+                    sprintf(buf, "##%d%d", i+1, j);
+
+                    if(j == 0){
+                        style.FrameBorderSize = 0.0f;
+                        style.Colors[7] = ImVec4(WINDOW_COLOR, 1.0f);
+                        char buf2[8];
+                        sprintf(buf2, "    x%d", i+1);
+                        ImGui::InputText(buf, buf2, sizeof(buf2), ImGuiInputTextFlags_ReadOnly);
+                    }else{
+                        style.FrameBorderSize = 1.0f;
+                        style.Colors[7] = FRAME_COLOR;
+                        ImGui::SameLine();
+                        ImGui::InputDouble(buf, &(channel[i][j]), 0.0f, 0.0f, "%.3f", ImGuiInputTextFlags_CharsScientific);
+                    }
+                }
             }
             ImGui::PopItemWidth();
+            
+            ImGui::PushItemWidth(150);
+                ImGui::Text("\n\n");
+                if (ImGui::Button("Draw"))
+                    draw_figures = true;
+            ImGui::PopItemWidth();
 
-
-
-            // ImGui::PopFont();
+        // ImGui::PopFont();
         ImGui::End();
 
 			// // Check if the new values in x1, x2 and x3 make up a probability distribution
@@ -284,15 +321,25 @@ int main(){
 			// }
 
         // Draw ---------------------------------
+            mainShader.use();
+            
+            // Main Triangle
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glBindVertexArray(VAO[0]);          
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+            glBindVertexArray(0);
+            
+            // glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            // screenCoord2PixelCoord(mainTriangle[0], mainTriangle[1], p, WINDOW_WIDTH, WINDOW_HEIGHT);
+            // RenderText(VAOText, VBOText, textShader, "x2", p.x - 20, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+
+            // screenCoord2PixelCoord(mainTriangle[6], mainTriangle[7], p, WINDOW_WIDTH, WINDOW_HEIGHT);
+            // RenderText(VAOText, VBOText, textShader, "x1", p.x - 5, WINDOW_HEIGHT - p.y + 7, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+            
+            // screenCoord2PixelCoord(mainTriangle[12], mainTriangle[13], p, WINDOW_WIDTH, WINDOW_HEIGHT);
+            // RenderText(VAOText, VBOText, textShader, "x3", p.x + 15, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
+
         if(draw_figures){
-			mainShader.use();
-			
-			// Main Triangle
-			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-			glBindVertexArray(VAO[0]);          
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-			glBindVertexArray(0);
-			
 			// Circles
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			for(int i = 1; i <= hyper.channel->num_out+1; i++){
@@ -310,7 +357,7 @@ int main(){
 			dist2BaryCoord(*(hyper.prior), p);
 			p.x += (ORIGIN_X - 0.05f);
 			p.y += (ORIGIN_Y - 0.02f);
-			screenCoord2PixelCoord(p.x, p.y, p);
+			screenCoord2PixelCoord(p.x, p.y, p, WINDOW_WIDTH, WINDOW_HEIGHT);
 			RenderText(VAOText, VBOText, textShader, "prior", p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
 			
 			// Inners
@@ -333,7 +380,7 @@ int main(){
 				if(hyper.outer.prob[i] == 0.0f)
 					continue;
 				
-				screenCoord2PixelCoord(p.x, p.y, p);
+				screenCoord2PixelCoord(p.x, p.y, p, WINDOW_WIDTH, WINDOW_HEIGHT);
 				RenderText(VAOText, VBOText, textShader, circleName.str(), p.x, WINDOW_HEIGHT - p.y, 0.35f, glm::vec3(0.0f, 0.0f, 0.0f));
 			}
         }
@@ -374,7 +421,7 @@ void processInput(GLFWwindow *window, unsigned int *VAO, unsigned int *VBO, Hype
         // Get mouse position
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        pixelCoord2ScreenCoord(xpos, ypos, mousePos);
+        pixelCoord2ScreenCoord(xpos, ypos, mousePos, WINDOW_WIDTH, WINDOW_HEIGHT);
 
         // Get prior position
         dist2BaryCoord(*(hyper.prior), priorPos);

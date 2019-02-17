@@ -26,37 +26,37 @@ long double euclidianDistance(Point a, Point b){
 	return sqrt((b.x-a.x)*(b.x-a.x) + (b.y-a.y)*(b.y-a.y));
 }
 
-void pixelCoord2ScreenCoord(double x, double y, Point &p){
+void pixelCoord2ScreenCoord(double x, double y, Point &p, int window_width, int window_height){
 
-	if(x < WINDOW_WIDTH/2.0f){
+	if(x < window_width/2.0f){
 		if(x < 0) p.x = -1;
-		else p.x = -1+(x/(WINDOW_WIDTH/2.0f));
+		else p.x = -1+(x/(window_width/2.0f));
 	}else{
-		x -= (WINDOW_WIDTH/2.0f);
-		if(x > WINDOW_WIDTH/2.0f) p.x = 1;
-		else p.x = x/(WINDOW_WIDTH/2.0f);
+		x -= (window_width/2.0f);
+		if(x > window_width/2.0f) p.x = 1;
+		else p.x = x/(window_width/2.0f);
 	}
 
-	if(y < WINDOW_HEIGHT/2.0f){
+	if(y < window_height/2.0f){
 		if(y < 0) p.y = 1;
-		else p.y = 1- (y/(WINDOW_HEIGHT/2.0f));
+		else p.y = 1- (y/(window_height/2.0f));
 	}else{
-		y -= (WINDOW_HEIGHT/2.0f);
-		if(y > WINDOW_HEIGHT/2.0f) p.y = -1;
-		else p.y = -(y/(WINDOW_HEIGHT/2.0f));
+		y -= (window_height/2.0f);
+		if(y > window_height/2.0f) p.y = -1;
+		else p.y = -(y/(window_height/2.0f));
 	}
 }
 
-void screenCoord2PixelCoord(double x, double y, Point &p){
+void screenCoord2PixelCoord(double x, double y, Point &p, int window_width, int window_height){
 	if(x < 0.0f)
-		p.x = (int)((1.0f+x) * (WINDOW_WIDTH/2.0f));
+		p.x = (int)((1.0f+x) * (window_width/2.0f));
 	else
-		p.x = (int)(x * (WINDOW_WIDTH/2.0f)) + WINDOW_WIDTH/2;
+		p.x = (int)(x * (window_width/2.0f)) + window_width/2;
 
 	if(y < 0.0f)
-		p.y = -(int)(y * (WINDOW_HEIGHT/2.0f)) + WINDOW_WIDTH/2;	
+		p.y = -(int)(y * (window_height/2.0f)) + window_width/2;	
 	else
-		p.y = (int)((1.0f-y) * (WINDOW_HEIGHT/2.0f));
+		p.y = (int)((1.0f-y) * (window_height/2.0f));
 }
 
 void createCircle(double x, double y, double radius, double r, double g, double b, double circleVertices[CIRCLES_SIDES]){
