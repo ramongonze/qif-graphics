@@ -7,7 +7,7 @@
 #include "../qif/qif.hpp"
 
 // Cartesian plan origin
-#define ORIGIN_X -0.2 
+#define ORIGIN_X -0.1 
 #define ORIGIN_Y -0.5
 
 // Number of triangles that make up a circle
