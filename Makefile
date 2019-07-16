@@ -1,28 +1,39 @@
-all: clean main
+# Flags to compile raylib
+# Write in the variable below with the complete raylib directory
+RAYLIB_DIR=/home/ramon/Desktop/qif-graphics/
+
+CFLAGS= -D_DEFAULT_SOURCE \
+-DPLATFORM_DESKTOP \
+-Wno-missing-braces \
+-I/usr/local/include \
+-isystem. \
+-isystem$(RAYLIB_DIR)raylib/src \
+-isystem$(RAYLIB_DIR)raylib/release/include \
+-isystem$(RAYLIB_DIR)raylib/src/external \
+-L. \
+-L/usr/local/lib \
+-L$(RAYLIB_DIR)raylib/src \
+-lraylib \
+-lGL \
+-lm \
+-lpthread \
+-ldl \
+-lrt \
+-lX11 \
+-lGLU \
+-lXxf86vm \
+-lXrandr \
+-lXinerama \
+-lXcursor \
+qif/qif.a
+
+# -lraylib -lglfw3 -lX11 -lXxf86vm -lXrandr -ldl -lXinerama -lXcursor -lGL -lGLU -lpthread -lm -std=c99 -Wall
+
+all: main
+
+main: 
+	g++ main.cpp $(CFLAGS)
 
 clean:
 	rm -f *.o
 	rm -f *.out
-
-main: shader.o graphics.o imgui.o imgui_draw.o imgui_impl_glfw_gl3.o
-	g++ main.cpp -o main bin/*.o qif/qif.a -lglfw -lGL -lX11 -lpthread -lXrandr -ldl -lfreetype -I/usr/local/include/freetype2 /usr/local/src/glad.o /usr/lib/x86_64-linux-gnu/libdl.so
-
-shader.o:
-	g++ -c ./src/shader.cpp
-	mv shader.o ./bin
-
-graphics.o:
-	g++ -c ./src/graphics.cpp
-	mv graphics.o ./bin
-
-imgui.o:
-	g++ -c ./imgui/imgui.cpp
-	mv imgui.o ./bin
-
-imgui_impl_glfw_gl3.o:
-	g++ -c ./imgui/imgui_impl_glfw_gl3.cpp
-	mv imgui_impl_glfw_gl3.o ./bin
-
-imgui_draw.o:
-	g++ -c ./imgui/imgui_draw.cpp
-	mv imgui_draw.o ./bin
