@@ -1,42 +1,64 @@
 #include "raylib.h"
+#include <iostream>
 
 #define RAYGUI_IMPLEMENTATION
 #include "raygui/src/raygui.h"
 
+using namespace std;
+
 int main(void){
     // Initialization
     //--------------------------------------------------------------------------------------
-    const int screenWidth = 800;
-    const int screenHeight = 600;
-    const int fontHeaders = 14;
+    int screenWidth = 1024;
+    int screenHeight = 768;
+    float headerFontSize = 20;
 
     /*
      * Left menu:
      * 
-     * | Menu bar : 5%
-     * | ------------------------
-     * | Prior distribution: 15%
-     * | 
-     * | ------------------------
-     * | Channel: 40%
-     * |
-     * |
-     * |
-     * | ------------------------
-     * | Gain Function: 40%
-     * |
-     * |
-     * |
-     * |___________________________
+     * Remaining percentage: 1%
+     *
+     * | Menu bar : 4%
+     * | ------------------------|
+     * | Prior distribution: 15% |
+     * |                         |
+     * | ------------------------|
+     * | Channel: 40%            |
+     * |                         |
+     * |                         |
+     * |                         |
+     * | ------------------------|
+     * | Gain Function: 40%      |
+     * |                         |
+     * |                         |
+     * |                         |
+     * |_________________________|
+     *              40%                     60%
      */
-    const float priorYPer = 0.05;   // Prior Y axis percentage of screen size
-    const float channelYPer = 0.20; // Prior Y axis percentage of screen size
-    const float gainYPer = 0.60;    // Prior Y axis percentage of screen size
 
-    // Set font
-    Font mainFont = LoadFont("l.png");
+    // Variables
+    //----------------------------------------------------------------------------------
+    // Text
+    Vector2 priorFontPosition, channelFontPosition, gainFontPosition;
+    
+    // Rectangles
+    Color recColor = {51, 153, 255, 180};
+    Color recLinesColor = {0, 115, 230, 180};
+    Vector2 menuRecPosition, menuRecSize;
+    Vector2 priorRecPosition, priorRecSize;
+    Vector2 channelRecPosition, channelRecSize;
+    Vector2 gainRecPosition, gainRecSize;
+
+    // Main Triangle
+    Vector2 mainTriangleV1, mainTriangleV2, mainTriangleV3;
+    //----------------------------------------------------------------------------------
 
     InitWindow(screenWidth, screenHeight, "QIF Graphics");
+
+    // Set font
+    Font mainFont = LoadFontEx("CaviarDreams.ttf", headerFontSize, 0, 0);
+    GenTextureMipmaps(&mainFont.texture);
+    SetTextureFilter(mainFont.texture, FILTER_POINT);
 
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
@@ -45,19 +67,55 @@ int main(void){
     while (!WindowShouldClose()){    // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
+        screenWidth = GetScreenWidth();
+        screenHeight = GetScreenHeight();
+
+        // Text
+        priorFontPosition = {screenWidth*0.01f, screenHeight*0.05f};
+        channelFontPosition = {screenWidth*0.01f, screenHeight*0.20f};
+        gainFontPosition = {screenWidth*0.01f, screenHeight*0.60f};
+
+        // Rectangles features
+        menuRecPosition = {0.0f, 0.0f};
+        menuRecSize = {(float)screenWidth, screenHeight*0.04f}; // Width and Height
+        
+        priorRecPosition = {0.0f, 0.04f*screenHeight};
+        priorRecSize = {0.4f*screenWidth, 0.15f*screenHeight};
+
+        channelRecPosition = {0.0f, 0.19f*screenHeight};
+        channelRecSize = {0.4f*screenWidth, 0.4f*screenHeight};
+
+        gainRecPosition = {0.0f, 0.59f*screenHeight};
+        gainRecSize = {0.4f*screenWidth, (float)0.41f*screenHeight};
+
+        // Main Triangle Features
+        mainTriangleV1 = {0.45f*screenWidth, 0.90f*screenHeight};
+        mainTriangleV2 = {0.70f*screenWidth, 0.40f*screenHeight};
+        mainTriangleV3 = {0.95f*screenWidth, 0.90f*screenHeight};
         //----------------------------------------------------------------------------------
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
+            // Rectangles
+            DrawRectangleV(menuRecPosition, menuRecSize, recColor);
+            DrawRectangleLines(menuRecPosition.x, menuRecPosition.y, menuRecSize.x, menuRecSize.y, recLinesColor);
+            DrawRectangleV(priorRecPosition, priorRecSize, recColor);
+            DrawRectangleLines(priorRecPosition.x, priorRecPosition.y, priorRecSize.x, priorRecSize.y, recLinesColor);
+            DrawRectangleV(channelRecPosition, channelRecSize, recColor);
+            DrawRectangleLines(channelRecPosition.x, channelRecPosition.y, channelRecSize.x, channelRecSize.y, recLinesColor);
+            DrawRectangleV(gainRecPosition, gainRecSize, recColor);
+            DrawRectangleLines(gainRecPosition.x, gainRecPosition.y, gainRecSize.x, gainRecSize.y, recLinesColor);
 
-            // DrawTextEx(mainFont, "Prior distribution", Vector2({screenWidth*0.01, screenHeight*priorYPer}), fontHeaders, 1.0, BLACK);
-            // DrawText("Prior distribution", screenWidth*0.01, screenHeight*priorYPer, fontHeaders, BLACK);
-            // DrawText("Channel", screenWidth*0.01, screenHeight*channelYPer, fontHeaders, BLACK);
-            // DrawText("Gain Function", screenWidth*0.01, screenHeight*gainYPer, fontHeaders, BLACK);
+            // Text
+            DrawTextEx(mainFont, "Prior distribution", priorFontPosition, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "Channel", channelFontPosition, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "Gain Function", gainFontPosition, headerFontSize, 1.0, BLACK);
+
+            // Main Triangle
+            DrawTriangleLines(mainTriangleV1, mainTriangleV2, mainTriangleV3, BLACK); 
+
             ClearBackground({245, 245, 245, 255});
-
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
