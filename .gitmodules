@@ -1,6 +1,3 @@
-[submodule "qif"]
-	path = qif
-	url = https://github.com/ramongonze/qif.git
 [submodule "raylib"]
 	path = raylib
 	url = https://github.com/raysan5/raylib.git

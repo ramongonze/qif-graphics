@@ -7,6 +7,8 @@
 #include "qif/qif.hpp"
 #include "include/graphics.hpp"
 
+#define MAX_POSTERIOR 15 // Max number of posterior distributions
+
 using namespace std;
 
 /*
@@ -21,16 +23,16 @@ using namespace std;
  * |                         |                                    |  | 36%      |
  * | ------------------------|                                    | _|          |
  * | Channel: 40%            |                                    | _           |
+ * |                         |                / \ - - - - - - - - |  |          |
+ * |                         |               /   \                |  |          | 
+ * |                         |              /     \               |  |          | 96%
+ * |                         |             /       \              |  | 50%      |
+ * | ------------------------|           /           \            |  |          |
+ * | Gain Function: 40%      |          /             \           | _|          |
+ * |                         |        /_________________\ - - - - | _           |
  * |                         |                                    |  |          |
- * |                         |                                    |  | 50%      | 
- * |                         |                                    |  |          | 96%
- * |                         |                                    |  |          |
- * | ------------------------|                                    |  |          |
- * | Gain Function: 40%      |                                    | _|          |
- * |                         |                                    |  _          |
- * |                         |                                    |   |         |
- * |                         |                                    |   |10%      |
- * |_________________________|[_5%_][_________50%__________][_5%_]|  _|        _|
+ * |                         |                                    |  | 10%      |
+ * |_________________________|[_5%_][_________50%__________][_5%_]| _|         _|
  *
  * |_________________________|____________________________________|
  *              40%                             60%
@@ -42,18 +44,45 @@ using namespace std;
 void updateHyper(Hyper &hyper, Point &priorPosition, vector<Point> &posteriorsPosition, \
     int screenWidth, int screenHeight){
     // Update the hyper distribution if the user moves the prior distribution
-    Point p;
+    Point p, mousePosition;
+    vector<long double> new_prior(3);
+
+    dist2Bary(*(hyper.prior), p);
+    bary2Pixel(p.x, p.y, priorPosition, screenWidth, screenHeight);   
+    Vector2 aux = GetMousePosition();
+    mousePosition.x = aux.x; mousePosition.y = aux.y;
+
+    // Check if the user is moving the prior
+    if(IsMouseButtonDown(MOUSE_LEFT_BUTTON) && euclidianDistance(priorPosition, mousePosition) <= PRIOR_RADIUS){
+        pixel2Bary(mousePosition.x, mousePosition.y, mousePosition, screenWidth, screenHeight);
+        if(bary2Dist(mousePosition, hyper.prior->prob)){
+            
+            if(hyper.prior->prob[0] >= 0.98){
+                hyper.prior->prob[0] = 1;
+                hyper.prior->prob[1] = 0;
+                hyper.prior->prob[2] = 0;
+            }
+            // else if(hyper.prior->prob[1] >= 0.98) hyper.prior->prob = {0, 1, 0};
+            // else if(hyper.prior->prob[2] >= 0.98) hyper.prior->prob = {0, 0, 1};
+
+            // cout << "Here: " << hyper.prior->prob[0] << "," << hyper.prior->prob[1] << "," \
+            // << hyper.prior->prob[2] << ": " << Distribution::isDistribution(hyper.prior->prob) <<  endl;
+            hyper.rebuildHyper(*(hyper.prior));
+            // printf("chegou depois\n");
+            // cout << "After: " << hyper.prior->prob[0] << endl;
+            dist2Bary(*(hyper.prior), p);
+            bary2Pixel(p.x, p.y, priorPosition, screenWidth, screenHeight);
+        }
+    }
     
-    dist2BaryCoord(*(hyper.prior), p);
-    screenCoord2PixelCoord(p.x, p.y, priorPosition, screenWidth, screenHeight);
-    
+    // Calculates the pixel coordinate for posterior distributions
     posteriorsPosition.resize(hyper.num_post);
     for(int i = 0; i < hyper.num_post; i++){
         long double x1 = hyper.inners[0][i];
         long double x2 = hyper.inners[1][i];
         long double x3 = hyper.inners[2][i];
-        dist2BaryCoord(x1, x2, x3, p);
-        screenCoord2PixelCoord(p.x, p.y, posteriorsPosition[i], screenWidth, screenHeight);
+        dist2Bary(x1, x2, x3, p);
+        bary2Pixel(p.x, p.y, posteriorsPosition[i], screenWidth, screenHeight);
     }
 }
 
@@ -72,11 +101,13 @@ int main(void){
     //----------------------------------------------------------------------------------
     Point priorPosition;
     vector<Point> posteriorsPosition;
+    vector<string> distributionTexts; // Posteriors names (y1, ..., yn)
+
     Hyper hyper("prior", "channel");
-    Color priorColor = {128, 191, 255, 160};
-    Color priorLineColor = {51, 153, 255, 160};
-    Color posteriorColor = {255, 222, 78, 160};
-    Color posteriorLineColor = {230, 187, 0, 160};
+    Color priorColor = {128, 191, 255, 230};
+    Color priorLineColor = {51, 153, 255, 230};
+    Color posteriorColor = {255, 222, 78, 230};
+    Color posteriorLineColor = {230, 187, 0, 230};
 
     //----------------------------------------------------------------------------------
 
@@ -84,6 +115,7 @@ int main(void){
     //----------------------------------------------------------------------------------
     // Text
     Vector2 priorFontPosition, channelFontPosition, gainFontPosition;
+    char posterior[MAX_POSTERIOR]; // Buffer to print y1, ..., yn inside the posterior circles
     
     // Rectangles
     Color recColor = {51, 153, 255, 180};
@@ -118,7 +150,6 @@ int main(void){
 
         // QIF -----------
         updateHyper(hyper, priorPosition, posteriorsPosition, screenWidth, screenHeight);
-
         // Text
         priorFontPosition = {screenWidth*0.01f, screenHeight*0.05f};
         channelFontPosition = {screenWidth*0.01f, screenHeight*0.20f};
@@ -135,7 +166,7 @@ int main(void){
         channelRecSize = {0.4f*screenWidth, 0.4f*screenHeight};
 
         gainRecPosition = {0.0f, 0.59f*screenHeight};
-        gainRecSize = {0.4f*screenWidth, (float)0.41f*screenHeight};
+        gainRecSize = {0.4f*screenWidth, 0.41f*screenHeight};
 
         // Main Triangle Features
         mainTriangleV1 = {0.70f*screenWidth, 0.40f*screenHeight};
@@ -145,7 +176,6 @@ int main(void){
         x2Position = {0.42f*screenWidth, 0.89f*screenHeight};
         x3Position = {0.96f*screenWidth, 0.89f*screenHeight};
         //----------------------------------------------------------------------------------
-
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
@@ -170,15 +200,20 @@ int main(void){
             DrawTextEx(mainFont, "X2", x2Position, headerFontSize, 1.0, BLACK);
             DrawTextEx(mainFont, "X3", x3Position, headerFontSize, 1.0, BLACK);
 
-            // cout << priorPosition.x << "," << priorPosition.y << endl;
             // Prior distribution
             DrawCircle(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorColor);
             DrawCircleLines(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorLineColor);
+            DrawTextEx(mainFont, "prior", Vector2({priorPosition.x-(PRIOR_RADIUS/2.0f), \
+                priorPosition.y - (0.2f * PRIOR_RADIUS)}), headerFontSize, 1.0, BLACK);
+
             // Posterior distributions
             for(int i = 0; i < hyper.num_post; i++){
                 int radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
                 DrawCircle(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorColor);
                 DrawCircleLines(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorLineColor);
+                sprintf(posterior, "Y%d", i+1);
+                DrawTextEx(mainFont, posterior, Vector2({posteriorsPosition[i].x-(radius/2.0f), \
+                posteriorsPosition[i].y - (0.4f * radius)}), headerFontSize, 1.0, BLACK);
             }
 
             ClearBackground({245, 245, 245, 255});
