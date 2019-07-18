@@ -4,37 +4,81 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui/src/raygui.h"
 
+#include "qif/qif.hpp"
+#include "include/graphics.hpp"
+
 using namespace std;
+
+/*
+ * Left menu:
+ * 
+ * Remaining percentage: 1%
+ *
+ * ----------------------------------------------------------------            _
+ * | Menu bar : 4%                                                |            _| 4%
+ * | ------------------------|------------------------------------| _          _
+ * | Prior distribution: 15% |                                    |  |          |
+ * |                         |                                    |  | 36%      |
+ * | ------------------------|                                    | _|          |
+ * | Channel: 40%            |                                    | _           |
+ * |                         |                                    |  |          |
+ * |                         |                                    |  | 50%      | 
+ * |                         |                                    |  |          | 96%
+ * |                         |                                    |  |          |
+ * | ------------------------|                                    |  |          |
+ * | Gain Function: 40%      |                                    | _|          |
+ * |                         |                                    |  _          |
+ * |                         |                                    |   |         |
+ * |                         |                                    |   |10%      |
+ * |_________________________|[_5%_][_________50%__________][_5%_]|  _|        _|
+ *
+ * |_________________________|____________________________________|
+ *              40%                             60%
+ *
+ * OBS: The percentages in the interface are realted to the screen width and height.
+ *
+ */
+
+void updateHyper(Hyper &hyper, Point &priorPosition, vector<Point> &posteriorsPosition, \
+    int screenWidth, int screenHeight){
+    // Update the hyper distribution if the user moves the prior distribution
+    Point p;
+    
+    dist2BaryCoord(*(hyper.prior), p);
+    screenCoord2PixelCoord(p.x, p.y, priorPosition, screenWidth, screenHeight);
+    
+    posteriorsPosition.resize(hyper.num_post);
+    for(int i = 0; i < hyper.num_post; i++){
+        long double x1 = hyper.inners[0][i];
+        long double x2 = hyper.inners[1][i];
+        long double x3 = hyper.inners[2][i];
+        dist2BaryCoord(x1, x2, x3, p);
+        screenCoord2PixelCoord(p.x, p.y, posteriorsPosition[i], screenWidth, screenHeight);
+    }
+}
+
+void drawQIFCircles(Hyper &hyper){
+    int i;
+}
 
 int main(void){
     // Initialization
     //--------------------------------------------------------------------------------------
-    int screenWidth = 1024;
-    int screenHeight = 768;
+    int screenWidth = WINDOW_WIDTH;
+    int screenHeight = WINDOW_HEIGHT;
     float headerFontSize = 20;
 
-    /*
-     * Left menu:
-     * 
-     * Remaining percentage: 1%
-     *
-     * | Menu bar : 4%
-     * | ------------------------|
-     * | Prior distribution: 15% |
-     * |                         |
-     * | ------------------------|
-     * | Channel: 40%            |
-     * |                         |
-     * |                         |
-     * |                         |
-     * | ------------------------|
-     * | Gain Function: 40%      |
-     * |                         |
-     * |                         |
-     * |                         |
-     * |_________________________|
-     *              40%                     60%
-     */
+    // QIF
+    //----------------------------------------------------------------------------------
+    Point priorPosition;
+    vector<Point> posteriorsPosition;
+    Hyper hyper("prior", "channel");
+    Color priorColor = {128, 191, 255, 160};
+    Color priorLineColor = {51, 153, 255, 160};
+    Color posteriorColor = {255, 222, 78, 160};
+    Color posteriorLineColor = {230, 187, 0, 160};
+
+    //----------------------------------------------------------------------------------
 
     // Variables
     //----------------------------------------------------------------------------------
@@ -51,6 +95,7 @@ int main(void){
 
     // Main Triangle
     Vector2 mainTriangleV1, mainTriangleV2, mainTriangleV3;
+    Vector2 x1Position, x2Position, x3Position;
     //----------------------------------------------------------------------------------
 
     InitWindow(screenWidth, screenHeight, "QIF Graphics");
@@ -65,10 +110,14 @@ int main(void){
 
     // Main game loop
     while (!WindowShouldClose()){    // Detect window close button or ESC key
-        // Update
+        // Update     
         //----------------------------------------------------------------------------------
+        // Interface ---------
         screenWidth = GetScreenWidth();
         screenHeight = GetScreenHeight();
+
+        // QIF -----------
+        updateHyper(hyper, priorPosition, posteriorsPosition, screenWidth, screenHeight);
 
         // Text
         priorFontPosition = {screenWidth*0.01f, screenHeight*0.05f};
@@ -89,9 +138,12 @@ int main(void){
         gainRecSize = {0.4f*screenWidth, (float)0.41f*screenHeight};
 
         // Main Triangle Features
-        mainTriangleV1 = {0.45f*screenWidth, 0.90f*screenHeight};
-        mainTriangleV2 = {0.70f*screenWidth, 0.40f*screenHeight};
+        mainTriangleV1 = {0.70f*screenWidth, 0.40f*screenHeight};
+        mainTriangleV2 = {0.45f*screenWidth, 0.90f*screenHeight};
         mainTriangleV3 = {0.95f*screenWidth, 0.90f*screenHeight};
+        x1Position = {0.69f*screenWidth, 0.37f*screenHeight};
+        x2Position = {0.42f*screenWidth, 0.89f*screenHeight};
+        x3Position = {0.96f*screenWidth, 0.89f*screenHeight};
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -114,6 +166,20 @@ int main(void){
 
             // Main Triangle
             DrawTriangleLines(mainTriangleV1, mainTriangleV2, mainTriangleV3, BLACK); 
+            DrawTextEx(mainFont, "X1", x1Position, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X2", x2Position, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X3", x3Position, headerFontSize, 1.0, BLACK);
+
+            // cout << priorPosition.x << "," << priorPosition.y << endl;
+            // Prior distribution
+            DrawCircle(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorColor);
+            DrawCircleLines(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorLineColor);
+            // Posterior distributions
+            for(int i = 0; i < hyper.num_post; i++){
+                int radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
+                DrawCircle(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorColor);
+                DrawCircleLines(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorLineColor);
+            }
 
             ClearBackground({245, 245, 245, 255});
         EndDrawing();

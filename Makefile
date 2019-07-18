@@ -31,8 +31,12 @@ qif/qif.a
 
 all: main
 
-main: 
-	g++ main.cpp $(CFLAGS)
+main: graphics.o
+	g++ main.cpp $(CFLAGS) bin/graphics.o
+
+graphics.o:
+	g++ -c src/graphics.cpp
+	mv graphics.o bin/
 
 clean:
 	rm -f *.o
