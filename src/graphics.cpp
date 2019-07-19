@@ -1,13 +1,17 @@
 #include "../include/graphics.hpp"
 
-void dist2Bary(Distribution &prior, Point &p){
+Point dist2Bary(Distribution &prior){
+	Point p;
 	p.x = prior.prob[2] + prior.prob[0]/2.0f;
 	p.y = prior.prob[0];
+	return p;
 }
 
-void dist2Bary(long double x1, long double x2, long double x3, Point &p){
+Point dist2Bary(long double x1, long double x2, long double x3){
+	Point p;
 	p.x = x3 + x1/2.0f;
 	p.y = x1;
+	return p;
 }
 
 bool bary2Dist(Point p, vector<long double> &prob){
@@ -30,12 +34,16 @@ long double euclidianDistance(Point a, Point b){
 	return sqrt((b.x-a.x)*(b.x-a.x) + (b.y-a.y)*(b.y-a.y));
 }
 
-void pixel2Bary(double x, double y, Point &p, int window_width, int window_height){
+Point pixel2Bary(double x, double y, int window_width, int window_height){
+	Point p;
 	p.x = (x - (0.45f * window_width)) / (0.5f*window_width);
 	p.y = 1 - (y - (0.40f * window_height)) / (0.50f*window_height);
+	return p;
 }
 
-void bary2Pixel(double x, double y, Point &p, int window_width, int window_height){
+Point bary2Pixel(double x, double y, int window_width, int window_height){
+	Point p;
 	p.x = ORIGIN_X + (x * (window_width/2.0f));
 	p.y = ORIGIN_Y - (y * (window_height/2.0f));
+	return p;
 }

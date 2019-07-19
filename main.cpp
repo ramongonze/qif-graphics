@@ -2,12 +2,14 @@
 #include <iostream>
 
 #define RAYGUI_IMPLEMENTATION
+#define RAYGUI_TEXTBOX_EXTENDED
 #include "raygui/src/raygui.h"
 
 #include "qif/qif.hpp"
 #include "include/graphics.hpp"
 
 #define MAX_POSTERIOR 15 // Max number of posterior distributions
+#define MAX_INPUT_BOX 100 // Max number of characters in an input box
 
 using namespace std;
 
@@ -47,31 +49,28 @@ void updateHyper(Hyper &hyper, Point &priorPosition, vector<Point> &posteriorsPo
     Point p, mousePosition;
     vector<long double> new_prior(3);
 
-    dist2Bary(*(hyper.prior), p);
-    bary2Pixel(p.x, p.y, priorPosition, screenWidth, screenHeight);   
+    p = dist2Bary(*(hyper.prior));
+    priorPosition = bary2Pixel(p.x, p.y, screenWidth, screenHeight);   
     Vector2 aux = GetMousePosition();
     mousePosition.x = aux.x; mousePosition.y = aux.y;
 
     // Check if the user is moving the prior
     if(IsMouseButtonDown(MOUSE_LEFT_BUTTON) && euclidianDistance(priorPosition, mousePosition) <= PRIOR_RADIUS){
-        pixel2Bary(mousePosition.x, mousePosition.y, mousePosition, screenWidth, screenHeight);
+        mousePosition = pixel2Bary(mousePosition.x, mousePosition.y, screenWidth, screenHeight);
         if(bary2Dist(mousePosition, hyper.prior->prob)){
             
-            if(hyper.prior->prob[0] >= 0.98){
-                hyper.prior->prob[0] = 1;
-                hyper.prior->prob[1] = 0;
-                hyper.prior->prob[2] = 0;
-            }
-            // else if(hyper.prior->prob[1] >= 0.98) hyper.prior->prob = {0, 1, 0};
-            // else if(hyper.prior->prob[2] >= 0.98) hyper.prior->prob = {0, 0, 1};
+            // Rounds to a point distribution if one of the probabilities is >= 0.98
+            if(hyper.prior->prob[0] >= 0.98) hyper.prior->prob = {1, 0, 0};
+            else if(hyper.prior->prob[1] >= 0.98) hyper.prior->prob = {0, 1, 0};
+            else if(hyper.prior->prob[2] >= 0.98) hyper.prior->prob = {0, 0, 1};
 
             // cout << "Here: " << hyper.prior->prob[0] << "," << hyper.prior->prob[1] << "," \
             // << hyper.prior->prob[2] << ": " << Distribution::isDistribution(hyper.prior->prob) <<  endl;
             hyper.rebuildHyper(*(hyper.prior));
             // printf("chegou depois\n");
             // cout << "After: " << hyper.prior->prob[0] << endl;
-            dist2Bary(*(hyper.prior), p);
-            bary2Pixel(p.x, p.y, priorPosition, screenWidth, screenHeight);
+            p = dist2Bary(*(hyper.prior));
+            priorPosition = bary2Pixel(p.x, p.y, screenWidth, screenHeight);
         }
     }
     
@@ -81,14 +80,15 @@ void updateHyper(Hyper &hyper, Point &priorPosition, vector<Point> &posteriorsPo
         long double x1 = hyper.inners[0][i];
         long double x2 = hyper.inners[1][i];
         long double x3 = hyper.inners[2][i];
-        dist2Bary(x1, x2, x3, p);
-        bary2Pixel(p.x, p.y, posteriorsPosition[i], screenWidth, screenHeight);
+        p = dist2Bary(x1, x2, x3);
+        posteriorsPosition[i] = bary2Pixel(p.x, p.y, screenWidth, screenHeight);
     }
 }
 
 void drawQIFCircles(Hyper &hyper){
     int i;
 }
+
 
 int main(void){
     // Initialization
@@ -97,12 +97,16 @@ int main(void){
     int screenHeight = WINDOW_HEIGHT;
     float headerFontSize = 20;
 
+    // Gui style
+    // GuiSetStyle(DEFAULT, TEXT_COLOR_DISABLED, 0x000000ff);
+
     // QIF
     //----------------------------------------------------------------------------------
     Point priorPosition;
     vector<Point> posteriorsPosition;
     vector<string> distributionTexts; // Posteriors names (y1, ..., yn)
-
+    char priorDistribution[3][MAX_INPUT_BOX] = {"", "", ""};
+    bool priorDistActiveBox[3] = {false, false, false};
     Hyper hyper("prior", "channel");
     Color priorColor = {128, 191, 255, 230};
     Color priorLineColor = {51, 153, 255, 230};
@@ -118,8 +122,8 @@ int main(void){
     char posterior[MAX_POSTERIOR]; // Buffer to print y1, ..., yn inside the posterior circles
     
     // Rectangles
-    Color recColor = {51, 153, 255, 180};
-    Color recLinesColor = {0, 115, 230, 180};
+    Color recColor = {148, 148, 184, 180};
+    Color recLinesColor = {102, 102, 153, 180};
     Vector2 menuRecPosition, menuRecSize;
     Vector2 priorRecPosition, priorRecSize;
     Vector2 channelRecPosition, channelRecSize;
@@ -168,6 +172,12 @@ int main(void){
         gainRecPosition = {0.0f, 0.59f*screenHeight};
         gainRecSize = {0.4f*screenWidth, 0.41f*screenHeight};
 
+        // GUI
+        // priorDistActiveBox[0] = GuiTextBoxIsActive((Rectangle){0.05f*screenWidth,0.10f*screenHeight,65,30});
+        // priorDistActiveBox[1] = GuiTextBoxIsActive((Rectangle){0.13f*screenWidth,0.10f*screenHeight,65,30});
+        // priorDistActiveBox[2] = GuiTextBoxIsActive((Rectangle){0.21f*screenWidth,0.10f*screenHeight,65,30});
+        // printf("%d, %d, %d\n", priorDistActiveBox[0], priorDistActiveBox[1], priorDistActiveBox[2]);
+
         // Main Triangle Features
         mainTriangleV1 = {0.70f*screenWidth, 0.40f*screenHeight};
         mainTriangleV2 = {0.45f*screenWidth, 0.90f*screenHeight};
@@ -193,6 +203,11 @@ int main(void){
             DrawTextEx(mainFont, "Prior distribution", priorFontPosition, headerFontSize, 1.0, BLACK);
             DrawTextEx(mainFont, "Channel", channelFontPosition, headerFontSize, 1.0, BLACK);
             DrawTextEx(mainFont, "Gain Function", gainFontPosition, headerFontSize, 1.0, BLACK);
+
+            // GUI
+            GuiTextBox((Rectangle){0.05f*screenWidth,0.10f*screenHeight,65,30}, priorDistribution[0], MAX_INPUT_BOX, true); // X1
+            GuiTextBox((Rectangle){0.13f*screenWidth,0.10f*screenHeight,65,30}, priorDistribution[1], MAX_INPUT_BOX, true); // X2
+            GuiTextBox((Rectangle){0.21f*screenWidth,0.10f*screenHeight,65,30}, priorDistribution[2], MAX_INPUT_BOX, true); // X3
 
             // Main Triangle
             DrawTriangleLines(mainTriangleV1, mainTriangleV2, mainTriangleV3, BLACK); 
