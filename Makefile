@@ -27,7 +27,7 @@ CFLAGS= -D_DEFAULT_SOURCE \
 -lXcursor \
 qif/qif.a
 
-# -lraylib -lglfw3 -lX11 -lXxf86vm -lXrandr -ldl -lXinerama -lXcursor -lGL -lGLU -lpthread -lm -Wall
+# -lraylib -lX11 -lXxf86vm -lXrandr -ldl -lXinerama -lXcursor -lGL -lGLU -lpthread -lm -Wall
 
 all: main
 

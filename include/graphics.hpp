@@ -6,16 +6,22 @@
 #include <iostream>
 #include "../qif/qif.hpp"
 
-// Main Window dimensions
-#define WINDOW_WIDTH 1024	
+// Inital window dimensions
+#define WINDOW_WIDTH 1024   
 #define WINDOW_HEIGHT 768
 
-// Cartesian plan origin
-#define ORIGIN_X 0.45f*WINDOW_WIDTH
-#define ORIGIN_Y 0.90f*WINDOW_HEIGHT
-
-// Number of triangles that make up a circle
-#define CIRCLES_SIDES 300
+// Interface dimensions
+#define V1(width) (0.35f * width) // Percentage of the window width that divides the matrices and the graphics
+#define V2(width) (0.05f * width) // Channel and gain matrices position
+#define H1(height) (0.04f * height) // Percentage of prior rectangle 
+#define H2(height) (0.19f * height) // Percentage of channel rectangle
+#define H3(height) (0.58f * height) // Percentage of gain rectangle
+#define TV1(width) (((0.50f-V1(width)/((float)width))/2.0f + V1(width)/((float)width)) * width)
+#define TV2(width) ((((0.50f-V1(width)/((float)width))/2.0f + V1(width)/((float)width)) + 0.25f) * width)
+#define TV3(width) ((((0.50f-V1(width)/((float)width))/2.0f + V1(width)/((float)width)) + 0.50f) * width)
+#define TH1(height) (H1(height) + (0.28f * height))
+#define TH2(height) (TH1(height) + (0.08f * height))
+#define TH3(height) (TH2(height) + (0.50f * height))
 
 // Prior probability distribution radius
 #define PRIOR_RADIUS 40
