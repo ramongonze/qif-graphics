@@ -8,11 +8,19 @@
 #include "qif/qif.hpp"
 #include "include/graphics.hpp"
 
-#define MAX_OUTPUTS 20    // Max number of channel outputs
-#define MAX_ACTIONS 20    // Max number of actions a gain function can keep
-#define MAX_INPUT_BOX 100 // Max number of characters in an input box
-#define BOX_WIDTH 50      // Matrices input text width
-#define BOX_HEIGHT 30     // Matrices input text height
+#define MIN_WIDTH 960                 // Min window width
+#define MIN_HEIGHT 700                // Min window height
+#define MAX_OUTPUTS 20                // Max number of channel outputs
+#define MAX_ACTIONS 20                // Max number of actions a gain function can keep
+#define MAX_INPUT_BOX 100             // Max number of characters in an input box
+#define BOX_WIDTH 50                  // Matrices input text width
+#define BOX_HEIGHT 30                 // Matrices input text height
+#define LABEL_HOR_X_GAP(pos) pos - 30 // Matrices label horizontal gap to boxes (X1, X2, X3)
+#define LABEL_HOR_Y_GAP(pos) pos + 5  // Matrices label vertical gap to boxes (X1, X2, X3)
+#define LABEL_VER_X_GAP(pos) pos - 30 // Matrices label horizontal gap to boxes (Y1, Y2, ...)
+#define LABEL_VER_Y_GAP(pos) pos + 5  // Matrices label vertical gap to boxes (Y1, Y2, ...)
+#define BOX_HOR_GAP 30                // Horizontal gap between two boxes in a matrix
+#define BOX_VER_GAP 10                // Vertical gap between two boxes in a matrix
 
 using namespace std;
 
@@ -100,6 +108,7 @@ int main(){
     char buffer[5];
     float headerFontSize = 20;
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+
     // Gui style
     // GuiSetStyle(DEFAULT, TEXT_COLOR_DISABLED, 0x000000ff);
 
@@ -131,7 +140,7 @@ int main(){
     Rectangle channelSpinner;
 
     vector<vector<Rectangle> > channelBox = vector<vector<Rectangle> >(3, vector<Rectangle>(hyper.channel->num_out));
-
+    Rectangle channelBoxLimit;
     // Gain Function
     // int numActions = 1;
     // char gain[MAX_ACTIONS][3][MAX_INPUT_BOX];
@@ -181,6 +190,7 @@ int main(){
     //----------------------------------------------------------------------------------
 
     InitWindow(windowWidth, windowHeight, "QIF Graphics");
+    SetWindowMinSize(MIN_WIDTH, MIN_HEIGHT);
 
     // Set font
     Font mainFont = LoadFontEx("CaviarDreams.ttf", headerFontSize, 0, 0);
@@ -213,13 +223,16 @@ int main(){
 
             // Channel
             for(int j = 0; j < hyper.channel->num_out; j++){
-                channelBox[0][j] = (Rectangle){(int)(V2(windowWidth) + (j*(BOX_HEIGHT + 30))), (int)(H2(windowHeight)+ 90), BOX_WIDTH, BOX_HEIGHT};
-                channelBox[1][j] = (Rectangle){(int)(V2(windowWidth) + (j*(BOX_HEIGHT + 30))), (int)(H2(windowHeight)+ 90 + BOX_HEIGHT+10), BOX_WIDTH, BOX_HEIGHT};
-                channelBox[2][j] = (Rectangle){(int)(V2(windowWidth) + (j*(BOX_HEIGHT + 30))), (int)(H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+10)), BOX_WIDTH, BOX_HEIGHT};
+                channelBox[0][j] = (Rectangle){(int)(V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))), (int)(H2(windowHeight)+ 90), BOX_WIDTH, BOX_HEIGHT};
+                channelBox[1][j] = (Rectangle){(int)(V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))), (int)(H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
+                channelBox[2][j] = (Rectangle){(int)(V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))), (int)(H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP)), BOX_WIDTH, BOX_HEIGHT};
                 sprintf(channel[0][j], "%.3Lf", hyper.channel->matrix[0][j]);
                 sprintf(channel[1][j], "%.3Lf", hyper.channel->matrix[1][j]);
                 sprintf(channel[2][j], "%.3Lf", hyper.channel->matrix[2][j]);
             }
+
+            // channelBoxLimit = (Rectangle){};
+            // GuiScrollPanel(channelBoxLimit, panelContentRec, &panelScroll);
 
             // Inners
             for(int j = 0; j < hyper.num_post; j++){
@@ -258,13 +271,17 @@ int main(){
             }
         }
 
+        printf("%d, %d, -- TH2: %d, TH1: %d, TH3: %d |||| TV1: %d, TV2: %d, TV3: %d\n", \
+            windowWidth, windowHeight, (int)TRIANGLEH2(windowWidth, windowHeight), (int)TH1(windowHeight), (int)TRIANGLEH3(windowWidth, windowHeight),\
+            (int)TRIANGLEV1(windowWidth,windowHeight), (int)TRIANGLEV2(windowWidth,windowHeight), (int)TRIANGLEV3(windowWidth,windowHeight));
+
         // Main Triangle Features
-        mainTrianglePos[0] = {TV2(windowWidth), TH2(windowHeight)}; // X1
-        mainTrianglePos[1] = {TV1(windowWidth), TH3(windowHeight)}; // X2
-        mainTrianglePos[2] = {TV3(windowWidth), TH3(windowHeight)}; // X3
-        xTextPos[0] = {TV2(windowWidth) - 0.01f * windowWidth, TH2(windowHeight) - 0.03f * windowHeight}; // X1
-        xTextPos[1] = {TV1(windowWidth) - 0.03f * windowWidth, TH3(windowHeight) - 0.01f * windowHeight}; // X2
-        xTextPos[2] = {TV3(windowWidth) + 0.01f * windowWidth, TH3(windowHeight) - 0.01f * windowHeight}; // X3
+        mainTrianglePos[0] = {TRIANGLEV2(windowWidth, windowHeight), TRIANGLEH2(windowWidth, windowHeight)}; // X1
+        mainTrianglePos[1] = {TRIANGLEV1(windowWidth, windowHeight), TRIANGLEH3(windowWidth, windowHeight)}; // X2
+        mainTrianglePos[2] = {TRIANGLEV3(windowWidth, windowHeight), TRIANGLEH3(windowWidth, windowHeight)}; // X3
+        xTextPos[0] = {TRIANGLEV2(windowWidth, windowHeight) - 0.01f * windowWidth, TRIANGLEH2(windowWidth, windowHeight) - 0.03f * windowHeight}; // X1
+        xTextPos[1] = {TRIANGLEV1(windowWidth, windowHeight) - 0.03f * windowWidth, TRIANGLEH3(windowWidth, windowHeight) - 0.01f * windowHeight}; // X2
+        xTextPos[2] = {TRIANGLEV3(windowWidth, windowHeight) + 0.01f * windowWidth, TRIANGLEH3(windowWidth, windowHeight) - 0.01f * windowHeight}; // X3
 
         //----------------------------------------------------------------------------------
 
@@ -297,9 +314,9 @@ int main(){
 
             // Channel
             GuiSpinner(channelSpinner, &numOutputs, 0, MAX_OUTPUTS, true);
-            DrawTextEx(mainFont, "X1", (Vector2){channelBox[0][0].x - 30, (int)(channelBox[0][0].y + 5)}, headerFontSize, 1.0, BLACK);
-            DrawTextEx(mainFont, "X2", (Vector2){channelBox[1][0].x - 30, (int)(channelBox[1][0].y + 5)}, headerFontSize, 1.0, BLACK);
-            DrawTextEx(mainFont, "X3", (Vector2){channelBox[2][0].x - 30, (int)(channelBox[2][0].y + 5)}, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X1", (Vector2){LABEL_HOR_X_GAP(channelBox[0][0].x), (int)(LABEL_HOR_Y_GAP(channelBox[0][0].y))}, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X2", (Vector2){LABEL_HOR_X_GAP(channelBox[1][0].x), (int)(LABEL_HOR_Y_GAP(channelBox[1][0].y))}, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X3", (Vector2){LABEL_HOR_X_GAP(channelBox[2][0].x), (int)(LABEL_HOR_Y_GAP(channelBox[2][0].y))}, headerFontSize, 1.0, BLACK);
             for(int i = 0; i < hyper.channel->num_out; i++){
                 sprintf(buffer, "Y%d", i+1);
                 DrawTextEx(mainFont, buffer, (Vector2){channelBox[0][i].x+15, channelBox[0][i].y-0.03*windowHeight}, headerFontSize, 1.0, BLACK);

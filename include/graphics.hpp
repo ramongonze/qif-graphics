@@ -10,6 +10,8 @@
 #define WINDOW_WIDTH 1024   
 #define WINDOW_HEIGHT 768
 
+#define MIN(A,B) ((A < B) ? (A) : (B))
+
 // Interface dimensions
 #define V1(width) (0.35f * width) // Percentage of the window width that divides the matrices and the graphics
 #define V2(width) (0.05f * width) // Channel and gain matrices position
@@ -22,6 +24,14 @@
 #define TH1(height) (H1(height) + (0.28f * height))
 #define TH2(height) (TH1(height) + (0.08f * height))
 #define TH3(height) (TH2(height) + (0.50f * height))
+
+// Macros to define an equilateral triangle (its height is 50% of min(window_width, window_height))
+#define TRIANGLEV1(width, height) (V1(width) + ((width-V1(width)) - MIN(width,height)/2)/2)
+#define TRIANGLEV2(width, height) (TRIANGLEV1(width, height) + MIN(width,height)/4)
+#define TRIANGLEV3(width, height) (TRIANGLEV1(width, height) + MIN(width,height)/2)
+
+#define TRIANGLEH2(width, height) (TH1(height) + ((height-TH1(height)) - (MIN(width,height)/2))/2)
+#define TRIANGLEH3(width, height) (TRIANGLEH2(width, height) + MIN(width,height)/2)
 
 // Prior probability distribution radius
 #define PRIOR_RADIUS 40
