@@ -25,6 +25,9 @@ CFLAGS= -D_DEFAULT_SOURCE \
 -lXrandr \
 -lXinerama \
 -lXcursor \
+-Wno-enum-compare \
+-Wno-narrowing \
+-Wno-write-strings \
 qif/qif.a
 
 # -lraylib -lX11 -lXxf86vm -lXrandr -ldl -lXinerama -lXcursor -lGL -lGLU -lpthread -lm -Wall
