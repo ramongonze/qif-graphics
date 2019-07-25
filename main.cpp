@@ -117,16 +117,12 @@ void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector
         posteriorsPosition[i] = bary2Pixel(p.x, p.y, windowWidth, windowHeight);
     }
 
-    // // Prior rectangles
-    // for(int i = 0; i < 3; i++)
-    //     matricesRectangles[PRIOR][0][i] = (Rectangle){V2(windowWidth) + 30 + (i * (BOX_WIDTH+20)), H1(windowHeight) + 60, BOX_WIDTH, BOX_HEIGHT};
-
     // Inners rectangles
     matricesRectangles[INNERS] = vector<vector<Rectangle>>(hyper.prior.num_el, vector<Rectangle>(hyper.num_post));
     for(int j = 0; j < hyper.num_post; j++){
-        matricesRectangles[INNERS][0][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + 20)), H1(windowHeight)+70, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[INNERS][1][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + 20)), H1(windowHeight)+70+BOX_WIDTH, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[INNERS][2][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + 20)), H1(windowHeight)+70+2*BOX_WIDTH, BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][0][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H1(windowHeight)+ 70, BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][1][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H1(windowHeight)+ 70 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][2][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H1(windowHeight)+ 70 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
     }
 }
 
@@ -187,7 +183,7 @@ void updateStaticObjects(Rectangle (&staticRectangles)[10]){
     staticRectangles[GAIN]            = (Rectangle){0.0f, (float)H3(windowHeight), (float)V1(windowWidth), (float)(windowHeight - H3(windowHeight))};
     staticRectangles[INNERS]          = (Rectangle){V1(windowWidth), H1(windowHeight), windowWidth - V1(windowWidth), TH1(windowHeight)};
     staticRectangles[MENU_DROPDOWN]   = (Rectangle){1.0f, 1.0f, 180.0f, (float)(H1(windowHeight)-2)};
-    staticRectangles[DRAW_CHECK_BOX]  = (Rectangle){V2(windowWidth) + (0.06f*windowWidth) + BOX_WIDTH/2, 0.51f*windowHeight, 15.0f, 15.0f};
+    staticRectangles[DRAW_CHECK_BOX]  = (Rectangle){V2(windowWidth) + (BOX_HEIGHT + BOX_HOR_GAP), H2(windowHeight)+ 120 + 2*(BOX_HEIGHT+2*BOX_VER_GAP), 15.0f, 15.0f};
 }
 
 void updateMatricesText(vector<vector<string>> (&matricesTexts)[4]){
@@ -266,6 +262,11 @@ void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> 
             matricesRectangles[CHANNEL][2].pop_back();
         }
     }
+}
+
+void updatePrior(vector<vector<Rectangle>> (&matricesRectangles)[4]){
+    for(int i = 0; i < 3; i++)
+        matricesRectangles[PRIOR][0][i] = (Rectangle){V2(windowWidth) + 0.05*windowHeight + (i * (BOX_WIDTH+20)), H1(windowHeight) + 60, BOX_WIDTH, BOX_HEIGHT};
 }
 
 int main(){
@@ -431,7 +432,7 @@ int main(){
                         int radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
                         DrawCircle(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorColor);
                         DrawCircleLines(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorBorderColor);
-                        sprintf(buffer, "Y%d", i+1);
+                        sprintf(buffer, "I%d", i+1);
                         DrawTextEx(mainFont, buffer, Vector2({(float)posteriorsPosition[i].x-(radius/2.0f), \
                                    (float)posteriorsPosition[i].y - (0.4f * radius)}), headerFontSize, 1.0, BLACK);
                     }
@@ -443,13 +444,10 @@ int main(){
                 hyperReady = true;
                 if(Distribution::isDistribution(prior)){
                     // Check if each line of the channel matrix is a probability distribution
-                    for(int i = 0; i < channel.size(); i++){
-                        if(!Distribution::isDistribution(channel[i])){
-                            hyperReady = false;
-                            error = true;
-                            strcpy(errorBuffer, "The channel is invalid!");
-                            break;
-                        }
+                    if(!Channel::isChannel(channel)){
+                        hyperReady = false;
+                        error = true;
+                        strcpy(errorBuffer, "The channel is invalid!");
                     }
 
                     if(hyperReady){
@@ -465,7 +463,10 @@ int main(){
                     error = true;
                     strcpy(errorBuffer, "The prior distribution is invalid!");
                 }
+            }else{
+                hyperReady = false;
             }
+
         // Matrices -> Prior, Channel, Gain function, Inners
             // Prior
             for(int i = 0; i < 3; i++){
@@ -473,7 +474,8 @@ int main(){
                 GuiTextBox(matricesRectangles[PRIOR][0][i], (char*)matricesTexts[PRIOR][0][i].c_str(), PROB_PRECISION, true); // X1
                 DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[PRIOR][0][i].x + 15, matricesRectangles[PRIOR][0][i].y - 0.03f * windowHeight}, headerFontSize, 1.0, BLACK);
             }
-            
+            updatePrior(matricesRectangles);
+
             // Channel
             oldnumOutputs = numOutputs;
             GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
@@ -506,7 +508,7 @@ int main(){
         
         // Error message
             if(error){
-                DrawTextEx(mainFont, errorBuffer, (Vector2){V2(windowWidth), staticRectangles[DRAW_CHECK_BOX].y - 30}, headerFontSize-5, 1.0, BLACK); 
+                DrawTextEx(mainFont, errorBuffer, (Vector2){V2(windowWidth), H2(windowHeight)+ 120 + 2*(BOX_HEIGHT+4*BOX_VER_GAP)}, headerFontSize-5, 1.0, BLACK); 
             }
 
         // Menu
