@@ -1,6 +1,7 @@
 #include "raylib.h"
 #include <iostream>
 #include <sstream>
+#include <algorithm>
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_TEXTBOX_EXTENDED
@@ -88,7 +89,7 @@ void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector
     Point p, mousePoint;
     vector<long double> new_prior(3);
 
-    p = dist2Bary(*(hyper.prior));
+    p = dist2Bary(hyper.prior);
     priorPosition = bary2Pixel(p.x, p.y, windowWidth, windowHeight);   
     mousePoint.x = mousePosition.x;
     mousePoint.y = mousePosition.y;
@@ -96,15 +97,15 @@ void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector
     // Check if the user is moving the prior
     if(IsMouseButtonDown(MOUSE_LEFT_BUTTON) && euclidianDistance(priorPosition, mousePoint) <= PRIOR_RADIUS){
         mousePoint = pixel2Bary(mousePoint.x, mousePoint.y, windowWidth, windowHeight);
-        if(bary2Dist(mousePoint, hyper.prior->prob)){
+        if(bary2Dist(mousePoint, hyper.prior.prob)){
             
             // Rounds to a point distribution if one of the probabilities is >= 0.98
-            if(hyper.prior->prob[0] >= 0.98) hyper.prior->prob = {1, 0, 0};
-            else if(hyper.prior->prob[1] >= 0.98) hyper.prior->prob = {0, 1, 0};
-            else if(hyper.prior->prob[2] >= 0.98) hyper.prior->prob = {0, 0, 1};
+            if(hyper.prior.prob[0] >= 0.98) hyper.prior.prob = {1, 0, 0};
+            else if(hyper.prior.prob[1] >= 0.98) hyper.prior.prob = {0, 1, 0};
+            else if(hyper.prior.prob[2] >= 0.98) hyper.prior.prob = {0, 0, 1};
 
-            hyper.rebuildHyper(*(hyper.prior));
-            p = dist2Bary(*(hyper.prior));
+            hyper.rebuildHyper(hyper.prior);
+            p = dist2Bary(hyper.prior);
             priorPosition = bary2Pixel(p.x, p.y, windowWidth, windowHeight);
         }
     }
@@ -121,7 +122,7 @@ void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector
     //     matricesRectangles[PRIOR][0][i] = (Rectangle){V2(windowWidth) + 30 + (i * (BOX_WIDTH+20)), H1(windowHeight) + 60, BOX_WIDTH, BOX_HEIGHT};
 
     // Inners rectangles
-    matricesRectangles[INNERS] = vector<vector<Rectangle>>(hyper.prior->num_el, vector<Rectangle>(hyper.num_post));
+    matricesRectangles[INNERS] = vector<vector<Rectangle>>(hyper.prior.num_el, vector<Rectangle>(hyper.num_post));
     for(int j = 0; j < hyper.num_post; j++){
         matricesRectangles[INNERS][0][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + 20)), H1(windowHeight)+70, BOX_WIDTH, BOX_HEIGHT};
         matricesRectangles[INNERS][1][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + 20)), H1(windowHeight)+70+BOX_WIDTH, BOX_WIDTH, BOX_HEIGHT};
@@ -190,20 +191,22 @@ void updateStaticObjects(Rectangle (&staticRectangles)[10]){
 }
 
 void updateMatricesText(vector<vector<string>> (&matricesTexts)[4]){
+    /* This fuction assumes that the hyper distribution is already built */
+
     for(int i = 0; i < 3; i++){
-        matricesTexts[PRIOR][0][i] = to_string(hyper.prior->prob[i]);
+        matricesTexts[PRIOR][0][i] = to_string(hyper.prior.prob[i]);
     }
 
     // Channel
-    matricesTexts[CHANNEL] = vector<vector<string>>(hyper.prior->num_el, vector<string>(hyper.channel->num_out));
-    for(int j = 0; j < hyper.channel->num_out; j++){
-        matricesTexts[CHANNEL][0][j] = to_string(hyper.channel->matrix[0][j]);
-        matricesTexts[CHANNEL][1][j] = to_string(hyper.channel->matrix[1][j]);
-        matricesTexts[CHANNEL][2][j] = to_string(hyper.channel->matrix[2][j]);
+    matricesTexts[CHANNEL] = vector<vector<string>>(hyper.prior.num_el, vector<string>(hyper.channel.num_out));
+    for(int j = 0; j < hyper.channel.num_out; j++){
+        matricesTexts[CHANNEL][0][j] = to_string(hyper.channel.matrix[0][j]);
+        matricesTexts[CHANNEL][1][j] = to_string(hyper.channel.matrix[1][j]);
+        matricesTexts[CHANNEL][2][j] = to_string(hyper.channel.matrix[2][j]);
     }
 
     // Inners
-    matricesTexts[INNERS] = vector<vector<string>>(hyper.prior->num_el, vector<string>(hyper.num_post));
+    matricesTexts[INNERS] = vector<vector<string>>(hyper.prior.num_el, vector<string>(hyper.num_post));
     for(int j = 0; j < hyper.num_post; j++){
         matricesTexts[INNERS][0][j] = to_string(hyper.inners[0][j]);
         matricesTexts[INNERS][1][j] = to_string(hyper.inners[1][j]);
@@ -269,9 +272,12 @@ int main(){
     // Initialization
     //--------------------------------------------------------------------------------------
     char buffer[MAX_BUFFER];
+    char errorBuffer[MAX_BUFFER];
     float headerFontSize = 20;
     bool drawCircles = false; // Flag that indicates if the circles must be drawn or not. Its value is set by a check box
     bool hyperReady = false;  // Flaf that indicates if a hyper distribution has been built
+    bool error = false;       // Flag that indicates if an error has been occurred
+
 
     // Colors
     Color priorColor           = {128, 191, 255, 230};  // Prior circle color
@@ -335,6 +341,63 @@ int main(){
         BeginDrawing();
             ClearBackground({245, 245, 245, 255});
 
+        // Convert
+            if(!hyperReady){
+                // Check if the user is typing numbers
+                try{
+                    // Prior
+                    for(int i = 0; i < 3; i++){
+                        size_t pos = matricesTexts[PRIOR][0][i].find('/');
+                        if(pos != string::npos){
+                            // The user is typing a fraction
+                            string numerator = matricesTexts[PRIOR][0][i].substr(0, pos);
+                            string denominator = matricesTexts[PRIOR][0][i].substr(pos+1, matricesTexts[PRIOR][0][i].size()-pos-1);
+                            
+                            // Remove blank spaces
+                            numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
+                            denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
+                            prior[i] = ((long double)stod(numerator))/stod(denominator);
+                        }else{
+                            prior[i] = stold(matricesTexts[PRIOR][0][i]);
+                        }
+                    }
+
+                    // Channel
+                    for(int i = 0; i < 3; i++){
+                        for(int j = 0; j < numOutputs; j++){
+                            size_t pos = matricesTexts[CHANNEL][i][j].find('/');
+                            if(pos != string::npos){
+                                // The user is typing a fraction
+                                string numerator = matricesTexts[CHANNEL][i][j].substr(0, pos);
+                                string denominator = matricesTexts[CHANNEL][i][j].substr(pos+1, matricesTexts[CHANNEL][i][j].size()-pos-1);
+                                
+                                // Remove blank spaces
+                                numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
+                                denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
+                                channel[i][j] = ((long double)stod(numerator))/stod(denominator);
+                            }else{
+                                channel[i][j] = stold(matricesTexts[CHANNEL][i][j]);
+                            }
+                        }
+
+                        // If the flow arrives here, there were no error in conversion
+                        error = false;
+                    }          
+                }catch(...){
+                    error = true;
+                    strcpy(errorBuffer, "Some value in prior or channel is invalid!");
+                }
+            }else{
+                // Update variables prior and channel with hyper values
+                for(int i = 0; i < 3; i++){
+                    prior[i] = hyper.prior.prob[i];
+                    if(channel[0].size() != numOutputs) channel = vector<vector<long double>>(3, vector<long double>(numOutputs));
+                    for(int j = 0; j < numOutputs; j++){
+                        channel[i][j] = hyper.channel.matrix[i][j];
+                    }
+                }
+            }
+
         // Static Objects
             // Rectangles
                 DrawRectangleRec(staticRectangles[MENU],    recColor); DrawRectangleLinesEx(staticRectangles[MENU],    1, recBorderColor);
@@ -378,25 +441,19 @@ int main(){
             if(drawCircles){
                 // Check if the prior distribution and the channel are both valid
                 hyperReady = true;
-                // vector<long double> prior({stold(matricesTexts[PRIOR][0][0]), stold(matricesTexts[PRIOR][0][1]), stold(matricesTexts[PRIOR][0][2])});
                 if(Distribution::isDistribution(prior)){
-                    // vector<vector<long double>> channel = vector<vector<long double>>(3, vector<long double>(numOutputs));
-                    // for(int j = 0; j < numOutputs; j++){
-                    //     channel[0][j] = stold(matricesTexts[CHANNEL][0][j]);
-                    //     channel[1][j] = stold(matricesTexts[CHANNEL][1][j]);
-                    //     channel[2][j] = stold(matricesTexts[CHANNEL][2][j]);
-                    // }
-
+                    // Check if each line of the channel matrix is a probability distribution
                     for(int i = 0; i < channel.size(); i++){
                         if(!Distribution::isDistribution(channel[i])){
                             hyperReady = false;
-                            strcpy(buffer, "The channel is invalid!");
-                            DrawTextEx(mainFont, buffer, (Vector2){V2(windowWidth), staticRectangles[DRAW_CHECK_BOX].y - 30}, headerFontSize-5, 1.0, BLACK);        
+                            error = true;
+                            strcpy(errorBuffer, "The channel is invalid!");
                             break;
                         }
                     }
 
                     if(hyperReady){
+                        error = false;
                         Distribution new_prior(prior);
                         Channel new_channel(new_prior, channel);
                         hyper = Hyper(new_channel);
@@ -405,16 +462,10 @@ int main(){
                     }
                 }else{
                     hyperReady = false;
-                    strcpy(buffer, "The prior distribution is invalid!");
-                    DrawTextEx(mainFont, buffer, (Vector2){V2(windowWidth), staticRectangles[DRAW_CHECK_BOX].y - 30}, headerFontSize-5, 1.0, BLACK);
+                    error = true;
+                    strcpy(errorBuffer, "The prior distribution is invalid!");
                 }
             }
-
-        // Convert
-        if(!hyperReady){
-            
-        }
-
         // Matrices -> Prior, Channel, Gain function, Inners
             // Prior
             for(int i = 0; i < 3; i++){
@@ -452,7 +503,12 @@ int main(){
                     GuiTextBox(matricesRectangles[INNERS][2][i], (char*)matricesTexts[INNERS][2][i].c_str(), PROB_PRECISION, true);
                 }
             }
-            
+        
+        // Error message
+            if(error){
+                DrawTextEx(mainFont, errorBuffer, (Vector2){V2(windowWidth), staticRectangles[DRAW_CHECK_BOX].y - 30}, headerFontSize-5, 1.0, BLACK); 
+            }
+
         // Menu
             updateMenu(staticRectangles, menuActiveOption, menuDropEditMode, dragMenuWindow, \
                 exitSelectMenuWindow, offset);
