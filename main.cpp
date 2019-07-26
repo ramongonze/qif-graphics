@@ -279,8 +279,8 @@ int main(){
     bool hyperReady = false;  // Flaf that indicates if a hyper distribution has been built
     bool error = false;       // Flag that indicates if an error has been occurred
 
-
     // Colors
+    //--------------------------------------------------------------------------------------
     Color priorColor           = {128, 191, 255, 230};  // Prior circle color
     Color priorBorderColor     = { 51, 153, 255, 230};  // Prior circle border color
     Color posteriorColor       = {255, 222,  78, 230};  // Posterior circle color
@@ -302,6 +302,8 @@ int main(){
 
     // Channel
     int numOutputs = 3, oldnumOutputs;
+    Vector2 channelPanelScroll = {0.0f, 0.0f};
+    Rectangle channelPanelRec, channelPanelContentRec;
     
     // Menu
     int menuActiveOption = 0;
@@ -310,11 +312,12 @@ int main(){
     //----------------------------------------------------------------------------------
 
     // Window
+    //--------------------------------------------------------------------------------------
     SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
     InitWindow(windowWidth, windowHeight, "QIF Graphics");
     SetWindowMinSize(MIN_WIDTH, MIN_HEIGHT);
 
-    // Set font
+    // Text font
     Font mainFont = LoadFontEx("School Times.ttf", headerFontSize, 0, 0);
     GenTextureMipmaps(&mainFont.texture);
     SetTextureFilter(mainFont.texture, FILTER_POINT);
@@ -476,10 +479,19 @@ int main(){
             }
             updatePrior(matricesRectangles);
 
+            channelPanelContentRec = (Rectangle){V2(windowWidth), H2(windowHeight)+ 90, V2(windowWidth) + ((numOutputs-1)*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP)};
+            channelPanelRec = (Rectangle){V2(windowWidth), H2(windowHeight)+ 90, 4*(BOX_WIDTH + BOX_HOR_GAP), 4*(BOX_HEIGHT + BOX_VER_GAP)};
+            Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
+
             // Channel
             oldnumOutputs = numOutputs;
             GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
-            updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts);
+
+            BeginScissorMode(view.x, view.y, view.width, view.height);
+                updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts);
+                // GuiGrid((Rectangle){panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height}, 16, 3);
+            EndScissorMode();
+
 
             DrawTextEx(mainFont, "X1", (Vector2){LABEL_HOR_X_GAP(matricesRectangles[CHANNEL][0][0].x), LABEL_HOR_Y_GAP(matricesRectangles[CHANNEL][0][0].y)}, headerFontSize, 1.0, BLACK);
             DrawTextEx(mainFont, "X2", (Vector2){LABEL_HOR_X_GAP(matricesRectangles[CHANNEL][1][0].x), LABEL_HOR_Y_GAP(matricesRectangles[CHANNEL][1][0].y)}, headerFontSize, 1.0, BLACK);
