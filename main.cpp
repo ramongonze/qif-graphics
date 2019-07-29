@@ -22,20 +22,20 @@
 #define MENU_WINDOW_HEADER 8
 #define CHANNEL_SPINNER    9
 
-#define PROB_PRECISION 30             // Precision of float numbers (2 char from integer part and '.')
-#define MIN_WIDTH 960                 // Min window width
-#define MIN_HEIGHT 700                // Min window height
-#define MAX_OUTPUTS 20                // Max number of channel outputs
-#define MAX_ACTIONS 20                // Max number of actions a gain function can keep
-#define MAX_BUFFER 100                // Max number of characters in an input box
-#define BOX_WIDTH 50                  // Matrices input text width
-#define BOX_HEIGHT 30                 // Matrices input text height
-#define LABEL_HOR_X_GAP(pos) pos - 30 // Matrices label horizontal gap to boxes (X1, X2, X3)
-#define LABEL_HOR_Y_GAP(pos) pos + 5  // Matrices label vertical gap to boxes (X1, X2, X3)
-#define LABEL_VER_X_GAP(pos) pos - 30 // Matrices label horizontal gap to boxes (Y1, Y2, ...)
-#define LABEL_VER_Y_GAP(pos) pos + 5  // Matrices label vertical gap to boxes (Y1, Y2, ...)
-#define BOX_HOR_GAP 30                // Horizontal gap between two boxes in a matrix
-#define BOX_VER_GAP 10                // Vertical gap between two boxes in a matrix
+#define PROB_PRECISION 30    // Precision of float numbers (2 char from integer part and '.')
+#define MIN_WIDTH 960        // Min window width
+#define MIN_HEIGHT 700       // Min window height
+#define MAX_OUTPUTS 20       // Max number of channel outputs
+#define MAX_ACTIONS 20       // Max number of actions a gain function can keep
+#define MAX_BUFFER 100       // Max number of characters in an input box
+#define BOX_WIDTH 50         // Matrices input text width
+#define BOX_HEIGHT 30        // Matrices input text height
+#define LABEL_X_HOR_GAP -30  // Matrices label horizontal gap to boxes (X1, X2, X3)
+#define LABEL_X_VER_GAP +5   // Matrices label horizontal gap to boxes (Y1, Y2, ...)
+#define LABEL_Y_HOR_GAP +15  // Matrices label vertical gap to boxes (X1, X2, X3)
+#define LABEL_Y_VER_GAP -25  // Matrices label vertical gap to boxes (Y1, Y2, ...)
+#define BOX_HOR_GAP 30       // Horizontal gap between two boxes in a matrix
+#define BOX_VER_GAP 10       // Vertical gap between two boxes in a matrix
 
 using namespace std;
 
@@ -235,11 +235,11 @@ void initTexts(vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector
     }
 }
 
-void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector<string>> (&matricesTexts)[4]){
+void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector<string>> (&matricesTexts)[4], Vector2 channelPanelScroll){
     for(int j = 0; j < oldNumOutputs; j++){
-        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))+channelPanelScroll.x, channelPanelScroll.y+H2(windowHeight)+ 90, BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))+channelPanelScroll.x, channelPanelScroll.y+H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))+channelPanelScroll.x, channelPanelScroll.y+H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
     }
 
     // Check if the number of outputs was changed
@@ -248,9 +248,9 @@ void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> 
             matricesTexts[CHANNEL][0].push_back("0.000");
             matricesTexts[CHANNEL][1].push_back("0.000");
             matricesTexts[CHANNEL][2].push_back("0.000");
-            matricesRectangles[CHANNEL][0].push_back((Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90, BOX_WIDTH, BOX_HEIGHT});
-            matricesRectangles[CHANNEL][1].push_back((Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT});
-            matricesRectangles[CHANNEL][2].push_back((Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT});
+            matricesRectangles[CHANNEL][0].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90, BOX_WIDTH, BOX_HEIGHT});
+            matricesRectangles[CHANNEL][1].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT});
+            matricesRectangles[CHANNEL][2].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT});
         }
     }else{
         for(int j = oldNumOutputs-1; j >= numOutputs; j--){
@@ -304,7 +304,8 @@ int main(){
     int numOutputs = 3, oldnumOutputs;
     Vector2 channelPanelScroll = {0.0f, 0.0f};
     Rectangle channelPanelRec, channelPanelContentRec;
-    
+    channelPanelRec = (Rectangle){V2(windowWidth) + LABEL_X_HOR_GAP - 10, H2(windowHeight) + 55, 4*(BOX_WIDTH + BOX_HOR_GAP), 4*(BOX_HEIGHT + BOX_VER_GAP)};
+
     // Menu
     int menuActiveOption = 0;
     bool exitSelectMenuWindow = true, menuDropEditMode = false, dragMenuWindow = false;
@@ -475,43 +476,42 @@ int main(){
             for(int i = 0; i < 3; i++){
                 sprintf(buffer, "X%d", i+1);
                 GuiTextBox(matricesRectangles[PRIOR][0][i], (char*)matricesTexts[PRIOR][0][i].c_str(), PROB_PRECISION, true); // X1
-                DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[PRIOR][0][i].x + 15, matricesRectangles[PRIOR][0][i].y - 0.03f * windowHeight}, headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[PRIOR][0][i].x + LABEL_Y_HOR_GAP, matricesRectangles[PRIOR][0][i].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
             }
             updatePrior(matricesRectangles);
 
-            channelPanelContentRec = (Rectangle){V2(windowWidth), H2(windowHeight)+ 90, V2(windowWidth) + ((numOutputs-1)*(BOX_HEIGHT + BOX_HOR_GAP)), H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP)};
-            channelPanelRec = (Rectangle){V2(windowWidth), H2(windowHeight)+ 90, 4*(BOX_WIDTH + BOX_HOR_GAP), 4*(BOX_HEIGHT + BOX_VER_GAP)};
-            Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
-
+            channelPanelContentRec = (Rectangle){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_Y_HOR_GAP, V2(windowWidth) + LABEL_X_HOR_GAP + headerFontSize + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), 4*(BOX_HEIGHT + BOX_VER_GAP)-15};
+            // Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
+            
+            
             // Channel
             oldnumOutputs = numOutputs;
             GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
+            updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts, channelPanelScroll);
 
-            BeginScissorMode(view.x, view.y, view.width, view.height);
-                updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts);
-                // GuiGrid((Rectangle){panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height}, 16, 3);
-            EndScissorMode();
+            // BeginScissorMode(view.x, view.y, view.width, view.height);
 
-
-            DrawTextEx(mainFont, "X1", (Vector2){LABEL_HOR_X_GAP(matricesRectangles[CHANNEL][0][0].x), LABEL_HOR_Y_GAP(matricesRectangles[CHANNEL][0][0].y)}, headerFontSize, 1.0, BLACK);
-            DrawTextEx(mainFont, "X2", (Vector2){LABEL_HOR_X_GAP(matricesRectangles[CHANNEL][1][0].x), LABEL_HOR_Y_GAP(matricesRectangles[CHANNEL][1][0].y)}, headerFontSize, 1.0, BLACK);
-            DrawTextEx(mainFont, "X3", (Vector2){LABEL_HOR_X_GAP(matricesRectangles[CHANNEL][2][0].x), LABEL_HOR_Y_GAP(matricesRectangles[CHANNEL][2][0].y)}, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[CHANNEL][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][1][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+            DrawTextEx(mainFont, "X3", (Vector2){matricesRectangles[CHANNEL][2][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][2][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
             for(int j = 0; j < numOutputs; j++){
                 sprintf(buffer, "Y%d", j+1);
-                DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[CHANNEL][0][j].x+15, matricesRectangles[CHANNEL][0][j].y-0.03f*windowHeight}, headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[CHANNEL][0][j].x + LABEL_Y_HOR_GAP, matricesRectangles[CHANNEL][0][j].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
                 GuiTextBox(matricesRectangles[CHANNEL][0][j], (char*)matricesTexts[CHANNEL][0][j].c_str(), PROB_PRECISION, true);
                 GuiTextBox(matricesRectangles[CHANNEL][1][j], (char*)matricesTexts[CHANNEL][1][j].c_str(), PROB_PRECISION, true);
                 GuiTextBox(matricesRectangles[CHANNEL][2][j], (char*)matricesTexts[CHANNEL][2][j].c_str(), PROB_PRECISION, true);
             }
             
+            // EndScissorMode();
+
             // Inners
             if(drawCircles && hyperReady){
-                DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[INNERS][0][0].x - 30, matricesRectangles[INNERS][0][0].y + 5}, headerFontSize, 1.0, BLACK);
-                DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[INNERS][1][0].x - 30, matricesRectangles[INNERS][1][0].y + 5}, headerFontSize, 1.0, BLACK);
-                DrawTextEx(mainFont, "X3", (Vector2){matricesRectangles[INNERS][2][0].x - 30, matricesRectangles[INNERS][2][0].y + 5}, headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[INNERS][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[INNERS][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[INNERS][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[INNERS][1][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "X3", (Vector2){matricesRectangles[INNERS][2][0].x + LABEL_X_HOR_GAP, matricesRectangles[INNERS][2][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
                 for(int i = 0; i < hyper.num_post; i++){
                     sprintf(buffer, "I%d", i+1);
-                    DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[INNERS][0][i].x+15, matricesRectangles[INNERS][0][i].y-0.03f*windowHeight}, headerFontSize, 1.0, BLACK);
+                    DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[INNERS][0][i].x + LABEL_Y_HOR_GAP, matricesRectangles[INNERS][0][i].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
                     GuiTextBox(matricesRectangles[INNERS][0][i], (char*)matricesTexts[INNERS][0][i].c_str(), PROB_PRECISION, true);
                     GuiTextBox(matricesRectangles[INNERS][1][i], (char*)matricesTexts[INNERS][1][i].c_str(), PROB_PRECISION, true);
                     GuiTextBox(matricesRectangles[INNERS][2][i], (char*)matricesTexts[INNERS][2][i].c_str(), PROB_PRECISION, true);
