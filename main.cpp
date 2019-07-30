@@ -34,8 +34,8 @@
 #define LABEL_X_VER_GAP +5   // Matrices label horizontal gap to boxes (Y1, Y2, ...)
 #define LABEL_Y_HOR_GAP +15  // Matrices label vertical gap to boxes (X1, X2, X3)
 #define LABEL_Y_VER_GAP -25  // Matrices label vertical gap to boxes (Y1, Y2, ...)
-#define BOX_HOR_GAP 30       // Horizontal gap between two boxes in a matrix
-#define BOX_VER_GAP 10       // Vertical gap between two boxes in a matrix
+#define BOX_HOR_GAP 15       // Horizontal gap between two boxes in a matrix
+#define BOX_VER_GAP 15       // Vertical gap between two boxes in a matrix
 
 using namespace std;
 
@@ -237,9 +237,9 @@ void initTexts(vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector
 
 void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector<string>> (&matricesTexts)[4], Vector2 channelPanelScroll){
     for(int j = 0; j < oldNumOutputs; j++){
-        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))+channelPanelScroll.x, channelPanelScroll.y+H2(windowHeight)+ 90, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))+channelPanelScroll.x, channelPanelScroll.y+H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP))+channelPanelScroll.x, channelPanelScroll.y+H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(windowHeight)+ 90 + channelPanelScroll.y                             , BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(windowHeight)+ 90 + (BOX_HEIGHT+BOX_VER_GAP) + channelPanelScroll.y  , BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP) + channelPanelScroll.y, BOX_WIDTH, BOX_HEIGHT};
     }
 
     // Check if the number of outputs was changed
@@ -248,9 +248,9 @@ void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> 
             matricesTexts[CHANNEL][0].push_back("0.000");
             matricesTexts[CHANNEL][1].push_back("0.000");
             matricesTexts[CHANNEL][2].push_back("0.000");
-            matricesRectangles[CHANNEL][0].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90, BOX_WIDTH, BOX_HEIGHT});
-            matricesRectangles[CHANNEL][1].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT});
-            matricesRectangles[CHANNEL][2].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT});
+            matricesRectangles[CHANNEL][0].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90                             , BOX_WIDTH, BOX_HEIGHT});
+            matricesRectangles[CHANNEL][1].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP    , BOX_WIDTH, BOX_HEIGHT});
+            matricesRectangles[CHANNEL][2].push_back((Rectangle){channelPanelScroll.x+V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), channelPanelScroll.y+H2(windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT});
         }
     }else{
         for(int j = oldNumOutputs-1; j >= numOutputs; j--){
@@ -480,16 +480,20 @@ int main(){
             }
             updatePrior(matricesRectangles);
 
-            channelPanelContentRec = (Rectangle){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_Y_HOR_GAP, V2(windowWidth) + LABEL_X_HOR_GAP + headerFontSize + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), 4*(BOX_HEIGHT + BOX_VER_GAP)-15};
-            // Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
-            
+            channelPanelContentRec = (Rectangle){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, \
+                                                 matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP, \
+                                                 V2(windowWidth) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
+                                                 4*(BOX_HEIGHT + BOX_VER_GAP)-15};
+
+            cout << channelPanelRec.width << ", " << channelPanelContentRec.width << endl;
+            Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
             
             // Channel
             oldnumOutputs = numOutputs;
             GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
             updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts, channelPanelScroll);
 
-            // BeginScissorMode(view.x, view.y, view.width, view.height);
+            BeginScissorMode(view.x, view.y, view.width, view.height);
 
             DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
             DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[CHANNEL][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][1][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
@@ -502,7 +506,7 @@ int main(){
                 GuiTextBox(matricesRectangles[CHANNEL][2][j], (char*)matricesTexts[CHANNEL][2][j].c_str(), PROB_PRECISION, true);
             }
             
-            // EndScissorMode();
+            EndScissorMode();
 
             // Inners
             if(drawCircles && hyperReady){
