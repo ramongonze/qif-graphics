@@ -183,7 +183,7 @@ void updateStaticObjects(Rectangle (&staticRectangles)[10]){
     staticRectangles[GAIN]            = (Rectangle){0.0f, (float)H3(windowHeight), (float)V1(windowWidth), (float)(windowHeight - H3(windowHeight))};
     staticRectangles[INNERS]          = (Rectangle){V1(windowWidth), H1(windowHeight), windowWidth - V1(windowWidth), TH1(windowHeight)};
     staticRectangles[MENU_DROPDOWN]   = (Rectangle){1.0f, 1.0f, 180.0f, (float)(H1(windowHeight)-2)};
-    staticRectangles[DRAW_CHECK_BOX]  = (Rectangle){V2(windowWidth) + (BOX_HEIGHT + BOX_HOR_GAP), H2(windowHeight)+ 120 + 2*(BOX_HEIGHT+2*BOX_VER_GAP), 15.0f, 15.0f};
+    staticRectangles[DRAW_CHECK_BOX]  = (Rectangle){V1(windowWidth)/2.0f - 30, H2(windowHeight)+ 120 + 2*(BOX_HEIGHT+2*BOX_VER_GAP), 15.0f, 15.0f};
 }
 
 void updateMatricesText(vector<vector<string>> (&matricesTexts)[4]){
@@ -304,7 +304,6 @@ int main(){
     int numOutputs = 3, oldnumOutputs;
     Vector2 channelPanelScroll = {0.0f, 0.0f};
     Rectangle channelPanelRec, channelPanelContentRec;
-    channelPanelRec = (Rectangle){V2(windowWidth) + LABEL_X_HOR_GAP - 10, H2(windowHeight) + 55, 4*(BOX_WIDTH + BOX_HOR_GAP), 4*(BOX_HEIGHT + BOX_VER_GAP)};
 
     // Menu
     int menuActiveOption = 0;
@@ -480,12 +479,12 @@ int main(){
             }
             updatePrior(matricesRectangles);
 
+            channelPanelRec = (Rectangle){0.01f*windowWidth, H2(windowHeight) + 55, V1(windowWidth)-0.02f*windowWidth, 4*(BOX_HEIGHT + BOX_VER_GAP)};
             channelPanelContentRec = (Rectangle){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, \
                                                  matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP, \
                                                  V2(windowWidth) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
                                                  4*(BOX_HEIGHT + BOX_VER_GAP)-15};
 
-            cout << channelPanelRec.width << ", " << channelPanelContentRec.width << endl;
             Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
             
             // Channel
@@ -524,7 +523,7 @@ int main(){
         
         // Error message
             if(error){
-                DrawTextEx(mainFont, errorBuffer, (Vector2){V2(windowWidth), H2(windowHeight)+ 120 + 2*(BOX_HEIGHT+4*BOX_VER_GAP)}, headerFontSize-5, 1.0, BLACK); 
+                DrawTextEx(mainFont, errorBuffer, (Vector2){V2(windowWidth), staticRectangles[DRAW_CHECK_BOX].y + 30}, headerFontSize-5, 1.0, BLACK); 
             }
 
         // Menu
