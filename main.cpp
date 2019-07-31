@@ -120,9 +120,9 @@ void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector
     // Inners rectangles
     matricesRectangles[INNERS] = vector<vector<Rectangle>>(hyper.prior.num_el, vector<Rectangle>(hyper.num_post));
     for(int j = 0; j < hyper.num_post; j++){
-        matricesRectangles[INNERS][0][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H1(windowHeight)+ 70, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[INNERS][1][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H1(windowHeight)+ 70 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[INNERS][2][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H1(windowHeight)+ 70 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][0][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70                             , BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][1][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70 + BOX_HEIGHT+BOX_VER_GAP    , BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][2][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
     }
 }
 
@@ -161,11 +161,11 @@ void updateMenu(Rectangle (&staticRectangles)[10], int &menuActiveOption, bool &
 
 void updateStaticObjects(Rectangle (&staticRectangles)[10]){    
     // Headers text positions
-    headerPos[0] = {10, H1(windowHeight) + 10};                   // Prior
-    headerPos[1] = {10, H2(windowHeight) + 10};                   // Channel
-    headerPos[2] = {V1(windowWidth) - 180, H2(windowHeight) + 10};    // Channel outputs
-    headerPos[3] = {10, H3(windowHeight) + 10};                   // Gain Function
-    headerPos[4] = {V1(windowWidth) + 10, H1(windowHeight) + 10}; // Inner distributions
+    headerPos[0] = {10, H1(windowHeight) + 10};                    // Prior
+    headerPos[1] = {10, H2(windowHeight) + 10};                    // Channel
+    headerPos[2] = {V1(windowWidth) - 180, H2(windowHeight) + 10}; // Channel outputs
+    headerPos[3] = {10, H3(windowHeight) + 10};                    // Gain Function
+    headerPos[4] = {V1(windowWidth) + 10, H1(windowHeight) + 10};  // Inner distributions
 
     // Main Triangle Features
     mainTrianglePos[0] = {TRIANGLEV2(windowWidth, windowHeight), TRIANGLEH2(windowWidth, windowHeight)}; // X1
@@ -176,11 +176,11 @@ void updateStaticObjects(Rectangle (&staticRectangles)[10]){
     triangleTextPos[2] = {TRIANGLEV3(windowWidth, windowHeight) + 0.01f * windowWidth, TRIANGLEH3(windowWidth, windowHeight) - 0.01f * windowHeight}; // X3
 
     // Interface rectangles
-    staticRectangles[MENU]            = (Rectangle){0.0f, 0.0f, (float)windowWidth, (float)H1(windowHeight)};
-    staticRectangles[PRIOR]           = (Rectangle){0.0f, (float)H1(windowHeight), (float)V1(windowWidth), (float)(H2(windowHeight) - H1(windowHeight))};
-    staticRectangles[CHANNEL]         = (Rectangle){0.0f, (float)H2(windowHeight), (float)V1(windowWidth), (float)(H3(windowHeight) - H2(windowHeight))};
+    staticRectangles[MENU]            = (Rectangle){0.0f, 0.0f, (float)windowWidth, (float)H1(windowHeight)+1};
+    staticRectangles[PRIOR]           = (Rectangle){0.0f, (float)H1(windowHeight), (float)V1(windowWidth)+1, (float)(H2(windowHeight) - H1(windowHeight))+1};
+    staticRectangles[CHANNEL]         = (Rectangle){0.0f, (float)H2(windowHeight), (float)V1(windowWidth)+1, (float)(H3(windowHeight) - H2(windowHeight))+1};
     staticRectangles[CHANNEL_SPINNER] = (Rectangle){V1(windowWidth) - 90, H2(windowHeight) + 10, 80.0f, 20.0f};
-    staticRectangles[GAIN]            = (Rectangle){0.0f, (float)H3(windowHeight), (float)V1(windowWidth), (float)(windowHeight - H3(windowHeight))};
+    staticRectangles[GAIN]            = (Rectangle){0.0f, (float)H3(windowHeight), (float)V1(windowWidth)+1, (float)(windowHeight - H3(windowHeight))+1};
     staticRectangles[INNERS]          = (Rectangle){V1(windowWidth), H1(windowHeight), windowWidth - V1(windowWidth), TH1(windowHeight)};
     staticRectangles[MENU_DROPDOWN]   = (Rectangle){1.0f, 1.0f, 180.0f, (float)(H1(windowHeight)-2)};
     staticRectangles[DRAW_CHECK_BOX]  = (Rectangle){V1(windowWidth)/2.0f - 30, H2(windowHeight)+ 120 + 2*(BOX_HEIGHT+2*BOX_VER_GAP), 15.0f, 15.0f};
@@ -286,7 +286,7 @@ int main(){
     Color posteriorColor       = {255, 222,  78, 230};  // Posterior circle color
     Color posteriorBorderColor = {230, 187,   0, 230};  // Posterior circle border color 
     Color recColor             = {217, 230, 242, 255};  // Rectangles color
-    Color recBorderColor       = { 13,  26,  38, 255};  // Rectangle border color
+    Color recBorderColor       = {  0,   0,   0, 255};  // Rectangle border color
 
     // Variables
     //----------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ int main(){
 
     // Window
     //--------------------------------------------------------------------------------------
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
+    // SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Problems with scroll panel
     InitWindow(windowWidth, windowHeight, "QIF Graphics");
     SetWindowMinSize(MIN_WIDTH, MIN_HEIGHT);
 
@@ -328,8 +328,6 @@ int main(){
     initTexts(matricesRectangles, matricesTexts);
     int comboBoxActive = 1;
 
-
-    
     // Main game loop
     while (!WindowShouldClose()){    // Detect window close button or ESC key
         // General update
@@ -337,7 +335,7 @@ int main(){
         mousePosition = GetMousePosition();
         windowWidth   = GetScreenWidth();
         windowHeight  = GetScreenHeight();
-        
+
         // Static Rectangles
         updateStaticObjects(staticRectangles);
         //----------------------------------------------------------------------------------
@@ -347,134 +345,130 @@ int main(){
         BeginDrawing();
             ClearBackground({245, 245, 245, 255});
 
-        // cout << "Channel: " << matricesRectangles[CHANNEL][2][0].x << ", " << matricesRectangles[CHANNEL][2][0].y << endl;
-        // cout << "Rec:     " << channelPanelRec.x << ", " << channelPanelRec.y << endl;
-        // cout << "Ratio:   " << matricesRectangles[CHANNEL][2][0].x/channelPanelRec.x << ", " << matricesRectangles[CHANNEL][2][0].y/channelPanelRec.y << endl;
-
-        // // Convert
-        //     if(!hyperReady){
-        //         // Check if the user is typing numbers
-        //         try{
-        //             // Prior
-        //             for(int i = 0; i < 3; i++){
-        //                 size_t pos = matricesTexts[PRIOR][0][i].find('/');
-        //                 if(pos != string::npos){
-        //                     // The user is typing a fraction
-        //                     string numerator = matricesTexts[PRIOR][0][i].substr(0, pos);
-        //                     string denominator = matricesTexts[PRIOR][0][i].substr(pos+1, matricesTexts[PRIOR][0][i].size()-pos-1);
+        // Convert
+            if(!hyperReady){
+                // Check if the user is typing numbers
+                try{
+                    // Prior
+                    for(int i = 0; i < 3; i++){
+                        size_t pos = matricesTexts[PRIOR][0][i].find('/');
+                        if(pos != string::npos){
+                            // The user is typing a fraction
+                            string numerator = matricesTexts[PRIOR][0][i].substr(0, pos);
+                            string denominator = matricesTexts[PRIOR][0][i].substr(pos+1, matricesTexts[PRIOR][0][i].size()-pos-1);
                             
-        //                     // Remove blank spaces
-        //                     numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
-        //                     denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
-        //                     prior[i] = ((long double)stod(numerator))/stod(denominator);
-        //                 }else{
-        //                     prior[i] = stold(matricesTexts[PRIOR][0][i]);
-        //                 }
-        //             }
+                            // Remove blank spaces
+                            numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
+                            denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
+                            prior[i] = ((long double)stod(numerator))/stod(denominator);
+                        }else{
+                            prior[i] = stold(matricesTexts[PRIOR][0][i]);
+                        }
+                    }
 
-        //             // Channel
-        //             for(int i = 0; i < 3; i++){
-        //                 for(int j = 0; j < numOutputs; j++){
-        //                     size_t pos = matricesTexts[CHANNEL][i][j].find('/');
-        //                     if(pos != string::npos){
-        //                         // The user is typing a fraction
-        //                         string numerator = matricesTexts[CHANNEL][i][j].substr(0, pos);
-        //                         string denominator = matricesTexts[CHANNEL][i][j].substr(pos+1, matricesTexts[CHANNEL][i][j].size()-pos-1);
+                    // Channel
+                    for(int i = 0; i < 3; i++){
+                        for(int j = 0; j < numOutputs; j++){
+                            size_t pos = matricesTexts[CHANNEL][i][j].find('/');
+                            if(pos != string::npos){
+                                // The user is typing a fraction
+                                string numerator = matricesTexts[CHANNEL][i][j].substr(0, pos);
+                                string denominator = matricesTexts[CHANNEL][i][j].substr(pos+1, matricesTexts[CHANNEL][i][j].size()-pos-1);
                                 
-        //                         // Remove blank spaces
-        //                         numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
-        //                         denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
-        //                         channel[i][j] = ((long double)stod(numerator))/stod(denominator);
-        //                     }else{
-        //                         channel[i][j] = stold(matricesTexts[CHANNEL][i][j]);
-        //                     }
-        //                 }
+                                // Remove blank spaces
+                                numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
+                                denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
+                                channel[i][j] = ((long double)stod(numerator))/stod(denominator);
+                            }else{
+                                channel[i][j] = stold(matricesTexts[CHANNEL][i][j]);
+                            }
+                        }
 
-        //                 // If the flow arrives here, there were no error in conversion
-        //                 error = false;
-        //             }          
-        //         }catch(...){
-        //             error = true;
-        //             strcpy(errorBuffer, "Some value in prior or channel is invalid!");
-        //         }
-        //     }else{
-        //         // Update variables prior and channel with hyper values
-        //         for(int i = 0; i < 3; i++){
-        //             prior[i] = hyper.prior.prob[i];
-        //             if(channel[0].size() != numOutputs) channel = vector<vector<long double>>(3, vector<long double>(numOutputs));
-        //             for(int j = 0; j < numOutputs; j++){
-        //                 channel[i][j] = hyper.channel.matrix[i][j];
-        //             }
-        //         }
-        //     }
+                        // If the flow arrives here, there were no error in conversion
+                        error = false;
+                    }          
+                }catch(...){
+                    error = true;
+                    strcpy(errorBuffer, "Some value in prior or channel is invalid!");
+                }
+            }else{
+                // Update variables prior and channel with hyper values
+                for(int i = 0; i < 3; i++){
+                    prior[i] = hyper.prior.prob[i];
+                    if(channel[0].size() != numOutputs) channel = vector<vector<long double>>(3, vector<long double>(numOutputs));
+                    for(int j = 0; j < numOutputs; j++){
+                        channel[i][j] = hyper.channel.matrix[i][j];
+                    }
+                }
+            }
 
-        // // Static Objects
-        //     // Rectangles
-        //         DrawRectangleRec(staticRectangles[MENU],    recColor); DrawRectangleLinesEx(staticRectangles[MENU],    1, recBorderColor);
-        //         DrawRectangleRec(staticRectangles[PRIOR],   recColor); DrawRectangleLinesEx(staticRectangles[PRIOR],   1, recBorderColor);
-        //         DrawRectangleRec(staticRectangles[CHANNEL], recColor); DrawRectangleLinesEx(staticRectangles[CHANNEL], 1, recBorderColor);
-        //         DrawRectangleRec(staticRectangles[GAIN],    recColor); DrawRectangleLinesEx(staticRectangles[GAIN],    1, recBorderColor);
-        //         DrawRectangleRec(staticRectangles[INNERS],  recColor); DrawRectangleLinesEx(staticRectangles[INNERS],  1, recBorderColor);
+        // Static Objects
+            // Rectangles
+                DrawRectangleRec(staticRectangles[MENU],    recColor); DrawRectangleLinesEx(staticRectangles[MENU],    1, recBorderColor);
+                DrawRectangleRec(staticRectangles[PRIOR],   recColor); DrawRectangleLinesEx(staticRectangles[PRIOR],   1, recBorderColor);
+                DrawRectangleRec(staticRectangles[CHANNEL], recColor); DrawRectangleLinesEx(staticRectangles[CHANNEL], 1, recBorderColor);
+                DrawRectangleRec(staticRectangles[GAIN],    recColor); DrawRectangleLinesEx(staticRectangles[GAIN],    1, recBorderColor);
+                DrawRectangleRec(staticRectangles[INNERS],  recColor); DrawRectangleLinesEx(staticRectangles[INNERS],  1, recBorderColor);
 
-        //     // Text
-        //         DrawTextEx(mainFont, "Prior distribution" , headerPos[0], headerFontSize, 1.0, BLACK);
-        //         DrawTextEx(mainFont, "Channel"            , headerPos[1], headerFontSize, 1.0, BLACK);
-        //         DrawTextEx(mainFont, "Outputs: "          , headerPos[2], headerFontSize, 1.0, BLACK);
-        //         DrawTextEx(mainFont, "Gain Function"      , headerPos[3], headerFontSize, 1.0, BLACK);
-        //         DrawTextEx(mainFont, "Inner distributions", headerPos[4], headerFontSize, 1.0, BLACK);
+            // Text
+                DrawTextEx(mainFont, "Prior distribution" , headerPos[0], headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "Channel"            , headerPos[1], headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "Outputs: "          , headerPos[2], headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "Gain Function"      , headerPos[3], headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "Inner distributions", headerPos[4], headerFontSize, 1.0, BLACK);
 
-        //     // Main Triangle
-        //         DrawTriangleLines(mainTrianglePos[0], mainTrianglePos[1], mainTrianglePos[2], BLACK); 
-        //         DrawTextEx(mainFont, "X1", triangleTextPos[0], headerFontSize, 1.0, BLACK);
-        //         DrawTextEx(mainFont, "X2", triangleTextPos[1], headerFontSize, 1.0, BLACK);
-        //         DrawTextEx(mainFont, "X3", triangleTextPos[2], headerFontSize, 1.0, BLACK);
+            // Main Triangle
+                DrawTriangleLines(mainTrianglePos[0], mainTrianglePos[1], mainTrianglePos[2], BLACK); 
+                DrawTextEx(mainFont, "X1", triangleTextPos[0], headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "X2", triangleTextPos[1], headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "X3", triangleTextPos[2], headerFontSize, 1.0, BLACK);
             
-        //         if(drawCircles && hyperReady){
-        //             // Prior distribution
-        //             DrawCircle(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorColor);
-        //             DrawCircleLines(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorBorderColor);
-        //             DrawTextEx(mainFont, "prior", Vector2({(float)priorPosition.x-(PRIOR_RADIUS/2.0f), \
-        //                            (float)priorPosition.y - (0.2f * PRIOR_RADIUS)}), headerFontSize, 1.0, BLACK);
+                if(drawCircles && hyperReady){
+                    // Prior distribution
+                    DrawCircle(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorColor);
+                    DrawCircleLines(priorPosition.x, priorPosition.y, PRIOR_RADIUS, priorBorderColor);
+                    DrawTextEx(mainFont, "prior", Vector2({(float)priorPosition.x-(PRIOR_RADIUS/1.5f), \
+                                   (float)priorPosition.y - (0.2f * PRIOR_RADIUS)}), headerFontSize, 1.0, BLACK);
 
-        //             // Posterior distributions
-        //             for(int i = 0; i < hyper.num_post; i++){
-        //                 int radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
-        //                 DrawCircle(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorColor);
-        //                 DrawCircleLines(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorBorderColor);
-        //                 sprintf(buffer, "I%d", i+1);
-        //                 DrawTextEx(mainFont, buffer, Vector2({(float)posteriorsPosition[i].x-(radius/2.0f), \
-        //                            (float)posteriorsPosition[i].y - (0.4f * radius)}), headerFontSize, 1.0, BLACK);
-        //             }
-        //     }
+                    // Posterior distributions
+                    for(int i = 0; i < hyper.num_post; i++){
+                        int radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
+                        DrawCircle(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorColor);
+                        DrawCircleLines(posteriorsPosition[i].x, posteriorsPosition[i].y, radius, posteriorBorderColor);
+                        sprintf(buffer, "I%d", i+1);
+                        DrawTextEx(mainFont, buffer, Vector2({(float)posteriorsPosition[i].x-7, \
+                                   (float)posteriorsPosition[i].y - 10}), headerFontSize, 1.0, BLACK);
+                    }
+            }
 
-        // // Check hyper
-        //     if(drawCircles){
-        //         // Check if the prior distribution and the channel are both valid
-        //         hyperReady = true;
-        //         if(Distribution::isDistribution(prior)){
-        //             // Check if each line of the channel matrix is a probability distribution
-        //             if(!Channel::isChannel(channel)){
-        //                 hyperReady = false;
-        //                 error = true;
-        //                 strcpy(errorBuffer, "The channel is invalid!");
-        //             }
+        // Check hyper
+            if(drawCircles){
+                // Check if the prior distribution and the channel are both valid
+                hyperReady = true;
+                if(Distribution::isDistribution(prior)){
+                    // Check if each line of the channel matrix is a probability distribution
+                    if(!Channel::isChannel(channel)){
+                        hyperReady = false;
+                        error = true;
+                        strcpy(errorBuffer, "The channel is invalid!");
+                    }
 
-        //             if(hyperReady){
-        //                 error = false;
-        //                 Distribution new_prior(prior);
-        //                 Channel new_channel(new_prior, channel);
-        //                 hyper = Hyper(new_channel);
-        //                 updateHyper(priorPosition, posteriorsPosition, matricesRectangles);
-        //                 updateMatricesText(matricesTexts);
-        //             }
-        //         }else{
-        //             hyperReady = false;
-        //             error = true;
-        //             strcpy(errorBuffer, "The prior distribution is invalid!");
-        //         }
-        //     }else{
-        //         hyperReady = false;
-        //     }
+                    if(hyperReady){
+                        error = false;
+                        Distribution new_prior(prior);
+                        Channel new_channel(new_prior, channel);
+                        hyper = Hyper(new_channel);
+                        updateHyper(priorPosition, posteriorsPosition, matricesRectangles);
+                        updateMatricesText(matricesTexts);
+                    }
+                }else{
+                    hyperReady = false;
+                    error = true;
+                    strcpy(errorBuffer, "The prior distribution is invalid!");
+                }
+            }else{
+                hyperReady = false;
+            }
 
         // Matrices -> Prior, Channel, Gain function, Inners
             // Prior
@@ -484,62 +478,35 @@ int main(){
                 DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[PRIOR][0][i].x + LABEL_Y_HOR_GAP, matricesRectangles[PRIOR][0][i].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
             }
             updatePrior(matricesRectangles);
-    
-            Rectangle panelRec =      { 20, 40, 200, 150 };
-            Rectangle panelContentRec = {0 , 0 , 340, 340 };
-            Vector2 panelScroll = {99, -20};
 
+            // Channel    
+            oldnumOutputs = numOutputs;
+            GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
+            
+            channelPanelRec = (Rectangle){0.01f*windowWidth, \
+                                          H2(windowHeight) + 55, \
+                                          V1(windowWidth)-0.02f*windowWidth, \
+                                          5*(BOX_HEIGHT + BOX_VER_GAP)};
 
-            Rectangle view = GuiScrollPanel(panelRec, panelContentRec, &panelScroll);
-            // DrawRectangleRec(panelContentRec, GREEN);
-            BeginScissorMode(300, 300, 100 ,100);
-                DrawRectangleRec((Rectangle){340, 340, 100, 100}, BLUE);
-                cout << mousePosition.x << ", " << mousePosition.y << endl;
-                Rectangle H = {panelRec.x + panelScroll.x, panelRec.y + panelScroll.y, panelContentRec.width, panelContentRec.height};
-                GuiGrid(H, 16, 3);
+            channelPanelContentRec = (Rectangle){channelPanelRec.x, \
+                                                 channelPanelRec.y, \
+                                                 V2(windowWidth) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
+                                                 channelPanelRec.height-15};
+
+            Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
+            updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts, channelPanelScroll);
+            BeginScissorMode(view.x, view.y, view.width, view.height);        
+                DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[CHANNEL][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][1][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+                DrawTextEx(mainFont, "X3", (Vector2){matricesRectangles[CHANNEL][2][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][2][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+                for(int j = 0; j < numOutputs; j++){
+                    sprintf(buffer, "Y%d", j+1);
+                    DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[CHANNEL][0][j].x + LABEL_Y_HOR_GAP, matricesRectangles[CHANNEL][0][j].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
+                    GuiTextBox(matricesRectangles[CHANNEL][0][j], (char*)matricesTexts[CHANNEL][0][j].c_str(), PROB_PRECISION, true);
+                    GuiTextBox(matricesRectangles[CHANNEL][1][j], (char*)matricesTexts[CHANNEL][1][j].c_str(), PROB_PRECISION, true);
+                    GuiTextBox(matricesRectangles[CHANNEL][2][j], (char*)matricesTexts[CHANNEL][2][j].c_str(), PROB_PRECISION, true);
+                }
             EndScissorMode();
-            
-            
-            // cout << channelPanelRec.x << ", " << channelPanelRec.y << ", " << channelPanelRec.width << ", " << channelPanelRec.height << endl;
-            
-            // DrawRectangleRec((Rectangle){channelPanelRec.x, channelPanelRec.y, 50, 50}, BLACK);
-            // Channel
-            // oldnumOutputs = numOutputs;
-            // GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
-            
-            // channelPanelRec = (Rectangle){0.01f*windowWidth, \
-            //                               H2(windowHeight) + 55, \
-            //                               V1(windowWidth)-0.02f*windowWidth, \
-            //                               5*(BOX_HEIGHT + BOX_VER_GAP)};
-
-            // channelPanelContentRec = (Rectangle){channelPanelRec.x, \
-            //                                      channelPanelRec.y, \
-            //                                      V2(windowWidth) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
-            //                                      channelPanelRec.height};
-
-            
-            // Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
-            // // updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts, channelPanelScroll);
-            // cout << "HEIGHT : " << windowHeight << "\n";
-            // cout << "PANEL:   " << channelPanelRec.x << ", " << channelPanelRec.y << ", " << channelPanelRec.width << ", " << channelPanelRec.height << "\n";
-            // cout << "CONTENT: " << channelPanelContentRec.x << ", " << channelPanelContentRec.y << ", " << channelPanelContentRec.width << ", " << channelPanelContentRec.height << "\n";
-            // cout << "VIEW:    " << view.x << ", " << view.y << ", " << view.width << ", " << view.height << "\n";
-            // cout << "MOUSE: " << mousePosition.x << ", " << mousePosition.y << "\n----\n";
-            // // DrawRectangleRec(channelPanelContentRec, GREEN);
-            // BeginScissorMode(view.x, view.y, view.width, view.height);
-            //     DrawRectangleRec((Rectangle){channelPanelRec.x, channelPanelRec.y, channelPanelContentRec.width, channelPanelContentRec.height}, BLUE);
-            // EndScissorMode();
-            
-            // DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
-            // DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[CHANNEL][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][1][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
-            // DrawTextEx(mainFont, "X3", (Vector2){matricesRectangles[CHANNEL][2][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][2][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
-            // for(int j = 0; j < numOutputs; j++){
-            //     sprintf(buffer, "Y%d", j+1);
-            //     DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[CHANNEL][0][j].x + LABEL_Y_HOR_GAP, matricesRectangles[CHANNEL][0][j].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
-            //     GuiTextBox(matricesRectangles[CHANNEL][0][j], (char*)matricesTexts[CHANNEL][0][j].c_str(), PROB_PRECISION, true);
-            //     GuiTextBox(matricesRectangles[CHANNEL][1][j], (char*)matricesTexts[CHANNEL][1][j].c_str(), PROB_PRECISION, true);
-            //     GuiTextBox(matricesRectangles[CHANNEL][2][j], (char*)matricesTexts[CHANNEL][2][j].c_str(), PROB_PRECISION, true);
-            // }
             
 
             // Inners
@@ -558,7 +525,7 @@ int main(){
         
         // Error message
             if(error){
-                DrawTextEx(mainFont, errorBuffer, (Vector2){V2(windowWidth), staticRectangles[DRAW_CHECK_BOX].y + 30}, headerFontSize-5, 1.0, BLACK); 
+                DrawTextEx(mainFont, errorBuffer, (Vector2){(V1(windowWidth) - strlen(errorBuffer)*7)/2.0f, channelPanelRec.y + channelPanelRec.height + 15}, headerFontSize-5, 1.0, BLACK); 
             }
 
         // Menu
