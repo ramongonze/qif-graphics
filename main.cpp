@@ -34,8 +34,8 @@
 #define LABEL_X_VER_GAP +5   // Matrices label horizontal gap to boxes (Y1, Y2, ...)
 #define LABEL_Y_HOR_GAP +15  // Matrices label vertical gap to boxes (X1, X2, X3)
 #define LABEL_Y_VER_GAP -25  // Matrices label vertical gap to boxes (Y1, Y2, ...)
-#define BOX_HOR_GAP 15       // Horizontal gap between two boxes in a matrix
-#define BOX_VER_GAP 15       // Vertical gap between two boxes in a matrix
+#define BOX_HOR_GAP 10       // Horizontal gap between two boxes in a matrix
+#define BOX_VER_GAP 10       // Vertical gap between two boxes in a matrix
 
 using namespace std;
 
@@ -163,7 +163,7 @@ void updateStaticObjects(Rectangle (&staticRectangles)[10]){
     // Headers text positions
     headerPos[0] = {10, H1(windowHeight) + 10};                   // Prior
     headerPos[1] = {10, H2(windowHeight) + 10};                   // Channel
-    headerPos[2] = {V1(windowWidth)/2, H2(windowHeight) + 10};    // Channel outputs
+    headerPos[2] = {V1(windowWidth) - 180, H2(windowHeight) + 10};    // Channel outputs
     headerPos[3] = {10, H3(windowHeight) + 10};                   // Gain Function
     headerPos[4] = {V1(windowWidth) + 10, H1(windowHeight) + 10}; // Inner distributions
 
@@ -179,7 +179,7 @@ void updateStaticObjects(Rectangle (&staticRectangles)[10]){
     staticRectangles[MENU]            = (Rectangle){0.0f, 0.0f, (float)windowWidth, (float)H1(windowHeight)};
     staticRectangles[PRIOR]           = (Rectangle){0.0f, (float)H1(windowHeight), (float)V1(windowWidth), (float)(H2(windowHeight) - H1(windowHeight))};
     staticRectangles[CHANNEL]         = (Rectangle){0.0f, (float)H2(windowHeight), (float)V1(windowWidth), (float)(H3(windowHeight) - H2(windowHeight))};
-    staticRectangles[CHANNEL_SPINNER] = (Rectangle){V1(windowWidth)/2.0f + 90, H2(windowHeight) + 10, 80.0f, 20.0f};
+    staticRectangles[CHANNEL_SPINNER] = (Rectangle){V1(windowWidth) - 90, H2(windowHeight) + 10, 80.0f, 20.0f};
     staticRectangles[GAIN]            = (Rectangle){0.0f, (float)H3(windowHeight), (float)V1(windowWidth), (float)(windowHeight - H3(windowHeight))};
     staticRectangles[INNERS]          = (Rectangle){V1(windowWidth), H1(windowHeight), windowWidth - V1(windowWidth), TH1(windowHeight)};
     staticRectangles[MENU_DROPDOWN]   = (Rectangle){1.0f, 1.0f, 180.0f, (float)(H1(windowHeight)-2)};
@@ -479,21 +479,26 @@ int main(){
             }
             updatePrior(matricesRectangles);
 
-            channelPanelRec = (Rectangle){0.01f*windowWidth, H2(windowHeight) + 55, V1(windowWidth)-0.02f*windowWidth, 4*(BOX_HEIGHT + BOX_VER_GAP)};
-            channelPanelContentRec = (Rectangle){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, \
-                                                 matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP, \
+            channelPanelRec = (Rectangle){0.01f*windowWidth, H2(windowHeight) + 55, V1(windowWidth)-0.02f*windowWidth, 5*(BOX_HEIGHT + BOX_VER_GAP)};
+            channelPanelContentRec = (Rectangle){channelPanelRec.x, \
+                                                 channelPanelRec.y, \
                                                  V2(windowWidth) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
-                                                 4*(BOX_HEIGHT + BOX_VER_GAP)-15};
-
+                                                 channelPanelRec.height-15};
+            // cout << channelPanelRec.x << ", " << channelPanelRec.y << ", " << channelPanelRec.width << ", " << channelPanelRec.height << endl;
+            // cout << channelPanelContentRec.x << ", " << channelPanelContentRec.y << ", " << channelPanelContentRec.width << ", " << channelPanelContentRec.height;
             Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
-            
+            // cout << "\nVIEW: " << view.x << ", " << view.y << ", " << view.width << ", " << view.height << "\n----\n";
+            // DrawRectangleRec((Rectangle){channelPanelRec.x, channelPanelRec.y, 50, 50}, BLACK);
             // Channel
             oldnumOutputs = numOutputs;
             GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
             updateChannel(oldnumOutputs, numOutputs, matricesRectangles, matricesTexts, channelPanelScroll);
-
+            
+            DrawRectangleRec(channelPanelContentRec, GREEN);
+            
             BeginScissorMode(view.x, view.y, view.width, view.height);
-
+            DrawRectangleRec(channelPanelContentRec, BLUE);
+            
             DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
             DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[CHANNEL][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][1][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
             DrawTextEx(mainFont, "X3", (Vector2){matricesRectangles[CHANNEL][2][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][2][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
