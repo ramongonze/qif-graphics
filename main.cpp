@@ -11,6 +11,7 @@
 #include "include/graphics.hpp"
 
 // Rectangle array indices
+#define NUM_STATIC_OBJECTS 11
 #define PRIOR              0
 #define CHANNEL            1
 #define GAIN               2
@@ -21,6 +22,7 @@
 #define MENU_WINDOW        7
 #define MENU_WINDOW_HEADER 8
 #define CHANNEL_SPINNER    9
+#define OUTER              10
 
 #define PROB_PRECISION 30    // Precision of float numbers (2 char from integer part and '.')
 #define MIN_WIDTH 960        // Min window width
@@ -82,7 +84,7 @@ vector<vector<long double>> channel;
 vector<long double> prior;
 //--------------------------------------------------------------------------------------
 
-void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector<vector<Rectangle>> (&matricesRectangles)[4]){
+void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector<vector<Rectangle>> (&matricesRectangles)[NUM_STATIC_OBJECTS]){
     /* Update the hyper distribution if the user moves the prior distribution
      * This function assumes that the hyper distribution is already built
      */
@@ -111,22 +113,25 @@ void updateHyper(Point &priorPosition, vector<Point> &posteriorsPosition, vector
     }
     
     // Calculates the pixel coordinate for posterior distributions
-    posteriorsPosition.resize(hyper.num_post);
+    posteriorsPosition = vector<Point>(hyper.num_post);
     for(int i = 0; i < hyper.num_post; i++){
         p = dist2Bary(hyper.inners[0][i], hyper.inners[1][i], hyper.inners[2][i]);
         posteriorsPosition[i] = bary2Pixel(p.x, p.y, windowWidth, windowHeight);
     }
+    
 
-    // Inners rectangles
+    // Outer and inners rectangles
+    matricesRectangles[OUTER] = vector<vector<Rectangle>>(1, vector<Rectangle>(hyper.num_post));
     matricesRectangles[INNERS] = vector<vector<Rectangle>>(hyper.prior.num_el, vector<Rectangle>(hyper.num_post));
     for(int j = 0; j < hyper.num_post; j++){
-        matricesRectangles[INNERS][0][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70                             , BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[INNERS][1][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70 + BOX_HEIGHT+BOX_VER_GAP    , BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[INNERS][2][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[OUTER][0][j]  = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70                             , BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][0][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70 + BOX_HEIGHT+BOX_VER_GAP    , BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][1][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[INNERS][2][j] = (Rectangle){TV1(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H1(windowHeight)+ 70 + 3*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
     }
 }
 
-void updateMenu(Rectangle (&staticRectangles)[10], int &menuActiveOption, bool &menuDropEditMode, \
+void updateMenu(Rectangle (&staticRectangles)[NUM_STATIC_OBJECTS], int &menuActiveOption, bool &menuDropEditMode, \
     bool &dragMenuWindow, bool &exitSelectMenuWindow, Vector2 &offset){
     
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
@@ -159,7 +164,7 @@ void updateMenu(Rectangle (&staticRectangles)[10], int &menuActiveOption, bool &
     }
 }
 
-void updateStaticObjects(Rectangle (&staticRectangles)[10]){    
+void updateStaticObjects(Rectangle (&staticRectangles)[NUM_STATIC_OBJECTS]){    
     // Headers text positions
     headerPos[0] = {10, H1(windowHeight) + 10};                    // Prior
     headerPos[1] = {10, H2(windowHeight) + 10};                    // Channel
@@ -186,7 +191,7 @@ void updateStaticObjects(Rectangle (&staticRectangles)[10]){
     staticRectangles[DRAW_CHECK_BOX]  = (Rectangle){V1(windowWidth)/2.0f - 30, H2(windowHeight)+ 120 + 2*(BOX_HEIGHT+2*BOX_VER_GAP), 15.0f, 15.0f};
 }
 
-void updateMatricesText(vector<vector<string>> (&matricesTexts)[4]){
+void updateMatricesText(vector<vector<string>> (&matricesTexts)[NUM_STATIC_OBJECTS]){
     /* This fuction assumes that the hyper distribution is already built */
 
     for(int i = 0; i < 3; i++){
@@ -201,16 +206,18 @@ void updateMatricesText(vector<vector<string>> (&matricesTexts)[4]){
         matricesTexts[CHANNEL][2][j] = to_string(hyper.channel.matrix[2][j]);
     }
 
-    // Inners
+    // Outer and inners
     matricesTexts[INNERS] = vector<vector<string>>(hyper.prior.num_el, vector<string>(hyper.num_post));
+    matricesTexts[OUTER] = vector<vector<string>>(1, vector<string>(hyper.num_post));
     for(int j = 0; j < hyper.num_post; j++){
+        matricesTexts[OUTER][0][j]  = to_string(hyper.outer.prob[j]);
         matricesTexts[INNERS][0][j] = to_string(hyper.inners[0][j]);
         matricesTexts[INNERS][1][j] = to_string(hyper.inners[1][j]);
         matricesTexts[INNERS][2][j] = to_string(hyper.inners[2][j]);
     }
 }
 
-void initTexts(vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector<string>> (&matricesTexts)[4]){
+void initTexts(vector<vector<Rectangle>> (&matricesRectangles)[NUM_STATIC_OBJECTS], vector<vector<string>> (&matricesTexts)[NUM_STATIC_OBJECTS]){
     prior   = vector<long double>({0.0f, 0.0f, 0.0f});
     channel = vector<vector<long double>>({{0.0f, 0.0f, 0.0f}, \
                                            {0.0f, 0.0f, 0.0f}, \
@@ -235,7 +242,7 @@ void initTexts(vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector
     }
 }
 
-void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> (&matricesRectangles)[4], vector<vector<string>> (&matricesTexts)[4], Vector2 channelPanelScroll){
+void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> (&matricesRectangles)[NUM_STATIC_OBJECTS], vector<vector<string>> (&matricesTexts)[NUM_STATIC_OBJECTS], Vector2 channelPanelScroll){
     for(int j = 0; j < oldNumOutputs; j++){
         matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(windowHeight)+ 90                             , BOX_WIDTH, BOX_HEIGHT};
         matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(windowHeight)+ 90 + (BOX_HEIGHT+BOX_VER_GAP)  , BOX_WIDTH, BOX_HEIGHT};
@@ -264,7 +271,7 @@ void updateChannel(int oldNumOutputs, int numOutputs, vector<vector<Rectangle>> 
     }
 }
 
-void updatePrior(vector<vector<Rectangle>> (&matricesRectangles)[4]){
+void updatePrior(vector<vector<Rectangle>> (&matricesRectangles)[NUM_STATIC_OBJECTS]){
     for(int i = 0; i < 3; i++)
         matricesRectangles[PRIOR][0][i] = (Rectangle){V2(windowWidth) + 0.05*windowHeight + (i * (BOX_WIDTH+20)), H1(windowHeight) + 60, BOX_WIDTH, BOX_HEIGHT};
 }
@@ -290,9 +297,9 @@ int main(){
 
     // Variables
     //----------------------------------------------------------------------------------
-    Rectangle staticRectangles[10];
-    vector<vector<Rectangle>> matricesRectangles[4];
-    vector<vector<string>> matricesTexts[4];
+    Rectangle staticRectangles[NUM_STATIC_OBJECTS];
+    vector<vector<Rectangle>> matricesRectangles[NUM_STATIC_OBJECTS];
+    vector<vector<string>> matricesTexts[NUM_STATIC_OBJECTS];
 
     // Hyper
     vector<Point> posteriorsPosition;
@@ -482,7 +489,11 @@ int main(){
             // Channel    
             oldnumOutputs = numOutputs;
             GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
-            
+            if(oldnumOutputs != numOutputs){
+                drawCircles = false;
+                hyperReady = false;
+            }
+
             channelPanelRec = (Rectangle){0.01f*windowWidth, \
                                           H2(windowHeight) + 55, \
                                           V1(windowWidth)-0.02f*windowWidth, \
@@ -508,18 +519,22 @@ int main(){
                 }
             EndScissorMode();
             
-
             // Inners
             if(drawCircles && hyperReady){
+                DrawTextEx(mainFont, "OUTER", (Vector2){matricesRectangles[OUTER][0][0].x + LABEL_X_HOR_GAP - 33, matricesRectangles[OUTER][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
+                Vector2 startPos = {TV1(windowWidth) - LABEL_X_HOR_GAP - 35, H1(windowHeight) + 70 + BOX_HEIGHT + BOX_VER_GAP/2.0f};
+                DrawLineV(startPos, (Vector2){startPos.x + (hyper.num_post*(BOX_WIDTH + BOX_HOR_GAP)), startPos.y}, BLACK);
+
                 DrawTextEx(mainFont, "X1", (Vector2){matricesRectangles[INNERS][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[INNERS][0][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
                 DrawTextEx(mainFont, "X2", (Vector2){matricesRectangles[INNERS][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[INNERS][1][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
                 DrawTextEx(mainFont, "X3", (Vector2){matricesRectangles[INNERS][2][0].x + LABEL_X_HOR_GAP, matricesRectangles[INNERS][2][0].y + LABEL_X_VER_GAP}, headerFontSize, 1.0, BLACK);
                 for(int i = 0; i < hyper.num_post; i++){
                     sprintf(buffer, "I%d", i+1);
-                    DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[INNERS][0][i].x + LABEL_Y_HOR_GAP, matricesRectangles[INNERS][0][i].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
-                    GuiTextBox(matricesRectangles[INNERS][0][i], (char*)matricesTexts[INNERS][0][i].c_str(), PROB_PRECISION, true);
-                    GuiTextBox(matricesRectangles[INNERS][1][i], (char*)matricesTexts[INNERS][1][i].c_str(), PROB_PRECISION, true);
-                    GuiTextBox(matricesRectangles[INNERS][2][i], (char*)matricesTexts[INNERS][2][i].c_str(), PROB_PRECISION, true);
+                    DrawTextEx(mainFont, buffer, (Vector2){matricesRectangles[INNERS][0][i].x + LABEL_Y_HOR_GAP, matricesRectangles[OUTER][0][i].y + LABEL_Y_VER_GAP}, headerFontSize, 1.0, BLACK);
+                    GuiTextBox(matricesRectangles[OUTER][0][i], (char*)matricesTexts[OUTER][0][i].c_str(), PROB_PRECISION, false);
+                    GuiTextBox(matricesRectangles[INNERS][0][i], (char*)matricesTexts[INNERS][0][i].c_str(), PROB_PRECISION, false);
+                    GuiTextBox(matricesRectangles[INNERS][1][i], (char*)matricesTexts[INNERS][1][i].c_str(), PROB_PRECISION, false);
+                    GuiTextBox(matricesRectangles[INNERS][2][i], (char*)matricesTexts[INNERS][2][i].c_str(), PROB_PRECISION, false);
                 }
             }
         
