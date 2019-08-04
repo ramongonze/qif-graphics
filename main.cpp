@@ -141,6 +141,8 @@ void updateMenu(Rectangle (&staticRectangles)[NUM_STATIC_OBJECTS], int &menuActi
     }
 
     if(!exitSelectMenuWindow){
+            // cout << "Mouse left button: " << IsMouseButtonPressed(MOUSE_LEFT_BUTTON) << endl;
+            // cout << "Collision: " << CheckCollisionPointRec(mousePosition, staticRectangles[MENU_WINDOW_HEADER]) << endl;
         if(!dragMenuWindow && IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(mousePosition, staticRectangles[MENU_WINDOW_HEADER])){
             dragMenuWindow = true;
             offset.x = mousePosition.x - staticRectangles[MENU_WINDOW].x;
@@ -152,7 +154,7 @@ void updateMenu(Rectangle (&staticRectangles)[NUM_STATIC_OBJECTS], int &menuActi
             staticRectangles[MENU_WINDOW].y = mousePosition.y - offset.y;
             staticRectangles[MENU_WINDOW_HEADER].x = staticRectangles[MENU_WINDOW].x;
             staticRectangles[MENU_WINDOW_HEADER].y = staticRectangles[MENU_WINDOW].y;
-            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) dragMenuWindow = false;
+            if(IsMouseButtonUp(MOUSE_LEFT_BUTTON)) dragMenuWindow = false;
         }
 
         exitSelectMenuWindow = GuiWindowBox(staticRectangles[MENU_WINDOW], "Select a file");
@@ -161,6 +163,8 @@ void updateMenu(Rectangle (&staticRectangles)[NUM_STATIC_OBJECTS], int &menuActi
         staticRectangles[MENU_WINDOW] = {windowWidth/2.0f - 200, windowHeight/2.0f - 100, 400.0f, 200.0f}; // Reset window position
         staticRectangles[MENU_WINDOW_HEADER].x = staticRectangles[MENU_WINDOW].x;
         staticRectangles[MENU_WINDOW_HEADER].y = staticRectangles[MENU_WINDOW].y;
+        staticRectangles[MENU_WINDOW_HEADER].width = staticRectangles[MENU_WINDOW].width;
+        staticRectangles[MENU_WINDOW_HEADER].height = 30;
     }
 }
 
@@ -283,7 +287,7 @@ int main(){
     char errorBuffer[MAX_BUFFER];
     float headerFontSize = 20;
     bool drawCircles = false; // Flag that indicates if the circles must be drawn or not. Its value is set by a check box
-    bool hyperReady = false;  // Flaf that indicates if a hyper distribution has been built
+    bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
     bool error = false;       // Flag that indicates if an error has been occurred
 
     // Colors
@@ -335,8 +339,15 @@ int main(){
     initTexts(matricesRectangles, matricesTexts);
     int comboBoxActive = 1;
 
+
+    char **test;
+    int count;
     // Main game loop
     while (!WindowShouldClose()){    // Detect window close button or ESC key
+        test = GetDirectoryFiles(GetWorkingDirectory(), &count);
+        for(int i = 0; i < count; i++)
+            cout << test[i] << endl;
+        cout << "\n---\n";
         // General update
         //----------------------------------------------------------------------------------
         mousePosition = GetMousePosition();
@@ -546,7 +557,8 @@ int main(){
         // Menu
             updateMenu(staticRectangles, menuActiveOption, menuDropEditMode, dragMenuWindow, \
                 exitSelectMenuWindow, offset);
-            drawCircles = GuiCheckBox(staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
+        
+        drawCircles = GuiCheckBox(staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
 
         EndDrawing();
         //----------------------------------------------------------------------------------
