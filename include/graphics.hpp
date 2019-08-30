@@ -1,27 +1,21 @@
-#ifndef _graphics
-#define _graphics
+#ifndef _qif_graphics
+#define _qif_graphics
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <iostream>
+#include <vector>
 #include "../qif/qif.hpp"
 
-// Inital window dimensions
-#define WINDOW_WIDTH 1024   
-#define WINDOW_HEIGHT 768
+using namespace std;
 
-#define MIN(A,B) ((A < B) ? (A) : (B))
-
-// Interface dimensions
-#define V1(width) (0.35f * width) // Percentage of the window width that divides the matrices and the graphics
-#define V2(width) (0.05f * width) // Channel and gain matrices position
+// Interface dimensions ***************************************************************************/
+#define V1(width)  (0.35f *  width) // % window width that divides the matrices and the graphics
+#define V2(width)  (0.05f *  width) // Channel and gain matrices position
 #define H1(height) (0.04f * height) // Percentage of prior rectangle 
 #define H2(height) (0.19f * height) // Percentage of channel rectangle
 #define H3(height) (0.58f * height) // Percentage of gain rectangle
-#define TV1(width) (((0.50f-V1(width)/((float)width))/2.0f + V1(width)/((float)width)) * width)
-#define TV2(width) ((((0.50f-V1(width)/((float)width))/2.0f + V1(width)/((float)width)) + 0.25f) * width)
-#define TV3(width) ((((0.50f-V1(width)/((float)width))/2.0f + V1(width)/((float)width)) + 0.50f) * width)
-#define TH1(height) (H1(height) + (0.28f * height))
+#define TV1(width) (((0.50f-V1(width)/width)/2.0f + V1(width)/width) * width)
+#define TV2(width) (((0.50f-V1(width)/width)/2.0f + V1(width)/width + 0.25f) * width)
+#define TV3(width) (((0.50f-V1(width)/width)/2.0f + V1(width)/width + 0.50f) * width)
+#define TH1(height) ( H1(height) + (0.28f * height))
 #define TH2(height) (TH1(height) + (0.08f * height))
 #define TH3(height) (TH2(height) + (0.50f * height))
 
@@ -33,25 +27,18 @@
 #define TRIANGLEH2(width, height) (TH1(height) + ((height-TH1(height)) - (MIN(width,height)/2))/2)
 #define TRIANGLEH3(width, height) (TRIANGLEH2(width, height) + MIN(width,height)/2)
 
-// Prior probability distribution radius
+// Prior probability distribution radius **********************************************************/
 #define PRIOR_RADIUS 40
 
-using namespace std;
+#define MIN(A,B) ((A < B) ? (A) : (B))
 
 class Point{
 	public:
 		long double x;
 		long double y;
 
-		Point(){
-			this->x = 0.0f;
-			this->y = 0.0f;
-		}
-
-		Point(long double x, long double y){
-			this->x = x;
-			this->y = y;
-		}
+		Point();
+		Point(long double x, long double y);
 };
 
 /* Transforms a probability distribution on 3 elements in a barycentric coordinate
@@ -89,6 +76,7 @@ long double euclidianDistance(Point a, Point b);
  *		x: value (in pixels) in x-axis
  *		y: value (in pixels) in y-axis
  *
+ * Return: A 'Point' structure containing a barycentric coordinate.
  */
 Point pixel2Bary(double x, double y, int window_width, int window_height);
 
@@ -96,6 +84,8 @@ Point pixel2Bary(double x, double y, int window_width, int window_height);
  * Parameters:
  *		x: value (in barycentric coordinate) in x-axis
  *		y: value (in barycentric coordinate) in y-axis
+ *
+ * Return: A 'Point' structure containing a barycentric coordinate.
  */
 Point bary2Pixel(double x, double y, int window_width, int window_height);
 

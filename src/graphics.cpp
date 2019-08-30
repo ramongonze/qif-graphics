@@ -1,5 +1,15 @@
 #include "../include/graphics.hpp"
 
+Point::Point(){
+	this->x = 0.0f;
+	this->y = 0.0f;
+}
+
+Point::Point(long double x, long double y){
+	this->x = x;
+	this->y = y;
+}
+
 Point dist2Bary(Distribution &prior){
 	Point p;
 	p.x = prior.prob[2] + prior.prob[0]/2.0f;
