@@ -61,14 +61,13 @@ int main(){
 
         // Static Rectangles
         layout.update(windowWidth, windowHeight);
-        // qif.updateStatic(windowWidth, windowHeight);
         //----------------------------------------------------------------------------------
 
-        qif.oldNumOutputs = qif.numOutputs;
         if(qif.oldNumOutputs != qif.numOutputs){
             drawCircles = false;
             hyperReady = false;
         }
+        qif.oldNumOutputs = qif.numOutputs;
 
         // Convert text typed by the user to numbers
         if(hyperReady) qif.updateMatricesByNumbers();
@@ -99,8 +98,9 @@ int main(){
 
         // Error message
             if(error) printError(error, layout, qif);
-            menu.draw(colors);
-            drawCircles = GuiCheckBox(layout.staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
+        
+        menu.draw(colors);
+        drawCircles = GuiCheckBox(layout.staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
 
         EndDrawing();
         //----------------------------------------------------------------------------------

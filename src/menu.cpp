@@ -44,14 +44,17 @@ void Menu::update(Layout layout){
 }
 
 void Menu::draw(Colors colors){
+	DrawRectangleRec(staticRectangles[MENU], colors.recColor);
+	DrawRectangleLinesEx(staticRectangles[MENU], 1, colors.recBorderColor);
+
 	GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
 	if(GuiDropdownBox(staticRectangles[MENU_DROPDOWN], "Menu;Select prior;Select channel;Select gain function", &menuActiveOption, menuDropEditMode)){
 		menuDropEditMode = !menuDropEditMode;
 	}
 
-	exitSelectMenuWindow = GuiWindowBox(staticRectangles[MENU_WINDOW], "Select a file");
-	if(exitSelectMenuWindow) menuActiveOption = 0;
+	if(!exitSelectMenuWindow){
+		exitSelectMenuWindow = GuiWindowBox(staticRectangles[MENU_WINDOW], "Select a file");
+		if(exitSelectMenuWindow) menuActiveOption = 0;
+	}
 
-	DrawRectangleRec(staticRectangles[MENU], colors.recColor);
-	DrawRectangleLinesEx(staticRectangles[MENU], 1, colors.recBorderColor);
 }

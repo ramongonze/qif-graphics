@@ -1,4 +1,5 @@
 #include "../include/QIF.hpp"
+#include <iostream>
 
 void QIF::init(){
 	numOutputs = 3; // Initial number of outputs in the channel matrix
@@ -241,10 +242,10 @@ int QIF::updateMatricesByText(){
                     channel[i][j] = stold(matricesTexts[CHANNEL][i][j]);
                 }
             }
-
-            // If the flow arrives here, there were no error in conversion
-            return 0;
         }          
+        
+        // If the flow arrives here, there were no error in conversion
+        return 0;
     }catch(...){
     	return INVALID_VALUE;
     }
