@@ -188,7 +188,7 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -O1 -s -Wall -std=c++11 -D_DEFAULT_SOURCE -Wno-narrowing -Wno-write-strings -Wno-enum-compare -Wno-missing-braces -Wl,-allow-multiple-definition
+CFLAGS += -O1 -s -std=c++11 -D_DEFAULT_SOURCE -Wno-narrowing -Wno-write-strings -Wno-enum-compare -Wno-missing-braces -Wl,-allow-multiple-definition -Wno-unused-result
 
 ifeq ($(BUILD_MODE),DEBUG)
     CFLAGS += -g

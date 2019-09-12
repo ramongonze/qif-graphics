@@ -82,14 +82,12 @@ int main(){
         }else{
             hyperReady = false;
         }
-
         menu.update(layout);
 
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
             ClearBackground({245, 245, 245, 255});
-
             layout.draw(colors);
             qif.drawMatrices(colors, layout);
             if(drawCircles && hyperReady){

@@ -23,9 +23,9 @@ void QIF::init(){
     matricesRectangles[CHANNEL] = MatrixRec(3, vector<Rectangle>(3));
     for(int j = 0; j < 3; j++){
         matricesRectangles[PRIOR][0][j]   = (Rectangle){V2(WINDOW_WIDTH) + 	   30 + (j * (BOX_WIDTH+20)),	  	   		    		    H1(WINDOW_HEIGHT) + 60, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_HEIGHT + BOX_HOR_GAP)),	 			    		    H2(WINDOW_HEIGHT) + 90, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), 	   H2(WINDOW_HEIGHT) + 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_HEIGHT + BOX_HOR_GAP)), H2(WINDOW_HEIGHT) + 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_WIDTH + BOX_HOR_GAP)),	 			    		    H2(WINDOW_HEIGHT) + 90, BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_WIDTH + BOX_HOR_GAP)), 	   H2(WINDOW_HEIGHT) + 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
+        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H2(WINDOW_HEIGHT) + 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
     }
 
     channelPanelScroll = {0.0f, 0.0f};
@@ -38,6 +38,11 @@ void QIF::init(){
                                          channelPanelRec.y, \
                                          V2(WINDOW_WIDTH) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
                                          channelPanelRec.height-15};
+
+    circlesPositions = vector<Point>(1, Point(0,0));
+    matricesTexts[INNERS] = MatrixString(3, vector<string>(1));
+    matricesTexts[OUTER] = MatrixString(1, vector<string>(1));
+
 }
 
 void QIF::updatePrior(Layout layout){
@@ -89,12 +94,13 @@ void QIF::updateHyper(Layout layout){
      * This function assumes that the hyper distribution is already built */
     Point p, mousePoint;
 
+    
     p = dist2Bary(hyper.prior);
     circlesPositions[0] = bary2Pixel(p.x, p.y, layout.windowWidth, layout.windowHeight);
-    // priorPosition = bary2Pixel(p.x, p.y, layout.windowWidth, layout.windowHeight);   
+    
     mousePoint.x = layout.mousePosition.x;
     mousePoint.y = layout.mousePosition.y;
-    
+
     // Check if the user is moving the prior
     if(IsMouseButtonDown(MOUSE_LEFT_BUTTON) && euclidianDistance(circlesPositions[0], mousePoint) <= PRIOR_RADIUS){
         mousePoint = pixel2Bary(mousePoint.x, mousePoint.y, layout.windowWidth, layout.windowHeight);
@@ -110,7 +116,7 @@ void QIF::updateHyper(Layout layout){
             circlesPositions[0] = bary2Pixel(p.x, p.y, layout.windowWidth, layout.windowHeight);
         }
     }
-    
+
     // Calculates the pixel coordinate for posterior distributions
     unsigned int oldNumPost = circlesPositions.size();
     if(oldNumPost < (hyper.num_post+1)){
@@ -120,7 +126,6 @@ void QIF::updateHyper(Layout layout){
     	for(int i = 0; i < (hyper.num_post - oldNumPost + 1); i++)
     		circlesPositions.pop_back();
     }
-
     // posteriorsPosition.~vector<Point>();
     // posteriorsPosition = vector<Point>(hyper.num_post);
     for(int i = 1; i < hyper.num_post+1; i++){
@@ -147,18 +152,11 @@ void QIF::updateHyper(Layout layout){
 
 void QIF::updateMatricesText(){
     /* This fuction assumes that the hyper distribution is already built */
-
     for(int i = 0; i < 3; i++){
         matricesTexts[PRIOR][0][i] = to_string(hyper.prior.prob[i]);
     }
 
 	// Channel ************************************************************************************/
-    
-    // Free memory
-    for(int i = 0; i < matricesTexts[CHANNEL].size(); i++) matricesTexts[CHANNEL][i].~vector<string>();
-    matricesTexts[CHANNEL].~MatrixString();
-
-    matricesTexts[CHANNEL] = MatrixString(hyper.prior.num_el, vector<string>(hyper.channel.num_out));
     for(int j = 0; j < hyper.channel.num_out; j++){
         matricesTexts[CHANNEL][0][j] = to_string(hyper.channel.matrix[0][j]);
         matricesTexts[CHANNEL][1][j] = to_string(hyper.channel.matrix[1][j]);
@@ -166,15 +164,26 @@ void QIF::updateMatricesText(){
     }
 
     // Outer and inners **************************************************************************/
+    // Update de number of posterior distributions
 
-    // Free memory 
-    for(int i = 0; i < matricesTexts[INNERS].size(); i++) matricesTexts[INNERS][i].~vector<string>();
-    matricesTexts[INNERS].~MatrixString();
-    for(int i = 0; i < matricesTexts[OUTER].size(); i++) matricesTexts[OUTER][i].~vector<string>();
-    matricesTexts[OUTER].~MatrixString();
+    int offset = hyper.num_post - matricesTexts[INNERS][0].size();
+    if(offset > 0){
+        for(int i = 0; i < offset; i++){
+            matricesTexts[OUTER][0].push_back("0.000");
+            matricesTexts[INNERS][0].push_back("0.000");
+            matricesTexts[INNERS][1].push_back("0.000");
+            matricesTexts[INNERS][2].push_back("0.000");
+        }
+    }else{
+        for(int i = 0; i < -offset; i++){
+            matricesTexts[OUTER][0].pop_back();
+            matricesTexts[INNERS][0].pop_back();
+            matricesTexts[INNERS][1].pop_back();
+            matricesTexts[INNERS][2].pop_back();
+        }
+    }
 
-    matricesTexts[INNERS] = MatrixString(hyper.prior.num_el, vector<string>(hyper.num_post));
-    matricesTexts[OUTER] = MatrixString(1, vector<string>(hyper.num_post));
+    // Update matrices values
     for(int j = 0; j < hyper.num_post; j++){
         matricesTexts[OUTER][0][j]  = to_string(hyper.outer.prob[j]);
         matricesTexts[INNERS][0][j] = to_string(hyper.inners[0][j]);
@@ -184,7 +193,7 @@ void QIF::updateMatricesText(){
 }
 
 int QIF::update(Layout layout){
-	updatePrior(layout);
+    updatePrior(layout);
 	updateChannel(layout);
 
 	if(Distribution::isDistribution(prior) == false)
@@ -196,12 +205,15 @@ int QIF::update(Layout layout){
 
     Distribution new_prior(prior);
     Channel new_channel(new_prior, channel);
+    printf("1\n");  
     hyper.~Hyper();
+    printf("2\n");  
     hyper = Hyper(new_channel);
+    printf("3\n");
     
     updateHyper(layout);
     updateMatricesText();
-
+    
     return 0;
 }
 
