@@ -1,4 +1,4 @@
-#include "../include/menu.hpp"
+#include "../include/menu.h"
 
 void Menu::init(){
 	menuActiveOption 	 = 0;

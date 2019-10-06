@@ -1,4 +1,4 @@
-#include "../include/graphics.hpp"
+#include "../include/graphics.h"
 
 Point::Point(){
 	this->x = 0.0f;

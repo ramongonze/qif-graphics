@@ -1,8 +1,7 @@
 #ifndef _qif_menu
 #define _qif_menu
 
-#include "config.hpp"
-#include "layout.hpp"
+#include "layout.h"
 
 class Menu{
 public:

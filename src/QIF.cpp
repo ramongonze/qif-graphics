@@ -1,5 +1,5 @@
-#include "../include/QIF.hpp"
 #include <iostream>
+#include "../include/QIF.h"
 
 void QIF::init(){
 	numOutputs = 3; // Initial number of outputs in the channel matrix

@@ -36,19 +36,19 @@
 **************************************************************************************************/
 #ifndef _qif_config
 #define _qif_config
-#include "/home/ramongonze/raylib/src/raylib.h"
 
 // Raylib/ Raygui ********************************************************************************/
-#define RAYGUI_IMPLEMENTATION
-#define RAYGUI_TEXTBOX_EXTENDED
-#include "/home/ramongonze/raygui/src/raygui.h"
-#undef RAYGUI_IMPLEMENTATION
+// #include "/home/ramon/raylib/src/raylib.h"
+// #define RAYGUI_IMPLEMENTATION
+// #define RAYGUI_TEXTBOX_EXTENDED
+// #include "/home/ramon/raygui/src/raygui.h"
+// #undef RAYGUI_IMPLEMENTATION
 
 // Standard libraries ****************************************************************************/
 #include <vector>
 
 // QIF Library ************************************************************************************/
-#include "graphics.hpp"
+#include "graphics.h"
 
 // Window configuration ***************************************************************************/
 #define WINDOW_WIDTH 1024

@@ -1,7 +1,7 @@
 #ifndef _qif_layout
 #define _qif_layout
 
-#include "config.hpp"
+#include "config.h"
 
 class Layout{
 public:

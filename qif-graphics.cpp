@@ -1,35 +1,109 @@
 #include <sstream>
 #include <algorithm>
+#include <cstring>
 
-#include "include/config.hpp"
-#include "include/layout.hpp"
-#include "include/menu.hpp"
-#include "include/QIF.hpp"
+#define RAYGUI_STATIC
+#include "/home/ramon/raygui/src/raygui.h"
+#include "include/QIF.h"
+#include "include/menu.h"
 
 void printError(int error, Layout layout, QIF qif);
+
+char buffer[MAX_BUFFER];
+bool drawCircles = false; // Flag that indicates if the circles must be drawn or not. Its value is set by a check box
+bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
+int error = 0;            // Flag that indicates if an error has been occurred
+
+// Colors
+//--------------------------------------------------------------------------------------
+Colors colors(2);
+
+// Variables
+//----------------------------------------------------------------------------------
+Layout layout;
+QIF qif;
+
+// Menu
+Menu menu;
+
+
+void updateAndDraw(){
+    // test = GetDirectoryFiles(GetWorkingDirectory(), &count);
+    // General update
+    //----------------------------------------------------------------------------------
+    
+    Vector2 mousePosition = GetMousePosition();
+    int windowWidth       = GetScreenWidth();
+    int windowHeight      = GetScreenHeight();
+
+    // Static Rectangles
+    layout.update(windowWidth, windowHeight);
+    //----------------------------------------------------------------------------------
+
+    if(qif.oldNumOutputs != qif.numOutputs){
+        drawCircles = false;
+        hyperReady = false;
+    }
+    qif.oldNumOutputs = qif.numOutputs;
+
+    // Convert text typed by the user to numbers
+    if(hyperReady) qif.updateMatricesByNumbers();
+    else error = qif.updateMatricesByText();
+
+    // Check hyper
+    if(drawCircles){
+        hyperReady = true;
+        error = qif.update(layout);
+        if(error == INVALID_PRIOR || error == INVALID_CHANNEL)
+            hyperReady = false;
+    }else{
+        hyperReady = false;
+    }
+    menu.update(layout);
+
+    // Draw
+    //----------------------------------------------------------------------------------
+    BeginDrawing();
+        ClearBackground({245, 245, 245, 255});
+        layout.draw(colors);
+        qif.drawMatrices(colors, layout);
+        if(drawCircles && hyperReady){
+            qif.drawCircles(colors, layout);
+        }
+
+    // Error message
+        if(error) printError(error, layout, qif);
+    
+    menu.draw(colors);
+    // drawCircles = GuiCheckBox(layout.staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
+
+    EndDrawing();
+    //----------------------------------------------------------------------------------
+    
+}
 
 int main(){
     // Initialization
     //--------------------------------------------------------------------------------------
-    char buffer[MAX_BUFFER];
-    bool drawCircles = false; // Flag that indicates if the circles must be drawn or not. Its value is set by a check box
-    bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
-    int error = 0;            // Flag that indicates if an error has been occurred
+    // char buffer[MAX_BUFFER];
+    // bool drawCircles = false; // Flag that indicates if the circles must be drawn or not. Its value is set by a check box
+    // bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
+    // int error = 0;            // Flag that indicates if an error has been occurred
 
-    // Colors
-    //--------------------------------------------------------------------------------------
-    Colors colors(2);
+    // // Colors
+    // //--------------------------------------------------------------------------------------
+    // Colors colors(2);
 
-    // Variables
-    //----------------------------------------------------------------------------------
-    Layout layout;
+    // // Variables
+    // //----------------------------------------------------------------------------------
+    // Layout layout;
     layout.init();
 
-    QIF qif;
+    // QIF qif;
     qif.init();
 
-    // Menu
-    Menu menu;
+    // // Menu
+    // Menu menu;
     menu.init();
     //----------------------------------------------------------------------------------
 
@@ -51,59 +125,9 @@ int main(){
     // int count;
     // Main game loop
     while (!WindowShouldClose()){    // Detect window close button or ESC key
-        // test = GetDirectoryFiles(GetWorkingDirectory(), &count);
-        // General update
-        //----------------------------------------------------------------------------------
         
-        Vector2 mousePosition = GetMousePosition();
-        int windowWidth       = GetScreenWidth();
-        int windowHeight      = GetScreenHeight();
-
-        // Static Rectangles
-        layout.update(windowWidth, windowHeight);
-        //----------------------------------------------------------------------------------
-
-        if(qif.oldNumOutputs != qif.numOutputs){
-            drawCircles = false;
-            hyperReady = false;
-        }
-        qif.oldNumOutputs = qif.numOutputs;
-
-        // Convert text typed by the user to numbers
-        if(hyperReady) qif.updateMatricesByNumbers();
-        else error = qif.updateMatricesByText();
-
-        // Check hyper
-        if(drawCircles){
-            hyperReady = true;
-            error = qif.update(layout);
-            if(error == INVALID_PRIOR || error == INVALID_CHANNEL)
-                hyperReady = false;
-        }else{
-            hyperReady = false;
-        }
-        menu.update(layout);
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-            ClearBackground({245, 245, 245, 255});
-            layout.draw(colors);
-            qif.drawMatrices(colors, layout);
-            if(drawCircles && hyperReady){
-                qif.drawCircles(colors, layout);
-            }
-
-        // Error message
-            if(error) printError(error, layout, qif);
-        
-        menu.draw(colors);
-        drawCircles = GuiCheckBox(layout.staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
+        updateAndDraw();
     }
-
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseWindow();        // Close window and OpenGL context

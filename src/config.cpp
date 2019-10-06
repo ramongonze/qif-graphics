@@ -1,4 +1,4 @@
-#include "../include/config.hpp"
+#include "../include/config.h"
 
 Colors::Colors(int i){
 	priorColor           = {128, 191, 255, 230};

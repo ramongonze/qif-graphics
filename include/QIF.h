@@ -1,8 +1,7 @@
 #ifndef _QIF
 #define _QIF
 
-#include "layout.hpp"
-#include "config.hpp"
+#include "layout.h"
 
 class QIF{
 public:

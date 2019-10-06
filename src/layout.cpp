@@ -1,4 +1,4 @@
-#include "../include/layout.hpp"
+#include "../include/layout.h"
 
 void Layout::init(){
 	windowWidth = WINDOW_WIDTH;

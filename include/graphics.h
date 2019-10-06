@@ -3,6 +3,11 @@
 
 #include <vector>
 #include "../qif/qif.hpp"
+// #include "/home/ramon/raylib/src/raylib.h"
+#define RAYGUI_STATIC
+#include "raygui.h"
+// #define RAYGUI_STATIC
+// #include "/home/ramon/raygui/src/raygui.h"
 
 using namespace std;
 
