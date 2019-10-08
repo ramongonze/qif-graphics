@@ -2,10 +2,9 @@
 #include <algorithm>
 #include <cstring>
 
-#define RAYGUI_STATIC
-#include "/home/ramon/raygui/src/raygui.h"
 #include "include/QIF.h"
 #include "include/menu.h"
+#include <emscripten/emscripten.h>
 
 void printError(int error, Layout layout, QIF qif);
 
@@ -19,22 +18,21 @@ int error = 0;            // Flag that indicates if an error has been occurred
 Colors colors(2);
 
 // Variables
-//----------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------
 Layout layout;
 QIF qif;
 
-// Menu
+// // Menu
 Menu menu;
 
 
 void updateAndDraw(){
-    // test = GetDirectoryFiles(GetWorkingDirectory(), &count);
     // General update
-    //----------------------------------------------------------------------------------
-    
-    Vector2 mousePosition = GetMousePosition();
+    // ----------------------------------------------------------------------------------
+
     int windowWidth       = GetScreenWidth();
     int windowHeight      = GetScreenHeight();
+    printf("%d,%d\n", windowWidth, windowHeight);
 
     // Static Rectangles
     layout.update(windowWidth, windowHeight);
@@ -64,17 +62,22 @@ void updateAndDraw(){
     // Draw
     //----------------------------------------------------------------------------------
     BeginDrawing();
-        ClearBackground({245, 245, 245, 255});
-        layout.draw(colors);
-        qif.drawMatrices(colors, layout);
-        if(drawCircles && hyperReady){
-            qif.drawCircles(colors, layout);
-        }
+        // ClearBackground(RAYWHITE);
+        // DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
 
-    // Error message
-        if(error) printError(error, layout, qif);
+        ClearBackground({245, 245, 245, 255});
+        // DrawText(const char *text, int posX, int posY, int fontSize, Color color);
+        // DrawText("Prior distribution" , 10, H1(windowHeight) + 10, layout.headerFontSize, BLACK);
+        layout.draw(colors);
+        // qif.drawMatrices(colors, layout);
+        // if(drawCircles && hyperReady){
+        //     qif.drawCircles(colors, layout);
+        // }
+
+        // // Error message
+        // if(error) printError(error, layout, qif);
     
-    menu.draw(colors);
+        // menu.draw(colors);
     // drawCircles = GuiCheckBox(layout.staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
 
     EndDrawing();
@@ -102,30 +105,30 @@ int main(){
     // QIF qif;
     qif.init();
 
-    // // Menu
-    // Menu menu;
+    // // // Menu
+    // // Menu menu;
     menu.init();
-    //----------------------------------------------------------------------------------
+    // //----------------------------------------------------------------------------------
 
-    // Window
-    //--------------------------------------------------------------------------------------
-    // SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Problems with scroll panel
+    // // Window
+    // //--------------------------------------------------------------------------------------
+    // // SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Problems with scroll panel
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "QIF Graphics");
-    SetWindowMinSize(MIN_WIDTH, MIN_HEIGHT);
+    // SetWindowMinSize(MIN_WIDTH, MIN_HEIGHT);
+    emscripten_set_main_loop(updateAndDraw, 0, 1);
 
     // Text font
-    layout.mainFont = LoadFontEx("School Times.ttf", layout.headerFontSize, 0, 0);
+    layout.mainFont = LoadFontEx("SchoolTimes.ttf", layout.headerFontSize, 0, 0);
     GenTextureMipmaps(&(layout.mainFont).texture);
     SetTextureFilter(layout.mainFont.texture, FILTER_POINT);
 
-    SetTargetFPS(60); // Set the program to run at 60 frames-per-second
+    SetTargetFPS(5); // Set the program to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     // char **test;
     // int count;
     // Main game loop
     while (!WindowShouldClose()){    // Detect window close button or ESC key
-        
         updateAndDraw();
     }
     // De-Initialization

@@ -1,6 +1,7 @@
 #ifndef _QIF
 #define _QIF
 
+#include "../qif/qif.hpp"
 #include "layout.h"
 
 class QIF{

@@ -51,8 +51,8 @@
 #include "graphics.h"
 
 // Window configuration ***************************************************************************/
-#define WINDOW_WIDTH 1024
-#define WINDOW_HEIGHT 768
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 
 // Typedefs ***************************************************************************************/
 typedef vector<vector<long double>> MatrixLD;	// 2 dimensional matrix

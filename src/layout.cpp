@@ -63,17 +63,17 @@ void Layout::draw(Colors colors){
     DrawRectangleRec(staticRectangles[INNERS],  colors.recColor); DrawRectangleLinesEx(staticRectangles[INNERS],  1, colors.recBorderColor);
 
 	// Text
-    DrawTextEx(mainFont, "Prior distribution" , headersPos[0], headerFontSize, 1.0, BLACK);
-    DrawTextEx(mainFont, "Channel"            , headersPos[1], headerFontSize, 1.0, BLACK);
-    DrawTextEx(mainFont, "Outputs: "          , headersPos[2], headerFontSize, 1.0, BLACK);
-    DrawTextEx(mainFont, "Gain Function"      , headersPos[3], headerFontSize, 1.0, BLACK);
-    DrawTextEx(mainFont, "Inner distributions", headersPos[4], headerFontSize, 1.0, BLACK);
+    DrawText("Prior distribution" , headersPos[0].x, headersPos[0].y, headerFontSize, BLACK);
+    DrawText("Channel"            , headersPos[1].x, headersPos[1].y, headerFontSize, BLACK);
+    DrawText("Outputs: "          , headersPos[2].x, headersPos[2].y, headerFontSize, BLACK);
+    DrawText("Gain Function"      , headersPos[3].x, headersPos[3].y, headerFontSize, BLACK);
+    DrawText("Inner distributions", headersPos[4].x, headersPos[4].y, headerFontSize, BLACK);
 
 	// Main Triangle
     DrawTriangleLines(trianglePos[0], trianglePos[1], trianglePos[2], BLACK); 
-    DrawTextEx(mainFont, "X1", triangleTextPos[0], headerFontSize, 1.0, BLACK);
-    DrawTextEx(mainFont, "X2", triangleTextPos[1], headerFontSize, 1.0, BLACK);
-    DrawTextEx(mainFont, "X3", triangleTextPos[2], headerFontSize, 1.0, BLACK);
+    DrawText("X1", triangleTextPos[0].x, triangleTextPos[0].y, headerFontSize, BLACK);
+    DrawText("X2", triangleTextPos[1].x, triangleTextPos[1].y, headerFontSize, BLACK);
+    DrawText("X3", triangleTextPos[2].x, triangleTextPos[2].y, headerFontSize, BLACK);
 
     // Channel
     // GuiSpinner(staticRectangles[CHANNEL_SPINNER], &numOutputs, 1, MAX_OUTPUTS, true);
