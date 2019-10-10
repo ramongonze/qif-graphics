@@ -13,6 +13,8 @@ bool drawCircles = false; // Flag that indicates if the circles must be drawn or
 bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
 int error = 0;            // Flag that indicates if an error has been occurred
 
+char test1;
+char test2;
 // Colors
 //--------------------------------------------------------------------------------------
 Colors colors(2);
@@ -29,14 +31,6 @@ Menu menu;
 void updateAndDraw(){
     // General update
     // ----------------------------------------------------------------------------------
-
-    int windowWidth       = GetScreenWidth();
-    int windowHeight      = GetScreenHeight();
-    printf("%d,%d\n", windowWidth, windowHeight);
-
-    // Static Rectangles
-    layout.update(windowWidth, windowHeight);
-    //----------------------------------------------------------------------------------
 
     if(qif.oldNumOutputs != qif.numOutputs){
         drawCircles = false;
@@ -58,17 +52,15 @@ void updateAndDraw(){
         hyperReady = false;
     }
     menu.update(layout);
-
+// Vector2 mousePosition = GetMousePosition();
     // Draw
     //----------------------------------------------------------------------------------
     BeginDrawing();
-        // ClearBackground(RAYWHITE);
-        // DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
-
         ClearBackground({245, 245, 245, 255});
-        // DrawText(const char *text, int posX, int posY, int fontSize, Color color);
-        // DrawText("Prior distribution" , 10, H1(windowHeight) + 10, layout.headerFontSize, BLACK);
         layout.draw(colors);
+        
+        // GuiTextBox((Rectangle){100,100,50,50}, &test1, PROB_PRECISION, true); // X1
+        // GuiTextBox((Rectangle){180,100,50,50}, &test2, PROB_PRECISION, false); // X1
         // qif.drawMatrices(colors, layout);
         // if(drawCircles && hyperReady){
         //     qif.drawCircles(colors, layout);
@@ -77,7 +69,7 @@ void updateAndDraw(){
         // // Error message
         // if(error) printError(error, layout, qif);
     
-        // menu.draw(colors);
+        menu.draw(colors);
     // drawCircles = GuiCheckBox(layout.staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
 
     EndDrawing();

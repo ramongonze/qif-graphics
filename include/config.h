@@ -37,13 +37,6 @@
 #ifndef _qif_config
 #define _qif_config
 
-// Raylib/ Raygui ********************************************************************************/
-// #include "/home/ramon/raylib/src/raylib.h"
-// #define RAYGUI_IMPLEMENTATION
-// #define RAYGUI_TEXTBOX_EXTENDED
-// #include "/home/ramon/raygui/src/raygui.h"
-// #undef RAYGUI_IMPLEMENTATION
-
 // Standard libraries ****************************************************************************/
 #include <vector>
 
@@ -52,7 +45,7 @@
 
 // Window configuration ***************************************************************************/
 #define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_HEIGHT 900
 
 // Typedefs ***************************************************************************************/
 typedef vector<vector<long double>> MatrixLD;	// 2 dimensional matrix

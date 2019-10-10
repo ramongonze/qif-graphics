@@ -35,7 +35,7 @@ RAYLIB_PATH        ?= /home/$(USER_NAME)/raylib
 # Define default options
 
 # One of PLATFORM_DESKTOP, PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-PLATFORM           ?= PLATFORM_DESKTOP
+PLATFORM           ?= PLATFORM_WEB
 
 # Locations of your newly installed library and associated headers. See ../src/Makefile
 # On Linux, if you have installed raylib but cannot compile the examples, check that
@@ -231,14 +231,15 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# --profiling                # include information for code profiling
 	# --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
-	CFLAGS += -O2 -s USE_GLFW=3-s TOTAL_MEMORY=16777216 --preload-file SchoolTimes.ttf 
+	CFLAGS += -O2 -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 --preload-file SchoolTimes.ttf 
 # 	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 --preload-file resources
 	ifeq ($(BUILD_MODE), DEBUG)
 		CFLAGS += -s ASSERTIONS=1 --profiling
 	endif
 
 	# Define a custom shell .html and output extension
-	CFLAGS += --shell-file $(RAYLIB_PATH)/src/shell.html
+# 	CFLAGS += --shell-file $(RAYLIB_PATH)/src/shell.html
+	CFLAGS += --shell-file /home/$(USER_NAME)/Desktop/qif-graphics/shell.html
 	EXT = .html
 endif
 
@@ -358,7 +359,7 @@ endif
 
 # Default target entry
 # NOTE: We call this Makefile target or Makefile.Android target
-all:
+all: clean
 	$(MAKE) $(MAKEFILE_PARAMS)
 
 # Project target defined by PROJECT_NAME
@@ -389,7 +390,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -rf *.o *.html *.js *.wasm *.data
+	rm -rf *.o $(PROJECT_NAME).html *.js *.wasm *.data
 	rm -rf src/*.o
 endif
 	@echo Cleaning done
