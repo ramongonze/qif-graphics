@@ -13,8 +13,8 @@ bool drawCircles = false; // Flag that indicates if the circles must be drawn or
 bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
 int error = 0;            // Flag that indicates if an error has been occurred
 
-char test1;
-char test2;
+string test[2];
+
 // Colors
 //--------------------------------------------------------------------------------------
 Colors colors(2);
@@ -59,9 +59,7 @@ void updateAndDraw(){
         ClearBackground({245, 245, 245, 255});
         layout.draw(colors);
         
-        // GuiTextBox((Rectangle){100,100,50,50}, &test1, PROB_PRECISION, true); // X1
-        // GuiTextBox((Rectangle){180,100,50,50}, &test2, PROB_PRECISION, false); // X1
-        // qif.drawMatrices(colors, layout);
+        qif.drawMatrices(colors, layout);
         // if(drawCircles && hyperReady){
         //     qif.drawCircles(colors, layout);
         // }

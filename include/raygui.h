@@ -136,6 +136,7 @@
     #include "raylib.h"
 #endif
 
+#define RAYGUI_TEXTBOX_EXTENDED
 #define RAYGUIDEF
 // #if defined(RAYGUI_IMPLEMENTATION)
 //     #if defined(_WIN32) && defined(BUILD_LIBTYPE_SHARED)

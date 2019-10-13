@@ -23,7 +23,7 @@
 
 .PHONY: all clean
 
-USER_NAME=ramongonze
+USER_NAME=ramon
 PATH_PC=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 # Define required raylib variables
