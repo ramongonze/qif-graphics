@@ -90,7 +90,7 @@ c 070 4 LabelInnerX2 -20 35 15 35 6 X2
 c 071 4 LabelInnerX3 -20 70 15 35 6 X3
 c 072 4 Label072 -40 0 40 35 5 Outer
 c 073 4 LabelOuter2 45 -20 20 20 5 I2
-c 074 4 LabelOuter3 80 -20 12 12 5 I3
+c 074 4 LabelOuter3 80 -20 20 20 5 I3
 c 075 4 LabelOuter1 15 -20 20 20 5 I1
 c 076 12 LoadDropDown 125 0 75 25 0 Load;Prior;Channel;Gain function
 c 077 12 ExportDropDown 200 0 75 25 0 Export;Prior;Channel;Posteriors;Gain function
