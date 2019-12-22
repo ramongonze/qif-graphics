@@ -1,0 +1,96 @@
+#
+# rgl layout text file (v2.1) - raygui layout file generated using rGuiLayout
+#
+# Number of controls:     78
+#
+# Ref. window:    r <x> <y> <width> <height>
+# Anchor info:    a <id> <name> <posx> <posy> <enabled>
+# Control info:   c <id> <type> <name> <rectangle> <anchor_id> <text>
+#
+r 0 0 -1 -1
+a 000 anchorMain 0 0 0
+a 001 anchor01 95 345 1
+a 002 anchor02 95 115 1
+a 003 anchor03 400 95 1
+a 004 anchor04 150 570 1
+a 005 anchor05 535 75 1
+a 006 anchor06 535 125 1
+a 007 anchor07 0 0 0
+c 000 3 menuBox 50 0 740 25 0 
+c 001 3 bodyBox 50 25 740 600 0 
+c 002 12 FileDropDown 50 0 75 25 0 File;Open;Save;Save as
+c 003 1 PriorGroup 365 40 95 215 0 Prior
+c 004 1 ChannelGroup 60 40 290 215 0 Channel
+c 005 1 PosteriorsGroup 475 40 305 215 0 Posteriors
+c 006 1 GainGroup 60 270 290 215 0 Gain function
+c 007 16 SpinnerChannel 265 50 80 20 0 
+c 008 4 LabelOutputs 210 50 50 20 0 Outputs
+c 009 21 ScrollPanel010 65 75 280 175 0 
+c 010 21 ScrollPanel011 65 305 280 175 0 
+c 011 16 SpinnerGain 265 280 80 20 0 
+c 012 4 LabelActions 210 280 50 20 0 Actions
+c 013 15 ValueChannel00 0 0 35 35 2 
+c 014 15 ValueChannel10 0 35 35 35 2 
+c 015 15 ValueChannel20 0 70 35 35 2 
+c 016 15 ValueChannel21 35 70 35 35 2 
+c 017 15 ValueChannel11 35 35 35 35 2 
+c 018 15 ValueChannel01 35 0 35 35 2 
+c 019 15 ValueChannel02 70 0 35 35 2 
+c 020 15 ValueChannel12 70 35 35 35 2 
+c 021 15 ValueChannel22 70 70 35 35 2 
+c 022 15 ValueGain00 0 0 35 35 1 
+c 023 15 ValueGain10 0 35 35 35 1 
+c 024 15 ValueGain20 0 70 35 35 1 
+c 025 15 ValueGain01 35 0 35 35 1 
+c 026 15 ValueGain11 35 35 35 35 1 
+c 027 15 ValueGain21 35 70 35 35 1 
+c 028 15 ValueGain02 70 0 35 35 1 
+c 029 15 ValueGain12 70 35 35 35 1 
+c 030 15 ValueGain22 70 70 35 35 1 
+c 031 4 LabelGainX1 -20 0 15 35 1 X1
+c 032 4 LabelGainX2 -20 35 15 35 1 X2
+c 033 4 LabelGainX3 -20 70 15 35 1 X3
+c 034 4 LabelGainW1 10 -20 20 20 1 W1
+c 035 4 LabelGainW2 45 -20 20 20 1 W2
+c 036 4 LabelGainW3 80 -20 20 20 1 W3
+c 037 4 LabelChannelX1 -20 0 15 35 2 X1
+c 038 4 LabelChannelX2 -20 35 15 35 2 X2
+c 039 4 Label039 -20 70 15 35 2 X3
+c 040 4 LabelChannelY1 10 -20 20 20 2 Y1
+c 041 4 LabelChannelY2 45 -20 20 20 2 Y2
+c 042 4 LabelChannelY3 80 -20 20 20 2 Y3
+c 043 15 ValuePrior1 0 0 35 35 3 
+c 044 15 ValuePrior2 0 35 35 35 3 
+c 045 15 ValuePrior3 0 70 35 35 3 
+c 046 4 LabelPriorX1 -20 0 15 35 3 X1
+c 047 4 LabelPriorX2 -20 35 15 35 3 X2
+c 048 4 LabelPriorX3 -20 70 15 35 3 X3
+c 049 1 VisualizationGroup 365 270 416 344 0 Visualization
+c 050 1 DrawingGroup 60 495 290 119 0 Drawing
+c 051 8 CheckBoxGain 65 280 17 17 0 Enable
+c 052 8 CheckBoxDrawing 75 0 25 25 4 
+c 053 20 StatusBarDrawing 65 505 280 45 0 Status
+c 054 4 Label054 0 0 75 25 4 Click to draw:
+c 055 21 ScrollPanel075 480 50 295 200 0 
+c 056 15 ValueOuter1 0 0 35 35 5 
+c 057 15 ValueOuter2 35 0 35 35 5 
+c 058 15 ValueOuter3 70 0 35 35 5 
+c 059 15 ValueInner00 0 0 35 35 6 
+c 060 15 ValueInner01 35 0 35 35 6 
+c 061 15 ValueInner02 70 0 35 35 6 
+c 062 15 ValueInner10 0 35 35 35 6 
+c 063 15 ValueInner11 35 35 35 35 6 
+c 064 15 ValueInner12 70 35 35 35 6 
+c 065 15 ValueInner20 0 70 35 35 6 
+c 066 15 ValueInner21 35 70 35 35 6 
+c 067 15 ValueInner22 70 70 35 35 6 
+c 068 2 Line069 0 35 105 12 5 
+c 069 4 LabelInnerX1 -20 0 15 35 6 X1
+c 070 4 LabelInnerX2 -20 35 15 35 6 X2
+c 071 4 LabelInnerX3 -20 70 15 35 6 X3
+c 072 4 Label072 -40 0 40 35 5 Outer
+c 073 4 LabelOuter2 45 -20 20 20 5 I2
+c 074 4 LabelOuter3 80 -20 12 12 5 I3
+c 075 4 LabelOuter1 15 -20 20 20 5 I1
+c 076 12 LoadDropDown 125 0 75 25 0 Load;Prior;Channel;Gain function
+c 077 12 ExportDropDown 200 0 75 25 0 Export;Prior;Channel;Posteriors;Gain function
