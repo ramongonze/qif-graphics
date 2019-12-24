@@ -166,7 +166,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# HTML5 emscripten compiler
 	# WARNING: To compile to HTML5, code must be redesigned 
 	# to use emscripten.h and emscripten_set_main_loop()
-	CC = emcc
+	CC = em++
 endif
 
 # Define default make program: Mingw32-make
@@ -187,7 +187,10 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -O1 -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
+CFLAGS += -O1 -std=c++11 -Wno-writable-strings -Wno-narrowing -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
+#-Wc++11-narrowing: Use -std=c++11 causes an error in raygui.h
+#-Wno-writable-strings: Warning: gui_qif-graphics.cpp:51:28: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+#							  char *LabelOuterNameText = "Outer";    // LABEL: LabelOuter
 
 ifeq ($(BUILD_MODE),DEBUG)
 	CFLAGS += -g
