@@ -104,87 +104,38 @@ bool DropDownExportEditMode = false;
 int DropDownExportActive = 0;            // DropdownBox: DropDownExport
 bool DropdownBox077EditMode = false;
 int DropdownBox077Active = 0;            // DropdownBox: DropdownBox077
+
+// Gain function
 vector<vector<bool> > TextBoxGainEditMode(3, vector<bool>(3, false));
 vector<vector<string> > TextBoxGainText(3, vector<string>(3, "0"));
-// bool TextBoxGain00EditMode = false;
-// char TextBoxGain00Text[128] = "0";            // TextBox: TextBoxGain00
-// bool TextBoxGain01EditMode = false;
-// char TextBoxGain01Text[128] = "0";            // TextBox: TextBoxGain01
-// bool TextBoxGain02EditMode = false;
-// char TextBoxGain02Text[128] = "0";            // TextBox: TextBoxGain02
-// bool TextBoxGain10EditMode = false;
-// char TextBoxGain10Text[128] = "0";            // TextBox: TextBoxGain10
-// bool TextBoxGain11EditMode = false;
-// char TextBoxGain11Text[128] = "0";            // TextBox: TextBoxGain11
-// bool TextBoxGain12EditMode = false;
-// char TextBoxGain12Text[128] = "0";            // TextBox: TextBoxGain12
-// bool TextBoxGain20EditMode = false;
-// char TextBoxGain20Text[128] = "0";            // TextBox: TextBoxGain20
-// bool TextBoxGain21EditMode = false;
-// char TextBoxGain21Text[128] = "0";            // TextBox: TextBoxGain21
-// bool TextBoxGain22EditMode = false;
-// char TextBoxGain22Text[128] = "0";            // TextBox: TextBoxGain22
-bool TextBoxChannel00EditMode = false;
-char TextBoxChannel00Text[128] = "0";            // TextBox: TextBoxChannel00
-bool TextBoxcChannel01EditMode = false;
-char TextBoxcChannel01Text[128] = "0";            // TextBox: TextBoxcChannel01
-bool TextBoxChannel02EditMode = false;
-char TextBoxChannel02Text[128] = "0";            // TextBox: TextBoxChannel02
-bool TextBoxChannel10EditMode = false;
-char TextBoxChannel10Text[128] = "0";            // TextBox: TextBoxChannel10
-bool TextBoxChannel11EditMode = false;
-char TextBoxChannel11Text[128] = "0";            // TextBox: TextBoxChannel11
-bool TextBoxChannel12EditMode = false;
-char TextBoxChannel12Text[128] = "0";            // TextBox: TextBoxChannel12
-bool TextBoxChannel20EditMode = false;
-char TextBoxChannel20Text[128] = "0";            // TextBox: TextBoxChannel20
-bool TextBoxChannel21EditMode = false;
-char TextBoxChannel21Text[128] = "0";            // TextBox: TextBoxChannel21
-bool TextBoxChannel22EditMode = false;
-char TextBoxChannel22Text[128] = "0";            // TextBox: TextBoxChannel22
-bool TextBoxPrior1EditMode = false;
-char TextBoxPrior1Text[128] = "0";            // TextBox: TextBoxPrior1
-bool TextBoxPrior2EditMode = false;
-char TextBoxPrior2Text[128] = "0";            // TextBox: TextBoxPrior2
-bool TextBoxPrior3EditMode = false;
-char TextBoxPrior3Text[128] = "0";            // TextBox: TextBoxPrior3
-bool TextBoxOuter1EditMode = false;
-char TextBoxOuter1Text[128] = "0";            // TextBox: TextBoxOuter1
-bool TextBoxOuter2EditMode = false;
-char TextBoxOuter2Text[128] = "0";            // TextBox: TextBoxOuter2
-bool TextBoxOuter3EditMode = false;
-char TextBoxOuter3Text[128] = "0";            // TextBox: TextBoxOuter3
-bool TextBoxInners00EditMode = false;
-char TextBoxInners00Text[128] = "0";            // TextBox: TextBoxInners00
-bool TextBoxInners01EditMode = false;
-char TextBoxInners01Text[128] = "0";            // TextBox: TextBoxInners01
-bool TextBoxInners02EditMode = false;
-char TextBoxInners02Text[128] = "0";            // TextBox: TextBoxInners02
-bool TextBoxInners10EditMode = false;
-char TextBoxInners10Text[128] = "0";            // TextBox: TextBoxInners10
-bool TextBoxInners11EditMode = false;
-char TextBoxInners11Text[128] = "0";            // TextBox: TextBoxInners11
-bool TextBoxInners12EditMode = false;
-char TextBoxInners12Text[128] = "0";            // TextBox: TextBoxInners12
-bool TextBoxInners20EditMode = false;
-char TextBoxInners20Text[128] = "0";            // TextBox: TextBoxInners20
-bool TextBoxInners21EditMode = false;
-char TextBoxInners21Text[128] = "0";            // TextBox: TextBoxInners21
-bool TextBoxInners22EditMode = false;
-char TextBoxInners22Text[128] = "0";            // TextBox: TextBoxInners22
+
+// Channel
+vector<vector<bool> > TextBoxChannelEditMode(3, vector<bool>(3, false));
+vector<vector<string> > TextBoxChannelText(3, vector<string>(3, "0"));
+
+// Prior
+vector<bool> TextBoxPriorEditMode(3, false);
+vector<string> TextBoxPriorText(3, "0");
+
+// Outer
+vector<bool> TextBoxOuterEditMode(3, false);
+vector<string> TextBoxOuterText(3, "0");
+
+// Inners
+vector<vector<bool> > TextBoxInnersEditMode(3, vector<bool>(3, false));
+vector<vector<string> > TextBoxInnersText(3, vector<string>(3, "0"));
 
 
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-int main()
-{
+int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     int screenWidth = 1200;
     int screenHeight = 1000;
 
-    InitWindow(screenWidth, screenHeight, "qif-graphics");
+    InitWindow(screenWidth, screenHeight, "QIF-graphics");
 
     emscripten_set_main_loop(updateDrawFrame, 0, 1);
 
@@ -192,8 +143,7 @@ int main()
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
+    while (!WindowShouldClose()){    // Detect window close button or ESC key
         updateDrawFrame();
     }
 
@@ -352,46 +302,38 @@ void updateDrawFrame(void){
             GuiLabel(layoutRecs[40], LabelOuter3Text);
             GuiLabel(layoutRecs[41], LabelOuter1Text);
             
+            // Gain function
             for(int i = 0; i < TextBoxGainText.size(); i++){
                 for(int j = 0; j < TextBoxGainText[i].size(); j++){
                     if (GuiTextBox(layoutRecs[45+(3*i)+j], &(TextBoxGainText[i][j][0]), 128, TextBoxGainEditMode[i][j])) TextBoxGainEditMode[i][j] = !TextBoxGainEditMode[i][j];        
                 }
             }
+            
+            // Channel
+            for(int i = 0; i < TextBoxChannelText.size(); i++){
+                for(int j = 0; j < TextBoxChannelText[i].size(); j++){
+                    if (GuiTextBox(layoutRecs[54+(3*i)+j], &(TextBoxChannelText[i][j][0]), 128, TextBoxChannelEditMode[i][j])) TextBoxChannelEditMode[i][j] = !TextBoxChannelEditMode[i][j];        
+                }
+            }
 
-            // if (GuiTextBox(layoutRecs[45], TextBoxGain00Text, 128, TextBoxGain00EditMode)) TextBoxGain00EditMode = !TextBoxGain00EditMode;
-            // if (GuiTextBox(layoutRecs[46], TextBoxGain01Text, 128, TextBoxGain01EditMode)) TextBoxGain01EditMode = !TextBoxGain01EditMode;
-            // if (GuiTextBox(layoutRecs[47], TextBoxGain02Text, 128, TextBoxGain02EditMode)) TextBoxGain02EditMode = !TextBoxGain02EditMode;
-            // if (GuiTextBox(layoutRecs[48], TextBoxGain10Text, 128, TextBoxGain10EditMode)) TextBoxGain10EditMode = !TextBoxGain10EditMode;
-            // if (GuiTextBox(layoutRecs[49], TextBoxGain11Text, 128, TextBoxGain11EditMode)) TextBoxGain11EditMode = !TextBoxGain11EditMode;
-            // if (GuiTextBox(layoutRecs[50], TextBoxGain12Text, 128, TextBoxGain12EditMode)) TextBoxGain12EditMode = !TextBoxGain12EditMode;
-            // if (GuiTextBox(layoutRecs[51], TextBoxGain20Text, 128, TextBoxGain20EditMode)) TextBoxGain20EditMode = !TextBoxGain20EditMode;
-            // if (GuiTextBox(layoutRecs[52], TextBoxGain21Text, 128, TextBoxGain21EditMode)) TextBoxGain21EditMode = !TextBoxGain21EditMode;
-            // if (GuiTextBox(layoutRecs[53], TextBoxGain22Text, 128, TextBoxGain22EditMode)) TextBoxGain22EditMode = !TextBoxGain22EditMode;
+            // Prior
+            for(int i = 0; i < TextBoxPriorText.size(); i++){
+                if (GuiTextBox(layoutRecs[63+i], &(TextBoxPriorText[i][0]), 128, TextBoxPriorEditMode[i])) TextBoxPriorEditMode[i] = !TextBoxPriorEditMode[i];        
+            }
 
-            if (GuiTextBox(layoutRecs[54], TextBoxChannel00Text, 128, TextBoxChannel00EditMode)) TextBoxChannel00EditMode = !TextBoxChannel00EditMode;
-            if (GuiTextBox(layoutRecs[55], TextBoxcChannel01Text, 128, TextBoxcChannel01EditMode)) TextBoxcChannel01EditMode = !TextBoxcChannel01EditMode;
-            if (GuiTextBox(layoutRecs[56], TextBoxChannel02Text, 128, TextBoxChannel02EditMode)) TextBoxChannel02EditMode = !TextBoxChannel02EditMode;
-            if (GuiTextBox(layoutRecs[57], TextBoxChannel10Text, 128, TextBoxChannel10EditMode)) TextBoxChannel10EditMode = !TextBoxChannel10EditMode;
-            if (GuiTextBox(layoutRecs[58], TextBoxChannel11Text, 128, TextBoxChannel11EditMode)) TextBoxChannel11EditMode = !TextBoxChannel11EditMode;
-            if (GuiTextBox(layoutRecs[59], TextBoxChannel12Text, 128, TextBoxChannel12EditMode)) TextBoxChannel12EditMode = !TextBoxChannel12EditMode;
-            if (GuiTextBox(layoutRecs[60], TextBoxChannel20Text, 128, TextBoxChannel20EditMode)) TextBoxChannel20EditMode = !TextBoxChannel20EditMode;
-            if (GuiTextBox(layoutRecs[61], TextBoxChannel21Text, 128, TextBoxChannel21EditMode)) TextBoxChannel21EditMode = !TextBoxChannel21EditMode;
-            if (GuiTextBox(layoutRecs[62], TextBoxChannel22Text, 128, TextBoxChannel22EditMode)) TextBoxChannel22EditMode = !TextBoxChannel22EditMode;
-            if (GuiTextBox(layoutRecs[63], TextBoxPrior1Text, 128, TextBoxPrior1EditMode)) TextBoxPrior1EditMode = !TextBoxPrior1EditMode;
-            if (GuiTextBox(layoutRecs[64], TextBoxPrior2Text, 128, TextBoxPrior2EditMode)) TextBoxPrior2EditMode = !TextBoxPrior2EditMode;
-            if (GuiTextBox(layoutRecs[65], TextBoxPrior3Text, 128, TextBoxPrior3EditMode)) TextBoxPrior3EditMode = !TextBoxPrior3EditMode;
-            if (GuiTextBox(layoutRecs[66], TextBoxOuter1Text, 128, TextBoxOuter1EditMode)) TextBoxOuter1EditMode = !TextBoxOuter1EditMode;
-            if (GuiTextBox(layoutRecs[67], TextBoxOuter2Text, 128, TextBoxOuter2EditMode)) TextBoxOuter2EditMode = !TextBoxOuter2EditMode;
-            if (GuiTextBox(layoutRecs[68], TextBoxOuter3Text, 128, TextBoxOuter3EditMode)) TextBoxOuter3EditMode = !TextBoxOuter3EditMode;
-            if (GuiTextBox(layoutRecs[69], TextBoxInners00Text, 128, TextBoxInners00EditMode)) TextBoxInners00EditMode = !TextBoxInners00EditMode;
-            if (GuiTextBox(layoutRecs[70], TextBoxInners01Text, 128, TextBoxInners01EditMode)) TextBoxInners01EditMode = !TextBoxInners01EditMode;
-            if (GuiTextBox(layoutRecs[71], TextBoxInners02Text, 128, TextBoxInners02EditMode)) TextBoxInners02EditMode = !TextBoxInners02EditMode;
-            if (GuiTextBox(layoutRecs[72], TextBoxInners10Text, 128, TextBoxInners10EditMode)) TextBoxInners10EditMode = !TextBoxInners10EditMode;
-            if (GuiTextBox(layoutRecs[73], TextBoxInners11Text, 128, TextBoxInners11EditMode)) TextBoxInners11EditMode = !TextBoxInners11EditMode;
-            if (GuiTextBox(layoutRecs[74], TextBoxInners12Text, 128, TextBoxInners12EditMode)) TextBoxInners12EditMode = !TextBoxInners12EditMode;
-            if (GuiTextBox(layoutRecs[75], TextBoxInners20Text, 128, TextBoxInners20EditMode)) TextBoxInners20EditMode = !TextBoxInners20EditMode;
-            if (GuiTextBox(layoutRecs[76], TextBoxInners21Text, 128, TextBoxInners21EditMode)) TextBoxInners21EditMode = !TextBoxInners21EditMode;
-            if (GuiTextBox(layoutRecs[77], TextBoxInners22Text, 128, TextBoxInners22EditMode)) TextBoxInners22EditMode = !TextBoxInners22EditMode;
+            // Outer
+            for(int i = 0; i < TextBoxOuterText.size(); i++){
+                if (GuiTextBox(layoutRecs[66+i], &(TextBoxOuterText[i][0]), 128, TextBoxOuterEditMode[i])) TextBoxOuterEditMode[i] = !TextBoxOuterEditMode[i];        
+            }
+
+            // Inners
+            for(int i = 0; i < TextBoxInnersText.size(); i++){
+                for(int j = 0; j < TextBoxInnersText[i].size(); j++){
+                    if (GuiTextBox(layoutRecs[69+(3*i)+j], &(TextBoxInnersText[i][j][0]), 128, TextBoxInnersEditMode[i][j])) TextBoxInnersEditMode[i][j] = !TextBoxInnersEditMode[i][j];        
+                }
+            }
+
+            // Menu
             if (GuiDropdownBox(layoutRecs[42], DropDownLoadText, &DropDownLoadActive, DropDownLoadEditMode)) DropDownLoadEditMode = !DropDownLoadEditMode;
             if (GuiDropdownBox(layoutRecs[43], DropDownExportText, &DropDownExportActive, DropDownExportEditMode)) DropDownExportEditMode = !DropDownExportEditMode;
             if (GuiDropdownBox(layoutRecs[44], DropdownBox077Text, &DropdownBox077Active, DropdownBox077EditMode)) DropdownBox077EditMode = !DropdownBox077EditMode;
