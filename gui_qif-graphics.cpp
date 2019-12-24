@@ -20,6 +20,10 @@ Information Flow).
 #include "/home/ramon/raygui/src/raygui.h"
 
 #include <emscripten/emscripten.h>
+#include <vector>
+#include <string>
+
+using namespace std;
 
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
@@ -30,144 +34,144 @@ void updateDrawFrame(void);     // Update and Draw one frame
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
 
-// qif-graphics: controls initialization
-    //----------------------------------------------------------------------------------
-    // Const text
-    const char *GroupBoxPriorText = "Prior";    // GROUPBOX: GroupBoxPrior
-    const char *GroupBoxChannelText = "Channel";    // GROUPBOX: GroupBoxChannel
-    const char *GroupBoxPosteriorsText = "Posteriors";    // GROUPBOX: GroupBoxPosteriors
-    const char *GroupBoxGainText = "Gain function";    // GROUPBOX: GroupBoxGain
-    const char *LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
-    const char *LabelActionsText = "Actions";    // LABEL: LabelActions
-    const char *LabelGainX1Text = "X1";    // LABEL: LabelGainX1
-    const char *LabelGainX2Text = "X2";    // LABEL: LabelGainX2
-    const char *LabelGainX3Text = "X3";    // LABEL: LabelGainX3
-    const char *LabelGainW1Text = "W1";    // LABEL: LabelGainW1
-    const char *LabelGainW2Text = "W2";    // LABEL: LabelGainW2
-    const char *LabelGainW3Text = "W3";    // LABEL: LabelGainW3
-    const char *LabelChannelX1Text = "X1";    // LABEL: LabelChannelX1
-    const char *LabelChannelX2Text = "X2";    // LABEL: LabelChannelX2
-    const char *Label039Text = "X3";    // LABEL: Label039
-    const char *LabelChannelY1Text = "Y1";    // LABEL: LabelChannelY1
-    const char *LabelChannelY2Text = "Y2";    // LABEL: LabelChannelY2
-    const char *LabelChannelY3Text = "Y3";    // LABEL: LabelChannelY3
-    const char *LabelPriorX1Text = "X1";    // LABEL: LabelPriorX1
-    const char *LabelPriorX2Text = "X2";    // LABEL: LabelPriorX2
-    const char *LabelPriorX3Text = "X3";    // LABEL: LabelPriorX3
-    const char *GroupBoxVisualizationText = "Visualization";    // GROUPBOX: GroupBoxVisualization
-    const char *GroupBoxDrawingText = "Drawing";    // GROUPBOX: GroupBoxDrawing
-    const char *CheckBoxGainText = "Enable";    // CHECKBOXEX: CheckBoxGain
-    const char *CheckBoxDrawingText = "";    // CHECKBOXEX: CheckBoxDrawing
-    const char *StatusBarDrawingText = "Status";    // STATUSBAR: StatusBarDrawing
-    const char *Label054Text = "Click to draw:";    // LABEL: Label054
-    const char *LabelInnerX1Text = "X1";    // LABEL: LabelInnerX1
-    const char *LabelInnerX2Text = "X2";    // LABEL: LabelInnerX2
-    const char *LabelInnerX3Text = "X3";    // LABEL: LabelInnerX3
-    const char *Label072Text = "Outer";    // LABEL: Label072
-    const char *LabelOuter2Text = "I2";    // LABEL: LabelOuter2
-    const char *LabelOuter3Text = "I3";    // LABEL: LabelOuter3
-    const char *LabelOuter1Text = "I1";    // LABEL: LabelOuter1
-    const char *DropDownLoadText = "Load;Prior;Channel;Gain function";    // DROPDOWNBOX: DropDownLoad
-    const char *DropDownExportText = "Export;Prior;Channel;Posteriors;Gain function";    // DROPDOWNBOX: DropDownExport
-    const char *DropdownFileText = "File;Open;Save;Save as";    // DROPDOWNBOX: DropdownFile
-    
-    // Define anchors
-    Vector2 anchorGain = { 95, 345 };            // ANCHOR ID:1
-    Vector2 anchorChannel = { 95, 115 };            // ANCHOR ID:2
-    Vector2 anchorPrior = { 400, 95 };            // ANCHOR ID:3
-    Vector2 anchorDrawing = { 150, 570 };            // ANCHOR ID:4
-    Vector2 anchorOuter = { 535, 75 };            // ANCHOR ID:5
-    Vector2 anchorInners = { 535, 125 };            // ANCHOR ID:6
-    Vector2 anchorVisualization = { 365, 270 };            // ANCHOR ID:7
-    
-    // Define controls variables
-    bool SpinnerChannelEditMode = false;
-    int SpinnerChannelValue = 0;            // Spinner: SpinnerChannel
-    Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
-    Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
-    Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
-    Vector2 ScrollPanelGainBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelGain
-    bool SpinnerGainEditMode = false;
-    int SpinnerGainValue = 0;            // Spinner: SpinnerGain
-    bool ValueChannel00EditMode = false;
-    int ValueChannel00Value = 0;            // ValueBOx: ValueChannel00
-    bool ValueChannel10EditMode = false;
-    int ValueChannel10Value = 0;            // ValueBOx: ValueChannel10
-    bool ValueChannel20EditMode = false;
-    int ValueChannel20Value = 0;            // ValueBOx: ValueChannel20
-    bool ValueChannel21EditMode = false;
-    int ValueChannel21Value = 0;            // ValueBOx: ValueChannel21
-    bool ValueChannel11EditMode = false;
-    int ValueChannel11Value = 0;            // ValueBOx: ValueChannel11
-    bool ValueChannel01EditMode = false;
-    int ValueChannel01Value = 0;            // ValueBOx: ValueChannel01
-    bool ValueChannel02EditMode = false;
-    int ValueChannel02Value = 0;            // ValueBOx: ValueChannel02
-    bool ValueChannel12EditMode = false;
-    int ValueChannel12Value = 0;            // ValueBOx: ValueChannel12
-    bool ValueChannel22EditMode = false;
-    int ValueChannel22Value = 0;            // ValueBOx: ValueChannel22
-    bool ValueGain00EditMode = false;
-    int ValueGain00Value = 0;            // ValueBOx: ValueGain00
-    bool ValueGain10EditMode = false;
-    int ValueGain10Value = 0;            // ValueBOx: ValueGain10
-    bool ValueGain20EditMode = false;
-    int ValueGain20Value = 0;            // ValueBOx: ValueGain20
-    bool ValueGain01EditMode = false;
-    int ValueGain01Value = 0;            // ValueBOx: ValueGain01
-    bool ValueGain11EditMode = false;
-    int ValueGain11Value = 0;            // ValueBOx: ValueGain11
-    bool ValueGain21EditMode = false;
-    int ValueGain21Value = 0;            // ValueBOx: ValueGain21
-    bool ValueGain02EditMode = false;
-    int ValueGain02Value = 0;            // ValueBOx: ValueGain02
-    bool ValueGain12EditMode = false;
-    int ValueGain12Value = 0;            // ValueBOx: ValueGain12
-    bool ValueGain22EditMode = false;
-    int ValueGain22Value = 0;            // ValueBOx: ValueGain22
-    bool ValuePrior1EditMode = false;
-    int ValuePrior1Value = 0;            // ValueBOx: ValuePrior1
-    bool ValuePrior2EditMode = false;
-    int ValuePrior2Value = 0;            // ValueBOx: ValuePrior2
-    bool ValuePrior3EditMode = false;
-    int ValuePrior3Value = 0;            // ValueBOx: ValuePrior3
-    bool CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
-    bool CheckBoxDrawingChecked = false;            // CheckBoxEx: CheckBoxDrawing
-    Vector2 ScrollPanelPosteriorsScrollOffset = { 0, 0 };
-    Vector2 ScrollPanelPosteriorsBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelPosteriors
-    bool ValueOuter1EditMode = false;
-    int ValueOuter1Value = 0;            // ValueBOx: ValueOuter1
-    bool ValueOuter2EditMode = false;
-    int ValueOuter2Value = 0;            // ValueBOx: ValueOuter2
-    bool ValueOuter3EditMode = false;
-    int ValueOuter3Value = 0;            // ValueBOx: ValueOuter3
-    bool ValueInner00EditMode = false;
-    int ValueInner00Value = 0;            // ValueBOx: ValueInner00
-    bool ValueInner01EditMode = false;
-    int ValueInner01Value = 0;            // ValueBOx: ValueInner01
-    bool ValueInner02EditMode = false;
-    int ValueInner02Value = 0;            // ValueBOx: ValueInner02
-    bool ValueInner10EditMode = false;
-    int ValueInner10Value = 0;            // ValueBOx: ValueInner10
-    bool ValueInner11EditMode = false;
-    int ValueInner11Value = 0;            // ValueBOx: ValueInner11
-    bool ValueInner12EditMode = false;
-    int ValueInner12Value = 0;            // ValueBOx: ValueInner12
-    bool ValueInner20EditMode = false;
-    int ValueInner20Value = 0;            // ValueBOx: ValueInner20
-    bool ValueInner21EditMode = false;
-    int ValueInner21Value = 0;            // ValueBOx: ValueInner21
-    bool ValueInner22EditMode = false;
-    int ValueInner22Value = 0;            // ValueBOx: ValueInner22
-    bool DropDownLoadEditMode = false;
-    int DropDownLoadActive = 0;            // DropdownBox: DropDownLoad
-    bool DropDownExportEditMode = false;
-    int DropDownExportActive = 0;            // DropdownBox: DropDownExport
-    bool DropdownFileEditMode = false;
-    int DropdownFileActive = 0;            // DropdownBox: DropdownFile
 
-    
-    //----------------------------------------------------------------------------------
+// qif-graphics: controls initialization
+//----------------------------------------------------------------------------------
+// Const text
+const char *GroupBoxPriorText = "Prior";    // GROUPBOX: GroupBoxPrior
+const char *GroupBoxChannelText = "Channel";    // GROUPBOX: GroupBoxChannel
+const char *GroupBoxPosteriorsText = "Posteriors";    // GROUPBOX: GroupBoxPosteriors
+const char *GroupBoxGainText = "Gain function";    // GROUPBOX: GroupBoxGain
+const char *LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
+const char *LabelActionsText = "Actions";    // LABEL: LabelActions
+const char *LabelGainX1Text = "X1";    // LABEL: LabelGainX1
+const char *LabelGainX2Text = "X2";    // LABEL: LabelGainX2
+const char *LabelGainX3Text = "X3";    // LABEL: LabelGainX3
+const char *LabelGainW1Text = "W1";    // LABEL: LabelGainW1
+const char *LabelGainW2Text = "W2";    // LABEL: LabelGainW2
+const char *LabelGainW3Text = "W3";    // LABEL: LabelGainW3
+const char *LabelChannelX1Text = "X1";    // LABEL: LabelChannelX1
+const char *LabelChannelX2Text = "X2";    // LABEL: LabelChannelX2
+const char *Label039Text = "X3";    // LABEL: Label039
+const char *LabelChannelY1Text = "Y1";    // LABEL: LabelChannelY1
+const char *LabelChannelY2Text = "Y2";    // LABEL: LabelChannelY2
+const char *LabelChannelY3Text = "Y3";    // LABEL: LabelChannelY3
+const char *LabelPriorX1Text = "X1";    // LABEL: LabelPriorX1
+const char *LabelPriorX2Text = "X2";    // LABEL: LabelPriorX2
+const char *LabelPriorX3Text = "X3";    // LABEL: LabelPriorX3
+const char *GroupBoxVisualizationText = "Visualization";    // GROUPBOX: GroupBoxVisualization
+const char *GroupBoxDrawingText = "Drawing";    // GROUPBOX: GroupBoxDrawing
+const char *CheckBoxGainText = "Enable";    // CHECKBOXEX: CheckBoxGain
+const char *CheckBoxDrawingText = "";    // CHECKBOXEX: CheckBoxDrawing
+const char *StatusBarDrawingText = "Status";    // STATUSBAR: StatusBarDrawing
+const char *Label054Text = "Click to draw:";    // LABEL: Label054
+const char *LabelInnerX1Text = "X1";    // LABEL: LabelInnerX1
+const char *LabelInnerX2Text = "X2";    // LABEL: LabelInnerX2
+const char *LabelInnerX3Text = "X3";    // LABEL: LabelInnerX3
+const char *Label072Text = "Outer";    // LABEL: Label072
+const char *LabelOuter2Text = "I2";    // LABEL: LabelOuter2
+const char *LabelOuter3Text = "I3";    // LABEL: LabelOuter3
+const char *LabelOuter1Text = "I1";    // LABEL: LabelOuter1
+const char *DropDownLoadText = "Load;Prior;Channel;Gain function";    // DROPDOWNBOX: DropDownLoad
+const char *DropDownExportText = "Export;Prior;Channel;Posteriors;Gain function";    // DROPDOWNBOX: DropDownExport
+const char *DropdownBox077Text = "File;Open;Save;Save as";    // DROPDOWNBOX: DropdownBox077
+
+// Define anchors
+Vector2 anchorGain = { 95, 345 };            // ANCHOR ID:1
+Vector2 anchorChannel = { 95, 115 };            // ANCHOR ID:2
+Vector2 anchorPrior = { 400, 95 };            // ANCHOR ID:3
+Vector2 anchorDrawing = { 150, 570 };            // ANCHOR ID:4
+Vector2 anchorOuter = { 535, 75 };            // ANCHOR ID:5
+Vector2 anchorInners = { 535, 125 };            // ANCHOR ID:6
+Vector2 anchorVisualization = { 365, 270 };            // ANCHOR ID:7
+
+// Define controls variables
+bool SpinnerChannelEditMode = false;
+int SpinnerChannelValue = 0;            // Spinner: SpinnerChannel
+// Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
+// Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
+// Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
+// Vector2 ScrollPanelGainBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelGain
+bool SpinnerGainEditMode = false;
+int SpinnerGainValue = 0;            // Spinner: SpinnerGain
+bool CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
+bool CheckBoxDrawingChecked = false;            // CheckBoxEx: CheckBoxDrawing
+// Vector2 ScrollPanelPosteriorsScrollOffset = { 0, 0 };
+// Vector2 ScrollPanelPosteriorsBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelPosteriors
+bool DropDownLoadEditMode = false;
+int DropDownLoadActive = 0;            // DropdownBox: DropDownLoad
+bool DropDownExportEditMode = false;
+int DropDownExportActive = 0;            // DropdownBox: DropDownExport
+bool DropdownBox077EditMode = false;
+int DropdownBox077Active = 0;            // DropdownBox: DropdownBox077
+vector<vector<bool> > TextBoxGainEditMode(3, vector<bool>(3, false));
+vector<vector<string> > TextBoxGainText(3, vector<string>(3, "0"));
+// bool TextBoxGain00EditMode = false;
+// char TextBoxGain00Text[128] = "0";            // TextBox: TextBoxGain00
+// bool TextBoxGain01EditMode = false;
+// char TextBoxGain01Text[128] = "0";            // TextBox: TextBoxGain01
+// bool TextBoxGain02EditMode = false;
+// char TextBoxGain02Text[128] = "0";            // TextBox: TextBoxGain02
+// bool TextBoxGain10EditMode = false;
+// char TextBoxGain10Text[128] = "0";            // TextBox: TextBoxGain10
+// bool TextBoxGain11EditMode = false;
+// char TextBoxGain11Text[128] = "0";            // TextBox: TextBoxGain11
+// bool TextBoxGain12EditMode = false;
+// char TextBoxGain12Text[128] = "0";            // TextBox: TextBoxGain12
+// bool TextBoxGain20EditMode = false;
+// char TextBoxGain20Text[128] = "0";            // TextBox: TextBoxGain20
+// bool TextBoxGain21EditMode = false;
+// char TextBoxGain21Text[128] = "0";            // TextBox: TextBoxGain21
+// bool TextBoxGain22EditMode = false;
+// char TextBoxGain22Text[128] = "0";            // TextBox: TextBoxGain22
+bool TextBoxChannel00EditMode = false;
+char TextBoxChannel00Text[128] = "0";            // TextBox: TextBoxChannel00
+bool TextBoxcChannel01EditMode = false;
+char TextBoxcChannel01Text[128] = "0";            // TextBox: TextBoxcChannel01
+bool TextBoxChannel02EditMode = false;
+char TextBoxChannel02Text[128] = "0";            // TextBox: TextBoxChannel02
+bool TextBoxChannel10EditMode = false;
+char TextBoxChannel10Text[128] = "0";            // TextBox: TextBoxChannel10
+bool TextBoxChannel11EditMode = false;
+char TextBoxChannel11Text[128] = "0";            // TextBox: TextBoxChannel11
+bool TextBoxChannel12EditMode = false;
+char TextBoxChannel12Text[128] = "0";            // TextBox: TextBoxChannel12
+bool TextBoxChannel20EditMode = false;
+char TextBoxChannel20Text[128] = "0";            // TextBox: TextBoxChannel20
+bool TextBoxChannel21EditMode = false;
+char TextBoxChannel21Text[128] = "0";            // TextBox: TextBoxChannel21
+bool TextBoxChannel22EditMode = false;
+char TextBoxChannel22Text[128] = "0";            // TextBox: TextBoxChannel22
+bool TextBoxPrior1EditMode = false;
+char TextBoxPrior1Text[128] = "0";            // TextBox: TextBoxPrior1
+bool TextBoxPrior2EditMode = false;
+char TextBoxPrior2Text[128] = "0";            // TextBox: TextBoxPrior2
+bool TextBoxPrior3EditMode = false;
+char TextBoxPrior3Text[128] = "0";            // TextBox: TextBoxPrior3
+bool TextBoxOuter1EditMode = false;
+char TextBoxOuter1Text[128] = "0";            // TextBox: TextBoxOuter1
+bool TextBoxOuter2EditMode = false;
+char TextBoxOuter2Text[128] = "0";            // TextBox: TextBoxOuter2
+bool TextBoxOuter3EditMode = false;
+char TextBoxOuter3Text[128] = "0";            // TextBox: TextBoxOuter3
+bool TextBoxInners00EditMode = false;
+char TextBoxInners00Text[128] = "0";            // TextBox: TextBoxInners00
+bool TextBoxInners01EditMode = false;
+char TextBoxInners01Text[128] = "0";            // TextBox: TextBoxInners01
+bool TextBoxInners02EditMode = false;
+char TextBoxInners02Text[128] = "0";            // TextBox: TextBoxInners02
+bool TextBoxInners10EditMode = false;
+char TextBoxInners10Text[128] = "0";            // TextBox: TextBoxInners10
+bool TextBoxInners11EditMode = false;
+char TextBoxInners11Text[128] = "0";            // TextBox: TextBoxInners11
+bool TextBoxInners12EditMode = false;
+char TextBoxInners12Text[128] = "0";            // TextBox: TextBoxInners12
+bool TextBoxInners20EditMode = false;
+char TextBoxInners20Text[128] = "0";            // TextBox: TextBoxInners20
+bool TextBoxInners21EditMode = false;
+char TextBoxInners21Text[128] = "0";            // TextBox: TextBoxInners21
+bool TextBoxInners22EditMode = false;
+char TextBoxInners22Text[128] = "0";            // TextBox: TextBoxInners22
 
 
 //------------------------------------------------------------------------------------
@@ -177,8 +181,8 @@ int main()
 {
     // Initialization
     //---------------------------------------------------------------------------------------
-    int screenWidth = 1000;
-    int screenHeight = 900;
+    int screenWidth = 1200;
+    int screenHeight = 1000;
 
     InitWindow(screenWidth, screenHeight, "qif-graphics");
 
@@ -204,6 +208,7 @@ int main()
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
+
 void updateDrawFrame(void){
     // Define controls rectangles
     Rectangle layoutRecs[78] = {
@@ -219,24 +224,6 @@ void updateDrawFrame(void){
         (Rectangle){ 65, 305, 280, 175 },    // ScrollPanel: ScrollPanelGain
         (Rectangle){ 265, 280, 80, 20 },    // Spinner: SpinnerGain
         (Rectangle){ 210, 280, 50, 20 },    // Label: LabelActions
-        (Rectangle){ anchorChannel.x + 0, anchorChannel.y + 0, 35, 35 },    // ValueBOx: ValueChannel00
-        (Rectangle){ anchorChannel.x + 0, anchorChannel.y + 35, 35, 35 },    // ValueBOx: ValueChannel10
-        (Rectangle){ anchorChannel.x + 0, anchorChannel.y + 70, 35, 35 },    // ValueBOx: ValueChannel20
-        (Rectangle){ anchorChannel.x + 35, anchorChannel.y + 70, 35, 35 },    // ValueBOx: ValueChannel21
-        (Rectangle){ anchorChannel.x + 35, anchorChannel.y + 35, 35, 35 },    // ValueBOx: ValueChannel11
-        (Rectangle){ anchorChannel.x + 35, anchorChannel.y + 0, 35, 35 },    // ValueBOx: ValueChannel01
-        (Rectangle){ anchorChannel.x + 70, anchorChannel.y + 0, 35, 35 },    // ValueBOx: ValueChannel02
-        (Rectangle){ anchorChannel.x + 70, anchorChannel.y + 35, 35, 35 },    // ValueBOx: ValueChannel12
-        (Rectangle){ anchorChannel.x + 70, anchorChannel.y + 70, 35, 35 },    // ValueBOx: ValueChannel22
-        (Rectangle){ anchorGain.x + 0, anchorGain.y + 0, 35, 35 },    // ValueBOx: ValueGain00
-        (Rectangle){ anchorGain.x + 0, anchorGain.y + 35, 35, 35 },    // ValueBOx: ValueGain10
-        (Rectangle){ anchorGain.x + 0, anchorGain.y + 70, 35, 35 },    // ValueBOx: ValueGain20
-        (Rectangle){ anchorGain.x + 35, anchorGain.y + 0, 35, 35 },    // ValueBOx: ValueGain01
-        (Rectangle){ anchorGain.x + 35, anchorGain.y + 35, 35, 35 },    // ValueBOx: ValueGain11
-        (Rectangle){ anchorGain.x + 35, anchorGain.y + 70, 35, 35 },    // ValueBOx: ValueGain21
-        (Rectangle){ anchorGain.x + 70, anchorGain.y + 0, 35, 35 },    // ValueBOx: ValueGain02
-        (Rectangle){ anchorGain.x + 70, anchorGain.y + 35, 35, 35 },    // ValueBOx: ValueGain12
-        (Rectangle){ anchorGain.x + 70, anchorGain.y + 70, 35, 35 },    // ValueBOx: ValueGain22
         (Rectangle){ anchorGain.x + -20, anchorGain.y + 0, 15, 35 },    // Label: LabelGainX1
         (Rectangle){ anchorGain.x + -20, anchorGain.y + 35, 15, 35 },    // Label: LabelGainX2
         (Rectangle){ anchorGain.x + -20, anchorGain.y + 70, 15, 35 },    // Label: LabelGainX3
@@ -249,9 +236,6 @@ void updateDrawFrame(void){
         (Rectangle){ anchorChannel.x + 10, anchorChannel.y + -20, 20, 20 },    // Label: LabelChannelY1
         (Rectangle){ anchorChannel.x + 45, anchorChannel.y + -20, 20, 20 },    // Label: LabelChannelY2
         (Rectangle){ anchorChannel.x + 80, anchorChannel.y + -20, 20, 20 },    // Label: LabelChannelY3
-        (Rectangle){ anchorPrior.x + 0, anchorPrior.y + 0, 35, 35 },    // ValueBOx: ValuePrior1
-        (Rectangle){ anchorPrior.x + 0, anchorPrior.y + 35, 35, 35 },    // ValueBOx: ValuePrior2
-        (Rectangle){ anchorPrior.x + 0, anchorPrior.y + 70, 35, 35 },    // ValueBOx: ValuePrior3
         (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 0, 15, 35 },    // Label: LabelPriorX1
         (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 35, 15, 35 },    // Label: LabelPriorX2
         (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 70, 15, 35 },    // Label: LabelPriorX3
@@ -262,18 +246,6 @@ void updateDrawFrame(void){
         (Rectangle){ 65, 505, 280, 45 },    // StatusBar: StatusBarDrawing
         (Rectangle){ anchorDrawing.x + 0, anchorDrawing.y + 0, 75, 25 },    // Label: Label054
         (Rectangle){ 480, 50, 295, 200 },    // ScrollPanel: ScrollPanelPosteriors
-        (Rectangle){ anchorOuter.x + 0, anchorOuter.y + 0, 35, 35 },    // ValueBOx: ValueOuter1
-        (Rectangle){ anchorOuter.x + 35, anchorOuter.y + 0, 35, 35 },    // ValueBOx: ValueOuter2
-        (Rectangle){ anchorOuter.x + 70, anchorOuter.y + 0, 35, 35 },    // ValueBOx: ValueOuter3
-        (Rectangle){ anchorInners.x + 0, anchorInners.y + 0, 35, 35 },    // ValueBOx: ValueInner00
-        (Rectangle){ anchorInners.x + 35, anchorInners.y + 0, 35, 35 },    // ValueBOx: ValueInner01
-        (Rectangle){ anchorInners.x + 70, anchorInners.y + 0, 35, 35 },    // ValueBOx: ValueInner02
-        (Rectangle){ anchorInners.x + 0, anchorInners.y + 35, 35, 35 },    // ValueBOx: ValueInner10
-        (Rectangle){ anchorInners.x + 35, anchorInners.y + 35, 35, 35 },    // ValueBOx: ValueInner11
-        (Rectangle){ anchorInners.x + 70, anchorInners.y + 35, 35, 35 },    // ValueBOx: ValueInner12
-        (Rectangle){ anchorInners.x + 0, anchorInners.y + 70, 35, 35 },    // ValueBOx: ValueInner20
-        (Rectangle){ anchorInners.x + 35, anchorInners.y + 70, 35, 35 },    // ValueBOx: ValueInner21
-        (Rectangle){ anchorInners.x + 70, anchorInners.y + 70, 35, 35 },    // ValueBOx: ValueInner22
         (Rectangle){ anchorOuter.x + 0, anchorOuter.y + 35, 105, 12 },    // Line: Line069
         (Rectangle){ anchorInners.x + -20, anchorInners.y + 0, 15, 35 },    // Label: LabelInnerX1
         (Rectangle){ anchorInners.x + -20, anchorInners.y + 35, 15, 35 },    // Label: LabelInnerX2
@@ -284,8 +256,43 @@ void updateDrawFrame(void){
         (Rectangle){ anchorOuter.x + 15, anchorOuter.y + -20, 20, 20 },    // Label: LabelOuter1
         (Rectangle){ 155, 0, 105, 25 },    // DropdownBox: DropDownLoad
         (Rectangle){ 260, 0, 105, 25 },    // DropdownBox: DropDownExport
-        (Rectangle){ 50, 0, 105, 25 },    // DropdownBox: DropdownFile
+        (Rectangle){ 50, 0, 105, 25 },    // DropdownBox: DropdownBox077
+        (Rectangle){ anchorGain.x + 0, anchorGain.y + 0, 35, 35 },    // TextBox: TextBoxGain00
+        (Rectangle){ anchorGain.x + 35, anchorGain.y + 0, 35, 35 },    // TextBox: TextBoxGain01
+        (Rectangle){ anchorGain.x + 70, anchorGain.y + 0, 35, 35 },    // TextBox: TextBoxGain02
+        (Rectangle){ anchorGain.x + 0, anchorGain.y + 35, 35, 35 },    // TextBox: TextBoxGain10
+        (Rectangle){ anchorGain.x + 35, anchorGain.y + 35, 35, 35 },    // TextBox: TextBoxGain11
+        (Rectangle){ anchorGain.x + 70, anchorGain.y + 35, 35, 35 },    // TextBox: TextBoxGain12
+        (Rectangle){ anchorGain.x + 0, anchorGain.y + 70, 35, 35 },    // TextBox: TextBoxGain20
+        (Rectangle){ anchorGain.x + 35, anchorGain.y + 70, 35, 35 },    // TextBox: TextBoxGain21
+        (Rectangle){ anchorGain.x + 70, anchorGain.y + 70, 35, 35 },    // TextBox: TextBoxGain22
+        (Rectangle){ anchorChannel.x + 0, anchorChannel.y + 0, 35, 35 },    // TextBox: TextBoxChannel00
+        (Rectangle){ anchorChannel.x + 35, anchorChannel.y + 0, 35, 35 },    // TextBox: TextBoxcChannel01
+        (Rectangle){ anchorChannel.x + 70, anchorChannel.y + 0, 35, 35 },    // TextBox: TextBoxChannel02
+        (Rectangle){ anchorChannel.x + 0, anchorChannel.y + 35, 35, 35 },    // TextBox: TextBoxChannel10
+        (Rectangle){ anchorChannel.x + 35, anchorChannel.y + 35, 35, 35 },    // TextBox: TextBoxChannel11
+        (Rectangle){ anchorChannel.x + 70, anchorChannel.y + 35, 35, 35 },    // TextBox: TextBoxChannel12
+        (Rectangle){ anchorChannel.x + 0, anchorChannel.y + 70, 35, 35 },    // TextBox: TextBoxChannel20
+        (Rectangle){ anchorChannel.x + 35, anchorChannel.y + 70, 35, 35 },    // TextBox: TextBoxChannel21
+        (Rectangle){ anchorChannel.x + 70, anchorChannel.y + 70, 35, 35 },    // TextBox: TextBoxChannel22
+        (Rectangle){ anchorPrior.x + 0, anchorPrior.y + 0, 35, 35 },    // TextBox: TextBoxPrior1
+        (Rectangle){ anchorPrior.x + 0, anchorPrior.y + 35, 35, 35 },    // TextBox: TextBoxPrior2
+        (Rectangle){ anchorPrior.x + 0, anchorPrior.y + 70, 35, 35 },    // TextBox: TextBoxPrior3
+        (Rectangle){ anchorOuter.x + 0, anchorOuter.y + 0, 35, 35 },    // TextBox: TextBoxOuter1
+        (Rectangle){ anchorOuter.x + 35, anchorOuter.y + 0, 35, 35 },    // TextBox: TextBoxOuter2
+        (Rectangle){ anchorOuter.x + 70, anchorOuter.y + 0, 35, 35 },    // TextBox: TextBoxOuter3
+        (Rectangle){ anchorInners.x + 0, anchorInners.y + 0, 35, 35 },    // TextBox: TextBoxInners00
+        (Rectangle){ anchorInners.x + 35, anchorInners.y + 0, 35, 35 },    // TextBox: TextBoxInners01
+        (Rectangle){ anchorInners.x + 70, anchorInners.y + 0, 35, 35 },    // TextBox: TextBoxInners02
+        (Rectangle){ anchorInners.x + 0, anchorInners.y + 35, 35, 35 },    // TextBox: TextBoxInners10
+        (Rectangle){ anchorInners.x + 35, anchorInners.y + 35, 35, 35 },    // TextBox: TextBoxInners11
+        (Rectangle){ anchorInners.x + 70, anchorInners.y + 35, 35, 35 },    // TextBox: TextBoxInners12
+        (Rectangle){ anchorInners.x + 0, anchorInners.y + 70, 35, 35 },    // TextBox: TextBoxInners20
+        (Rectangle){ anchorInners.x + 35, anchorInners.y + 70, 35, 35 },    // TextBox: TextBoxInners21
+        (Rectangle){ anchorInners.x + 70, anchorInners.y + 70, 35, 35 }    // TextBox: TextBoxInners22
     };
+    //----------------------------------------------------------------------------------
+
     // Update
         //----------------------------------------------------------------------------------
         // TODO: Implement required update logic
@@ -300,7 +307,7 @@ void updateDrawFrame(void){
             // raygui: controls drawing
             //----------------------------------------------------------------------------------
             // Draw controls
-            // if (DropDownLoadEditMode || DropDownExportEditMode || DropdownFileEditMode) GuiLock();
+            // if (DropDownLoadEditMode || DropDownExportEditMode || DropdownBox077EditMode) GuiLock();
 
             GuiPanel(layoutRecs[0]);
             GuiPanel(layoutRecs[1]);
@@ -314,72 +321,80 @@ void updateDrawFrame(void){
             // ScrollPanelGainScrollOffset = GuiScrollPanel((Rectangle){layoutRecs[9].x, layoutRecs[9].y, layoutRecs[9].width - ScrollPanelGainBoundsOffset.x, layoutRecs[9].height - ScrollPanelGainBoundsOffset.y }, layoutRecs[9], ScrollPanelGainScrollOffset);
             if (GuiSpinner(layoutRecs[10], "", &SpinnerGainValue, 0, 100, SpinnerGainEditMode)) SpinnerGainEditMode = !SpinnerGainEditMode;
             GuiLabel(layoutRecs[11], LabelActionsText);
-            if (GuiValueBox(layoutRecs[12], "", &ValueChannel00Value, 0, 100, ValueChannel00EditMode)) ValueChannel00EditMode = !ValueChannel00EditMode;
-            if (GuiValueBox(layoutRecs[13], "", &ValueChannel10Value, 0, 100, ValueChannel10EditMode)) ValueChannel10EditMode = !ValueChannel10EditMode;
-            if (GuiValueBox(layoutRecs[14], "", &ValueChannel20Value, 0, 100, ValueChannel20EditMode)) ValueChannel20EditMode = !ValueChannel20EditMode;
-            if (GuiValueBox(layoutRecs[15], "", &ValueChannel21Value, 0, 100, ValueChannel21EditMode)) ValueChannel21EditMode = !ValueChannel21EditMode;
-            if (GuiValueBox(layoutRecs[16], "", &ValueChannel11Value, 0, 100, ValueChannel11EditMode)) ValueChannel11EditMode = !ValueChannel11EditMode;
-            if (GuiValueBox(layoutRecs[17], "", &ValueChannel01Value, 0, 100, ValueChannel01EditMode)) ValueChannel01EditMode = !ValueChannel01EditMode;
-            if (GuiValueBox(layoutRecs[18], "", &ValueChannel02Value, 0, 100, ValueChannel02EditMode)) ValueChannel02EditMode = !ValueChannel02EditMode;
-            if (GuiValueBox(layoutRecs[19], "", &ValueChannel12Value, 0, 100, ValueChannel12EditMode)) ValueChannel12EditMode = !ValueChannel12EditMode;
-            if (GuiValueBox(layoutRecs[20], "", &ValueChannel22Value, 0, 100, ValueChannel22EditMode)) ValueChannel22EditMode = !ValueChannel22EditMode;
-            if (GuiValueBox(layoutRecs[21], "", &ValueGain00Value, 0, 100, ValueGain00EditMode)) ValueGain00EditMode = !ValueGain00EditMode;
-            if (GuiValueBox(layoutRecs[22], "", &ValueGain10Value, 0, 100, ValueGain10EditMode)) ValueGain10EditMode = !ValueGain10EditMode;
-            if (GuiValueBox(layoutRecs[23], "", &ValueGain20Value, 0, 100, ValueGain20EditMode)) ValueGain20EditMode = !ValueGain20EditMode;
-            if (GuiValueBox(layoutRecs[24], "", &ValueGain01Value, 0, 100, ValueGain01EditMode)) ValueGain01EditMode = !ValueGain01EditMode;
-            if (GuiValueBox(layoutRecs[25], "", &ValueGain11Value, 0, 100, ValueGain11EditMode)) ValueGain11EditMode = !ValueGain11EditMode;
-            if (GuiValueBox(layoutRecs[26], "", &ValueGain21Value, 0, 100, ValueGain21EditMode)) ValueGain21EditMode = !ValueGain21EditMode;
-            if (GuiValueBox(layoutRecs[27], "", &ValueGain02Value, 0, 100, ValueGain02EditMode)) ValueGain02EditMode = !ValueGain02EditMode;
-            if (GuiValueBox(layoutRecs[28], "", &ValueGain12Value, 0, 100, ValueGain12EditMode)) ValueGain12EditMode = !ValueGain12EditMode;
-            if (GuiValueBox(layoutRecs[29], "", &ValueGain22Value, 0, 100, ValueGain22EditMode)) ValueGain22EditMode = !ValueGain22EditMode;
-            GuiLabel(layoutRecs[30], LabelGainX1Text);
-            GuiLabel(layoutRecs[31], LabelGainX2Text);
-            GuiLabel(layoutRecs[32], LabelGainX3Text);
-            GuiLabel(layoutRecs[33], LabelGainW1Text);
-            GuiLabel(layoutRecs[34], LabelGainW2Text);
-            GuiLabel(layoutRecs[35], LabelGainW3Text);
-            GuiLabel(layoutRecs[36], LabelChannelX1Text);
-            GuiLabel(layoutRecs[37], LabelChannelX2Text);
-            GuiLabel(layoutRecs[38], Label039Text);
-            GuiLabel(layoutRecs[39], LabelChannelY1Text);
-            GuiLabel(layoutRecs[40], LabelChannelY2Text);
-            GuiLabel(layoutRecs[41], LabelChannelY3Text);
-            if (GuiValueBox(layoutRecs[42], "", &ValuePrior1Value, 0, 100, ValuePrior1EditMode)) ValuePrior1EditMode = !ValuePrior1EditMode;
-            if (GuiValueBox(layoutRecs[43], "", &ValuePrior2Value, 0, 100, ValuePrior2EditMode)) ValuePrior2EditMode = !ValuePrior2EditMode;
-            if (GuiValueBox(layoutRecs[44], "", &ValuePrior3Value, 0, 100, ValuePrior3EditMode)) ValuePrior3EditMode = !ValuePrior3EditMode;
-            GuiLabel(layoutRecs[45], LabelPriorX1Text);
-            GuiLabel(layoutRecs[46], LabelPriorX2Text);
-            GuiLabel(layoutRecs[47], LabelPriorX3Text);
-            GuiGroupBox(layoutRecs[48], GroupBoxVisualizationText);
-            GuiGroupBox(layoutRecs[49], GroupBoxDrawingText);
-            CheckBoxGainChecked = GuiCheckBox(layoutRecs[50], CheckBoxGainText, CheckBoxGainChecked);
-            CheckBoxDrawingChecked = GuiCheckBox(layoutRecs[51], CheckBoxDrawingText, CheckBoxDrawingChecked);
-            GuiStatusBar(layoutRecs[52], StatusBarDrawingText);
-            GuiLabel(layoutRecs[53], Label054Text);
-            // ScrollPanelPosteriorsScrollOffset = GuiScrollPanel((Rectangle){layoutRecs[54].x, layoutRecs[54].y, layoutRecs[54].width - ScrollPanelPosteriorsBoundsOffset.x, layoutRecs[54].height - ScrollPanelPosteriorsBoundsOffset.y }, layoutRecs[54], ScrollPanelPosteriorsScrollOffset);
-            if (GuiValueBox(layoutRecs[55], "", &ValueOuter1Value, 0, 100, ValueOuter1EditMode)) ValueOuter1EditMode = !ValueOuter1EditMode;
-            if (GuiValueBox(layoutRecs[56], "", &ValueOuter2Value, 0, 100, ValueOuter2EditMode)) ValueOuter2EditMode = !ValueOuter2EditMode;
-            if (GuiValueBox(layoutRecs[57], "", &ValueOuter3Value, 0, 100, ValueOuter3EditMode)) ValueOuter3EditMode = !ValueOuter3EditMode;
-            if (GuiValueBox(layoutRecs[58], "", &ValueInner00Value, 0, 100, ValueInner00EditMode)) ValueInner00EditMode = !ValueInner00EditMode;
-            if (GuiValueBox(layoutRecs[59], "", &ValueInner01Value, 0, 100, ValueInner01EditMode)) ValueInner01EditMode = !ValueInner01EditMode;
-            if (GuiValueBox(layoutRecs[60], "", &ValueInner02Value, 0, 100, ValueInner02EditMode)) ValueInner02EditMode = !ValueInner02EditMode;
-            if (GuiValueBox(layoutRecs[61], "", &ValueInner10Value, 0, 100, ValueInner10EditMode)) ValueInner10EditMode = !ValueInner10EditMode;
-            if (GuiValueBox(layoutRecs[62], "", &ValueInner11Value, 0, 100, ValueInner11EditMode)) ValueInner11EditMode = !ValueInner11EditMode;
-            if (GuiValueBox(layoutRecs[63], "", &ValueInner12Value, 0, 100, ValueInner12EditMode)) ValueInner12EditMode = !ValueInner12EditMode;
-            if (GuiValueBox(layoutRecs[64], "", &ValueInner20Value, 0, 100, ValueInner20EditMode)) ValueInner20EditMode = !ValueInner20EditMode;
-            if (GuiValueBox(layoutRecs[65], "", &ValueInner21Value, 0, 100, ValueInner21EditMode)) ValueInner21EditMode = !ValueInner21EditMode;
-            if (GuiValueBox(layoutRecs[66], "", &ValueInner22Value, 0, 100, ValueInner22EditMode)) ValueInner22EditMode = !ValueInner22EditMode;
-            GuiLine(layoutRecs[67], NULL);
-            GuiLabel(layoutRecs[68], LabelInnerX1Text);
-            GuiLabel(layoutRecs[69], LabelInnerX2Text);
-            GuiLabel(layoutRecs[70], LabelInnerX3Text);
-            GuiLabel(layoutRecs[71], Label072Text);
-            GuiLabel(layoutRecs[72], LabelOuter2Text);
-            GuiLabel(layoutRecs[73], LabelOuter3Text);
-            GuiLabel(layoutRecs[74], LabelOuter1Text);
-            if (GuiDropdownBox(layoutRecs[75], DropDownLoadText, &DropDownLoadActive, DropDownLoadEditMode)) DropDownLoadEditMode = !DropDownLoadEditMode;
-            if (GuiDropdownBox(layoutRecs[76], DropDownExportText, &DropDownExportActive, DropDownExportEditMode)) DropDownExportEditMode = !DropDownExportEditMode;
-            if (GuiDropdownBox(layoutRecs[77], DropdownFileText, &DropdownFileActive, DropdownFileEditMode)) DropdownFileEditMode = !DropdownFileEditMode;
+            GuiLabel(layoutRecs[12], LabelGainX1Text);
+            GuiLabel(layoutRecs[13], LabelGainX2Text);
+            GuiLabel(layoutRecs[14], LabelGainX3Text);
+            GuiLabel(layoutRecs[15], LabelGainW1Text);
+            GuiLabel(layoutRecs[16], LabelGainW2Text);
+            GuiLabel(layoutRecs[17], LabelGainW3Text);
+            GuiLabel(layoutRecs[18], LabelChannelX1Text);
+            GuiLabel(layoutRecs[19], LabelChannelX2Text);
+            GuiLabel(layoutRecs[20], Label039Text);
+            GuiLabel(layoutRecs[21], LabelChannelY1Text);
+            GuiLabel(layoutRecs[22], LabelChannelY2Text);
+            GuiLabel(layoutRecs[23], LabelChannelY3Text);
+            GuiLabel(layoutRecs[24], LabelPriorX1Text);
+            GuiLabel(layoutRecs[25], LabelPriorX2Text);
+            GuiLabel(layoutRecs[26], LabelPriorX3Text);
+            GuiGroupBox(layoutRecs[27], GroupBoxVisualizationText);
+            GuiGroupBox(layoutRecs[28], GroupBoxDrawingText);
+            CheckBoxGainChecked = GuiCheckBox(layoutRecs[29], CheckBoxGainText, CheckBoxGainChecked);
+            CheckBoxDrawingChecked = GuiCheckBox(layoutRecs[30], CheckBoxDrawingText, CheckBoxDrawingChecked);
+            GuiStatusBar(layoutRecs[31], StatusBarDrawingText);
+            GuiLabel(layoutRecs[32], Label054Text);
+            // ScrollPanelPosteriorsScrollOffset = GuiScrollPanel((Rectangle){layoutRecs[33].x, layoutRecs[33].y, layoutRecs[33].width - ScrollPanelPosteriorsBoundsOffset.x, layoutRecs[33].height - ScrollPanelPosteriorsBoundsOffset.y }, layoutRecs[33], ScrollPanelPosteriorsScrollOffset);
+            GuiLine(layoutRecs[34], NULL);
+            GuiLabel(layoutRecs[35], LabelInnerX1Text);
+            GuiLabel(layoutRecs[36], LabelInnerX2Text);
+            GuiLabel(layoutRecs[37], LabelInnerX3Text);
+            GuiLabel(layoutRecs[38], Label072Text);
+            GuiLabel(layoutRecs[39], LabelOuter2Text);
+            GuiLabel(layoutRecs[40], LabelOuter3Text);
+            GuiLabel(layoutRecs[41], LabelOuter1Text);
+            
+            for(int i = 0; i < TextBoxGainText.size(); i++){
+                for(int j = 0; j < TextBoxGainText[i].size(); j++){
+                    if (GuiTextBox(layoutRecs[45+(3*i)+j], &(TextBoxGainText[i][j][0]), 128, TextBoxGainEditMode[i][j])) TextBoxGainEditMode[i][j] = !TextBoxGainEditMode[i][j];        
+                }
+            }
+
+            // if (GuiTextBox(layoutRecs[45], TextBoxGain00Text, 128, TextBoxGain00EditMode)) TextBoxGain00EditMode = !TextBoxGain00EditMode;
+            // if (GuiTextBox(layoutRecs[46], TextBoxGain01Text, 128, TextBoxGain01EditMode)) TextBoxGain01EditMode = !TextBoxGain01EditMode;
+            // if (GuiTextBox(layoutRecs[47], TextBoxGain02Text, 128, TextBoxGain02EditMode)) TextBoxGain02EditMode = !TextBoxGain02EditMode;
+            // if (GuiTextBox(layoutRecs[48], TextBoxGain10Text, 128, TextBoxGain10EditMode)) TextBoxGain10EditMode = !TextBoxGain10EditMode;
+            // if (GuiTextBox(layoutRecs[49], TextBoxGain11Text, 128, TextBoxGain11EditMode)) TextBoxGain11EditMode = !TextBoxGain11EditMode;
+            // if (GuiTextBox(layoutRecs[50], TextBoxGain12Text, 128, TextBoxGain12EditMode)) TextBoxGain12EditMode = !TextBoxGain12EditMode;
+            // if (GuiTextBox(layoutRecs[51], TextBoxGain20Text, 128, TextBoxGain20EditMode)) TextBoxGain20EditMode = !TextBoxGain20EditMode;
+            // if (GuiTextBox(layoutRecs[52], TextBoxGain21Text, 128, TextBoxGain21EditMode)) TextBoxGain21EditMode = !TextBoxGain21EditMode;
+            // if (GuiTextBox(layoutRecs[53], TextBoxGain22Text, 128, TextBoxGain22EditMode)) TextBoxGain22EditMode = !TextBoxGain22EditMode;
+
+            if (GuiTextBox(layoutRecs[54], TextBoxChannel00Text, 128, TextBoxChannel00EditMode)) TextBoxChannel00EditMode = !TextBoxChannel00EditMode;
+            if (GuiTextBox(layoutRecs[55], TextBoxcChannel01Text, 128, TextBoxcChannel01EditMode)) TextBoxcChannel01EditMode = !TextBoxcChannel01EditMode;
+            if (GuiTextBox(layoutRecs[56], TextBoxChannel02Text, 128, TextBoxChannel02EditMode)) TextBoxChannel02EditMode = !TextBoxChannel02EditMode;
+            if (GuiTextBox(layoutRecs[57], TextBoxChannel10Text, 128, TextBoxChannel10EditMode)) TextBoxChannel10EditMode = !TextBoxChannel10EditMode;
+            if (GuiTextBox(layoutRecs[58], TextBoxChannel11Text, 128, TextBoxChannel11EditMode)) TextBoxChannel11EditMode = !TextBoxChannel11EditMode;
+            if (GuiTextBox(layoutRecs[59], TextBoxChannel12Text, 128, TextBoxChannel12EditMode)) TextBoxChannel12EditMode = !TextBoxChannel12EditMode;
+            if (GuiTextBox(layoutRecs[60], TextBoxChannel20Text, 128, TextBoxChannel20EditMode)) TextBoxChannel20EditMode = !TextBoxChannel20EditMode;
+            if (GuiTextBox(layoutRecs[61], TextBoxChannel21Text, 128, TextBoxChannel21EditMode)) TextBoxChannel21EditMode = !TextBoxChannel21EditMode;
+            if (GuiTextBox(layoutRecs[62], TextBoxChannel22Text, 128, TextBoxChannel22EditMode)) TextBoxChannel22EditMode = !TextBoxChannel22EditMode;
+            if (GuiTextBox(layoutRecs[63], TextBoxPrior1Text, 128, TextBoxPrior1EditMode)) TextBoxPrior1EditMode = !TextBoxPrior1EditMode;
+            if (GuiTextBox(layoutRecs[64], TextBoxPrior2Text, 128, TextBoxPrior2EditMode)) TextBoxPrior2EditMode = !TextBoxPrior2EditMode;
+            if (GuiTextBox(layoutRecs[65], TextBoxPrior3Text, 128, TextBoxPrior3EditMode)) TextBoxPrior3EditMode = !TextBoxPrior3EditMode;
+            if (GuiTextBox(layoutRecs[66], TextBoxOuter1Text, 128, TextBoxOuter1EditMode)) TextBoxOuter1EditMode = !TextBoxOuter1EditMode;
+            if (GuiTextBox(layoutRecs[67], TextBoxOuter2Text, 128, TextBoxOuter2EditMode)) TextBoxOuter2EditMode = !TextBoxOuter2EditMode;
+            if (GuiTextBox(layoutRecs[68], TextBoxOuter3Text, 128, TextBoxOuter3EditMode)) TextBoxOuter3EditMode = !TextBoxOuter3EditMode;
+            if (GuiTextBox(layoutRecs[69], TextBoxInners00Text, 128, TextBoxInners00EditMode)) TextBoxInners00EditMode = !TextBoxInners00EditMode;
+            if (GuiTextBox(layoutRecs[70], TextBoxInners01Text, 128, TextBoxInners01EditMode)) TextBoxInners01EditMode = !TextBoxInners01EditMode;
+            if (GuiTextBox(layoutRecs[71], TextBoxInners02Text, 128, TextBoxInners02EditMode)) TextBoxInners02EditMode = !TextBoxInners02EditMode;
+            if (GuiTextBox(layoutRecs[72], TextBoxInners10Text, 128, TextBoxInners10EditMode)) TextBoxInners10EditMode = !TextBoxInners10EditMode;
+            if (GuiTextBox(layoutRecs[73], TextBoxInners11Text, 128, TextBoxInners11EditMode)) TextBoxInners11EditMode = !TextBoxInners11EditMode;
+            if (GuiTextBox(layoutRecs[74], TextBoxInners12Text, 128, TextBoxInners12EditMode)) TextBoxInners12EditMode = !TextBoxInners12EditMode;
+            if (GuiTextBox(layoutRecs[75], TextBoxInners20Text, 128, TextBoxInners20EditMode)) TextBoxInners20EditMode = !TextBoxInners20EditMode;
+            if (GuiTextBox(layoutRecs[76], TextBoxInners21Text, 128, TextBoxInners21EditMode)) TextBoxInners21EditMode = !TextBoxInners21EditMode;
+            if (GuiTextBox(layoutRecs[77], TextBoxInners22Text, 128, TextBoxInners22EditMode)) TextBoxInners22EditMode = !TextBoxInners22EditMode;
+            if (GuiDropdownBox(layoutRecs[42], DropDownLoadText, &DropDownLoadActive, DropDownLoadEditMode)) DropDownLoadEditMode = !DropDownLoadEditMode;
+            if (GuiDropdownBox(layoutRecs[43], DropDownExportText, &DropDownExportActive, DropDownExportEditMode)) DropDownExportEditMode = !DropDownExportEditMode;
+            if (GuiDropdownBox(layoutRecs[44], DropdownBox077Text, &DropdownBox077Active, DropdownBox077EditMode)) DropdownBox077EditMode = !DropdownBox077EditMode;
             
             // GuiUnlock();
             //----------------------------------------------------------------------------------

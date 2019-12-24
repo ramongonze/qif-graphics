@@ -32,7 +32,7 @@ RAYLIB_PATH        ?= /home/ramon/raylib
 # Define default options
 
 # One of PLATFORM_DESKTOP, PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-PLATFORM           ?= PLATFORM_DESKTOP
+PLATFORM           ?= PLATFORM_WEB
 
 # Locations of your newly installed library and associated headers. See ../src/Makefile
 # On Linux, if you have installed raylib but cannot compile the examples, check that
@@ -386,7 +386,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -f *.o *.html *.js *.wasm
+	rm -f *.o $(PROJECT_NAME).html *.js *.wasm
 endif
 	@echo Cleaning done
 
