@@ -23,19 +23,16 @@
 
 .PHONY: all clean
 
-USER_NAME=ramon
-PATH_PC=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
-
 # Define required raylib variables
-PROJECT_NAME       ?= qif_graphics
+PROJECT_NAME       ?= gui_qif-graphics
 RAYLIB_VERSION     ?= 2.5.0
 RAYLIB_API_VERSION ?= 2
-RAYLIB_PATH        ?= /home/$(USER_NAME)/raylib
+RAYLIB_PATH        ?= /home/ramon/raylib
 
 # Define default options
 
 # One of PLATFORM_DESKTOP, PLATFORM_RPI, PLATFORM_ANDROID, PLATFORM_WEB
-PLATFORM           ?= PLATFORM_WEB
+PLATFORM           ?= PLATFORM_DESKTOP
 
 # Locations of your newly installed library and associated headers. See ../src/Makefile
 # On Linux, if you have installed raylib but cannot compile the examples, check that
@@ -118,16 +115,17 @@ endif
 
 ifeq ($(PLATFORM),PLATFORM_WEB)
 	# Emscripten required variables
-	EMSDK_PATH         ?= /home/$(USER_NAME)/emsdk
+	EMSDK_PATH         ?= /home/ramon/emsdk
 	EMSCRIPTEN_PATH    ?= $(EMSDK_PATH)/fastcomp/emscripten
 	CLANG_PATH          = $(EMSDK_PATH)/fastcomp/bin
+	PYTHON_PATH         = /usr/bin
 	NODE_PATH           = $(EMSDK_PATH)/node/12.9.1_64bit/bin
-	export PATH         = $(EMSDK_PATH):$(EMSCRIPTEN_PATH):$(CLANG_PATH):$(NODE_PATH):$(RAYLIB_PATH):$(PATH_PC)
+	PATH                = $(shell printenv PATH):$(EMSDK_PATH):$(EMSCRIPTEN_PATH):$(CLANG_PATH):$(NODE_PATH):$(PYTHON_PATH)
 endif
 
 # Define raylib release directory for compiled library.
 # RAYLIB_RELEASE_PATH points to provided binaries or your freshly built version
-RAYLIB_RELEASE_PATH 	?= $(RAYLIB_PATH)/src
+RAYLIB_RELEASE_PATH     ?= $(RAYLIB_PATH)/src
 
 # EXAMPLE_RUNTIME_PATH embeds a custom runtime location of libraylib.so or other desired libraries
 # into each example binary compiled with RAYLIB_LIBTYPE=SHARED. It defaults to RAYLIB_RELEASE_PATH
@@ -145,7 +143,7 @@ EXAMPLE_RUNTIME_PATH   ?= $(RAYLIB_RELEASE_PATH)
 
 # Define default C compiler: gcc
 # NOTE: define g++ compiler if using C++
-CC = g++
+CC = gcc
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	ifeq ($(PLATFORM_OS),OSX)
@@ -168,7 +166,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# HTML5 emscripten compiler
 	# WARNING: To compile to HTML5, code must be redesigned 
 	# to use emscripten.h and emscripten_set_main_loop()
-	CC = em++
+	CC = emcc
 endif
 
 # Define default make program: Mingw32-make
@@ -189,7 +187,7 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -O3 -s -Wall -std=c++11 -D_DEFAULT_SOURCE -Wno-missing-braces -Wno-narrowing -Wno-unused-function
+CFLAGS += -O1 -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
 
 ifeq ($(BUILD_MODE),DEBUG)
 	CFLAGS += -g
@@ -231,15 +229,13 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# --profiling                # include information for code profiling
 	# --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
-	CFLAGS += -O2 -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 --preload-file SchoolTimes.ttf 
-# 	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 --preload-file resources
+	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216
 	ifeq ($(BUILD_MODE), DEBUG)
 		CFLAGS += -s ASSERTIONS=1 --profiling
 	endif
 
 	# Define a custom shell .html and output extension
-# 	CFLAGS += --shell-file $(RAYLIB_PATH)/src/shell.html
-	CFLAGS += --shell-file /home/$(USER_NAME)/Desktop/qif-graphics/shell.html
+	CFLAGS += --shell-file ./shell.html
 	EXT = .html
 endif
 
@@ -291,7 +287,7 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	ifeq ($(PLATFORM_OS),WINDOWS)
 		# Libraries for Windows desktop compilation
 		# NOTE: WinMM library required to set high-res timer resolution
-		LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm qif/qif.a
+		LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
 		# Required for physac examples
 		#LDLIBS += -static -lpthread
 	endif
@@ -339,11 +335,11 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
 	# Libraries for web (HTML5) compiling
-	LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.bc qif/qif.a
+	LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.bc
 endif
 
 # Define all source files required
-PROJECT_SOURCE_FILES ?= src/raygui.cpp src/config.cpp src/graphics.cpp src/layout.cpp src/menu.cpp src/QIF.cpp qif-graphics.cpp
+PROJECT_SOURCE_FILES ?= gui_qif-graphics.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
@@ -359,7 +355,7 @@ endif
 
 # Default target entry
 # NOTE: We call this Makefile target or Makefile.Android target
-all: clean
+all:
 	$(MAKE) $(MAKEFILE_PARAMS)
 
 # Project target defined by PROJECT_NAME
@@ -390,8 +386,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -rf *.o $(PROJECT_NAME).html *.js *.wasm *.data
-	rm -rf src/*.o
+	rm -f *.o *.html *.js *.wasm
 endif
 	@echo Cleaning done
 
