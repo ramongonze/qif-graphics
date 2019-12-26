@@ -143,7 +143,7 @@ EXAMPLE_RUNTIME_PATH   ?= $(RAYLIB_RELEASE_PATH)
 
 # Define default C compiler: gcc
 # NOTE: define g++ compiler if using C++
-CC = gcc
+CC = g++
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	ifeq ($(PLATFORM_OS),OSX)
@@ -166,7 +166,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# HTML5 emscripten compiler
 	# WARNING: To compile to HTML5, code must be redesigned 
 	# to use emscripten.h and emscripten_set_main_loop()
-	CC = em++
+	CC = emcc
 endif
 
 # Define default make program: Mingw32-make
@@ -187,7 +187,7 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -O1 -std=c++11 -Wno-writable-strings -Wno-narrowing -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
+CFLAGS += -O2 -std=c++11 -Wno-writable-strings -Wno-narrowing -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
 #-Wc++11-narrowing: Use -std=c++11 causes an error in raygui.h
 #-Wno-writable-strings: Warning: gui_qif-graphics.cpp:51:28: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
 #							  char *LabelOuterNameText = "Outer";    // LABEL: LabelOuter
@@ -342,10 +342,10 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 endif
 
 # Define all source files required
-PROJECT_SOURCE_FILES ?= gui_qif-graphics.cpp
+PROJECT_SOURCE_FILES ?= layout.cpp gui_qif-graphics.cpp
 
 # Define all object files from source files
-OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
+OBJS = $(patsubst %.cpp, %.bc, $(PROJECT_SOURCE_FILES))
 
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)
@@ -367,7 +367,7 @@ $(PROJECT_NAME): $(OBJS)
 
 # Compile source files
 # NOTE: This pattern will compile every module defined on $(OBJS)
-%.o: %.c
+%.bc: %.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
 
 # Clean everything
@@ -389,7 +389,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -f *.o $(PROJECT_NAME).html *.js *.wasm
+	rm -f *.o $(PROJECT_NAME).html *.js *.wasm *.bc
 endif
 	@echo Cleaning done
 
