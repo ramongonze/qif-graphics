@@ -1,126 +1,61 @@
-#include <sstream>
-#include <algorithm>
-#include <cstring>
+/*******************************************************************************************
+*
+*   Qif-graphics v1.0.0 - Tool for QIF (Quantitative Information Flow).
+*
+*   LICENSE: Propietary License
+*
+*   Copyright (c) 2019 Inscrypt. All Rights Reserved.
+*
+*   Unauthorized copying of this file, via any medium is strictly prohibited
+*   This project is proprietary and confidential unless the owner allows
+*   usage in any other form by expresely written permission.
+*
+**********************************************************************************************/
 
-#include "include/QIF.h"
-#include "include/menu.h"
+#include "raylib.h"
+#include "src/layout.h"
+
+#define RAYGUI_IMPLEMENTATION
+#define RAYGUI_SUPPORT_RICONS
+#include "/home/ramon/raygui/src/raygui.h"
+
 #include <emscripten/emscripten.h>
+#include "qif/qif.h"
 
-void printError(int error, Layout layout, QIF qif);
+//----------------------------------------------------------------------------------
+// Module Functions Declaration
+//----------------------------------------------------------------------------------
+void updateDrawFrame(void* _L);     // Update and Draw one frame. Required to run on a browser.
+void printError(int error, Layout L);
 
-char buffer[MAX_BUFFER];
-bool drawCircles = false; // Flag that indicates if the circles must be drawn or not. Its value is set by a check box
-bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
-int error = 0;            // Flag that indicates if an error has been occurred
+//----------------------------------------------------------------------------------
+// Controls Functions Declaration
+//----------------------------------------------------------------------------------
 
-string test[2];
-
-// Colors
-//--------------------------------------------------------------------------------------
-Colors colors(2);
-
-// Variables
-// ----------------------------------------------------------------------------------
-Layout layout;
-QIF qif;
-
-// // Menu
-Menu menu;
-
-
-void updateAndDraw(){
-    // General update
-    // ----------------------------------------------------------------------------------
-
-    if(qif.oldNumOutputs != qif.numOutputs){
-        drawCircles = false;
-        hyperReady = false;
-    }
-    qif.oldNumOutputs = qif.numOutputs;
-
-    // Convert text typed by the user to numbers
-    if(hyperReady) qif.updateMatricesByNumbers();
-    else error = qif.updateMatricesByText();
-
-    // Check hyper
-    if(drawCircles){
-        hyperReady = true;
-        error = qif.update(layout);
-        if(error == INVALID_PRIOR || error == INVALID_CHANNEL)
-            hyperReady = false;
-    }else{
-        hyperReady = false;
-    }
-    menu.update(layout);
-// Vector2 mousePosition = GetMousePosition();
-    // Draw
-    //----------------------------------------------------------------------------------
-    BeginDrawing();
-        ClearBackground({245, 245, 245, 255});
-        layout.draw(colors);
-        
-        qif.drawMatrices(colors, layout);
-        // if(drawCircles && hyperReady){
-        //     qif.drawCircles(colors, layout);
-        // }
-
-        // // Error message
-        // if(error) printError(error, layout, qif);
-    
-        menu.draw(colors);
-    // drawCircles = GuiCheckBox(layout.staticRectangles[DRAW_CHECK_BOX], "Draw", drawCircles);
-
-    EndDrawing();
-    //----------------------------------------------------------------------------------
-    
-}
-
+//------------------------------------------------------------------------------------
+// Program main entry point
+//------------------------------------------------------------------------------------
 int main(){
     // Initialization
+    //---------------------------------------------------------------------------------------
+    int screenWidth = 1800;
+    int screenHeight = 1800;
+
+    InitWindow(screenWidth, screenHeight, "QIF-graphics");
+
+    Layout L;
+    L.init();
+
+    emscripten_set_main_loop_arg(updateDrawFrame, &L, 0, 1);
+
+    SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
-    // char buffer[MAX_BUFFER];
-    // bool drawCircles = false; // Flag that indicates if the circles must be drawn or not. Its value is set by a check box
-    // bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
-    // int error = 0;            // Flag that indicates if an error has been occurred
-
-    // // Colors
-    // //--------------------------------------------------------------------------------------
-    // Colors colors(2);
-
-    // // Variables
-    // //----------------------------------------------------------------------------------
-    // Layout layout;
-    layout.init();
-
-    // QIF qif;
-    qif.init();
-
-    // // // Menu
-    // // Menu menu;
-    menu.init();
-    // //----------------------------------------------------------------------------------
-
-    // // Window
-    // //--------------------------------------------------------------------------------------
-    // // SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT); // Problems with scroll panel
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "QIF Graphics");
-    // SetWindowMinSize(MIN_WIDTH, MIN_HEIGHT);
-    emscripten_set_main_loop(updateAndDraw, 0, 1);
-
-    // Text font
-    layout.mainFont = LoadFontEx("SchoolTimes.ttf", layout.headerFontSize, 0, 0);
-    GenTextureMipmaps(&(layout.mainFont).texture);
-    SetTextureFilter(layout.mainFont.texture, FILTER_POINT);
-
-    SetTargetFPS(5); // Set the program to run at 60 frames-per-second
-    //--------------------------------------------------------------------------------------
-
-    // char **test;
-    // int count;
+    
     // Main game loop
     while (!WindowShouldClose()){    // Detect window close button or ESC key
-        updateAndDraw();
+        updateDrawFrame(&L);
     }
+
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseWindow();        // Close window and OpenGL context
@@ -129,20 +64,181 @@ int main(){
     return 0;
 }
 
-void printError(int error, Layout layout, QIF qif){
-    char buffer[MAX_BUFFER];
+//------------------------------------------------------------------------------------
+// Controls Functions Definitions (local)
+//------------------------------------------------------------------------------------
+void updateDrawFrame(void* _L){
+    // Define controls rectangles
+    //----------------------------------------------------------------------------------
+    Layout* L = (Layout*) _L;
+    int error = NO_ERROR;     // Flag that indicates if an error has been occurred
 
+    // Update
+    //----------------------------------------------------------------------------------
+        if(L->SpinnerChannelValue != L->recTextBoxChannel.size()){ // If true, spinnerChannel has been changed
+            L->CheckBoxDrawingChecked = false;
+            // hyperReady = false;
+            L->updateChannel();
+        }
+
+        // if(L->CheckBoxDrawingChecked){
+        //     // Check if no invalid character has been typed
+        //     if(checkPriorText() != NO_ERROR || checkChannelText() != NO_ERROR){
+        //         error = INVALID_VALUE;
+        //     }
+
+        //     // Check if typed numbers represent distributions
+        //     if(checkPrior() != NO_ERROR) error = INVALID_PRIOR;
+        //     else if(checkChannel() != NO_ERROR) error = INVALID_CHANNEL;
+
+        //     if(error == NO_ERROR){
+        //         // Disable editing in all matrices
+        //         disableMatrices();
+
+        //         hyperReady = true;
+        //     }else{
+        //         printError(error, *L);
+        //         L->CheckBoxDrawingChecked = false;
+        //     }
+        // }
+    //----------------------------------------------------------------------------------
+
+    // Draw
+    //----------------------------------------------------------------------------------
+        BeginDrawing();
+            ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))); 
+
+            // raygui: controls drawing
+            //----------------------------------------------------------------------------------
+            // Draw controls
+            // if (DropDownLoadEditMode || DropDownExportEditMode || DropDownBoxFileEditMode) GuiLock();
+
+            // Panels
+            //----------------------------------------------------------------------------------
+                GuiPanel(L->recPanelMenu);
+                GuiPanel(L->recPanelBody);
+            //----------------------------------------------------------------------------------
+
+            // GroupBoxes
+            //----------------------------------------------------------------------------------
+                GuiGroupBox(L->recGroupBoxPrior, L->GroupBoxPriorText);
+                GuiGroupBox(L->recGroupBoxChannel, L->GroupBoxChannelText);
+                GuiGroupBox(L->recGroupBoxPosteriors, L->GroupBoxPosteriorsText);
+                GuiGroupBox(L->recGroupBoxGain, L->GroupBoxGainText);
+                GuiGroupBox(L->recGroupBoxVisualization, L->GroupBoxVisualizationText);
+                GuiGroupBox(L->recGroupBoxDrawing, L->GroupBoxDrawingText);
+            //----------------------------------------------------------------------------------
+
+            // Spinners
+            //----------------------------------------------------------------------------------
+                if (GuiSpinner(L->recSpinnerChannel, "", &L->SpinnerChannelValue, 0, 100, L->SpinnerChannelEditMode)) L->SpinnerChannelEditMode = !L->SpinnerChannelEditMode;
+                if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
+            //----------------------------------------------------------------------------------
+
+            // Labels
+            //----------------------------------------------------------------------------------
+                GuiLabel(L->recLabelOutputs, L->LabelOutputsText);
+                GuiLabel(L->recLabelActions, L->LabelActionsText);
+                GuiLabel(L->recLabelClickDraw, L->LabelClickDrawText);
+                GuiLabel(L->recLabelOuterName, L->LabelOuterNameText);
+
+                // Prior
+                for(int i = 0; i < L->LabelPriorText.size(); i++) GuiLabel(L->recLabelPrior[i], &(L->LabelPriorText[i][0]));
+
+                // Gain function
+                for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
+                for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
+
+                // Channel
+                for(int i = 0; i < L->LabelChannelXText.size(); i++) GuiLabel(L->recLabelChannelX[i], &(L->LabelChannelXText[i][0]));
+                for(int i = 0; i < L->LabelChannelYText.size(); i++) GuiLabel(L->recLabelChannelY[i], &(L->LabelChannelYText[i][0]));
+
+                // Outer
+                GuiLabel(L->recLabelOuterName, L->LabelOuterNameText);
+                for(int i = 0; i < L->LabelOuterText.size(); i++) GuiLabel(L->recLabelOuter[i], &(L->LabelOuterText[i][0]));
+
+                // Inners
+                for(int i = 0; i < L->LabelInnerText.size(); i++) GuiLabel(L->recLabelInners[i], &(L->LabelInnerText[i][0]));
+            //----------------------------------------------------------------------------------
+
+            // CheckBoxes
+            //----------------------------------------------------------------------------------
+                L->CheckBoxGainChecked = GuiCheckBox(L->recCheckBoxGain, L->CheckBoxGainText, L->CheckBoxGainChecked);
+                L->CheckBoxDrawingChecked = GuiCheckBox(L->recCheckBoxDrawing, L->CheckBoxDrawingText, L->CheckBoxDrawingChecked);
+            //----------------------------------------------------------------------------------
+
+            // Lines
+            //----------------------------------------------------------------------------------
+                GuiLine(L->recLine1, NULL);
+            //----------------------------------------------------------------------------------
+
+            // StatusBar
+            //----------------------------------------------------------------------------------
+                GuiStatusBar(L->recStatusBar, L->StatusBarDrawingText);
+            //----------------------------------------------------------------------------------
+
+            // ScrollPanelChannelScrollOffset = GuiScrollPanel((Rectangle){rec[8].x, rec[8].y, rec[8].width - ScrollPanelChannelBoundsOffset.x, rec[8].height - ScrollPanelChannelBoundsOffset.y }, rec[8], ScrollPanelChannelScrollOffset);
+            // ScrollPanelGainScrollOffset = GuiScrollPanel((Rectangle){rec[9].x, rec[9].y, rec[9].width - ScrollPanelGainBoundsOffset.x, rec[9].height - ScrollPanelGainBoundsOffset.y }, rec[9], ScrollPanelGainScrollOffset);
+            // ScrollPanelPosteriorsScrollOffset = GuiScrollPanel((Rectangle){rec[33].x, rec[33].y, rec[33].width - ScrollPanelPosteriorsBoundsOffset.x, rec[33].height - ScrollPanelPosteriorsBoundsOffset.y }, rec[33], ScrollPanelPosteriorsScrollOffset);
+            
+            // TextBoxes
+            //----------------------------------------------------------------------------------
+                // Gain function
+                for(int i = 0; i < L->TextBoxGainText.size(); i++){
+                    for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
+                        if (GuiTextBox(L->recTextBoxGain[i][j], &(L->TextBoxGainText[i][j][0]), 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
+                    }
+                }
+                
+                // Channel
+                for(int i = 0; i < L->TextBoxChannelText.size(); i++){
+                    for(int j = 0; j < L->TextBoxChannelText[i].size(); j++){
+                        if (GuiTextBox(L->recTextBoxChannel[i][j], &(L->TextBoxChannelText[i][j][0]), 128, L->TextBoxChannelEditMode[i][j])) L->TextBoxChannelEditMode[i][j] = !L->TextBoxChannelEditMode[i][j];        
+                    }
+                }
+
+                // Prior
+                for(int i = 0; i < L->TextBoxPriorText.size(); i++){
+                    if (GuiTextBox(L->recTextBoxPrior[i], &(L->TextBoxPriorText[i][0]), 128, L->TextBoxPriorEditMode[i])) L->TextBoxPriorEditMode[i] = !L->TextBoxPriorEditMode[i];        
+                }
+
+                // Outer
+                for(int i = 0; i < L->TextBoxOuterText.size(); i++){
+                    if (GuiTextBox(L->recTextBoxOuter[i], &(L->TextBoxOuterText[i][0]), 128, L->TextBoxOuterEditMode[i])) L->TextBoxOuterEditMode[i] = !L->TextBoxOuterEditMode[i];        
+                }
+
+                // Inners
+                for(int i = 0; i < L->TextBoxInnersText.size(); i++){
+                    for(int j = 0; j < L->TextBoxInnersText[i].size(); j++){
+                        if (GuiTextBox(L->recTextBoxInners[i][j], &(L->TextBoxInnersText[i][j][0]), 128, L->TextBoxInnersEditMode[i][j])) L->TextBoxInnersEditMode[i][j] = !L->TextBoxInnersEditMode[i][j];        
+                    }
+                }
+            //----------------------------------------------------------------------------------
+
+            // DropDowns
+            //----------------------------------------------------------------------------------
+                if (GuiDropdownBox(L->recDropDownFile, L->DropDownBoxFileText, &L->DropDownBoxFileActive, L->DropDownBoxFileEditMode)) L->DropDownBoxFileEditMode = !L->DropDownBoxFileEditMode;
+                if (GuiDropdownBox(L->recDropDownLoad, L->DropDownLoadText, &L->DropDownLoadActive, L->DropDownLoadEditMode)) L->DropDownLoadEditMode = !L->DropDownLoadEditMode;
+                if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
+            //----------------------------------------------------------------------------------
+            
+            // GuiUnlock();
+            //----------------------------------------------------------------------------------
+
+        EndDrawing();
+    //----------------------------------------------------------------------------------
+}
+
+void printError(int error, Layout L){
     switch(error){
         case INVALID_VALUE:
-            strcpy(buffer, "Some value in prior or channel is invalid!");
+            strcpy(L.StatusBarDrawingText, "Some value in prior or channel is invalid!");
             break;
         case INVALID_PRIOR:
-            strcpy(buffer, "The prior distribution is invalid!");
+            strcpy(L.StatusBarDrawingText, "The prior distribution is invalid!");
             break;
         case INVALID_CHANNEL:
-            strcpy(buffer, "The channel is invalid!");
+            strcpy(L.StatusBarDrawingText, "The channel is invalid!");
             break;
     }
-
-    DrawTextEx(layout.mainFont, buffer, (Vector2){(V1(layout.windowWidth) - strlen(buffer)*7)/2.0f, qif.channelPanelRec.y + qif.channelPanelRec.height + 15}, layout.headerFontSize-5, 1.0, BLACK); 
 }

@@ -2,11 +2,7 @@
 #define _qif_graphics
 
 #include <vector>
-#include "../qif/qif.hpp"
-// #include "/home/ramon/raylib/src/raylib.h"
-#include "raygui.h"
-// #define RAYGUI_STATIC
-// #include "/home/ramon/raygui/src/raygui.h"
+#include "../qif/qif.h"
 
 using namespace std;
 

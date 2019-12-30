@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../include/QIF.h"
+#include "QIF.h"
 
 void QIF::init(){
 	numOutputs = 3; // Initial number of outputs in the channel matrix
@@ -8,85 +8,7 @@ void QIF::init(){
                         {0.0f, 0.0f, 0.0f}, \
                         {0.0f, 0.0f, 0.0f}});
 
-    // Init texts inside QIF matrices
-	matricesTexts[PRIOR]   = MatrixString(1, vector<string>(3));
-    matricesTexts[CHANNEL] = MatrixString(3, vector<string>(3));
-    for(int i = 0; i < 3; i++){
-        matricesTexts[PRIOR][0][i] = "0.000";
-        for(int j = 0; j < 3; j++){
-            matricesTexts[CHANNEL][i][j] = "0.000";
-        }
-    }
-
-    // Init rectangle positions of QIF matrices
-    matricesRectangles[PRIOR]   = MatrixRec(1, vector<Rectangle>(3));
-    matricesRectangles[CHANNEL] = MatrixRec(3, vector<Rectangle>(3));
-    for(int j = 0; j < 3; j++){
-        matricesRectangles[PRIOR][0][j]   = (Rectangle){V2(WINDOW_WIDTH) + 	   30 + (j * (BOX_WIDTH+20)),	  	   		    		    H1(WINDOW_HEIGHT) + 60, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_WIDTH + BOX_HOR_GAP)),	 			    		    H2(WINDOW_HEIGHT) + 90, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_WIDTH + BOX_HOR_GAP)), 	   H2(WINDOW_HEIGHT) + 90 + BOX_HEIGHT+BOX_VER_GAP, BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(WINDOW_WIDTH) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H2(WINDOW_HEIGHT) + 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
-    }
-
-    channelPanelScroll = {0.0f, 0.0f};
-    channelPanelRec = (Rectangle){0.01f*WINDOW_WIDTH, \
-                                  H2(WINDOW_HEIGHT) + 55, \
-                                  V1(WINDOW_WIDTH)-0.02f*WINDOW_WIDTH, \
-                                  5*(BOX_HEIGHT + BOX_VER_GAP)};
-
-    channelPanelContentRec = (Rectangle){channelPanelRec.x, \
-                                         channelPanelRec.y, \
-                                         V2(WINDOW_WIDTH) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
-                                         channelPanelRec.height-15};
-
     circlesPositions = vector<Point>(1, Point(0,0));
-    matricesTexts[INNERS] = MatrixString(3, vector<string>(1));
-    matricesTexts[OUTER] = MatrixString(1, vector<string>(1));
-
-}
-
-void QIF::updatePrior(Layout layout){
-    for(int i = 0; i < 3; i++)
-        matricesRectangles[PRIOR][0][i] = (Rectangle){V2(layout.windowWidth) + 0.05*layout.windowHeight + (i * (BOX_WIDTH+20)), H1(layout.windowHeight) + 60, BOX_WIDTH, BOX_HEIGHT};
-}
-
-void QIF::updateChannel(Layout layout){
-    for(int j = 0; j < oldNumOutputs; j++){
-        matricesRectangles[CHANNEL][0][j] = (Rectangle){V2(layout.windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(layout.windowHeight)+ 90                             , BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][1][j] = (Rectangle){V2(layout.windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(layout.windowHeight)+ 90 + (BOX_HEIGHT+BOX_VER_GAP)  , BOX_WIDTH, BOX_HEIGHT};
-        matricesRectangles[CHANNEL][2][j] = (Rectangle){V2(layout.windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)) + channelPanelScroll.x, H2(layout.windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT};
-    }
-
-    // Check if the number of outputs was changed
-    if(oldNumOutputs < numOutputs){
-        for(int j = oldNumOutputs; j < numOutputs; j++){
-            matricesTexts[CHANNEL][0].push_back("0.000");
-            matricesTexts[CHANNEL][1].push_back("0.000");
-            matricesTexts[CHANNEL][2].push_back("0.000");
-            matricesRectangles[CHANNEL][0].push_back((Rectangle){channelPanelScroll.x+V2(layout.windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H2(layout.windowHeight)+ 90                             , BOX_WIDTH, BOX_HEIGHT});
-            matricesRectangles[CHANNEL][1].push_back((Rectangle){channelPanelScroll.x+V2(layout.windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H2(layout.windowHeight)+ 90 + BOX_HEIGHT+BOX_VER_GAP    , BOX_WIDTH, BOX_HEIGHT});
-            matricesRectangles[CHANNEL][2].push_back((Rectangle){channelPanelScroll.x+V2(layout.windowWidth) + (j*(BOX_WIDTH + BOX_HOR_GAP)), H2(layout.windowHeight)+ 90 + 2*(BOX_HEIGHT+BOX_VER_GAP), BOX_WIDTH, BOX_HEIGHT});
-        }
-    }else{
-        for(int j = oldNumOutputs-1; j >= numOutputs; j--){
-            matricesTexts[CHANNEL][0].pop_back();
-            matricesTexts[CHANNEL][1].pop_back();
-            matricesTexts[CHANNEL][2].pop_back();
-            matricesRectangles[CHANNEL][0].pop_back();
-            matricesRectangles[CHANNEL][1].pop_back();
-            matricesRectangles[CHANNEL][2].pop_back();
-        }
-    }
-
-    channelPanelRec = (Rectangle){0.01f*layout.windowWidth, \
-								  H2(layout.windowHeight) + 55, \
-								  V1(layout.windowWidth)-0.02f*layout.windowWidth, \
-								  5*(BOX_HEIGHT + BOX_VER_GAP)};
-
-	channelPanelContentRec = (Rectangle){channelPanelRec.x, \
-										 channelPanelRec.y, \
-										 V2(layout.windowWidth) + (numOutputs*(BOX_WIDTH+BOX_HOR_GAP)), \
-										 channelPanelRec.height-15};
 }
 
 void QIF::updateHyper(Layout layout){
@@ -254,9 +176,9 @@ int QIF::updateMatricesByText(){
                     channel[i][j] = stold(matricesTexts[CHANNEL][i][j]);
                 }
             }
-        }          
+        }
         
-        // If the flow arrives here, there were no error in conversion
+        // If the flow arrives here, there were no error in the conversion from text to number
         return 0;
     }catch(...){
     	return INVALID_VALUE;
@@ -274,32 +196,6 @@ void QIF::updateMatricesByNumbers(){
         }
         channel = hyper.channel.matrix;
     }
-}
-
-void QIF::drawMatrices(Colors colors, Layout layout){
-	char buffer[MAX_BUFFER];
-
-    // Prior
-    for(int i = 0; i < 3; i++){
-        sprintf(buffer, "X%d", i+1);
-        GuiTextBox(matricesRectangles[PRIOR][0][i], (char*)matricesTexts[PRIOR][0][i].c_str(), PROB_PRECISION, true); // X1
-        DrawTextEx(layout.mainFont, buffer, (Vector2){matricesRectangles[PRIOR][0][i].x + LABEL_Y_HOR_GAP, matricesRectangles[PRIOR][0][i].y + LABEL_Y_VER_GAP}, layout.headerFontSize, 1.0, BLACK);
-    }
-
-    // Channel
-    Rectangle view = GuiScrollPanel(channelPanelRec, channelPanelContentRec, &channelPanelScroll);
-    BeginScissorMode(view.x, view.y, view.width, view.height);        
-        DrawTextEx(layout.mainFont, "X1", (Vector2){matricesRectangles[CHANNEL][0][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][0][0].y + LABEL_X_VER_GAP}, layout.headerFontSize, 1.0, BLACK);
-        DrawTextEx(layout.mainFont, "X2", (Vector2){matricesRectangles[CHANNEL][1][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][1][0].y + LABEL_X_VER_GAP}, layout.headerFontSize, 1.0, BLACK);
-        DrawTextEx(layout.mainFont, "X3", (Vector2){matricesRectangles[CHANNEL][2][0].x + LABEL_X_HOR_GAP, matricesRectangles[CHANNEL][2][0].y + LABEL_X_VER_GAP}, layout.headerFontSize, 1.0, BLACK);
-        for(int j = 0; j < numOutputs; j++){
-            sprintf(buffer, "Y%d", j+1);
-            DrawTextEx(layout.mainFont, buffer, (Vector2){matricesRectangles[CHANNEL][0][j].x + LABEL_Y_HOR_GAP, matricesRectangles[CHANNEL][0][j].y + LABEL_Y_VER_GAP}, layout.headerFontSize, 1.0, BLACK);
-            GuiTextBox(matricesRectangles[CHANNEL][0][j], (char*)matricesTexts[CHANNEL][0][j].c_str(), PROB_PRECISION, true);
-            GuiTextBox(matricesRectangles[CHANNEL][1][j], (char*)matricesTexts[CHANNEL][1][j].c_str(), PROB_PRECISION, true);
-            GuiTextBox(matricesRectangles[CHANNEL][2][j], (char*)matricesTexts[CHANNEL][2][j].c_str(), PROB_PRECISION, true);
-        }
-    EndScissorMode();
 }
 
 void QIF::drawCircles(Colors colors, Layout layout){
@@ -339,3 +235,5 @@ void QIF::drawCircles(Colors colors, Layout layout){
         GuiTextBox(matricesRectangles[INNERS][2][i], (char*)matricesTexts[INNERS][2][i].c_str(), PROB_PRECISION, false);
     }
 }
+
+bool 

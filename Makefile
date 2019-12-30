@@ -24,7 +24,7 @@
 .PHONY: all clean
 
 # Define required raylib variables
-PROJECT_NAME       ?= gui_qif-graphics
+PROJECT_NAME       ?= qif-graphics
 RAYLIB_VERSION     ?= 2.5.0
 RAYLIB_API_VERSION ?= 2
 RAYLIB_PATH        ?= /home/ramon/raylib
@@ -166,7 +166,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# HTML5 emscripten compiler
 	# WARNING: To compile to HTML5, code must be redesigned 
 	# to use emscripten.h and emscripten_set_main_loop()
-	CC = emcc
+	CC = em++
 endif
 
 # Define default make program: Mingw32-make
@@ -187,9 +187,9 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -O2 -std=c++11 -Wno-writable-strings -Wno-narrowing -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
+CFLAGS += -O3 -std=c++11 -Wno-writable-strings -Wno-narrowing -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces
 #-Wc++11-narrowing: Use -std=c++11 causes an error in raygui.h
-#-Wno-writable-strings: Warning: gui_qif-graphics.cpp:51:28: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
+#-Wno-writable-strings: Warning: qif-graphics.cpp:51:28: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
 #							  char *LabelOuterNameText = "Outer";    // LABEL: LabelOuter
 
 ifeq ($(BUILD_MODE),DEBUG)
@@ -232,7 +232,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# --profiling                # include information for code profiling
 	# --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
-	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216
+	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
 	ifeq ($(BUILD_MODE), DEBUG)
 		CFLAGS += -s ASSERTIONS=1 --profiling
 	endif
@@ -338,11 +338,11 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
 	# Libraries for web (HTML5) compiling
-	LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.bc
+	LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.bc qif/qif.a
 endif
 
 # Define all source files required
-PROJECT_SOURCE_FILES ?= layout.cpp gui_qif-graphics.cpp
+PROJECT_SOURCE_FILES ?= qif-graphics.cpp src/layout.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.cpp, %.bc, $(PROJECT_SOURCE_FILES))

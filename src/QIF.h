@@ -1,28 +1,24 @@
 #ifndef _QIF
 #define _QIF
 
-#include "../qif/qif.hpp"
-#include "layout.h"
+#include "../qif/qif.h"
+
+// Errors *****************************************************************************************/
+#define NO_ERROR		0
+#define INVALID_CHANNEL 1
+#define INVALID_PRIOR	2 
+#define INVALID_VALUE	3 // i.e. "1/$2"
 
 class QIF{
 public:
 	Hyper hyper;				// Hyper-distribution
-	MatrixLD channel;			// Channel matrix
+	vector<vector<long double>> channel;			// Channel matrix
 	vector<long double> prior;	// Prior distribution
-
-	int numOutputs;				// Current number of outputs in the channel matrix. 
-	int oldNumOutputs;			// Number of outputs in the previous frame.
-	Vector2 channelPanelScroll;
-    Rectangle channelPanelRec;
-    Rectangle channelPanelContentRec;
 
 	/* Position of circles in the big triangle.
 	 * Position  [0]      -> Prior distribution
 	 * Positions [1..n-1] -> Posterior distributions */
 	vector<Point> circlesPositions;
-
-	MatrixString matricesTexts[QIF_ELEMENTS];
-	MatrixRec matricesRectangles[QIF_ELEMENTS];
 
 	void init();	
 	void updatePrior(Layout layout);
@@ -42,7 +38,8 @@ public:
 	void updateMatricesText();
 	int update(Layout layout);
 
-	void drawMatrices(Colors colors, Layout layout);
+	checkChannel();
+
 	void drawCircles(Colors colors, Layout layout);
 };
 
