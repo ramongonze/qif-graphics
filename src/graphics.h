@@ -1,10 +1,18 @@
 #ifndef _qif_graphics
 #define _qif_graphics
 
-#include <vector>
 #include "../qif/qif.h"
 
 using namespace std;
+
+// Errors *****************************************************************************************/
+#define NO_ERROR		0
+#define INVALID_CHANNEL 1
+#define INVALID_PRIOR	2 
+#define INVALID_VALUE	3 // i.e. "1/$2"
+
+// Settings
+#define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
 
 // Interface dimensions ***************************************************************************/
 #define V1(width)  (0.35f *  width) // % window width that divides the matrices and the graphics

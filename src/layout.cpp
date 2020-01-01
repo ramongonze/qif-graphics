@@ -42,19 +42,35 @@ Layout::Layout(){
 		// TextBoxes. Obs: All matrices invert rows and columns (to make easy adding and removing columns).
 		//----------------------------------------------------------------------------------
 			TextBoxGainEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
-			TextBoxGainText = vector<vector<string>>(3, vector<string>(3, "0"));
-
 			TextBoxChannelEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
-			TextBoxChannelText = vector<vector<string>>(3, vector<string>(3, "0"));
-
 			TextBoxPriorEditMode = vector<bool>(3, false);
-			TextBoxPriorText = vector<string>(3, "0");
-
 			TextBoxOuterEditMode = vector<bool>(3, false);
-			TextBoxOuterText = vector<string>(3, "0");
-
 			TextBoxInnersEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
-			TextBoxInnersText = vector<vector<string>>(3, vector<string>(3, "0"));
+
+			TextBoxPriorText = vector<char*>(3);
+			TextBoxOuterText = vector<char*>(3);
+            for(int i = 0; i < 3; i++){
+                TextBoxPriorText[i] = (char*) malloc(128*sizeof(char));
+                TextBoxOuterText[i] = (char*) malloc(128*sizeof(char));
+
+                strcpy(TextBoxPriorText[i], "0");
+                strcpy(TextBoxOuterText[i], "0");
+            }
+
+			TextBoxGainText = vector<vector<char*>>(3, vector<char*>(3));
+			TextBoxChannelText = vector<vector<char*>>(3, vector<char*>(3));
+			TextBoxInnersText = vector<vector<char*>>(3, vector<char*>(3));
+            for(int i = 0; i < 3; i++){
+                for(int j = 0; j < 3; j++){
+                    TextBoxGainText[i][j] = (char*) malloc(128*sizeof(char));
+                    TextBoxChannelText[i][j] = (char*) malloc(128*sizeof(char));
+                    TextBoxInnersText[i][j] = (char*) malloc(128*sizeof(char));
+
+                    strcpy(TextBoxGainText[i][j], "0");
+                    strcpy(TextBoxChannelText[i][j], "0");
+                    strcpy(TextBoxInnersText[i][j], "0");
+                }
+            }
 		//----------------------------------------------------------------------------------
 
 		// DropDowns
@@ -80,7 +96,7 @@ Layout::Layout(){
 			SpinnerChannelEditMode = false;
 			SpinnerChannelValue = 3;            // Spinner: SpinnerChannel
 			SpinnerGainEditMode = false;
-			SpinnerGainValue = 0;            // Spinner: SpinnerGain
+			SpinnerGainValue = 3;            // Spinner: SpinnerGain
 			CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
 			CheckBoxDrawingChecked = false;            // CheckBoxEx: CheckBoxDrawing
 			DropDownLoadEditMode = false;
@@ -167,11 +183,10 @@ void Layout::init(){
 
         // Outer
         //--------------------------------------------------------------------------------------
-        recLabelOuter = {
-            (Rectangle){ anchorOuter.x + 15, anchorOuter.y + -20, 20, 20 },    // Label: LabelOuter1
-            (Rectangle){ anchorOuter.x + 45, anchorOuter.y + -20, 20, 20 },    // Label: LabelOuter2
-            (Rectangle){ anchorOuter.x + 80, anchorOuter.y + -20, 20, 20 }    // Label: LabelOuter3
-        };
+        recLabelOuter = vector<Rectangle>(3);
+        for(int i = 0; i < 3; i++){
+            recLabelOuter[i] = (Rectangle){ anchorOuter.x + 15 + i*35, anchorOuter.y + -20, 20, 20 };
+        }
         //--------------------------------------------------------------------------------------
 
         // Inners matrix
@@ -232,11 +247,9 @@ void Layout::init(){
 
         // Outer
         //--------------------------------------------------------------------------------------
-        recTextBoxOuter = {
-            (Rectangle){ anchorOuter.x + 0, anchorOuter.y + 0, 35, 35 },    // TextBox: TextBoxOuter1
-            (Rectangle){ anchorOuter.x + 35, anchorOuter.y + 0, 35, 35 },    // TextBox: TextBoxOuter2
-            (Rectangle){ anchorOuter.x + 70, anchorOuter.y + 0, 35, 35 }    // TextBox: TextBoxOuter3
-        };
+        for(int i = 0; i < 3; i++){
+            recTextBoxOuter[i] = (Rectangle){ anchorOuter.x + i*35, anchorOuter.y + 0, 35, 35 };
+        }
         //--------------------------------------------------------------------------------------
 
         // Inners
@@ -268,16 +281,19 @@ void Layout::updateChannel(){
         for(int i = 0; i < diff; i++){
             recTextBoxChannel.pop_back();
             TextBoxChannelEditMode.pop_back();
-            TextBoxChannelText.pop_back();
             recLabelChannelY.pop_back();
             LabelChannelYText.pop_back();
+
+            for(int j = 0; j < 3; j++) free(TextBoxChannelText[TextBoxChannelText.size()-1][j]);
+            TextBoxChannelText.pop_back();
         }
     }else{
         for(int i = recTextBoxChannel.size(); i < SpinnerChannelValue; i++){
             recTextBoxChannel.push_back(vector<Rectangle>(3));
-            TextBoxChannelEditMode.push_back(vector<bool>(3));
-            TextBoxChannelText.push_back(vector<string>(3));
             recLabelChannelY.push_back((Rectangle){anchorChannel.x + (10 + 35*i), anchorChannel.y + -20, 20, 20});
+
+            TextBoxChannelEditMode.push_back(vector<bool>(3));
+            TextBoxChannelText.push_back(vector<char*>(3));
             
             char buffer[5];
             sprintf(buffer, "Y%d", i+1);
@@ -285,8 +301,66 @@ void Layout::updateChannel(){
             for(int j = 0; j < 3; j++){
                 recTextBoxChannel[i][j] = (Rectangle){ anchorChannel.x + (i*35), anchorChannel.y + (j*35), 35, 35 };
                 TextBoxChannelEditMode[i][j] = false;
-                TextBoxChannelText[i][j] = "0";
+                TextBoxChannelText[i][j] = (char*) malloc(128*sizeof(char));
+                strcpy(TextBoxChannelText[i][j], "0");
             }
+        }
+    }
+}
+
+void Layout::updatePosteriors(Hyper &hyper){
+
+    // Match the number of columns in hyper and layout variables. 
+    std::ostringstream buffer;
+    buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
+
+    int diff = abs((int)hyper.num_post - (int)recLabelOuter.size());
+    if(hyper.num_post < recTextBoxOuter.size()){
+        for(int i = 0; i < diff; i++){
+            recTextBoxOuter.pop_back();
+            recLabelOuter.pop_back();
+            recTextBoxInners.pop_back();
+            LabelOuterText.pop_back();
+
+            free(TextBoxOuterText[TextBoxOuterText.size()-1]);
+            TextBoxOuterText.pop_back();
+            
+            for(int j = 0; j < 3; j++) free(TextBoxInnersText[TextBoxInnersText.size()-1][j]);
+            TextBoxInnersText.pop_back();
+        }
+    }else if(hyper.num_post > recTextBoxOuter.size()){
+        for(int i = 0; i < diff; i++){
+            recTextBoxOuter.push_back((Rectangle){0,0,0,0});
+            recLabelOuter.push_back((Rectangle){0,0,0,0});
+            recTextBoxInners.push_back(vector<Rectangle>(3));
+            LabelOuterText.push_back("0");
+
+            TextBoxOuterText.push_back(nullptr);
+            TextBoxOuterText[TextBoxOuterText.size()-1] = (char*) malloc(128*sizeof(char));
+
+            TextBoxInnersText.push_back(vector<char*>(3));
+            for(int j = 0; j < 3; j++) TextBoxInnersText[TextBoxInnersText.size()-1][j] = (char*) malloc(128*sizeof(char));
+        }
+    }
+
+    // Update values
+    for(int i = 0; i < hyper.num_post; i++){
+        recTextBoxOuter[i] = (Rectangle){ anchorOuter.x + i*35, anchorOuter.y + 0, 35, 35 };
+        recLabelOuter[i] = (Rectangle){ anchorOuter.x + 15 + i*35, anchorOuter.y + -20, 20, 20 };
+        
+        buffer.str(""); buffer.clear();
+        buffer << "I" << i+1;
+        LabelOuterText[i] = buffer.str(); 
+        
+        buffer.str(""); buffer.clear();
+        buffer << hyper.outer.prob[i];
+        strcpy(TextBoxOuterText[i], buffer.str().c_str());
+
+        for(int j = 0; j < 3; j++){
+            recTextBoxInners[i][j] = (Rectangle){ anchorInners.x + i*35, anchorInners.y + j*35, 35, 35 };
+            buffer.str(""); buffer.clear();
+            buffer << hyper.inners[j][i];
+            strcpy(TextBoxInnersText[i][j], buffer.str().c_str());
         }
     }
 }

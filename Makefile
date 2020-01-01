@@ -238,7 +238,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	endif
 
 	# Define a custom shell .html and output extension
-	CFLAGS += --shell-file ./shell.html
+# 	CFLAGS += --shell-file ./shell.html
 	EXT = .html
 endif
 
@@ -342,7 +342,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 endif
 
 # Define all source files required
-PROJECT_SOURCE_FILES ?= qif-graphics.cpp src/layout.cpp
+PROJECT_SOURCE_FILES ?= src/graphics.cpp src/information.cpp src/layout.cpp qif-graphics.cpp
 
 # Define all object files from source files
 OBJS = $(patsubst %.cpp, %.bc, $(PROJECT_SOURCE_FILES))
@@ -389,7 +389,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -f *.o $(PROJECT_NAME).html *.js *.wasm *.bc
+	rm -f *.o $(PROJECT_NAME).html *.js *.wasm *.bc src/*.bc
 endif
 	@echo Cleaning done
 

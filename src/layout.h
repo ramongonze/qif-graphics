@@ -2,17 +2,14 @@
 #define _qifLayout
 
 #include "raylib.h"
+#include "graphics.h"
 #include <vector>
 #include <string>
 #include <cmath>
+#include <fstream>
+// #include <iomanip>
 
 using namespace std;
-
-// Errors *****************************************************************************************/
-#define NO_ERROR		0
-#define INVALID_CHANNEL 1
-#define INVALID_PRIOR	2 
-#define INVALID_VALUE	3 // i.e. "1/$2"
 
 class Layout{
 public:
@@ -52,25 +49,25 @@ public:
 
 		// StatusBar
 		//----------------------------------------------------------------------------------
-			char *StatusBarDrawingText;
+			string StatusBarDrawingText;
 		//----------------------------------------------------------------------------------
 
 		// TextBoxes. Obs: All matrices invert rows and columns (to make easy adding and removing columns).
 		//----------------------------------------------------------------------------------
 			vector<vector<bool>> TextBoxGainEditMode;
-			vector<vector<string>> TextBoxGainText;
+			vector<vector<char*>> TextBoxGainText;
 
 			vector<vector<bool>> TextBoxChannelEditMode;
-			vector<vector<string>> TextBoxChannelText;
+			vector<vector<char*>> TextBoxChannelText;
 
 			vector<bool> TextBoxPriorEditMode;
-			vector<string> TextBoxPriorText;
+			vector<char*> TextBoxPriorText;
 
 			vector<bool> TextBoxOuterEditMode;
-			vector<string> TextBoxOuterText;
+			vector<char*> TextBoxOuterText;
 
 			vector<vector<bool>> TextBoxInnersEditMode;
-			vector<vector<string>> TextBoxInnersText;
+			vector<vector<char*>> TextBoxInnersText;
 		//----------------------------------------------------------------------------------
 
 		// DropDowns
@@ -167,9 +164,12 @@ public:
     // Initialize all attribute values
 	void init();
 
-	// If SpinnerChannel has been changed, update the TextBoxChannel matrices.
-	// It is called if L->SpinnerChannelValue != L->recTextBoxChannel.size().
+	/* If SpinnerChannel has been changed, update the TextBoxChannel matrices.
+	 * It is called if L->SpinnerChannelValue != L->recTextBoxChannel.size(). */
 	void updateChannel();
+
+	/* If a hyper-distributin has been built, update outer and inners TextBoxes;. */
+	void updatePosteriors(Hyper &hyper);
 };
 
 #endif

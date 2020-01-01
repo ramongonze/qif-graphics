@@ -14,6 +14,7 @@
 
 #include "raylib.h"
 #include "src/layout.h"
+#include "src/information.h"
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_RICONS
@@ -22,11 +23,16 @@
 #include <emscripten/emscripten.h>
 #include "qif/qif.h"
 
+typedef struct LoopVariables{
+    Information I;
+    Layout L;
+}LoopVariables;
+
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
-void updateDrawFrame(void* _L);     // Update and Draw one frame. Required to run on a browser.
-void printError(int error, Layout L);
+void updateDrawFrame(void* V_);     // Update and Draw one frame. Required to run on a browser.
+void printError(int error, Layout &L);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -43,17 +49,19 @@ int main(){
 
     InitWindow(screenWidth, screenHeight, "QIF-graphics");
 
-    Layout L;
-    L.init();
+    LoopVariables V;
+    V.I = Information();
+    V.L = Layout();
+    V.L.init();
 
-    emscripten_set_main_loop_arg(updateDrawFrame, &L, 0, 1);
+    emscripten_set_main_loop_arg(updateDrawFrame, &V, 0, 1);
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
     
     // Main game loop
     while (!WindowShouldClose()){    // Detect window close button or ESC key
-        updateDrawFrame(&L);
+        updateDrawFrame(&V);
     }
 
     // De-Initialization
@@ -67,40 +75,53 @@ int main(){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void updateDrawFrame(void* _L){
+void updateDrawFrame(void* V_){
     // Define controls rectangles
     //----------------------------------------------------------------------------------
-    Layout* L = (Layout*) _L;
+    LoopVariables* V = (LoopVariables*) V_;
+    Information* I = &(V->I);
+    Layout* L = &(V->L);
     int error = NO_ERROR;     // Flag that indicates if an error has been occurred
 
     // Update
     //----------------------------------------------------------------------------------
         if(L->SpinnerChannelValue != L->recTextBoxChannel.size()){ // If true, spinnerChannel has been changed
             L->CheckBoxDrawingChecked = false;
-            // hyperReady = false;
+            I->hyperReady = false;
             L->updateChannel();
         }
 
-        // if(L->CheckBoxDrawingChecked){
-        //     // Check if no invalid character has been typed
-        //     if(checkPriorText() != NO_ERROR || checkChannelText() != NO_ERROR){
-        //         error = INVALID_VALUE;
-        //     }
+        if(L->CheckBoxDrawingChecked){
+            if(I->hyperReady){
+                L->updatePosteriors(I->hyper);
+            }else{
+                // Check if no invalid character has been typed
+                if(I->checkPriorText(L->TextBoxPriorText) != NO_ERROR || I->checkChannelText(L->TextBoxChannelText) != NO_ERROR){
+                    error = INVALID_VALUE;
+                }else{
+                    // Check if typed numbers represent distributions
+                    if(Distribution::isDistribution(I->prior) == false) error = INVALID_PRIOR;
+                    else if(Channel::isChannel(I->channel) == false) error = INVALID_CHANNEL;
 
-        //     // Check if typed numbers represent distributions
-        //     if(checkPrior() != NO_ERROR) error = INVALID_PRIOR;
-        //     else if(checkChannel() != NO_ERROR) error = INVALID_CHANNEL;
+                    if(error == NO_ERROR){
+                        // Disable editing in all matrices
+                        // disableMatrices();
 
-        //     if(error == NO_ERROR){
-        //         // Disable editing in all matrices
-        //         disableMatrices();
+                        Distribution new_prior(I->prior);
+                        Channel new_channel(new_prior, I->channel);
+                        I->hyper.~Hyper();
+                        I->hyper = Hyper(new_channel);
 
-        //         hyperReady = true;
-        //     }else{
-        //         printError(error, *L);
-        //         L->CheckBoxDrawingChecked = false;
-        //     }
-        // }
+                        I->hyperReady = true;
+                        L->updatePosteriors(I->hyper);
+                    }else{
+                        printError(error, *L);
+                        L->CheckBoxDrawingChecked = false;
+                    }
+                }
+            }
+        }
+
     //----------------------------------------------------------------------------------
 
     // Draw
@@ -132,7 +153,6 @@ void updateDrawFrame(void* _L){
             // Spinners
             //----------------------------------------------------------------------------------
                 if (GuiSpinner(L->recSpinnerChannel, "", &L->SpinnerChannelValue, 0, 100, L->SpinnerChannelEditMode)) L->SpinnerChannelEditMode = !L->SpinnerChannelEditMode;
-                if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
             //----------------------------------------------------------------------------------
 
             // Labels
@@ -140,14 +160,9 @@ void updateDrawFrame(void* _L){
                 GuiLabel(L->recLabelOutputs, L->LabelOutputsText);
                 GuiLabel(L->recLabelActions, L->LabelActionsText);
                 GuiLabel(L->recLabelClickDraw, L->LabelClickDrawText);
-                GuiLabel(L->recLabelOuterName, L->LabelOuterNameText);
 
                 // Prior
                 for(int i = 0; i < L->LabelPriorText.size(); i++) GuiLabel(L->recLabelPrior[i], &(L->LabelPriorText[i][0]));
-
-                // Gain function
-                for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
-                for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
 
                 // Channel
                 for(int i = 0; i < L->LabelChannelXText.size(); i++) GuiLabel(L->recLabelChannelX[i], &(L->LabelChannelXText[i][0]));
@@ -174,7 +189,7 @@ void updateDrawFrame(void* _L){
 
             // StatusBar
             //----------------------------------------------------------------------------------
-                GuiStatusBar(L->recStatusBar, L->StatusBarDrawingText);
+                GuiStatusBar(L->recStatusBar, &(L->StatusBarDrawingText[0]));
             //----------------------------------------------------------------------------------
 
             // ScrollPanelChannelScrollOffset = GuiScrollPanel((Rectangle){rec[8].x, rec[8].y, rec[8].width - ScrollPanelChannelBoundsOffset.x, rec[8].height - ScrollPanelChannelBoundsOffset.y }, rec[8], ScrollPanelChannelScrollOffset);
@@ -183,34 +198,41 @@ void updateDrawFrame(void* _L){
             
             // TextBoxes
             //----------------------------------------------------------------------------------
-                // Gain function
-                for(int i = 0; i < L->TextBoxGainText.size(); i++){
-                    for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
-                        if (GuiTextBox(L->recTextBoxGain[i][j], &(L->TextBoxGainText[i][j][0]), 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
+                if(L->CheckBoxGainChecked){
+                    if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
+
+                    // Gain function
+                    for(int i = 0; i < L->TextBoxGainText.size(); i++){
+                        for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
+                            if (GuiTextBox(L->recTextBoxGain[i][j], L->TextBoxGainText[i][j], 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
+                        }
                     }
+
+                    for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
+                    for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
                 }
                 
                 // Channel
                 for(int i = 0; i < L->TextBoxChannelText.size(); i++){
                     for(int j = 0; j < L->TextBoxChannelText[i].size(); j++){
-                        if (GuiTextBox(L->recTextBoxChannel[i][j], &(L->TextBoxChannelText[i][j][0]), 128, L->TextBoxChannelEditMode[i][j])) L->TextBoxChannelEditMode[i][j] = !L->TextBoxChannelEditMode[i][j];        
+                        if (GuiTextBox(L->recTextBoxChannel[i][j], L->TextBoxChannelText[i][j], 128, L->TextBoxChannelEditMode[i][j])) L->TextBoxChannelEditMode[i][j] = !L->TextBoxChannelEditMode[i][j];        
                     }
                 }
 
                 // Prior
                 for(int i = 0; i < L->TextBoxPriorText.size(); i++){
-                    if (GuiTextBox(L->recTextBoxPrior[i], &(L->TextBoxPriorText[i][0]), 128, L->TextBoxPriorEditMode[i])) L->TextBoxPriorEditMode[i] = !L->TextBoxPriorEditMode[i];        
+                    if (GuiTextBox(L->recTextBoxPrior[i], L->TextBoxPriorText[i], 128, L->TextBoxPriorEditMode[i])) L->TextBoxPriorEditMode[i] = !L->TextBoxPriorEditMode[i];        
                 }
 
                 // Outer
                 for(int i = 0; i < L->TextBoxOuterText.size(); i++){
-                    if (GuiTextBox(L->recTextBoxOuter[i], &(L->TextBoxOuterText[i][0]), 128, L->TextBoxOuterEditMode[i])) L->TextBoxOuterEditMode[i] = !L->TextBoxOuterEditMode[i];        
+                    if (GuiTextBox(L->recTextBoxOuter[i], L->TextBoxOuterText[i], 128, L->TextBoxOuterEditMode[i])) L->TextBoxOuterEditMode[i] = !L->TextBoxOuterEditMode[i];        
                 }
 
                 // Inners
                 for(int i = 0; i < L->TextBoxInnersText.size(); i++){
                     for(int j = 0; j < L->TextBoxInnersText[i].size(); j++){
-                        if (GuiTextBox(L->recTextBoxInners[i][j], &(L->TextBoxInnersText[i][j][0]), 128, L->TextBoxInnersEditMode[i][j])) L->TextBoxInnersEditMode[i][j] = !L->TextBoxInnersEditMode[i][j];        
+                        if (GuiTextBox(L->recTextBoxInners[i][j], L->TextBoxInnersText[i][j], 128, L->TextBoxInnersEditMode[i][j])) L->TextBoxInnersEditMode[i][j] = !L->TextBoxInnersEditMode[i][j];        
                     }
                 }
             //----------------------------------------------------------------------------------
@@ -229,16 +251,16 @@ void updateDrawFrame(void* _L){
     //----------------------------------------------------------------------------------
 }
 
-void printError(int error, Layout L){
+void printError(int error, Layout &L){
     switch(error){
         case INVALID_VALUE:
-            strcpy(L.StatusBarDrawingText, "Some value in prior or channel is invalid!");
+            L.StatusBarDrawingText = "Some value in prior or channel is invalid!";
             break;
         case INVALID_PRIOR:
-            strcpy(L.StatusBarDrawingText, "The prior distribution is invalid!");
+            L.StatusBarDrawingText = "The prior distribution is invalid!";
             break;
         case INVALID_CHANNEL:
-            strcpy(L.StatusBarDrawingText, "The channel is invalid!");
+            L.StatusBarDrawingText = "The channel is invalid!";
             break;
     }
 }

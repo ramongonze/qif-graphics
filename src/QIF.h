@@ -15,6 +15,8 @@ public:
 	vector<vector<long double>> channel;			// Channel matrix
 	vector<long double> prior;	// Prior distribution
 
+	bool hyperReady = false;  // Flag that indicates if a hyper distribution has been built
+
 	/* Position of circles in the big triangle.
 	 * Position  [0]      -> Prior distribution
 	 * Positions [1..n-1] -> Posterior distributions */
@@ -38,9 +40,9 @@ public:
 	void updateMatricesText();
 	int update(Layout layout);
 
-	checkChannel();
 
 	void drawCircles(Colors colors, Layout layout);
+
 };
 
 #endif
