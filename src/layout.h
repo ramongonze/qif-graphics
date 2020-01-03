@@ -7,7 +7,7 @@
 #include <string>
 #include <cmath>
 #include <fstream>
-// #include <iomanip>
+#include <string.h>
 
 using namespace std;
 
@@ -170,6 +170,10 @@ public:
 
 	/* If a hyper-distributin has been built, update outer and inners TextBoxes;. */
 	void updatePosteriors(Hyper &hyper);
+
+	/* Check if a textbox in prior, channel or gain matrices has been pressed.
+	 * Returns true if yes or false otherwise. */
+	bool checkTextBoxPressed();
 };
 
 #endif

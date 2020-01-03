@@ -232,7 +232,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# --profiling                # include information for code profiling
 	# --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
-	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0
+	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -fexceptions
 	ifeq ($(BUILD_MODE), DEBUG)
 		CFLAGS += -s ASSERTIONS=1 --profiling
 	endif
@@ -290,14 +290,14 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	ifeq ($(PLATFORM_OS),WINDOWS)
 		# Libraries for Windows desktop compilation
 		# NOTE: WinMM library required to set high-res timer resolution
-		LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm
+		LDLIBS = -lraylib -lopengl32 -lgdi32 -lwinmm qif/qif.a
 		# Required for physac examples
 		#LDLIBS += -static -lpthread
 	endif
 	ifeq ($(PLATFORM_OS),LINUX)
 		# Libraries for Debian GNU/Linux desktop compiling
 		# NOTE: Required packages: libegl1-mesa-dev
-		LDLIBS = -lraylib -lGL -lm -lpthread -ldl -lrt
+		LDLIBS = -lraylib -lGL -lm -lpthread -ldl -lrt qif/qif.a
 		
 		# On X11 requires also below libraries
 		LDLIBS += -lX11
@@ -344,8 +344,14 @@ endif
 # Define all source files required
 PROJECT_SOURCE_FILES ?= src/graphics.cpp src/information.cpp src/layout.cpp qif-graphics.cpp
 
-# Define all object files from source files
-OBJS = $(patsubst %.cpp, %.bc, $(PROJECT_SOURCE_FILES))
+ifeq ($(PLATFORM),PLATFORM_DESKTOP)
+	# Define all object files from source files
+	OBJS = $(patsubst %.cpp, %.o, $(PROJECT_SOURCE_FILES))
+endif
+ifeq ($(PLATFORM),PLATFORM_WEB)
+	# Define all object files from source files
+	OBJS = $(patsubst %.cpp, %.bc, $(PROJECT_SOURCE_FILES))
+endif
 
 # For Android platform we call a custom Makefile.Android
 ifeq ($(PLATFORM),PLATFORM_ANDROID)
@@ -365,10 +371,19 @@ all:
 $(PROJECT_NAME): $(OBJS)
 	$(CC) -o $(PROJECT_NAME)$(EXT) $(OBJS) $(CFLAGS) $(INCLUDE_PATHS) $(LDFLAGS) $(LDLIBS) -D$(PLATFORM)
 
-# Compile source files
-# NOTE: This pattern will compile every module defined on $(OBJS)
+ifeq ($(PLATFORM),PLATFORM_DESKTOP)
+	# Compile source files
+	# NOTE: This pattern will compile every module defined on $(OBJS)
+%.o: %.cpp
+	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+endif
+
+ifeq ($(PLATFORM),PLATFORM_WEB)
+	# Compile source files
+	# NOTE: This pattern will compile every module defined on $(OBJS)
 %.bc: %.cpp
 	$(CC) -c $< -o $@ $(CFLAGS) $(INCLUDE_PATHS) -D$(PLATFORM)
+endif
 
 # Clean everything
 clean:

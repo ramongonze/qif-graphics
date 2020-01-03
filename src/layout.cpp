@@ -247,6 +247,7 @@ void Layout::init(){
 
         // Outer
         //--------------------------------------------------------------------------------------
+        recTextBoxOuter = vector<Rectangle>(3);
         for(int i = 0; i < 3; i++){
             recTextBoxOuter[i] = (Rectangle){ anchorOuter.x + i*35, anchorOuter.y + 0, 35, 35 };
         }
@@ -310,10 +311,10 @@ void Layout::updateChannel(){
 
 void Layout::updatePosteriors(Hyper &hyper){
 
-    // Match the number of columns in hyper and layout variables. 
     std::ostringstream buffer;
     buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
-
+    
+    // Match the number of columns in hyper and layout variables. 
     int diff = abs((int)hyper.num_post - (int)recLabelOuter.size());
     if(hyper.num_post < recTextBoxOuter.size()){
         for(int i = 0; i < diff; i++){
@@ -342,7 +343,7 @@ void Layout::updatePosteriors(Hyper &hyper){
             for(int j = 0; j < 3; j++) TextBoxInnersText[TextBoxInnersText.size()-1][j] = (char*) malloc(128*sizeof(char));
         }
     }
-
+    
     // Update values
     for(int i = 0; i < hyper.num_post; i++){
         recTextBoxOuter[i] = (Rectangle){ anchorOuter.x + i*35, anchorOuter.y + 0, 35, 35 };
@@ -363,4 +364,27 @@ void Layout::updatePosteriors(Hyper &hyper){
             strcpy(TextBoxInnersText[i][j], buffer.str().c_str());
         }
     }
+
+    // Update line width
+    recLine1.width = 35 * TextBoxOuterText.size();
+}
+
+bool Layout::checkTextBoxPressed(){
+    for(int i = 0; i < TextBoxPriorEditMode.size(); i++){
+        if(TextBoxPriorEditMode[i] == true) return true;
+    }
+
+    for(int i = 0; i < TextBoxChannelEditMode.size(); i++){
+        for(int j = 0; j < TextBoxChannelEditMode[i].size(); j++){
+            if(TextBoxChannelEditMode[i][j] == true) return true;
+        }
+    }
+
+    for(int i = 0; i < TextBoxGainEditMode.size(); i++){
+        for(int j = 0; j < TextBoxGainEditMode[i].size(); j++){
+            if(TextBoxGainEditMode[i][j] == true) return true;
+        }
+    }
+
+    return false;
 }

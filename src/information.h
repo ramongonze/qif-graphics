@@ -2,6 +2,7 @@
 #define _information
 
 #include "graphics.h"
+#include <exception>
 
 class Information{
 public:

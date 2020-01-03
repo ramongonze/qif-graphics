@@ -23,6 +23,8 @@
 #include <emscripten/emscripten.h>
 #include "qif/qif.h"
 
+#include <iostream>
+
 typedef struct LoopVariables{
     Information I;
     Layout L;
@@ -44,8 +46,8 @@ void printError(int error, Layout &L);
 int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
-    int screenWidth = 1800;
-    int screenHeight = 1800;
+    int screenWidth = 800;
+    int screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "QIF-graphics");
 
@@ -53,7 +55,6 @@ int main(){
     V.I = Information();
     V.L = Layout();
     V.L.init();
-
     emscripten_set_main_loop_arg(updateDrawFrame, &V, 0, 1);
 
     SetTargetFPS(60);
@@ -91,6 +92,12 @@ void updateDrawFrame(void* V_){
             L->updateChannel();
         }
 
+        // Check if a TextBox is pressed. If yes, disable drawing.
+        if(L->checkTextBoxPressed()){
+            L->CheckBoxDrawingChecked = false;
+            I->hyperReady = false;
+        }
+
         if(L->CheckBoxDrawingChecked){
             if(I->hyperReady){
                 L->updatePosteriors(I->hyper);
@@ -98,18 +105,18 @@ void updateDrawFrame(void* V_){
                 // Check if no invalid character has been typed
                 if(I->checkPriorText(L->TextBoxPriorText) != NO_ERROR || I->checkChannelText(L->TextBoxChannelText) != NO_ERROR){
                     error = INVALID_VALUE;
+                    printError(error, *L);
+                    L->CheckBoxDrawingChecked = false;
                 }else{
                     // Check if typed numbers represent distributions
                     if(Distribution::isDistribution(I->prior) == false) error = INVALID_PRIOR;
                     else if(Channel::isChannel(I->channel) == false) error = INVALID_CHANNEL;
 
                     if(error == NO_ERROR){
-                        // Disable editing in all matrices
-                        // disableMatrices();
+                        printError(error, *L);
 
                         Distribution new_prior(I->prior);
                         Channel new_channel(new_prior, I->channel);
-                        I->hyper.~Hyper();
                         I->hyper = Hyper(new_channel);
 
                         I->hyperReady = true;
@@ -158,7 +165,6 @@ void updateDrawFrame(void* V_){
             // Labels
             //----------------------------------------------------------------------------------
                 GuiLabel(L->recLabelOutputs, L->LabelOutputsText);
-                GuiLabel(L->recLabelActions, L->LabelActionsText);
                 GuiLabel(L->recLabelClickDraw, L->LabelClickDrawText);
 
                 // Prior
@@ -199,6 +205,7 @@ void updateDrawFrame(void* V_){
             // TextBoxes
             //----------------------------------------------------------------------------------
                 if(L->CheckBoxGainChecked){
+                    GuiLabel(L->recLabelActions, L->LabelActionsText);
                     if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
 
                     // Gain function
@@ -224,6 +231,7 @@ void updateDrawFrame(void* V_){
                     if (GuiTextBox(L->recTextBoxPrior[i], L->TextBoxPriorText[i], 128, L->TextBoxPriorEditMode[i])) L->TextBoxPriorEditMode[i] = !L->TextBoxPriorEditMode[i];        
                 }
 
+                GuiLock();
                 // Outer
                 for(int i = 0; i < L->TextBoxOuterText.size(); i++){
                     if (GuiTextBox(L->recTextBoxOuter[i], L->TextBoxOuterText[i], 128, L->TextBoxOuterEditMode[i])) L->TextBoxOuterEditMode[i] = !L->TextBoxOuterEditMode[i];        
@@ -235,6 +243,7 @@ void updateDrawFrame(void* V_){
                         if (GuiTextBox(L->recTextBoxInners[i][j], L->TextBoxInnersText[i][j], 128, L->TextBoxInnersEditMode[i][j])) L->TextBoxInnersEditMode[i][j] = !L->TextBoxInnersEditMode[i][j];        
                     }
                 }
+                GuiUnlock();
             //----------------------------------------------------------------------------------
 
             // DropDowns
@@ -244,7 +253,6 @@ void updateDrawFrame(void* V_){
                 if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
             //----------------------------------------------------------------------------------
             
-            // GuiUnlock();
             //----------------------------------------------------------------------------------
 
         EndDrawing();
@@ -262,5 +270,7 @@ void printError(int error, Layout &L){
         case INVALID_CHANNEL:
             L.StatusBarDrawingText = "The channel is invalid!";
             break;
+        case NO_ERROR:
+            L.StatusBarDrawingText = "Status";
     }
 }

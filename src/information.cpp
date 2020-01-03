@@ -10,7 +10,6 @@ int Information::checkPriorText(vector<char*> &prior_){
 
     for(int i = 0; i < priorStr.size(); i++){
     	priorStr[i] = string(prior_[i]);
-    	cout << "|" << priorStr[i] << "|\n";
     }
 
     try{
@@ -40,7 +39,7 @@ int Information::checkPriorText(vector<char*> &prior_){
         }
         
         return NO_ERROR;
-    }catch(...){
+    }catch(exception& e){
         return INVALID_VALUE;
     }
 }
@@ -87,7 +86,7 @@ int Information::checkChannelText(vector<vector<char*>> &channel_){
         }
 
         return NO_ERROR;
-    }catch(...){
+    }catch(exception& e){
         return INVALID_VALUE;
     }
 }
