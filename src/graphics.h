@@ -14,27 +14,6 @@ using namespace std;
 // Settings
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
 
-// Interface dimensions ***************************************************************************/
-#define V1(width)  (0.35f *  width) // % window width that divides the matrices and the graphics
-#define V2(width)  (0.05f *  width) // Channel and gain matrices position
-#define H1(height) (0.04f * height) // Percentage of prior rectangle 
-#define H2(height) (0.19f * height) // Percentage of channel rectangle
-#define H3(height) (0.58f * height) // Percentage of gain rectangle
-#define TV1(width) (((0.50f-V1(width)/width)/2.0f + V1(width)/width) * width)
-#define TV2(width) (((0.50f-V1(width)/width)/2.0f + V1(width)/width + 0.25f) * width)
-#define TV3(width) (((0.50f-V1(width)/width)/2.0f + V1(width)/width + 0.50f) * width)
-#define TH1(height) ( H1(height) + (0.28f * height))
-#define TH2(height) (TH1(height) + (0.08f * height))
-#define TH3(height) (TH2(height) + (0.50f * height))
-
-// Macros to define an equilateral triangle (its height is 50% of min(window_width, window_height))
-#define TRIANGLEV1(width, height) (V1(width) + ((width-V1(width)) - MIN(width,height)/2)/2)
-#define TRIANGLEV2(width, height) (TRIANGLEV1(width, height) + MIN(width,height)/4)
-#define TRIANGLEV3(width, height) (TRIANGLEV1(width, height) + MIN(width,height)/2)
-
-#define TRIANGLEH2(width, height) (TH1(height) + ((height-TH1(height)) - (MIN(width,height)/2))/2)
-#define TRIANGLEH3(width, height) (TRIANGLEH2(width, height) + MIN(width,height)/2)
-
 // Prior probability distribution radius **********************************************************/
 #define PRIOR_RADIUS 40
 

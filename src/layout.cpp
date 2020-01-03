@@ -3,6 +3,17 @@
 Layout::Layout(){
 	// Controls initialization
 	//----------------------------------------------------------------------------------
+        // Define anchors
+        //----------------------------------------------------------------------------------
+            anchorGain = { 95, 345 };            // ANCHOR ID:1
+            anchorChannel = { 95, 115 };            // ANCHOR ID:2
+            anchorPrior = { 400, 95 };            // ANCHOR ID:3
+            anchorDrawing = { 150, 570 };            // ANCHOR ID:4
+            anchorOuter = { 535, 75 };            // ANCHOR ID:5
+            anchorInners = { 535, 125 };            // ANCHOR ID:6
+            anchorVisualization = { 365, 270 };            // ANCHOR ID:7
+        //----------------------------------------------------------------------------------
+
 		// GroupBoxes
 		//----------------------------------------------------------------------------------
 			GroupBoxPriorText = "Prior";    // GROUPBOX: GroupBoxPrior
@@ -26,6 +37,7 @@ Layout::Layout(){
 			LabelPriorText = vector<string>({"X1", "X2", "X3"});
 			LabelOuterText = vector<string>({"I1", "I2", "I3"});
 			LabelInnerText = vector<string>({"X1", "X2", "X3"});
+            LabelTriangleText = vector<string>({"X1", "X2", "X3"});
 		//----------------------------------------------------------------------------------
 
 		// CheckBoxes
@@ -80,17 +92,6 @@ Layout::Layout(){
 			DropDownBoxFileText = "File;Open;Save;Save as";    // DROPDOWNBOX: DropDownBoxFile
 		//----------------------------------------------------------------------------------
 
-		// Define anchors
-		//----------------------------------------------------------------------------------
-			anchorGain = { 95, 345 };            // ANCHOR ID:1
-			anchorChannel = { 95, 115 };            // ANCHOR ID:2
-			anchorPrior = { 400, 95 };            // ANCHOR ID:3
-			anchorDrawing = { 150, 570 };            // ANCHOR ID:4
-			anchorOuter = { 535, 75 };            // ANCHOR ID:5
-			anchorInners = { 535, 125 };            // ANCHOR ID:6
-			anchorVisualization = { 365, 270 };            // ANCHOR ID:7
-		//----------------------------------------------------------------------------------
-
 		// Define controls variables
 		//----------------------------------------------------------------------------------
 			SpinnerChannelEditMode = false;
@@ -132,6 +133,16 @@ void Layout::init(){
         recGroupBoxDrawing = (Rectangle){ 60, 495, 290, 119 };
     //--------------------------------------------------------------------------------------
 
+    // Triangle
+    //--------------------------------------------------------------------------------------
+        TrianglePoints = vector<Vector2>(3);
+        TrianglePoints = {
+            (Vector2) { anchorVisualization.x + 0.5*recGroupBoxVisualization.width, anchorVisualization.y + 28},
+            (Vector2) { anchorVisualization.x + 0.1*recGroupBoxVisualization.width, anchorVisualization.y + (recGroupBoxVisualization.height-28)},
+            (Vector2) { anchorVisualization.x + 0.9*recGroupBoxVisualization.width, anchorVisualization.y + (recGroupBoxVisualization.height-28)}
+        };
+    //--------------------------------------------------------------------------------------
+
     // Spinners
     //--------------------------------------------------------------------------------------
         recSpinnerChannel = (Rectangle){ 265, 50, 80, 20 };    // Spinner: SpinnerChannel
@@ -147,56 +158,65 @@ void Layout::init(){
 
         // Prior
         //--------------------------------------------------------------------------------------        
-        recLabelPrior = {
-            (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 0, 15, 35 },    // Label: LabelPriorX1
-            (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 35, 15, 35 },    // Label: LabelPriorX2
-            (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 70, 15, 35 }
-        };
-        //--------------------------------------------------------------------------------------        
+            recLabelPrior = {
+                (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 0, 15, 35 },    // Label: LabelPriorX1
+                (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 35, 15, 35 },    // Label: LabelPriorX2
+                (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 70, 15, 35 }
+            };
+            //--------------------------------------------------------------------------------------        
 
         // Gain matrix
         //--------------------------------------------------------------------------------------
-        recLabelGainX = {
-            (Rectangle){ anchorGain.x + -20, anchorGain.y + 0, 15, 35 },    // Label: LabelGainX1
-            (Rectangle){ anchorGain.x + -20, anchorGain.y + 35, 15, 35 },    // Label: LabelGainX2
-            (Rectangle){ anchorGain.x + -20, anchorGain.y + 70, 15, 35 }    // Label: LabelGainX3
-        };
-        recLabelGainW = {
-            (Rectangle){ anchorGain.x + 10, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW1
-            (Rectangle){ anchorGain.x + 45, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW2
-            (Rectangle){ anchorGain.x + 80, anchorGain.y + -20, 20, 20 }    // Label: LabelGainW3
-        };
+            recLabelGainX = {
+                (Rectangle){ anchorGain.x + -20, anchorGain.y + 0, 15, 35 },    // Label: LabelGainX1
+                (Rectangle){ anchorGain.x + -20, anchorGain.y + 35, 15, 35 },    // Label: LabelGainX2
+                (Rectangle){ anchorGain.x + -20, anchorGain.y + 70, 15, 35 }    // Label: LabelGainX3
+            };
+            recLabelGainW = {
+                (Rectangle){ anchorGain.x + 10, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW1
+                (Rectangle){ anchorGain.x + 45, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW2
+                (Rectangle){ anchorGain.x + 80, anchorGain.y + -20, 20, 20 }    // Label: LabelGainW3
+            };
         //--------------------------------------------------------------------------------------
 
         // Channel matrix
         //--------------------------------------------------------------------------------------
-        recLabelChannelX = vector<Rectangle>(3);
-        for(int i = 0; i < 3; i++){
-            recLabelChannelX[i] = (Rectangle){ anchorChannel.x + -20, anchorChannel.y + i*35, 15, 35 };
-        }
+            recLabelChannelX = vector<Rectangle>(3);
+            for(int i = 0; i < 3; i++){
+                recLabelChannelX[i] = (Rectangle){ anchorChannel.x + -20, anchorChannel.y + i*35, 15, 35 };
+            }
 
-        recLabelChannelY = vector<Rectangle>(3);
-        for(int i = 0; i < 3; i++){
-            recLabelChannelY[i] = (Rectangle){ anchorChannel.x + 10 + 35*i, anchorChannel.y + -20, 20, 20};
-        }
-        //--------------------------------------------------------------------------------------
+            recLabelChannelY = vector<Rectangle>(3);
+            for(int i = 0; i < 3; i++){
+                recLabelChannelY[i] = (Rectangle){ anchorChannel.x + 10 + 35*i, anchorChannel.y + -20, 20, 20};
+            }
+            //--------------------------------------------------------------------------------------
 
-        // Outer
-        //--------------------------------------------------------------------------------------
-        recLabelOuter = vector<Rectangle>(3);
-        for(int i = 0; i < 3; i++){
-            recLabelOuter[i] = (Rectangle){ anchorOuter.x + 15 + i*35, anchorOuter.y + -20, 20, 20 };
-        }
+            // Outer
+            //--------------------------------------------------------------------------------------
+            recLabelOuter = vector<Rectangle>(3);
+            for(int i = 0; i < 3; i++){
+                recLabelOuter[i] = (Rectangle){ anchorOuter.x + 15 + i*35, anchorOuter.y + -20, 20, 20 };
+            }
         //--------------------------------------------------------------------------------------
 
         // Inners matrix
         //--------------------------------------------------------------------------------------
-        recLabelInners = {
-            (Rectangle){ anchorInners.x + -20, anchorInners.y + 0, 15, 35 },    // Label: LabelInnerX1
-            (Rectangle){ anchorInners.x + -20, anchorInners.y + 35, 15, 35 },    // Label: LabelInnerX2
-            (Rectangle){ anchorInners.x + -20, anchorInners.y + 70, 15, 35 }    // Label: LabelInnerX3
-        };
+            recLabelInners = {
+                (Rectangle){ anchorInners.x + -20, anchorInners.y + 0, 15, 35 },    // Label: LabelInnerX1
+                (Rectangle){ anchorInners.x + -20, anchorInners.y + 35, 15, 35 },    // Label: LabelInnerX2
+                (Rectangle){ anchorInners.x + -20, anchorInners.y + 70, 15, 35 }    // Label: LabelInnerX3
+            };
         //--------------------------------------------------------------------------------------
+
+        // Triangle
+        //--------------------------------------------------------------------------------------
+            recLabelTriangle = {
+                (Rectangle) { TrianglePoints[0].x -7, TrianglePoints[0].y -22 , 20, 20 },
+                (Rectangle) { TrianglePoints[1].x -22, TrianglePoints[1].y -10, 20, 20 },
+                (Rectangle) { TrianglePoints[2].x +5, TrianglePoints[2].y -10, 20, 20 }
+            };
+        //--------------------------------------------------------------------------------------            
     //--------------------------------------------------------------------------------------
 
     // CheckBoxes

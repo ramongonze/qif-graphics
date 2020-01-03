@@ -232,6 +232,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# --profiling                # include information for code profiling
 	# --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
+	# -fexceptions				 # allows try-catch from c++
 	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -fexceptions
 	ifeq ($(BUILD_MODE), DEBUG)
 		CFLAGS += -s ASSERTIONS=1 --profiling

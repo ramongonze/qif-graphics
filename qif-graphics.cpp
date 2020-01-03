@@ -46,8 +46,8 @@ void printError(int error, Layout &L);
 int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
-    int screenWidth = 800;
-    int screenHeight = 800;
+    int screenWidth = 1200;
+    int screenHeight = 1200;
 
     InitWindow(screenWidth, screenHeight, "QIF-graphics");
 
@@ -105,7 +105,6 @@ void updateDrawFrame(void* V_){
                 // Check if no invalid character has been typed
                 if(I->checkPriorText(L->TextBoxPriorText) != NO_ERROR || I->checkChannelText(L->TextBoxChannelText) != NO_ERROR){
                     error = INVALID_VALUE;
-                    printError(error, *L);
                     L->CheckBoxDrawingChecked = false;
                 }else{
                     // Check if typed numbers represent distributions
@@ -113,8 +112,6 @@ void updateDrawFrame(void* V_){
                     else if(Channel::isChannel(I->channel) == false) error = INVALID_CHANNEL;
 
                     if(error == NO_ERROR){
-                        printError(error, *L);
-
                         Distribution new_prior(I->prior);
                         Channel new_channel(new_prior, I->channel);
                         I->hyper = Hyper(new_channel);
@@ -122,12 +119,13 @@ void updateDrawFrame(void* V_){
                         I->hyperReady = true;
                         L->updatePosteriors(I->hyper);
                     }else{
-                        printError(error, *L);
                         L->CheckBoxDrawingChecked = false;
                     }
                 }
             }
         }
+        
+        printError(error, *L);
 
     //----------------------------------------------------------------------------------
 
@@ -145,6 +143,11 @@ void updateDrawFrame(void* V_){
             //----------------------------------------------------------------------------------
                 GuiPanel(L->recPanelMenu);
                 GuiPanel(L->recPanelBody);
+            //----------------------------------------------------------------------------------
+
+            // Triangle
+            //----------------------------------------------------------------------------------
+                DrawTriangleLines(L->TrianglePoints[0], L->TrianglePoints[1], L->TrianglePoints[2], BLACK);
             //----------------------------------------------------------------------------------
 
             // GroupBoxes
@@ -180,6 +183,9 @@ void updateDrawFrame(void* V_){
 
                 // Inners
                 for(int i = 0; i < L->LabelInnerText.size(); i++) GuiLabel(L->recLabelInners[i], &(L->LabelInnerText[i][0]));
+
+                // Triangle
+                for(int i = 0; i < L->LabelTriangleText.size(); i++) GuiLabel(L->recLabelTriangle[i], &(L->LabelTriangleText[i][0]));
             //----------------------------------------------------------------------------------
 
             // CheckBoxes
@@ -252,7 +258,6 @@ void updateDrawFrame(void* V_){
                 if (GuiDropdownBox(L->recDropDownLoad, L->DropDownLoadText, &L->DropDownLoadActive, L->DropDownLoadEditMode)) L->DropDownLoadEditMode = !L->DropDownLoadEditMode;
                 if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
             //----------------------------------------------------------------------------------
-            
             //----------------------------------------------------------------------------------
 
         EndDrawing();

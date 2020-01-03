@@ -39,6 +39,7 @@ public:
 			vector<string> LabelPriorText;
 			vector<string> LabelOuterText;
 			vector<string> LabelInnerText;
+			vector<string> LabelTriangleText;
 		//----------------------------------------------------------------------------------
 
 		// CheckBoxes
@@ -76,6 +77,15 @@ public:
 			char *DropDownExportText;
 			char *DropDownBoxFileText;
 		//----------------------------------------------------------------------------------
+
+		/* Triangle
+		 *       v0
+		 *       /\
+		 *   v1 /__\ v2 */
+		//----------------------------------------------------------------------------------
+			vector<Vector2> TrianglePoints;
+		//----------------------------------------------------------------------------------
+
 
 		// Define anchors
 		//----------------------------------------------------------------------------------
@@ -132,16 +142,13 @@ public:
         Rectangle recLabelOuterName;
 
         vector<Rectangle> recLabelPrior;
-
         vector<Rectangle> recLabelGainX;
         vector<Rectangle> recLabelGainW;
-
         vector<Rectangle> recLabelChannelX;
         vector<Rectangle> recLabelChannelY;
-
         vector<Rectangle> recLabelOuter;
-
         vector<Rectangle> recLabelInners;
+        vector<Rectangle> recLabelTriangle;
 
         Rectangle recCheckBoxGain;
         Rectangle recCheckBoxDrawing;

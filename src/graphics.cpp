@@ -46,16 +46,16 @@ long double euclidianDistance(Point a, Point b){
 
 Point pixel2Bary(double x, double y, int window_width, int window_height){
 	Point p;
-	p.x = (x - (TRIANGLEV1(window_width, window_height))) / (MIN(window_width, window_height)/ 2);
-	p.y = 1 - (y - (TRIANGLEH2(window_width, window_height))) / (MIN(window_width, window_height)/ 2);
-	return p;
+// 	p.x = (x - (TRIANGLEV1(window_width, window_height))) / (MIN(window_width, window_height)/ 2);
+// 	p.y = 1 - (y - (TRIANGLEH2(window_width, window_height))) / (MIN(window_width, window_height)/ 2);
+// 	return p;
 }
 
 Point bary2Pixel(double x, double y, int window_width, int window_height){
 	Point p;
-	int originX = TRIANGLEV1(window_width, window_height);
-	int originY = TRIANGLEH3(window_width, window_height);
-	p.x = originX + (x * (MIN(window_width, window_height)/ 2));
-	p.y = originY - (y * (MIN(window_width, window_height)/ 2));
-	return p;
+	// int originX = TRIANGLEV1(window_width, window_height);
+	// int originY = TRIANGLEH3(window_width, window_height);
+	// p.x = originX + (x * (MIN(window_width, window_height)/ 2));
+	// p.y = originY - (y * (MIN(window_width, window_height)/ 2));
+	// return p;
 }
