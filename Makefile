@@ -233,7 +233,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
 	# -fexceptions				 # allows try-catch from c++
-	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -fexceptions
+	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -fexceptions --preload-file fonts/dejavu.fnt --preload-file fonts/dejavu.png
 	ifeq ($(BUILD_MODE), DEBUG)
 		CFLAGS += -s ASSERTIONS=1 --profiling
 	endif
@@ -405,7 +405,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -f *.o $(PROJECT_NAME).html *.js *.wasm *.bc src/*.bc
+	rm -f *.o $(PROJECT_NAME).html *.js *.wasm *.bc src/*.bc src/*.o
 endif
 	@echo Cleaning done
 

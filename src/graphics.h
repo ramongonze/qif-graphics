@@ -2,6 +2,7 @@
 #define _qif_graphics
 
 #include "../qif/qif.h"
+#include "raylib.h"
 
 using namespace std;
 
@@ -14,10 +15,8 @@ using namespace std;
 // Settings
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
 
-// Prior probability distribution radius **********************************************************/
-#define PRIOR_RADIUS 40
-
-#define MIN(A,B) ((A < B) ? (A) : (B))
+// Prior probability distribution radius (in pixels) **********************************************/
+#define PRIOR_RADIUS 30
 
 class Point{
 	public:
@@ -27,6 +26,11 @@ class Point{
 		Point();
 		Point(long double x, long double y);
 };
+
+typedef struct Circle{
+	Point center; // Pixel coordinates
+	float radius;
+}Circle;
 
 /* Transforms a probability distribution on 3 elements in a barycentric coordinate
  * Parameters:
@@ -49,7 +53,7 @@ Point dist2Bary(long double x1, long double x2, long double x3);
 /* Transforms a barycentric coordiante in a probability distribution on 3 elements.
  * Parameters:
  *		p: 	  Point containing a barycentric coordinate
- *		prob: A vector which will receive the output probability distribution
+ *		prob: A vector which will receive the new probability distribution
  *
  * Return: true if a probability distribution was succesfully generated or false otherwise.
  */
@@ -57,23 +61,26 @@ bool bary2Dist(Point p, vector<long double> &prob);
 
 // Euclidian distance between two points
 long double euclidianDistance(Point a, Point b);
+long double euclidianDistance(Point a, Vector2 b);
 
 /* Transforms a pixel coordinate in barycentric coordinate
  * Parameters:
  *		x: value (in pixels) in x-axis
  *		y: value (in pixels) in y-axis
+ *		TrianglePoints: values (in pixels) of triangle points
  *
  * Return: A 'Point' structure containing a barycentric coordinate.
  */
-Point pixel2Bary(double x, double y, int window_width, int window_height);
+Point pixel2Bary(double x, double y, vector<Vector2> &TrianglePoints);
 
 /* Transforms barycentric coordinate in pixel coordinate
  * Parameters:
  *		x: value (in barycentric coordinate) in x-axis
  *		y: value (in barycentric coordinate) in y-axis
+ *		TrianglePoints: values (in pixels) of triangle points
  *
  * Return: A 'Point' structure containing a barycentric coordinate.
  */
-Point bary2Pixel(double x, double y, int window_width, int window_height);
+Point bary2Pixel(double x, double y, vector<Vector2> &TrianglePoints);
 
 #endif

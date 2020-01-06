@@ -164,6 +164,10 @@ void Layout::init(){
                 (Rectangle){ anchorPrior.x + -20, anchorPrior.y + 70, 15, 35 }
             };
             //--------------------------------------------------------------------------------------        
+            
+            // Update circle label
+            LabelPriorCircleText = (char*) malloc(1280 * sizeof(char));
+            strcpy(LabelPriorCircleText, "\xCF\x80");
 
         // Gain matrix
         //--------------------------------------------------------------------------------------
@@ -329,64 +333,99 @@ void Layout::updateChannel(){
     }
 }
 
-void Layout::updatePosteriors(Hyper &hyper){
+void Layout::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles, bool onlyText){
 
     std::ostringstream buffer;
     buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
     
-    // Match the number of columns in hyper and layout variables. 
-    int diff = abs((int)hyper.num_post - (int)recLabelOuter.size());
-    if(hyper.num_post < recTextBoxOuter.size()){
-        for(int i = 0; i < diff; i++){
-            recTextBoxOuter.pop_back();
-            recLabelOuter.pop_back();
-            recTextBoxInners.pop_back();
-            LabelOuterText.pop_back();
-
-            free(TextBoxOuterText[TextBoxOuterText.size()-1]);
-            TextBoxOuterText.pop_back();
-            
-            for(int j = 0; j < 3; j++) free(TextBoxInnersText[TextBoxInnersText.size()-1][j]);
-            TextBoxInnersText.pop_back();
-        }
-    }else if(hyper.num_post > recTextBoxOuter.size()){
-        for(int i = 0; i < diff; i++){
-            recTextBoxOuter.push_back((Rectangle){0,0,0,0});
-            recLabelOuter.push_back((Rectangle){0,0,0,0});
-            recTextBoxInners.push_back(vector<Rectangle>(3));
-            LabelOuterText.push_back("0");
-
-            TextBoxOuterText.push_back(nullptr);
-            TextBoxOuterText[TextBoxOuterText.size()-1] = (char*) malloc(128*sizeof(char));
-
-            TextBoxInnersText.push_back(vector<char*>(3));
-            for(int j = 0; j < 3; j++) TextBoxInnersText[TextBoxInnersText.size()-1][j] = (char*) malloc(128*sizeof(char));
-        }
-    }
-    
-    // Update values
-    for(int i = 0; i < hyper.num_post; i++){
-        recTextBoxOuter[i] = (Rectangle){ anchorOuter.x + i*35, anchorOuter.y + 0, 35, 35 };
-        recLabelOuter[i] = (Rectangle){ anchorOuter.x + 15 + i*35, anchorOuter.y + -20, 20, 20 };
-        
-        buffer.str(""); buffer.clear();
-        buffer << "I" << i+1;
-        LabelOuterText[i] = buffer.str(); 
-        
-        buffer.str(""); buffer.clear();
-        buffer << hyper.outer.prob[i];
-        strcpy(TextBoxOuterText[i], buffer.str().c_str());
-
-        for(int j = 0; j < 3; j++){
-            recTextBoxInners[i][j] = (Rectangle){ anchorInners.x + i*35, anchorInners.y + j*35, 35, 35 };
+    if(onlyText == false){
+        // Update values
+        for(int i = 0; i < hyper.num_post; i++){
             buffer.str(""); buffer.clear();
-            buffer << hyper.inners[j][i];
-            strcpy(TextBoxInnersText[i][j], buffer.str().c_str());
+            buffer << hyper.outer.prob[i];
+            strcpy(TextBoxOuterText[i], buffer.str().c_str());
+
+            for(int j = 0; j < 3; j++){
+                buffer.str(""); buffer.clear();
+                buffer << hyper.inners[j][i];
+                strcpy(TextBoxInnersText[i][j], buffer.str().c_str());
+            }
         }
+    }else{
+        // Match the number of columns in hyper and layout variables. 
+        int diff = abs((int)hyper.num_post - (int)recLabelOuter.size());
+        if(hyper.num_post < recTextBoxOuter.size()){
+            for(int i = 0; i < diff; i++){
+                recTextBoxOuter.pop_back();
+                recLabelOuter.pop_back();
+                recTextBoxInners.pop_back();
+                LabelOuterText.pop_back();
+
+                free(TextBoxOuterText[TextBoxOuterText.size()-1]);
+                TextBoxOuterText.pop_back();
+                
+                for(int j = 0; j < 3; j++) free(TextBoxInnersText[TextBoxInnersText.size()-1][j]);
+                TextBoxInnersText.pop_back();
+            }
+        }else if(hyper.num_post > recTextBoxOuter.size()){
+            for(int i = 0; i < diff; i++){
+                recTextBoxOuter.push_back((Rectangle){0,0,0,0});
+                recLabelOuter.push_back((Rectangle){0,0,0,0});
+                recTextBoxInners.push_back(vector<Rectangle>(3));
+                LabelOuterText.push_back("0");
+
+                TextBoxOuterText.push_back(nullptr);
+                TextBoxOuterText[TextBoxOuterText.size()-1] = (char*) malloc(128*sizeof(char));
+
+                TextBoxInnersText.push_back(vector<char*>(3));
+                for(int j = 0; j < 3; j++) TextBoxInnersText[TextBoxInnersText.size()-1][j] = (char*) malloc(128*sizeof(char));
+            }
+        }
+
+        // Update values
+        for(int i = 0; i < hyper.num_post; i++){
+            recTextBoxOuter[i] = (Rectangle){ anchorOuter.x + i*35, anchorOuter.y + 0, 35, 35 };
+            recLabelOuter[i] = (Rectangle){ anchorOuter.x + 15 + i*35, anchorOuter.y + -20, 20, 20 };
+            
+            buffer.str(""); buffer.clear();
+            buffer << "I" << i+1;
+            LabelOuterText[i] = buffer.str(); 
+            
+            buffer.str(""); buffer.clear();
+            buffer << hyper.outer.prob[i];
+            strcpy(TextBoxOuterText[i], buffer.str().c_str());
+
+            for(int j = 0; j < 3; j++){
+                recTextBoxInners[i][j] = (Rectangle){ anchorInners.x + i*35, anchorInners.y + j*35, 35, 35 };
+                buffer.str(""); buffer.clear();
+                buffer << hyper.inners[j][i];
+                strcpy(TextBoxInnersText[i][j], buffer.str().c_str());
+            }
+        }
+
+        // Update line width
+        recLine1.width = 35 * TextBoxOuterText.size();
+
+        recLabelInnersCircles = vector<Rectangle>(hyper.num_post);
     }
 
-    // Update line width
-    recLine1.width = 35 * TextBoxOuterText.size();
+    // Update circle labels and rectangles
+    for(int i = 0; i < hyper.num_post; i++){
+        recLabelInnersCircles[i] = (Rectangle) { innersCircles[i].center.x - 5, innersCircles[i].center.y -10, 20, 20 };
+    }
+}
+
+void Layout::updatePrior(Distribution &prior, Circle &priorCircle){
+    std::ostringstream buffer;
+    buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
+
+    for(int i = 0; i < prior.num_el; i++){
+        buffer.str(""); buffer.clear();
+        buffer << prior.prob[i];
+        strcpy(TextBoxPriorText[i], buffer.str().c_str());
+    }
+
+    recLabelPriorCircle = (Rectangle) { priorCircle.center.x - 6, priorCircle.center.y - 10, 20, 20 };
 }
 
 bool Layout::checkTextBoxPressed(){

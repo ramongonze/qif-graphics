@@ -32,6 +32,8 @@ public:
 			char *LabelActionsText;
 			char *LabelClickDrawText;
 			char *LabelOuterNameText;
+			char *LabelPriorCircleText;
+
 			vector<string> LabelGainXText;
 			vector<string> LabelGainWText;
 			vector<string> LabelChannelXText;
@@ -140,6 +142,7 @@ public:
         Rectangle recLabelActions;
         Rectangle recLabelClickDraw;
         Rectangle recLabelOuterName;
+        Rectangle recLabelPriorCircle;
 
         vector<Rectangle> recLabelPrior;
         vector<Rectangle> recLabelGainX;
@@ -149,6 +152,7 @@ public:
         vector<Rectangle> recLabelOuter;
         vector<Rectangle> recLabelInners;
         vector<Rectangle> recLabelTriangle;
+        vector<Rectangle> recLabelInnersCircles;
 
         Rectangle recCheckBoxGain;
         Rectangle recCheckBoxDrawing;
@@ -168,6 +172,8 @@ public:
         Rectangle recDropDownExport;
 	//--------------------------------------------------------------------------------------
 
+    Font alternativeFont;
+
     // Initialize all attribute values
 	void init();
 
@@ -175,8 +181,17 @@ public:
 	 * It is called if L->SpinnerChannelValue != L->recTextBoxChannel.size(). */
 	void updateChannel();
 
-	/* If a hyper-distributin has been built, update outer and inners TextBoxes;. */
-	void updatePosteriors(Hyper &hyper);
+	/* If a hyper-distributin has been built, update outer and inners TextBoxes;.
+	 * 
+	 * @Parameters:
+	 * 		hyper: Hyper-distribution;
+	 *  	onlyText: true if only the text must be updated or false if the layout
+	 *				  (rectangles, labels, ...) must be updated.
+	 */
+	void updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles, bool onlyText);
+
+	/* Update TextBoxes of prior distribution .*/
+	void updatePrior(Distribution &prior, Circle &priorCircle);
 
 	/* Check if a textbox in prior, channel or gain matrices has been pressed.
 	 * Returns true if yes or false otherwise. */
