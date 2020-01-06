@@ -46,8 +46,8 @@ void drawCircles(Information &I, Layout &L); // Draw prior and inner circles.
 int main(){
 	// Initialization
 	//---------------------------------------------------------------------------------------
-	int screenWidth = 1200;
-	int screenHeight = 1200;
+	int screenWidth = WINDOWS_WIDTH;
+	int screenHeight = WINDOWS_HEIGHT;
 
 
 	InitWindow(screenWidth, screenHeight, "QIF-graphics");
@@ -113,7 +113,7 @@ void updateDrawFrame(void* V_){
 				}
 
 				if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) I->mouseClickedOnPrior = false;
-
+				
 				if(I->mouseClickedOnPrior){
 					I->updateHyper(L->TrianglePoints);
 					I->buildCircles(L->TrianglePoints);
@@ -275,21 +275,21 @@ void updateDrawFrame(void* V_){
 
 			// Visualization
 			//----------------------------------------------------------------------------------
-			if(L->CheckBoxDrawingChecked){
-				// Triangle
-				//----------------------------------------------------------------------------------
-					DrawTriangleLines(L->TrianglePoints[0], L->TrianglePoints[1], L->TrianglePoints[2], BLACK);
-				//----------------------------------------------------------------------------------
-
-				// Labels
-				//----------------------------------------------------------------------------------
+				if(L->CheckBoxDrawingChecked){
 					// Triangle
-					for(int i = 0; i < L->LabelTriangleText.size(); i++) GuiLabel(L->recLabelTriangle[i], &(L->LabelTriangleText[i][0]));
-				//----------------------------------------------------------------------------------
+					//----------------------------------------------------------------------------------
+						DrawTriangleLines(L->TrianglePoints[0], L->TrianglePoints[1], L->TrianglePoints[2], BLACK);
+					//----------------------------------------------------------------------------------
 
-				// Circles
-				drawCircles(*I, *L);
-			}
+					// Labels
+					//----------------------------------------------------------------------------------
+						// Triangle
+						for(int i = 0; i < L->LabelTriangleText.size(); i++) GuiLabel(L->recLabelTriangle[i], &(L->LabelTriangleText[i][0]));
+					//----------------------------------------------------------------------------------
+
+					// Circles
+					drawCircles(*I, *L);
+				}
 			//----------------------------------------------------------------------------------
 
 			//----------------------------------------------------------------------------------

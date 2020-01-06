@@ -14,6 +14,8 @@ using namespace std;
 
 // Settings
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
+#define WINDOWS_WIDTH 1200
+#define WINDOWS_HEIGHT 1200
 
 // Prior probability distribution radius (in pixels) **********************************************/
 #define PRIOR_RADIUS 30

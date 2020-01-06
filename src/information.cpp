@@ -113,59 +113,87 @@ void Information::buildCircles(vector<Vector2> &TrianglePoints){
     }
 }
 
-bool Information::updateHyper(vector<Vector2> &TrianglePoints){
-    Vector2 mouse;
-    Point mousePosition;
-    vector<long double> newPrior(3);
-
-    mouse = GetMousePosition();
-    mousePosition = Point(mouse.x, mouse.y);
-
-    // Check if the user is moving the prior
-    if(){
-        mousePosition = pixel2Bary(mousePosition.x, mousePosition.y, TrianglePoints);
-        
-        // Check if the mouse position represents a valid probability distribution
-        if(bary2Dist(mousePosition, newPrior)){   
-            // Rounds to a point distribution if one of the probabilities is >= 0.98
-            if(newPrior[0] >= 0.98) newPrior = {1, 0, 0};
-            else if(newPrior[1] >= 0.98) newPrior = {0, 1, 0};
-            else if(newPrior[2] >= 0.98) newPrior = {0, 0, 1};
-
-            Distribution D(newPrior);            
-            hyper.rebuildHyper(D);
-            this->prior = vector<long double>(newPrior);
-            return true;
-        }else{
-            return false;
-        }
-    }else{
-        return false;
-    }
+int Information::orientation(Point p1, Point p2, Point p3){
+    int val = (p2.y - p1.y) * (p3.x - p2.x) - 
+              (p2.x - p1.x) * (p3.y - p2.y); 
+  
+    if (val == 0) return 0;  // colinear 
+  
+    if(val >= 0) return 1; // clock wise
+    else return 2; // counterclock wise
 }
 
-Vector2 adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mousePosition){
-    int oL = orientation(TP[1], mousePosition, TP[0]); // Left edge
-    int oR = orientation(TP[2], mousePosition, TP[0]); // Right edge
-    int oD = orientation(TP[1], mousePosition, TP[2]); // Down edge
+Point Information::pointIntersection(Point A, Point B, Point C, Point D){
+    // Line AB represented as a1x + b1y = c1 
+    long double a1 = B.y - A.y; 
+    long double b1 = A.x - B.x; 
+    long double c1 = a1*(A.x) + b1*(A.y); 
+  
+    // Line CD represented as a2x + b2y = c2 
+    long double a2 = D.y - C.y; 
+    long double b2 = C.x - D.x; 
+    long double c2 = a2*(C.x)+ b2*(C.y); 
+  
+    long double determinant = a1*b2 - a2*b1; 
+  
+    Point p = Point((b2*c1 - b1*c2)/determinant, (a1*c2 - a2*c1)/determinant);
+
+    return p; 
+}
+
+Point Information::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
+    cout << "mouse: " << mouse.x << ", " << mouse.y << endl;
+    Point mousePosition(mouse.x, WINDOWS_HEIGHT - mouse.y);
+    Point TP0(TrianglePoints[0].x, WINDOWS_HEIGHT - TrianglePoints[0].y);
+    Point TP1(TrianglePoints[1].x, WINDOWS_HEIGHT - TrianglePoints[1].y);
+    Point TP2(TrianglePoints[2].x, WINDOWS_HEIGHT - TrianglePoints[2].y);
+
+    // cout << "mousePosition: " << mousePosition.x << ", " << mousePosition.y << endl;
+
+    int oL = orientation(TP1, mousePosition, TP0); // Left edge
+    int oR = orientation(TP2, mousePosition, TP0); // Right edge
+    int oD = orientation(TP1, mousePosition, TP2); // Down edge
+
+    // cout << "oL: " << oL << ", oR: " << oR << ", oD: " << oD << endl;
 
     // Check if the mosuePoint is colinear with one of the triangle edges.
     if(oL == 0){
-       if(mousePosition.y > TrianglePoints[0].y) return TrianglePoints[0];
-       else if(mousePosition.y < TrianglePoints[1].y) return TrianglePoints[1];
-       else return mousePosition;
+        if(mousePosition.y > TP0.y){
+            TP0.y = WINDOWS_HEIGHT - TP0.y;
+            return TP0;
+        }else if(mousePosition.y < TP1.y){
+            TP1.y = WINDOWS_HEIGHT - TP1.y;
+            return TP1;
+        }else{
+            mousePosition.y = WINDOWS_HEIGHT - mousePosition.y;
+            return mousePosition;
+        }
     }
 
     if(oR == 0){
-        if(mousePosition.y > TrianglePoints[0].y) return TrianglePoints[0];
-        else if(mousePosition.y < TrianglePoints[2].u) return TrianglePoints[2];
-        else return mousePosition;
+        if(mousePosition.y > TP0.y){
+            TP0.y = WINDOWS_HEIGHT - TP0.y;
+            return TP0;
+        }else if(mousePosition.y < TP2.y){
+            TP2.y = WINDOWS_HEIGHT - TP2.y;
+            return TP2;
+        }else{
+            mousePosition.y = WINDOWS_HEIGHT - mousePosition.y;
+            return mousePosition;
+        }
     }
 
     if(oD == 0){
-        if(mousePosition.x < TrianglePoints[1].x) return TrianglePoints[1];
-        else if(mousePosition.x > TrianglePoints[2].x) return TrianglePoints[2];
-        else return mousePosition;
+        if(mousePosition.x < TP1.x){
+            TP1.y = WINDOWS_HEIGHT - TP1.y;
+            return TP1;
+        }else if(mousePosition.x > TP2.x){
+            TP2.y = WINDOWS_HEIGHT - TP2.y;
+            return TP2;
+        }else{
+            mousePosition.y = WINDOWS_HEIGHT - mousePosition.y;
+            return mousePosition;
+        }
     }
 
     /*
@@ -192,34 +220,44 @@ Vector2 adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mousePosition){
     if(oD == 2) isInRegion3 = true;
     else isInRegion3 = false;
 
-    if(isInRegion1 && isInRegion2) return TrianglePoints[0];
-    if(isInRegion2 && isInRegion3) return TrianglePoints[2];
-    if(isInRegion1 && isInRegion3) return TrianglePoints[1];
-
-    if(isInRegion1){
-        if(mousePosition.y > TrianglePoints[0].y) return TrianglePoints[0];
-        else if(mousePosition.y < TrianglePoints[1].y) return TrianglePoints[1];
-        else{
-            
-        }
+    if(!isInRegion1 && !isInRegion2 && !isInRegion3){
+        mousePosition.y = WINDOWS_HEIGHT - mousePosition.y;
+        return mousePosition;
     }
 
-    if(isInRegion2){
-        if(mousePosition.y > TrianglePoints[0].y) return TrianglePoints[0];
-        else if(mousePosition.y < TrianglePoints[1].y) return TrianglePoints[1];
-        else{
-
-        }
+    if(isInRegion1 && isInRegion2){
+        TP0.y = WINDOWS_HEIGHT - TP0.y;
+        return TP0;
+    }
+    if(isInRegion2 && isInRegion3){
+        TP2.y = WINDOWS_HEIGHT - TP2.y;
+        return TP2;
+    }
+    if(isInRegion1 && isInRegion3){
+        TP1.y = WINDOWS_HEIGHT - TP1.y;
+        return TP1;
     }
 
+    Point p;
+
+    if(isInRegion1) p = pointIntersection(TP0, TP1, mousePosition, TP2);
+    if(isInRegion2) p = pointIntersection(TP0, TP2, TP1, mousePosition);
+    if(isInRegion3) p = pointIntersection(TP1, TP2, mousePosition, TP0);
+
+    p.y = WINDOWS_HEIGHT - p.y;
+    return p;
 }
 
-int orientation(Point p1, Point p2, Point p3){
-    int val = (p2.y - p1.y) * (p3.x - p2.x) - 
-              (p2.x - p1.x) * (p3.y - p2.y); 
-  
-    if (val == 0) return 0;  // colinear 
-  
-    if(val > 0) return 1; // clock wise
-    else return 2; // counterclock wise
-} 
+void Information::updateHyper(vector<Vector2> &TrianglePoints){
+    
+    Point mousePosition;
+    vector<long double> newPrior(3);
+
+    mousePosition = adjustPrior(TrianglePoints, GetMousePosition());
+    mousePosition = pixel2Bary(mousePosition.x, mousePosition.y, TrianglePoints);
+    
+    bary2Dist(mousePosition, newPrior);
+    Distribution D(newPrior);            
+    hyper.rebuildHyper(D);
+    this->prior = vector<long double>({newPrior[0], newPrior[1], newPrior[2]});
+}

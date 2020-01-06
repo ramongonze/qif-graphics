@@ -32,24 +32,25 @@ public:
 	 * It asssumes that the hyper distribution attribute has already been built. */
 	void buildCircles(vector<Vector2> &TrianglePoints);
 
+	/* Given three points, returns 0 if the orientation is colinear, 1 if it is
+	 * clock wise or 2 if it is counterclock wise. */
+	int orientation(Point p1, Point p2, Point p3);
+
+	/* Point intersection between lines AB and CD. */
+	Point pointIntersection(Point A, Point B, Point C, Point D);
+
+	/* Adjust the new prior distribution. If the mouse position is outside the triangle,
+	 * moves the prior circle to the closest point of an edge from the triangle. */
+	Point adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse);
+
 	/* Update the hyper distribution if the user moves the prior distribution
      * This function assumes that the hyper distribution has already been built. 
 	 *
 	 * @Parameters:
 	 *		TrianglePoints: From Layout object.
 	 *
-	 * Returns true if the prior distribution has been moved to a valid position or 
-	 * false otherwise.
      */
-	bool updateHyper(vector<Vector2> &TrianglePoints);
-
-	/* Adjust the new prior distribution. If the mouse position is outside the triangle,
-	 * moves the prior circle to the closest point of an edge from the triangle. */
-	void adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mousePosition);
-
-	/* Given three points, returns 0 if the orientation is colinear, 1 if it is
-	 * clock wise or 2 if it is counterclock wise. */
-	int orientation(Point p1, Point p2, Point p3);
+	void updateHyper(vector<Vector2> &TrianglePoints);
 };
 
 #endif
