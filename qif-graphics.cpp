@@ -89,6 +89,7 @@ void updateDrawFrame(void* V_){
 	Layout* L = &(V->L);
 	int error = NO_ERROR;     // Flag that indicates if an error has been occurred
 	Vector2 mousePosition;
+	int numPost;
 
 	// Update
 	//----------------------------------------------------------------------------------
@@ -148,7 +149,10 @@ void updateDrawFrame(void* V_){
 			}
 		}
 
-
+		// I'm not using L->TextBoxOuterText.size() directly because the number of inners can decrease
+		// when user moves the prior distribution, so we might not draw every TextBox.
+		if(I->hyperReady) numPost = I->hyper.num_post; 
+		else numPost = L->TextBoxOuterText.size();
 	//----------------------------------------------------------------------------------
 
 	// Draw
@@ -196,10 +200,10 @@ void updateDrawFrame(void* V_){
 
 				// Outer
 				GuiLabel(L->recLabelOuterName, L->LabelOuterNameText);
-				for(int i = 0; i < L->LabelOuterText.size(); i++) GuiLabel(L->recLabelOuter[i], &(L->LabelOuterText[i][0]));
+				for(int i = 0; i < numPost; i++) GuiLabel(L->recLabelOuter[i], &(L->LabelOuterText[i][0]));
 
 				// Inners
-				for(int i = 0; i < L->LabelInnerText.size(); i++) GuiLabel(L->recLabelInners[i], &(L->LabelInnerText[i][0]));
+				for(int i = 0; i < L->recLabelInners.size(); i++) GuiLabel(L->recLabelInners[i], &(L->LabelInnerText[i][0]));
 			//----------------------------------------------------------------------------------
 
 			// CheckBoxes
@@ -253,12 +257,12 @@ void updateDrawFrame(void* V_){
 
 				GuiLock();
 				// Outer
-				for(int i = 0; i < L->TextBoxOuterText.size(); i++){
+				for(int i = 0; i < numPost; i++){
 					if (GuiTextBox(L->recTextBoxOuter[i], L->TextBoxOuterText[i], 128, L->TextBoxOuterEditMode[i])) L->TextBoxOuterEditMode[i] = !L->TextBoxOuterEditMode[i];        
 				}
 
 				// Inners
-				for(int i = 0; i < L->TextBoxInnersText.size(); i++){
+				for(int i = 0; i < numPost; i++){
 					for(int j = 0; j < L->TextBoxInnersText[i].size(); j++){
 						if (GuiTextBox(L->recTextBoxInners[i][j], L->TextBoxInnersText[i][j], 128, L->TextBoxInnersEditMode[i][j])) L->TextBoxInnersEditMode[i][j] = !L->TextBoxInnersEditMode[i][j];        
 					}

@@ -142,7 +142,6 @@ Point Information::pointIntersection(Point A, Point B, Point C, Point D){
 }
 
 Point Information::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
-    cout << "mouse: " << mouse.x << ", " << mouse.y << endl;
     Point mousePosition(mouse.x, WINDOWS_HEIGHT - mouse.y);
     Point TP0(TrianglePoints[0].x, WINDOWS_HEIGHT - TrianglePoints[0].y);
     Point TP1(TrianglePoints[1].x, WINDOWS_HEIGHT - TrianglePoints[1].y);

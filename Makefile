@@ -405,7 +405,7 @@ ifeq ($(PLATFORM),PLATFORM_RPI)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	rm -f *.o $(PROJECT_NAME).html *.js *.wasm *.bc src/*.bc src/*.o
+	rm -f *.o $(PROJECT_NAME).html *.js *.wasm *.bc src/*.bc src/*.o *.data
 endif
 	@echo Cleaning done
 

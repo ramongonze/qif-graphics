@@ -403,11 +403,11 @@ void Layout::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles, bool 
             }
         }
 
-        // Update line width
-        recLine1.width = 35 * TextBoxOuterText.size();
-
         recLabelInnersCircles = vector<Rectangle>(hyper.num_post);
     }
+
+    // Update line width
+    recLine1.width = 35 * hyper.num_post;
 
     // Update circle labels and rectangles
     for(int i = 0; i < hyper.num_post; i++){

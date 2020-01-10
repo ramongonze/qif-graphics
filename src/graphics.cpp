@@ -30,6 +30,9 @@ bool bary2Dist(Point p, vector<long double> &prob){
 	prob_aux[1] = 1 - p.x - p.y/2.0f;
 	prob_aux[2] = p.x - p.y/2.0f;
 
+	// Fix bug of approximation in function Information::adjustPrior()
+	for(int i = 0; i < 3; i++) if(-1e-6 <= prob_aux[i] && prob_aux[i] <= 1e-6) prob_aux[i] = 0.0f;
+
 	if(Distribution::isDistribution(prob_aux)){
 		prob[0] = prob_aux[0];
 		prob[1] = prob_aux[1];
