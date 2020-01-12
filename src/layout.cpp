@@ -5,13 +5,13 @@ Layout::Layout(){
 	//----------------------------------------------------------------------------------
         // Define anchors
         //----------------------------------------------------------------------------------
-            anchorGain = { 95, 345 };            // ANCHOR ID:1
-            anchorChannel = { 95, 115 };            // ANCHOR ID:2
-            anchorPrior = { 400, 95 };            // ANCHOR ID:3
-            anchorDrawing = { 150, 570 };            // ANCHOR ID:4
-            anchorOuter = { 535, 75 };            // ANCHOR ID:5
-            anchorInners = { 535, 125 };            // ANCHOR ID:6
-            anchorVisualization = { 365, 270 };            // ANCHOR ID:7
+            anchorGain = { 95 + OFFSET_X, 345 + OFFSET_Y };            // ANCHOR ID:1
+            anchorChannel = { 95 + OFFSET_X, 115 + OFFSET_Y };            // ANCHOR ID:2
+            anchorPrior = { 400 + OFFSET_X, 95 + OFFSET_Y };            // ANCHOR ID:3
+            anchorDrawing = { 150 + OFFSET_X, 570 + OFFSET_Y };            // ANCHOR ID:4
+            anchorOuter = { 525 + OFFSET_X, 75 + OFFSET_Y };            // ANCHOR ID:5
+            anchorInners = { 525 + OFFSET_X, 125 + OFFSET_Y };            // ANCHOR ID:6
+            anchorVisualization = { 365 + OFFSET_X, 270 + OFFSET_Y };            // ANCHOR ID:7
         //----------------------------------------------------------------------------------
 
 		// GroupBoxes
@@ -59,8 +59,8 @@ Layout::Layout(){
 			TextBoxOuterEditMode = vector<bool>(3, false);
 			TextBoxInnersEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
 
-			TextBoxPriorText = vector<char*>(3);
-			TextBoxOuterText = vector<char*>(3);
+			TextBoxPriorText = vector<char*>(3, nullptr);
+			TextBoxOuterText = vector<char*>(3, nullptr);
             for(int i = 0; i < 3; i++){
                 TextBoxPriorText[i] = (char*) malloc(128*sizeof(char));
                 TextBoxOuterText[i] = (char*) malloc(128*sizeof(char));
@@ -69,9 +69,9 @@ Layout::Layout(){
                 strcpy(TextBoxOuterText[i], "0");
             }
 
-			TextBoxGainText = vector<vector<char*>>(3, vector<char*>(3));
-			TextBoxChannelText = vector<vector<char*>>(3, vector<char*>(3));
-			TextBoxInnersText = vector<vector<char*>>(3, vector<char*>(3));
+			TextBoxGainText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
+			TextBoxChannelText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
+			TextBoxInnersText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
             for(int i = 0; i < 3; i++){
                 for(int j = 0; j < 3; j++){
                     TextBoxGainText[i][j] = (char*) malloc(128*sizeof(char));
@@ -119,18 +119,18 @@ Layout::Layout(){
 void Layout::init(){
 	// Panels
     //--------------------------------------------------------------------------------------
-        recPanelMenu = (Rectangle){ 50, 0, 740, 25 };
-        recPanelBody = (Rectangle){ 50, 25, 740, 600 };
+        recPanelMenu = (Rectangle){ 50 + OFFSET_X, 0  + OFFSET_Y, 740, 25 };
+        recPanelBody = (Rectangle){ 50 + OFFSET_X, 25 + OFFSET_Y, 740, 600 };
     //--------------------------------------------------------------------------------------
 
     // GroupBoxes
     //--------------------------------------------------------------------------------------
-        recGroupBoxPrior = (Rectangle){ 365, 40, 95, 215 };
-        recGroupBoxChannel = (Rectangle){ 60, 40, 290, 215 };
-        recGroupBoxPosteriors = (Rectangle){ 475, 40, 305, 215 };
-        recGroupBoxGain = (Rectangle){ 60, 270, 290, 215 };
-        recGroupBoxVisualization = (Rectangle){ 365, 270, 416, 344 };
-        recGroupBoxDrawing = (Rectangle){ 60, 495, 290, 119 };
+        recGroupBoxPrior = (Rectangle){ 365 + OFFSET_X, 40 + OFFSET_Y, 95, 215 };
+        recGroupBoxChannel = (Rectangle){ 60 + OFFSET_X, 40 + OFFSET_Y, 290, 215 };
+        recGroupBoxPosteriors = (Rectangle){ 475 + OFFSET_X, 40 + OFFSET_Y, 305, 215 };
+        recGroupBoxGain = (Rectangle){ 60 + OFFSET_X, 270 + OFFSET_Y, 290, 215 };
+        recGroupBoxVisualization = (Rectangle){ 365 + OFFSET_X, 270 + OFFSET_Y, 416, 344 };
+        recGroupBoxDrawing = (Rectangle){ 60 + OFFSET_X, 495 + OFFSET_Y, 290, 119 };
     //--------------------------------------------------------------------------------------
 
     // Triangle
@@ -145,14 +145,14 @@ void Layout::init(){
 
     // Spinners
     //--------------------------------------------------------------------------------------
-        recSpinnerChannel = (Rectangle){ 265, 50, 80, 20 };    // Spinner: SpinnerChannel
-        recSpinnerGain = (Rectangle){ 265, 280, 80, 20 };    // Spinner: SpinnerGain
+        recSpinnerChannel = (Rectangle){ 265 + OFFSET_X, 50 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerChannel
+        recSpinnerGain = (Rectangle){ 265 + OFFSET_X, 280 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerGain
     //--------------------------------------------------------------------------------------
 
     // Labels
     //--------------------------------------------------------------------------------------
-        recLabelOutputs = (Rectangle){ 210, 50, 50, 20 };
-        recLabelActions = (Rectangle){ 210, 280, 50, 20 };
+        recLabelOutputs = (Rectangle){ 210 + OFFSET_X, 50 + OFFSET_Y, 50, 20 };
+        recLabelActions = (Rectangle){ 210 + OFFSET_X, 280, 50 + OFFSET_Y, 20 };
         recLabelClickDraw = (Rectangle){ anchorDrawing.x + 0, anchorDrawing.y + 0, 75, 25 };
         recLabelOuterName = (Rectangle){ anchorOuter.x + -40, anchorOuter.y + 0, 40, 35 };
 
@@ -167,7 +167,7 @@ void Layout::init(){
             
             // Update circle label
             LabelPriorCircleText = (char*) malloc(1280 * sizeof(char));
-            strcpy(LabelPriorCircleText, "\xCF\x80");
+            strcpy(LabelPriorCircleText, "\xCF\x80"); // pi symbol
 
         // Gain matrix
         //--------------------------------------------------------------------------------------
@@ -225,7 +225,7 @@ void Layout::init(){
 
     // CheckBoxes
     //--------------------------------------------------------------------------------------
-        recCheckBoxGain = (Rectangle){ 65, 280, 17, 17 };    // CheckBoxEx: CheckBoxGain
+        recCheckBoxGain = (Rectangle){ 65 + OFFSET_X, 280 + OFFSET_Y, 17, 17 };    // CheckBoxEx: CheckBoxGain
         recCheckBoxDrawing = (Rectangle){ anchorDrawing.x + 75, anchorDrawing.y + 0, 25, 25 };    // CheckBoxEx: CheckBoxDrawing
     //--------------------------------------------------------------------------------------
 
@@ -236,7 +236,7 @@ void Layout::init(){
 
     // Status bar
     //--------------------------------------------------------------------------------------
-        recStatusBar = (Rectangle){ 65, 505, 280, 45 };
+        recStatusBar = (Rectangle){ 65 + OFFSET_X, 515 + OFFSET_Y, 280, 35 };
     //--------------------------------------------------------------------------------------
 
     // TextBoxes. Obs: All matrices invert rows and columns (to make easy adding and removing columns).
@@ -290,9 +290,9 @@ void Layout::init(){
 
     // DropDowns
     //--------------------------------------------------------------------------------------
-        recDropDownFile = (Rectangle){ 50, 0, 105, 25 };    // DropdownBox: DropDownBoxFile
-        recDropDownLoad = (Rectangle){ 155, 0, 105, 25 };    // DropdownBox: DropDownLoad
-        recDropDownExport = (Rectangle){ 260, 0, 105, 25 };    // DropdownBox: DropDownExport
+        recDropDownFile = (Rectangle){ 50 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownBoxFile
+        recDropDownLoad = (Rectangle){ 155 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownLoad
+        recDropDownExport = (Rectangle){ 260 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownExport
     //--------------------------------------------------------------------------------------
 }
 

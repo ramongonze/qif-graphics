@@ -13,15 +13,15 @@
 **********************************************************************************************/
 
 #include "raylib.h"
-#include "src/layout.h"
-#include "src/information.h"
+#include "layout.h"
+#include "information.h"
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_RICONS
 #include "/home/ramon/raygui/src/raygui.h"
 
 #include <emscripten/emscripten.h>
-#include "qif/qif.h"
+#include "../qif/qif.h"
 
 #include <iostream>
 
@@ -103,6 +103,7 @@ void updateDrawFrame(void* V_){
 		if(L->checkTextBoxPressed()){
 			L->CheckBoxDrawingChecked = false;
 			I->hyperReady = false;
+			printError(NO_ERROR, *L);
 		}
 
 		if(L->CheckBoxDrawingChecked){
@@ -144,8 +145,9 @@ void updateDrawFrame(void* V_){
 						L->CheckBoxDrawingChecked = false;
 					}
 					
-					printError(error, *L);
 				}
+				
+				printError(error, *L);
 			}
 		}
 
@@ -208,7 +210,7 @@ void updateDrawFrame(void* V_){
 
 			// CheckBoxes
 			//----------------------------------------------------------------------------------
-				L->CheckBoxGainChecked = GuiCheckBox(L->recCheckBoxGain, L->CheckBoxGainText, L->CheckBoxGainChecked);
+				// L->CheckBoxGainChecked = GuiCheckBox(L->recCheckBoxGain, L->CheckBoxGainText, L->CheckBoxGainChecked);
 				L->CheckBoxDrawingChecked = GuiCheckBox(L->recCheckBoxDrawing, L->CheckBoxDrawingText, L->CheckBoxDrawingChecked);
 			//----------------------------------------------------------------------------------
 
@@ -272,9 +274,9 @@ void updateDrawFrame(void* V_){
 
 			// DropDowns
 			//----------------------------------------------------------------------------------
-				if (GuiDropdownBox(L->recDropDownFile, L->DropDownBoxFileText, &L->DropDownBoxFileActive, L->DropDownBoxFileEditMode)) L->DropDownBoxFileEditMode = !L->DropDownBoxFileEditMode;
-				if (GuiDropdownBox(L->recDropDownLoad, L->DropDownLoadText, &L->DropDownLoadActive, L->DropDownLoadEditMode)) L->DropDownLoadEditMode = !L->DropDownLoadEditMode;
-				if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
+				// if (GuiDropdownBox(L->recDropDownFile, L->DropDownBoxFileText, &L->DropDownBoxFileActive, L->DropDownBoxFileEditMode)) L->DropDownBoxFileEditMode = !L->DropDownBoxFileEditMode;
+				// if (GuiDropdownBox(L->recDropDownLoad, L->DropDownLoadText, &L->DropDownLoadActive, L->DropDownLoadEditMode)) L->DropDownLoadEditMode = !L->DropDownLoadEditMode;
+				// if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
 			//----------------------------------------------------------------------------------
 
 			// Visualization
@@ -297,7 +299,6 @@ void updateDrawFrame(void* V_){
 			//----------------------------------------------------------------------------------
 
 			//----------------------------------------------------------------------------------
-
 		EndDrawing();
 	//----------------------------------------------------------------------------------
 }

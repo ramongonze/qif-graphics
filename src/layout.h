@@ -9,6 +9,9 @@
 #include <fstream>
 #include <string.h>
 
+#define OFFSET_X -45
+#define OFFSET_Y 0
+
 using namespace std;
 
 class Layout{

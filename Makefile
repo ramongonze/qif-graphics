@@ -222,7 +222,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# -O2                        # optimization level 2, if used, also set --memory-init-file 0
 	# -s USE_GLFW=3              # Use glfw3 library (context/input management)
 	# -s ALLOW_MEMORY_GROWTH=1   # to allow memory resizing -> WARNING: Audio buffers could FAIL!
-	# -s TOTAL_MEMORY=16777216   # to specify heap memory size (default = 16MB)
+	# -s TOTAL_MEMORY=16777216   endifendif# to specify heap memory size (default = 16MB)
 	# -s USE_PTHREADS=1          # multithreading support
 	# -s WASM=0                  # disable Web Assembly, emitted by default
 	# -s EMTERPRETIFY=1          # enable emscripten code interpreter (very slow)
@@ -230,7 +230,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# -s FORCE_FILESYSTEM=1      # force filesystem to load/save files data
 	# -s ASSERTIONS=1            # enable runtime checks for common memory allocation errors (-O1 and above turn it off)
 	# --profiling                # include information for code profiling
-	# --memory-init-file 0       # to avoid an external memory initialization code file (.mem)
+	# --memory-init-file 0       # to avoid an external memory initialization code filelfw (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
 	# -fexceptions				 # allows try-catch from c++
 	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -fexceptions --preload-file fonts/dejavu.fnt --preload-file fonts/dejavu.png
@@ -239,7 +239,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	endif
 
 	# Define a custom shell .html and output extension
-# 	CFLAGS += --shell-file ./shell.html
+	CFLAGS += --shell-file src/shell.html
 	EXT = .html
 endif
 
@@ -343,7 +343,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 endif
 
 # Define all source files required
-PROJECT_SOURCE_FILES ?= src/graphics.cpp src/information.cpp src/layout.cpp qif-graphics.cpp
+PROJECT_SOURCE_FILES ?= src/graphics.cpp src/information.cpp src/layout.cpp src/qif-graphics.cpp
 
 ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	# Define all object files from source files

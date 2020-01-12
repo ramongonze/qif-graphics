@@ -1,29 +1,29 @@
 CFLAGS=-std=c++11 -O3 -Wall -Wextra -Werror -pedantic
 
-all: qif.o distribution.o channel.o gain.o hyper.o vulnerability.o entropy.o leakage.o binary
+all: qifd.bc distributiond.bc channeld.bc gaind.bc hyperd.bc vulnerabilityd.bc entropyd.bc leakaged.bc binary
 
-qif.o:
+qifd.bc:
 	em++ -c ./src/qif.cpp $(CFLAGS) -o qif.bc
 
-distribution.o:
+distributiond.bc:
 	em++ -c ./src/distribution.cpp $(CFLAGS) -o distribution.bc
 
-channel.o:
+channeld.bc:
 	em++ -c ./src/channel.cpp $(CFLAGS) -o channel.bc
 
-gain.o:
+gaind.bc:
 	em++ -c ./src/gain.cpp $(CFLAGS) -o gain.bc
 
-hyper.o:
+hyperd.bc:
 	em++ -c ./src/hyper.cpp $(CFLAGS) -o hyper.bc
 
-vulnerability.o:
+vulnerabilityd.bc:
 	em++ -c ./src/vulnerability.cpp $(CFLAGS) -o vulnerability.bc
 
-entropy.o:
+entropyd.bc:
 	em++ -c ./src/entropy.cpp $(CFLAGS) -o entropy.bc
 
-leakage.o:
+leakaged.bc:
 	em++ -c ./src/leakage.cpp $(CFLAGS) -o leakage.bc
 
 binary:
