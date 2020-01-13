@@ -36,6 +36,7 @@ typedef struct LoopVariables{
 void updateDrawFrame(void* V_);     // Update and Draw one frame. Required to run on a browser.
 void printError(int error, Layout &L); // Changes status bar's text.
 void drawCircles(Information &I, Layout &L); // Draw prior and inner circles.
+
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
@@ -99,11 +100,16 @@ void updateDrawFrame(void* V_){
 			L->updateChannel();
 		}
 
-		// Check if a TextBox is pressed. If yes, disable drawing.
+		// Check if a TextBox is being pressed.
 		if(L->checkTextBoxPressed()){
 			L->CheckBoxDrawingChecked = false;
 			I->hyperReady = false;
 			printError(NO_ERROR, *L);
+
+			if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
+				IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+				L->moveAmongTextBoxes();
+			}
 		}
 
 		if(L->CheckBoxDrawingChecked){
@@ -327,5 +333,4 @@ void drawCircles(Information &I, Layout &L){
 		DrawCircleGradient(I.innersCircles[i].center.x, I.innersCircles[i].center.y, I.innersCircles[i].radius, (Color){153, 230, 153, 190}, (Color){40, 164, 40, 190});
 		GuiLabel(L.recLabelInnersCircles[i], &(L.LabelOuterText[i][0]));
 	}
-
 }

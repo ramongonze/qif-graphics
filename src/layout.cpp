@@ -451,3 +451,90 @@ bool Layout::checkTextBoxPressed(){
 
     return false;
 }
+
+void Layout::moveAmongTextBoxes(){
+    // Prior
+    for(int i = 0; i < 3; i++){
+        if(TextBoxPriorEditMode[i] == true){
+            if(IsKeyPressed(KEY_TAB)){
+                TextBoxPriorEditMode[i] = false;
+                if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
+                    TextBoxPriorEditMode[i] = false;
+                    if(i == 0) TextBoxPriorEditMode[2] = true;
+                    else if(i == 1) TextBoxPriorEditMode[0] = true;
+                    else TextBoxPriorEditMode[1] = true;
+                }else{
+                    if(i == 0) TextBoxPriorEditMode[1] = true;
+                    else if(i == 1) TextBoxPriorEditMode[2] = true;
+                    else TextBoxPriorEditMode[0] = true;
+                }
+            }else if(IsKeyPressed(KEY_UP)){
+                TextBoxPriorEditMode[i] = false;
+                if(i == 0) TextBoxPriorEditMode[2] = true;
+                else if(i == 1) TextBoxPriorEditMode[0] = true;
+                else TextBoxPriorEditMode[1] = true;
+            }else if(IsKeyPressed(KEY_DOWN)){
+                TextBoxPriorEditMode[i] = false;
+                if(i == 0) TextBoxPriorEditMode[1] = true;
+                else if(i == 1) TextBoxPriorEditMode[2] = true;
+                else TextBoxPriorEditMode[0] = true;
+            }
+
+            return;
+        }
+    }
+
+    int nRows = TextBoxChannelEditMode[0].size();
+    int nColumns = TextBoxChannelEditMode.size();
+
+    // Channel
+    for(int i = 0; i < nColumns; i++){
+        for(int j = 0; j < nRows; j++){
+            if(TextBoxChannelEditMode[i][j] == true){
+                if(IsKeyPressed(KEY_TAB)){
+                    TextBoxChannelEditMode[i][j] = false;
+                    if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
+                        if(i == 0 && j == 0){
+                            TextBoxChannelEditMode[nColumns-1][nRows-1] = true; // Select the first text box (row 0 and column 0)
+                        }else if(i == 0){
+                            TextBoxChannelEditMode[nColumns-1][j-1] = true;
+                        }else{
+                            TextBoxChannelEditMode[i-1][j] = true;
+                        }
+                        return;
+                    }else{
+                        if(i == nColumns-1 && j == nRows-1){
+                            TextBoxChannelEditMode[0][0] = true; // Select the first text box (row 0 and column 0)
+                        }else if(i == nColumns-1){
+                            TextBoxChannelEditMode[0][j+1] = true;
+                        }else{
+                            TextBoxChannelEditMode[i+1][j] = true;
+                        }
+                        return;
+                    }
+                }else if(IsKeyPressed(KEY_UP)){
+                    if(j > 0){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i][j-1] = true;
+                    }
+                }else if(IsKeyPressed(KEY_DOWN)){
+                    if(j < nRows-1){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i][j+1] = true;   
+                    }
+                }else if(IsKeyPressed(KEY_LEFT)){
+                    if(i > 0){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i-1][j] = true;
+                    }
+                }else if(IsKeyPressed(KEY_RIGHT)){
+                    if(i < nColumns-1){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i+1][j] = true;
+                    }
+                }                
+                return;
+            }
+        }
+    }
+}
