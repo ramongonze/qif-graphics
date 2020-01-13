@@ -97,7 +97,25 @@ void updateDrawFrame(void* V_){
 		if(L->SpinnerChannelValue != L->recTextBoxChannel.size()){ // If true, spinnerChannel has been changed
 			L->CheckBoxDrawingChecked = false;
 			I->hyperReady = false;
-			L->updateChannel();
+			L->updateChannelBySpinner();
+		}
+
+		// Buttons
+		if(L->ButtonPriorClicked){
+			L->ButtonPriorClicked = false;
+			L->CheckBoxDrawingChecked = false;
+			I->hyperReady = false;
+			I->newRandomPrior();
+			Distribution newPrior(I->prior);
+			L->updatePrior(newPrior, I->priorCircle);
+		}
+
+		if(L->ButtonChannelClicked){
+			L->ButtonChannelClicked = false;
+			L->CheckBoxDrawingChecked = false;
+			I->hyperReady = false;
+			I->newRandomChannel(L->TextBoxChannelText.size());
+			L->updateChannelTextBoxes(I->channel);
 		}
 
 		// Check if a TextBox is being pressed.
@@ -156,6 +174,7 @@ void updateDrawFrame(void* V_){
 				printError(error, *L);
 			}
 		}
+
 		// I'm not using L->TextBoxOuterText.size() directly because the number of inners can decrease
 		// when user moves the prior distribution, so we might not draw all the TextBoxes.
 		if(I->hyperReady) numPost = I->hyper.num_post; 
@@ -214,6 +233,12 @@ void updateDrawFrame(void* V_){
 				for(int i = 0; i < L->recLabelInners.size(); i++) GuiLabel(L->recLabelInners[i], &(L->LabelInnerText[i][0]));
 			//----------------------------------------------------------------------------------
 
+			// Buttons
+			//--------------------------------------------------------------------------------------
+				if(GuiButton(L->recButtonPrior, L->ButtonPriorText)) L->ButtonPriorClicked = true;
+				if(GuiButton(L->recButtonChannel, L->ButtonChannelText)) L->ButtonChannelClicked = true;
+			//--------------------------------------------------------------------------------------
+
 			// CheckBoxes
 			//----------------------------------------------------------------------------------
 				// L->CheckBoxGainChecked = GuiCheckBox(L->recCheckBoxGain, L->CheckBoxGainText, L->CheckBoxGainChecked);
@@ -236,20 +261,20 @@ void updateDrawFrame(void* V_){
 
 			// TextBoxes
 			//----------------------------------------------------------------------------------
-				if(L->CheckBoxGainChecked){
-					GuiLabel(L->recLabelActions, L->LabelActionsText);
-					if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
+				// if(L->CheckBoxGainChecked){
+				// 	GuiLabel(L->recLabelActions, L->LabelActionsText);
+				// 	if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
 
-					// Gain function
-					for(int i = 0; i < L->TextBoxGainText.size(); i++){
-						for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
-							if (GuiTextBox(L->recTextBoxGain[i][j], L->TextBoxGainText[i][j], 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
-						}
-					}
+				// 	// Gain function
+				// 	for(int i = 0; i < L->TextBoxGainText.size(); i++){
+				// 		for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
+				// 			if (GuiTextBox(L->recTextBoxGain[i][j], L->TextBoxGainText[i][j], 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
+				// 		}
+				// 	}
 
-					for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
-					for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
-				}
+				// 	for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
+				// 	for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
+				// }
 				
 				// Channel
 				for(int i = 0; i < L->TextBoxChannelText.size(); i++){

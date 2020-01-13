@@ -3,6 +3,9 @@
 
 #include "graphics.h"
 #include <exception>
+#include <algorithm> // std::random_shuffle
+#include <ctime> // std::time
+#include <cstdlib> // std::srand
 
 class Information{
 public:
@@ -51,6 +54,16 @@ public:
 	 *
      */
 	void updateHyper(vector<Vector2> &TrianglePoints);
+
+	/* Generates a new random prior and keeps it in attribute 'prior'. */
+	void newRandomPrior();
+
+	/* Generates a new random channel and keeps it in attribute 'channel'.
+	 *
+	 * @Parameters:
+	 *		num_out: Number of outputs in L->TextBoxesChannelText.
+	*/
+	void newRandomChannel(int num_out);
 };
 
 #endif

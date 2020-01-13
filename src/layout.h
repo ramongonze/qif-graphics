@@ -24,7 +24,7 @@ public:
 			char *GroupBoxPriorText;
 			char *GroupBoxChannelText;
 			char *GroupBoxPosteriorsText;
-			char *GroupBoxGainText;
+			// char *GroupBoxGainText;
 			char *GroupBoxVisualizationText;
 			char *GroupBoxDrawingText;
 		//----------------------------------------------------------------------------------
@@ -32,14 +32,14 @@ public:
 		// Labels
 		//----------------------------------------------------------------------------------
 			char *LabelOutputsText;
-			char *LabelActionsText;
+			// char *LabelActionsText;
 			char *LabelClickDrawText;
 			char *LabelOuterNameText;
 			char *LabelPriorCircleText;
 			char *LabelTitleText;
 
-			vector<string> LabelGainXText;
-			vector<string> LabelGainWText;
+			// vector<string> LabelGainXText;
+			// vector<string> LabelGainWText;
 			vector<string> LabelChannelXText;
 			vector<string> LabelChannelYText;
 			vector<string> LabelPriorText;
@@ -48,9 +48,17 @@ public:
 			vector<string> LabelTriangleText;
 		//----------------------------------------------------------------------------------
 
+		// Buttons
+		//--------------------------------------------------------------------------------------
+			char *ButtonPriorText;
+			char *ButtonChannelText;
+			bool ButtonPriorClicked;
+			bool ButtonChannelClicked;
+		//--------------------------------------------------------------------------------------
+
 		// CheckBoxes
 		//----------------------------------------------------------------------------------
-			char *CheckBoxGainText;
+			// char *CheckBoxGainText;
 			char *CheckBoxDrawingText;
 		//----------------------------------------------------------------------------------
 
@@ -61,8 +69,8 @@ public:
 
 		// TextBoxes. Obs: All matrices invert rows and columns (to make easy adding and removing columns).
 		//----------------------------------------------------------------------------------
-			vector<vector<bool>> TextBoxGainEditMode;
-			vector<vector<char*>> TextBoxGainText;
+			// vector<vector<bool>> TextBoxGainEditMode;
+			// vector<vector<char*>> TextBoxGainText;
 
 			vector<vector<bool>> TextBoxChannelEditMode;
 			vector<vector<char*>> TextBoxChannelText;
@@ -79,9 +87,9 @@ public:
 
 		// DropDowns
 		//----------------------------------------------------------------------------------
-			char *DropDownLoadText;
-			char *DropDownExportText;
-			char *DropDownBoxFileText;
+			// char *DropDownLoadText;
+			// char *DropDownExportText;
+			// char *DropDownBoxFileText;
 		//----------------------------------------------------------------------------------
 
 		/* Triangle
@@ -95,7 +103,7 @@ public:
 
 		// Define anchors
 		//----------------------------------------------------------------------------------
-			Vector2 anchorGain;
+			// Vector2 anchorGain;
 			Vector2 anchorChannel;
 			Vector2 anchorPrior;
 			Vector2 anchorDrawing;
@@ -108,16 +116,16 @@ public:
 		//----------------------------------------------------------------------------------
 			bool SpinnerChannelEditMode;
 			int SpinnerChannelValue;
-			bool SpinnerGainEditMode;
-			int SpinnerGainValue;
-			bool CheckBoxGainChecked;
+			// bool SpinnerGainEditMode;
+			// int SpinnerGainValue;
+			// bool CheckBoxGainChecked;
 			bool CheckBoxDrawingChecked;
-			bool DropDownLoadEditMode;
-			int DropDownLoadActive;
-			bool DropDownExportEditMode;
-			int DropDownExportActive;
-			bool DropDownBoxFileEditMode;
-			int DropDownBoxFileActive;
+			// bool DropDownLoadEditMode;
+			// int DropDownLoadActive;
+			// bool DropDownExportEditMode;
+			// int DropDownExportActive;
+			// bool DropDownBoxFileEditMode;
+			// int DropDownBoxFileActive;
 			// Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
 			// Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
 			// Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
@@ -159,6 +167,9 @@ public:
         vector<Rectangle> recLabelTriangle;
         vector<Rectangle> recLabelInnersCircles;
 
+        Rectangle recButtonPrior;
+        Rectangle recButtonChannel;
+
         Rectangle recCheckBoxGain;
         Rectangle recCheckBoxDrawing;
 
@@ -184,7 +195,10 @@ public:
 
 	/* If SpinnerChannel has been changed, update the TextBoxChannel matrices.
 	 * It is called if L->SpinnerChannelValue != L->recTextBoxChannel.size(). */
-	void updateChannel();
+	void updateChannelBySpinner();
+
+	/* Given a channel, update the channel matrix text boxes. */
+	void updateChannelTextBoxes(vector<vector<long double>> &channel);
 
 	/* If a hyper-distributin has been built, update outer and inners TextBoxes;.
 	 * 

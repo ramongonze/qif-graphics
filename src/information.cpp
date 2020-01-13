@@ -1,9 +1,10 @@
 #include "information.h"
-#include <iostream>
 
 Information::Information(){
 	this->hyperReady = false;
     this->mouseClickedOnPrior = false;
+    this->prior = vector<long double>(3, 0);
+    this->channel = vector<vector<long double>>(3, vector<long double>(3, 0));
 }
 
 int Information::checkPriorText(vector<char*> &prior_){
@@ -259,4 +260,40 @@ void Information::updateHyper(vector<Vector2> &TrianglePoints){
     Distribution D(newPrior);            
     hyper.rebuildHyper(D);
     this->prior = vector<long double>({newPrior[0], newPrior[1], newPrior[2]});
+}
+
+void Information::newRandomPrior(){
+    srand(unsigned(time(0)));
+
+    int threshold = 100, p;
+    for(int i = 0; i < 2; i++){
+        p = rand() % threshold;
+        threshold -= p;
+        prior[i] = p/100.0;
+    }
+    prior[2] = threshold/100.0;
+
+    random_shuffle(prior.begin(), prior.end());
+}
+
+void Information::newRandomChannel(int num_out){
+    srand(unsigned(time(0)));
+    vector<long double> prob(num_out);
+    this->channel = vector<vector<long double>>(num_out, vector<long double>(3, 0));
+
+    for(int i = 0; i < 3; i++){
+        int threshold = 100, p;
+        for(int j = 0; j < num_out-1; j++){
+            p = rand() % threshold;
+            threshold -= p;
+            prob[j] = p/100.0;
+        }
+        prob[num_out-1] = threshold/100.0;
+
+        random_shuffle(prob.begin(), prob.end());
+
+        for(int j = 0; j < channel.size(); j++){
+            channel[j][i] = prob[j];
+        }
+    }
 }

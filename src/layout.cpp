@@ -5,7 +5,7 @@ Layout::Layout(){
 	//----------------------------------------------------------------------------------
         // Define anchors
         //----------------------------------------------------------------------------------
-            anchorGain = { 95 + OFFSET_X, 345 + OFFSET_Y };            // ANCHOR ID:1
+            // anchorGain = { 95 + OFFSET_X, 345 + OFFSET_Y };            // ANCHOR ID:1
             anchorChannel = { 95 + OFFSET_X, 115 + OFFSET_Y };            // ANCHOR ID:2
             anchorPrior = { 400 + OFFSET_X, 95 + OFFSET_Y };            // ANCHOR ID:3
             anchorDrawing = { 150 + OFFSET_X, 570 + OFFSET_Y };            // ANCHOR ID:4
@@ -19,7 +19,7 @@ Layout::Layout(){
 			GroupBoxPriorText = "Prior";    // GROUPBOX: GroupBoxPrior
 			GroupBoxChannelText = "Channel";    // GROUPBOX: GroupBoxChannel
 			GroupBoxPosteriorsText = "Posteriors";    // GROUPBOX: GroupBoxPosteriors
-			GroupBoxGainText = "Gain function";    // GROUPBOX: GroupBoxGain
+			// GroupBoxGainText = "Gain function";    // GROUPBOX: GroupBoxGain
 			GroupBoxVisualizationText = "Visualization";    // GROUPBOX: GroupBoxVisualization
 			GroupBoxDrawingText = "Drawing";    // GROUPBOX: GroupBoxDrawing
 		//----------------------------------------------------------------------------------
@@ -28,11 +28,11 @@ Layout::Layout(){
 		//----------------------------------------------------------------------------------
 			LabelTitleText = "QIF Graphics";
             LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
-			LabelActionsText = "Actions";    // LABEL: LabelActions
+			// LabelActionsText = "Actions";    // LABEL: LabelActions
 			LabelClickDrawText = "Click to draw:";    // LABEL: LabelClickDraw
 			LabelOuterNameText = "Outer";    // LABEL: LabelOuter
-			LabelGainXText = vector<string>({"X1", "X2", "X3"}); 
-			LabelGainWText = vector<string>({"W1", "W2", "W3"});
+			// LabelGainXText = vector<string>({"X1", "X2", "X3"}); 
+			// LabelGainWText = vector<string>({"W1", "W2", "W3"});
 			LabelChannelXText = vector<string>({"X1", "X2", "X3"});
 			LabelChannelYText = vector<string>({"Y1", "Y2", "Y3"});
 			LabelPriorText = vector<string>({"X1", "X2", "X3"});
@@ -41,9 +41,17 @@ Layout::Layout(){
             LabelTriangleText = vector<string>({"X1", "X2", "X3"});
 		//----------------------------------------------------------------------------------
 
+        // Buttons
+        //--------------------------------------------------------------------------------------
+            ButtonPriorText = "Random";
+            ButtonChannelText = "Random";
+            ButtonPriorClicked = false;
+            ButtonChannelClicked = false;
+        //--------------------------------------------------------------------------------------
+
 		// CheckBoxes
 		//----------------------------------------------------------------------------------
-			CheckBoxGainText = "Enable";    // CHECKBOXEX: CheckBoxGain
+			// CheckBoxGainText = "Enable";    // CHECKBOXEX: CheckBoxGain
 			CheckBoxDrawingText = "";    // CHECKBOXEX: CheckBoxDrawing
 		//----------------------------------------------------------------------------------
 
@@ -54,7 +62,7 @@ Layout::Layout(){
 
 		// TextBoxes. Obs: All matrices invert rows and columns (to make easy adding and removing columns).
 		//----------------------------------------------------------------------------------
-			TextBoxGainEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
+			// TextBoxGainEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
 			TextBoxChannelEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
 			TextBoxPriorEditMode = vector<bool>(3, false);
 			TextBoxOuterEditMode = vector<bool>(3, false);
@@ -70,16 +78,16 @@ Layout::Layout(){
                 strcpy(TextBoxOuterText[i], "0");
             }
 
-			TextBoxGainText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
+			// TextBoxGainText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
 			TextBoxChannelText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
 			TextBoxInnersText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
             for(int i = 0; i < 3; i++){
                 for(int j = 0; j < 3; j++){
-                    TextBoxGainText[i][j] = (char*) malloc(128*sizeof(char));
+                    // TextBoxGainText[i][j] = (char*) malloc(128*sizeof(char));
                     TextBoxChannelText[i][j] = (char*) malloc(128*sizeof(char));
                     TextBoxInnersText[i][j] = (char*) malloc(128*sizeof(char));
 
-                    strcpy(TextBoxGainText[i][j], "0");
+                    // strcpy(TextBoxGainText[i][j], "0");
                     strcpy(TextBoxChannelText[i][j], "0");
                     strcpy(TextBoxInnersText[i][j], "0");
                 }
@@ -88,25 +96,25 @@ Layout::Layout(){
 
 		// DropDowns
 		//----------------------------------------------------------------------------------
-			DropDownLoadText = "Load;Prior;Channel;Gain function";    // DROPDOWNBOX: DropDownLoad
-			DropDownExportText = "Export;Prior;Channel;Posteriors;Gain function";    // DROPDOWNBOX: DropDownExport
-			DropDownBoxFileText = "File;Open;Save;Save as";    // DROPDOWNBOX: DropDownBoxFile
+			// DropDownLoadText = "Load;Prior;Channel;Gain function";    // DROPDOWNBOX: DropDownLoad
+			// DropDownExportText = "Export;Prior;Channel;Posteriors;Gain function";    // DROPDOWNBOX: DropDownExport
+			// DropDownBoxFileText = "File;Open;Save;Save as";    // DROPDOWNBOX: DropDownBoxFile
 		//----------------------------------------------------------------------------------
 
 		// Define controls variables
 		//----------------------------------------------------------------------------------
 			SpinnerChannelEditMode = false;
 			SpinnerChannelValue = 3;            // Spinner: SpinnerChannel
-			SpinnerGainEditMode = false;
-			SpinnerGainValue = 3;            // Spinner: SpinnerGain
-			CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
+			// SpinnerGainEditMode = false;
+			// SpinnerGainValue = 3;            // Spinner: SpinnerGain
+			// CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
 			CheckBoxDrawingChecked = false;            // CheckBoxEx: CheckBoxDrawing
-			DropDownLoadEditMode = false;
-			DropDownLoadActive = 0;            // DropdownBox: DropDownLoad
-			DropDownExportEditMode = false;
-			DropDownExportActive = 0;            // DropdownBox: DropDownExport
-			DropDownBoxFileEditMode = false;
-			DropDownBoxFileActive = 0;            // DropdownBox: DropDownBoxFile
+			// DropDownLoadEditMode = false;
+			// DropDownLoadActive = 0;            // DropdownBox: DropDownLoad
+			// DropDownExportEditMode = false;
+			// DropDownExportActive = 0;            // DropdownBox: DropDownExport
+			// DropDownBoxFileEditMode = false;
+			// DropDownBoxFileActive = 0;            // DropdownBox: DropDownBoxFile
 			// Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
 			// Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
 			// Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
@@ -129,7 +137,7 @@ void Layout::init(){
         recGroupBoxPrior = (Rectangle){ 365 + OFFSET_X, 40 + OFFSET_Y, 95, 215 };
         recGroupBoxChannel = (Rectangle){ 60 + OFFSET_X, 40 + OFFSET_Y, 290, 215 };
         recGroupBoxPosteriors = (Rectangle){ 475 + OFFSET_X, 40 + OFFSET_Y, 305, 215 };
-        recGroupBoxGain = (Rectangle){ 60 + OFFSET_X, 270 + OFFSET_Y, 290, 215 };
+        // recGroupBoxGain = (Rectangle){ 60 + OFFSET_X, 270 + OFFSET_Y, 290, 215 };
         recGroupBoxVisualization = (Rectangle){ 365 + OFFSET_X, 270 + OFFSET_Y, 416, 344 };
         recGroupBoxDrawing = (Rectangle){ 60 + OFFSET_X, 495 + OFFSET_Y, 290, 119 };
     //--------------------------------------------------------------------------------------
@@ -147,14 +155,14 @@ void Layout::init(){
     // Spinners
     //--------------------------------------------------------------------------------------
         recSpinnerChannel = (Rectangle){ 265 + OFFSET_X, 50 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerChannel
-        recSpinnerGain = (Rectangle){ 265 + OFFSET_X, 280 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerGain
+        // recSpinnerGain = (Rectangle){ 265 + OFFSET_X, 280 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerGain
     //--------------------------------------------------------------------------------------
 
     // Labels
     //--------------------------------------------------------------------------------------
         recLabelTitle = (Rectangle) { recPanelMenu.x + 5, recPanelMenu.y + 2.5, 50, 20 };
         recLabelOutputs = (Rectangle){ 210 + OFFSET_X, 50 + OFFSET_Y, 50, 20 };
-        recLabelActions = (Rectangle){ 210 + OFFSET_X, 280, 50 + OFFSET_Y, 20 };
+        // recLabelActions = (Rectangle){ 210 + OFFSET_X, 280, 50 + OFFSET_Y, 20 };
         recLabelClickDraw = (Rectangle){ anchorDrawing.x + 0, anchorDrawing.y + 0, 75, 25 };
         recLabelOuterName = (Rectangle){ anchorOuter.x + -40, anchorOuter.y + 0, 40, 35 };
 
@@ -173,16 +181,16 @@ void Layout::init(){
 
         // Gain matrix
         //--------------------------------------------------------------------------------------
-            recLabelGainX = {
-                (Rectangle){ anchorGain.x + -20, anchorGain.y + 0, 15, 35 },    // Label: LabelGainX1
-                (Rectangle){ anchorGain.x + -20, anchorGain.y + 35, 15, 35 },    // Label: LabelGainX2
-                (Rectangle){ anchorGain.x + -20, anchorGain.y + 70, 15, 35 }    // Label: LabelGainX3
-            };
-            recLabelGainW = {
-                (Rectangle){ anchorGain.x + 10, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW1
-                (Rectangle){ anchorGain.x + 45, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW2
-                (Rectangle){ anchorGain.x + 80, anchorGain.y + -20, 20, 20 }    // Label: LabelGainW3
-            };
+            // recLabelGainX = {
+            //     (Rectangle){ anchorGain.x + -20, anchorGain.y + 0, 15, 35 },    // Label: LabelGainX1
+            //     (Rectangle){ anchorGain.x + -20, anchorGain.y + 35, 15, 35 },    // Label: LabelGainX2
+            //     (Rectangle){ anchorGain.x + -20, anchorGain.y + 70, 15, 35 }    // Label: LabelGainX3
+            // };
+            // recLabelGainW = {
+            //     (Rectangle){ anchorGain.x + 10, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW1
+            //     (Rectangle){ anchorGain.x + 45, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW2
+            //     (Rectangle){ anchorGain.x + 80, anchorGain.y + -20, 20, 20 }    // Label: LabelGainW3
+            // };
         //--------------------------------------------------------------------------------------
 
         // Channel matrix
@@ -225,6 +233,12 @@ void Layout::init(){
         //--------------------------------------------------------------------------------------            
     //--------------------------------------------------------------------------------------
 
+    // Buttons
+    //--------------------------------------------------------------------------------------
+        recButtonPrior = (Rectangle) { anchorPrior.x - 13, recSpinnerChannel.y + 3, 50, 20 };
+        recButtonChannel = (Rectangle) { anchorChannel.x - 22, recSpinnerChannel.y + 3, 50, 20 };
+    //--------------------------------------------------------------------------------------
+
     // CheckBoxes
     //--------------------------------------------------------------------------------------
         recCheckBoxGain = (Rectangle){ 65 + OFFSET_X, 280 + OFFSET_Y, 17, 17 };    // CheckBoxEx: CheckBoxGain
@@ -253,12 +267,12 @@ void Layout::init(){
 
         // Gain Matrix
         //--------------------------------------------------------------------------------------
-        recTextBoxGain = vector<vector<Rectangle>>(3, vector<Rectangle>(3));
-        for(int i = 0; i < recTextBoxGain.size(); i++){ // columns
-            for(int j = 0; j < recTextBoxGain[i].size(); j++){ // rows
-                recTextBoxGain[i][j] = (Rectangle){ anchorGain.x + (i*35), anchorGain.y + (j*35), 35, 35 };
-            }
-        }
+        // recTextBoxGain = vector<vector<Rectangle>>(3, vector<Rectangle>(3));
+        // for(int i = 0; i < recTextBoxGain.size(); i++){ // columns
+        //     for(int j = 0; j < recTextBoxGain[i].size(); j++){ // rows
+        //         recTextBoxGain[i][j] = (Rectangle){ anchorGain.x + (i*35), anchorGain.y + (j*35), 35, 35 };
+        //     }
+        // }
         //--------------------------------------------------------------------------------------
         
         // Channel matrix
@@ -292,13 +306,13 @@ void Layout::init(){
 
     // DropDowns
     //--------------------------------------------------------------------------------------
-        recDropDownFile = (Rectangle){ 50 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownBoxFile
-        recDropDownLoad = (Rectangle){ 155 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownLoad
-        recDropDownExport = (Rectangle){ 260 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownExport
+        // recDropDownFile = (Rectangle){ 50 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownBoxFile
+        // recDropDownLoad = (Rectangle){ 155 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownLoad
+        // recDropDownExport = (Rectangle){ 260 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownExport
     //--------------------------------------------------------------------------------------
 }
 
-void Layout::updateChannel(){
+void Layout::updateChannelBySpinner(){
     if(SpinnerChannelValue <= 0){
         SpinnerChannelValue = 1;
     }else if(SpinnerChannelValue > 7){ // Temporary, because ScrollPanel is not working
@@ -331,6 +345,17 @@ void Layout::updateChannel(){
                 TextBoxChannelText[i][j] = (char*) malloc(128*sizeof(char));
                 strcpy(TextBoxChannelText[i][j], "0");
             }
+        }
+    }
+}
+
+void Layout::updateChannelTextBoxes(vector<vector<long double>> &channel){
+    char buffer[128];
+
+    for(int i = 0; i < channel.size(); i++){
+        for(int j = 0; j < channel[i].size(); j++){
+            sprintf(buffer, "%.2Lf", channel[i][j]);
+            strcpy(TextBoxChannelText[i][j], buffer);
         }
     }
 }
@@ -445,11 +470,11 @@ bool Layout::checkTextBoxPressed(){
         }
     }
 
-    for(int i = 0; i < TextBoxGainEditMode.size(); i++){
-        for(int j = 0; j < TextBoxGainEditMode[i].size(); j++){
-            if(TextBoxGainEditMode[i][j] == true) return true;
-        }
-    }
+    // for(int i = 0; i < TextBoxGainEditMode.size(); i++){
+    //     for(int j = 0; j < TextBoxGainEditMode[i].size(); j++){
+    //         if(TextBoxGainEditMode[i][j] == true) return true;
+    //     }
+    // }
 
     return false;
 }
