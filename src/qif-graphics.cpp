@@ -150,9 +150,8 @@ void updateDrawFrame(void* V_){
 				printError(error, *L);
 			}
 		}
-
 		// I'm not using L->TextBoxOuterText.size() directly because the number of inners can decrease
-		// when user moves the prior distribution, so we might not draw every TextBox.
+		// when user moves the prior distribution, so we might not draw all the TextBoxes.
 		if(I->hyperReady) numPost = I->hyper.num_post; 
 		else numPost = L->TextBoxOuterText.size();
 	//----------------------------------------------------------------------------------
@@ -227,7 +226,7 @@ void updateDrawFrame(void* V_){
 			// ScrollPanelChannelScrollOffset = GuiScrollPanel((Rectangle){rec[8].x, rec[8].y, rec[8].width - ScrollPanelChannelBoundsOffset.x, rec[8].height - ScrollPanelChannelBoundsOffset.y }, rec[8], ScrollPanelChannelScrollOffset);
 			// ScrollPanelGainScrollOffset = GuiScrollPanel((Rectangle){rec[9].x, rec[9].y, rec[9].width - ScrollPanelGainBoundsOffset.x, rec[9].height - ScrollPanelGainBoundsOffset.y }, rec[9], ScrollPanelGainScrollOffset);
 			// ScrollPanelPosteriorsScrollOffset = GuiScrollPanel((Rectangle){rec[33].x, rec[33].y, rec[33].width - ScrollPanelPosteriorsBoundsOffset.x, rec[33].height - ScrollPanelPosteriorsBoundsOffset.y }, rec[33], ScrollPanelPosteriorsScrollOffset);
-			
+
 			// TextBoxes
 			//----------------------------------------------------------------------------------
 				if(L->CheckBoxGainChecked){
@@ -270,15 +269,14 @@ void updateDrawFrame(void* V_){
 					}
 				}
 				GuiUnlock();
-			//----------------------------------------------------------------------------------
 
+			//----------------------------------------------------------------------------------
 			// DropDowns
 			//----------------------------------------------------------------------------------
 				// if (GuiDropdownBox(L->recDropDownFile, L->DropDownBoxFileText, &L->DropDownBoxFileActive, L->DropDownBoxFileEditMode)) L->DropDownBoxFileEditMode = !L->DropDownBoxFileEditMode;
 				// if (GuiDropdownBox(L->recDropDownLoad, L->DropDownLoadText, &L->DropDownLoadActive, L->DropDownLoadEditMode)) L->DropDownLoadEditMode = !L->DropDownLoadEditMode;
 				// if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
 			//----------------------------------------------------------------------------------
-
 			// Visualization
 			//----------------------------------------------------------------------------------
 				if(L->CheckBoxDrawingChecked){
@@ -297,7 +295,6 @@ void updateDrawFrame(void* V_){
 					drawCircles(*I, *L);
 				}
 			//----------------------------------------------------------------------------------
-
 			//----------------------------------------------------------------------------------
 		EndDrawing();
 	//----------------------------------------------------------------------------------

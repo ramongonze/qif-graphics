@@ -317,7 +317,7 @@ void Layout::updateChannel(){
             recTextBoxChannel.push_back(vector<Rectangle>(3));
             recLabelChannelY.push_back((Rectangle){anchorChannel.x + (10 + 35*i), anchorChannel.y + -20, 20, 20});
 
-            TextBoxChannelEditMode.push_back(vector<bool>(3));
+            TextBoxChannelEditMode.push_back(vector<bool>(3, false));
             TextBoxChannelText.push_back(vector<char*>(3));
             
             char buffer[5];
@@ -338,7 +338,7 @@ void Layout::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles, bool 
     std::ostringstream buffer;
     buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
     
-    if(onlyText == false){
+    if(onlyText == true){
         // Update values
         for(int i = 0; i < hyper.num_post; i++){
             buffer.str(""); buffer.clear();
@@ -354,12 +354,14 @@ void Layout::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles, bool 
     }else{
         // Match the number of columns in hyper and layout variables. 
         int diff = abs((int)hyper.num_post - (int)recLabelOuter.size());
-        if(hyper.num_post < recTextBoxOuter.size()){
+        if(hyper.channel.num_out < recTextBoxOuter.size()){
             for(int i = 0; i < diff; i++){
                 recTextBoxOuter.pop_back();
-                recLabelOuter.pop_back();
                 recTextBoxInners.pop_back();
+                recLabelOuter.pop_back();
                 LabelOuterText.pop_back();
+                TextBoxOuterEditMode.pop_back();
+                TextBoxInnersEditMode.pop_back();
 
                 free(TextBoxOuterText[TextBoxOuterText.size()-1]);
                 TextBoxOuterText.pop_back();
@@ -367,15 +369,17 @@ void Layout::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles, bool 
                 for(int j = 0; j < 3; j++) free(TextBoxInnersText[TextBoxInnersText.size()-1][j]);
                 TextBoxInnersText.pop_back();
             }
-        }else if(hyper.num_post > recTextBoxOuter.size()){
+        }else if(hyper.channel.num_out > recTextBoxOuter.size()){
             for(int i = 0; i < diff; i++){
                 recTextBoxOuter.push_back((Rectangle){0,0,0,0});
                 recLabelOuter.push_back((Rectangle){0,0,0,0});
                 recTextBoxInners.push_back(vector<Rectangle>(3));
+                TextBoxInnersEditMode.push_back(vector<bool>(3, false));
                 LabelOuterText.push_back("0");
 
                 TextBoxOuterText.push_back(nullptr);
                 TextBoxOuterText[TextBoxOuterText.size()-1] = (char*) malloc(128*sizeof(char));
+                TextBoxOuterEditMode.push_back(false);
 
                 TextBoxInnersText.push_back(vector<char*>(3));
                 for(int j = 0; j < 3; j++) TextBoxInnersText[TextBoxInnersText.size()-1][j] = (char*) malloc(128*sizeof(char));
@@ -403,7 +407,7 @@ void Layout::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles, bool 
             }
         }
 
-        recLabelInnersCircles = vector<Rectangle>(hyper.num_post);
+        recLabelInnersCircles = vector<Rectangle>(hyper.channel.num_out);
     }
 
     // Update line width
