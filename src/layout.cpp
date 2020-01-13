@@ -26,7 +26,7 @@ Layout::Layout(){
 
 		// Labels
 		//----------------------------------------------------------------------------------
-			LabelTitleText = "QIF Graphics";
+			LabelTitleText = "QIF Graphics - 1.0.0";
             LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
 			// LabelActionsText = "Actions";    // LABEL: LabelActions
 			LabelClickDrawText = "Click to draw:";    // LABEL: LabelClickDraw
@@ -160,7 +160,7 @@ void Layout::init(){
 
     // Labels
     //--------------------------------------------------------------------------------------
-        recLabelTitle = (Rectangle) { recPanelMenu.x + 5, recPanelMenu.y + 2.5, 50, 20 };
+        recLabelTitle = (Rectangle) { recPanelMenu.x + 5, recPanelMenu.y + 2.5, 70, 20 };
         recLabelOutputs = (Rectangle){ 210 + OFFSET_X, 50 + OFFSET_Y, 50, 20 };
         // recLabelActions = (Rectangle){ 210 + OFFSET_X, 280, 50 + OFFSET_Y, 20 };
         recLabelClickDraw = (Rectangle){ anchorDrawing.x + 0, anchorDrawing.y + 0, 75, 25 };
