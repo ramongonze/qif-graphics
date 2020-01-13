@@ -183,7 +183,7 @@ void updateDrawFrame(void* V_){
 				GuiGroupBox(L->recGroupBoxPrior, L->GroupBoxPriorText);
 				GuiGroupBox(L->recGroupBoxChannel, L->GroupBoxChannelText);
 				GuiGroupBox(L->recGroupBoxPosteriors, L->GroupBoxPosteriorsText);
-				GuiGroupBox(L->recGroupBoxGain, L->GroupBoxGainText);
+				// GuiGroupBox(L->recGroupBoxGain, L->GroupBoxGainText);
 				GuiGroupBox(L->recGroupBoxVisualization, L->GroupBoxVisualizationText);
 				GuiGroupBox(L->recGroupBoxDrawing, L->GroupBoxDrawingText);
 			//----------------------------------------------------------------------------------
@@ -195,6 +195,7 @@ void updateDrawFrame(void* V_){
 
 			// Labels
 			//----------------------------------------------------------------------------------
+				GuiLabel(L->recLabelTitle, L->LabelTitleText);
 				GuiLabel(L->recLabelOutputs, L->LabelOutputsText);
 				GuiLabel(L->recLabelClickDraw, L->LabelClickDrawText);
 

@@ -36,6 +36,7 @@ public:
 			char *LabelClickDrawText;
 			char *LabelOuterNameText;
 			char *LabelPriorCircleText;
+			char *LabelTitleText;
 
 			vector<string> LabelGainXText;
 			vector<string> LabelGainWText;
@@ -146,6 +147,7 @@ public:
         Rectangle recLabelClickDraw;
         Rectangle recLabelOuterName;
         Rectangle recLabelPriorCircle;
+        Rectangle recLabelTitle;
 
         vector<Rectangle> recLabelPrior;
         vector<Rectangle> recLabelGainX;
