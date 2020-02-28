@@ -24,7 +24,7 @@ public:
 			char *GroupBoxPriorText;
 			char *GroupBoxChannelText;
 			char *GroupBoxPosteriorsText;
-			// char *GroupBoxGainText;
+			char *GroupBoxGainText;
 			char *GroupBoxVisualizationText;
 			char *GroupBoxDrawingText;
 		//----------------------------------------------------------------------------------
@@ -32,14 +32,14 @@ public:
 		// Labels
 		//----------------------------------------------------------------------------------
 			char *LabelOutputsText;
-			// char *LabelActionsText;
+			char *LabelActionsText;
 			char *LabelClickDrawText;
 			char *LabelOuterNameText;
 			char *LabelPriorCircleText;
 			char *LabelTitleText;
 
-			// vector<string> LabelGainXText;
-			// vector<string> LabelGainWText;
+			vector<string> LabelGainXText;
+			vector<string> LabelGainWText;
 			vector<string> LabelChannelXText;
 			vector<string> LabelChannelYText;
 			vector<string> LabelPriorText;
@@ -58,7 +58,7 @@ public:
 
 		// CheckBoxes
 		//----------------------------------------------------------------------------------
-			// char *CheckBoxGainText;
+			char *CheckBoxGainText;
 			char *CheckBoxDrawingText;
 		//----------------------------------------------------------------------------------
 
@@ -69,8 +69,8 @@ public:
 
 		// TextBoxes. Obs: All matrices invert rows and columns (to make easy adding and removing columns).
 		//----------------------------------------------------------------------------------
-			// vector<vector<bool>> TextBoxGainEditMode;
-			// vector<vector<char*>> TextBoxGainText;
+			vector<vector<bool>> TextBoxGainEditMode;
+			vector<vector<char*>> TextBoxGainText;
 
 			vector<vector<bool>> TextBoxChannelEditMode;
 			vector<vector<char*>> TextBoxChannelText;
@@ -100,10 +100,9 @@ public:
 			vector<Vector2> TrianglePoints;
 		//----------------------------------------------------------------------------------
 
-
 		// Define anchors
 		//----------------------------------------------------------------------------------
-			// Vector2 anchorGain;
+			Vector2 anchorGain;
 			Vector2 anchorChannel;
 			Vector2 anchorPrior;
 			Vector2 anchorDrawing;
@@ -116,9 +115,9 @@ public:
 		//----------------------------------------------------------------------------------
 			bool SpinnerChannelEditMode;
 			int SpinnerChannelValue;
-			// bool SpinnerGainEditMode;
-			// int SpinnerGainValue;
-			// bool CheckBoxGainChecked;
+			bool SpinnerGainEditMode;
+			int SpinnerGainValue;
+			bool CheckBoxGainChecked;
 			bool CheckBoxDrawingChecked;
 			// bool DropDownLoadEditMode;
 			// int DropDownLoadActive;
@@ -126,12 +125,6 @@ public:
 			// int DropDownExportActive;
 			// bool DropDownBoxFileEditMode;
 			// int DropDownBoxFileActive;
-			// Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
-			// Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelGainBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelGain
-			// Vector2 ScrollPanelPosteriorsScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelPosteriorsBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelPosteriors
 		//----------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------
 
@@ -197,6 +190,10 @@ public:
 	 * It is called if L->SpinnerChannelValue != L->recTextBoxChannel.size(). */
 	void updateChannelBySpinner();
 
+	/* If SpinnerGain has been changed, update the TextBoxGain matrices.
+	 * It is called if L->SpinnerGainValue != L->recTextBoxGain.size(). */
+	void updateGainBySpinner();
+
 	/* Given a channel, update the channel matrix text boxes. */
 	void updateChannelTextBoxes(vector<vector<long double>> &channel);
 
@@ -213,12 +210,16 @@ public:
 	void updatePrior(Distribution &prior, Circle &priorCircle);
 
 	/* Check if a textbox in prior, channel or gain matrices has been pressed.
-	 * Returns true if yes or false otherwise. */
-	bool checkTextBoxPressed();
+	 * Returns 0 if no textbox was pressed, 1 for prior, 2 for channel and 3 for gain.*/
+	int checkTextBoxPressed();
 
 	/* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move
-	 * the pressed TextBox. */
-	void moveAmongTextBoxes();
+	 * the pressed TextBox.
+	 * 
+	 * @Parameters:
+	 * 		matrix: 1 for prior, 2 for channel and 3 for gain.
+	 * */
+	void moveAmongTextBoxes(int matrix);
 };
 
 #endif

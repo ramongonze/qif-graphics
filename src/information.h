@@ -17,6 +17,9 @@ public:
 
 	bool hyperReady;  // Flag that indicates wheter a hyper distribution has been built.
 	bool mouseClickedOnPrior; // Flag that indicates wheter the mouse was clicked in the previous frame on the prior circle.
+	Camera3D camera3d;
+	Vector3 initialCamera3dPosition;
+	Ray ray;                    // Picking line ray 
 
 	Circle priorCircle;
 	vector<Circle> innersCircles;

@@ -16,7 +16,7 @@
 #
 #     2. Altered source versions must be plainly marked as such, and must not be misrepresented
 #     as being the original software.
-#
+#-
 #     3. This notice may not be removed or altered from any source distribution.
 #
 #**************************************************************************************************
@@ -187,7 +187,7 @@ endif
 #  -std=gnu99           defines C language mode (GNU C from 1999 revision)
 #  -Wno-missing-braces  ignore invalid warning (GCC bug 53119)
 #  -D_DEFAULT_SOURCE    use with -std=c99 on Linux and PLATFORM_WEB, required for timespec
-CFLAGS += -O3 -std=c++11 -Wno-writable-strings -Wno-narrowing -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces
+CFLAGS += -O3 -std=c++11 -Wno-narrowing -s -Wall -D_DEFAULT_SOURCE -Wno-missing-braces
 #-Wc++11-narrowing: Use -std=c++11 causes an error in raygui.h
 #-Wno-writable-strings: Warning: qif-graphics.cpp:51:28: warning: ISO C++11 does not allow conversion from string literal to 'char *' [-Wwritable-strings]
 #							  char *LabelOuterNameText = "Outer";    // LABEL: LabelOuter
@@ -206,7 +206,7 @@ ifeq ($(PLATFORM),PLATFORM_DESKTOP)
 	endif
 	ifeq ($(PLATFORM_OS),LINUX)
 		ifeq ($(RAYLIB_LIBTYPE),STATIC)
-			CFLAGS += -D_DEFAULT_SOURCE
+			CFLAGS += -D_DEFAULT_SOURCE -Wno-unused-result -Wno-sign-compare -Wno-enum-compare -Wno-write-strings -Wno-format-overflow
 		endif
 		ifeq ($(RAYLIB_LIBTYPE),SHARED)
 			# Explicitly enable runtime link to libraylib.so
@@ -233,7 +233,8 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 	# --memory-init-file 0       # to avoid an external memory initialization code filelfw (.mem)
 	# --preload-file resources   # specify a resources folder for data compilation
 	# -fexceptions				 # allows try-catch from c++
-	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 -fexceptions --preload-file fonts/dejavu.fnt --preload-file fonts/dejavu.png
+	CFLAGS += -Os -s USE_GLFW=3 -s TOTAL_MEMORY=16777216 -s DISABLE_DEPRECATED_FIND_EVENT_TARGET_BEHAVIOR=0 \
+	-fexceptions --preload-file fonts/dejavu.fnt --preload-file fonts/dejavu.png -Wno-writable-strings
 	ifeq ($(BUILD_MODE), DEBUG)
 		CFLAGS += -s ASSERTIONS=1 --profiling
 	endif

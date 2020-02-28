@@ -3,6 +3,7 @@
 
 #include "../qif/qif.h"
 #include "raylib.h"
+#include "rlgl.h"
 
 using namespace std;
 
@@ -16,6 +17,9 @@ using namespace std;
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
 #define WINDOWS_WIDTH 750
 #define WINDOWS_HEIGHT 630
+#define ORIGIN_3D_X 7.0f
+#define ORIGIN_3D_Y -20.0f
+#define ORIGIN_3D_Z -15.0f
 
 // Prior probability distribution radius (in pixels) **********************************************/
 #define PRIOR_RADIUS 30
@@ -84,5 +88,10 @@ Point pixel2Bary(double x, double y, vector<Vector2> &TrianglePoints);
  * Return: A 'Point' structure containing a barycentric coordinate.
  */
 Point bary2Pixel(double x, double y, vector<Vector2> &TrianglePoints);
+
+void Draw3Grid(int slices, float spacing, Vector3 position, Vector3 color);
+
+/** Translation to the defined ORIGIN_3D */
+Vector3 adjustVectorToOrigin(Vector3 v);
 
 #endif
