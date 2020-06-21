@@ -4,6 +4,3 @@
 [submodule "raygui"]
 	path = raygui
 	url = https://github.com/ramongonze/raygui
-[submodule "qif"]
-	path = qif
-	url = https://github.com/ramongonze/qif
