@@ -1,0 +1,316 @@
+.. role:: bash(code)
+   :language: bash
+
+.. code-block:: cpp
+
+Getting started
+===============
+
+Here is a tutorial to explain how to create and use distributions, channels, 
+functions and so on.
+
+Distributions
+*************
+
+
+Creating distributions
+----------------------
+
+The vector of probabilities is structed as a :code:`std::vector<long double>`.
+To create a Distribution object there are 3 constructors available:
+
+* **Read the vector of probabilities from a file**
+
+    The vector of probabilities can be read from a file in the following format: ::
+
+        n
+        p1
+        p2
+        ...
+        pn
+
+    where :code:`n` is the number of elements in the distribution and :code:`pi` is 
+    the probability of the ith element occurs.
+
+    Suppose you have a file called :bash:`prior_distribution.txt` containing the vector 
+    of probabilities. To create a distribution, you have to type: ::
+
+        Distribution dist("prior_distribution.txt");
+    
+    .. seealso:: Distribution(std::string file)
+
+* **Use an existing vector of probabilities**
+
+    A distribution can be created using a vector stored in a variable.
+    The type of the vector must be :code:`std::vector<long double>`.
+
+    To create a distribution from a vector of probabilities :code:`v` you have to 
+    type: ::
+
+        std::vector<long double> v({0.25, 0.25, 0.5});
+        Distribution dist(v);
+
+    .. seealso:: Distribution(std::vector<long double>& prob)
+
+
+* **Create a random or uniform distribution**
+
+    To create an uniform or a random distribution, there are 2 parameters in 
+    the constructor:
+    * First: The number of elements;
+    * Second: The string "uniform" or "random", to create an uniform distribution or a random distribution, respectivelly.
+
+    For example, to create two uniform distributions with 5 and 10 elements 
+    respectively, you have to type: ::
+
+        Distribution dist(5, "uniform");
+        Distribution dist(10, "random");
+
+    .. seealso:: Distribution(int num_el, std::string type)
+
+**************************************************
+
+Using distributions
+----------------------
+
+Suppose you have created a new distribution using one of the constructors 
+above and stored it in the variable :code:`dist`.
+
+Accessing the elements
+######################
+
+To get the probability of each element, you have to access the attribute 
+:code:`prob`. The elements in :code:`prob` are indexed from 0 to n-1, where n 
+is the number of elements in the probability distribution.
+For example, to get the fourth element of the distribution, you use the index 3: ::
+
+    long double prob_fourth_element = dist.prob[3];
+
+Getting the number of elements
+##############################
+
+The number of elements is stored in the attribute :code:`num_el`: ::
+    
+    int number_elements = dist.num_el;
+
+Printing
+########
+
+To print the distribution on the screen, you can use the method :code:`toString()`.
+The method has one parameter: the precision of the probabilities, and it 
+returns a :code:`std::string`.
+
+For example, if you want to get a string with precision of 4, you have to type: ::
+    
+    std::string str_dist = dist.toString(4);
+    std::cout << str_dist << std::endl;
+
+The result is the following: ::
+
+    0.2500 0.2500 0.5000
+
+For more details, see the documentation of Distribution::toString().
+You can also print the distribution right into a file using the method 
+:code:`printToFile()`. See the documentation of Distribution::printToFile().
+
+For more details about the class, see the documentation here.
+
+
+**************************************************
+
+Channels
+********
+
+Creating channels
+-----------------
+
+An informational channel can be represented as a matrix n x y, where n is the 
+number of secrets (the rows), y is the number of possible outputs (the columns) 
+and each value stored at :code:`matrix[x][y]` is the conditional probability p(y|x).
+Before creating a channel, you must already have an object Distribution which 
+contains the prior distribution on the set of secrets.
+
+To create a :ref:`Channel <channel-class>` object there are 3 options available:
+
+* **Read the channel from a file**
+
+    You can read the channel from a file in the following format: ::
+
+        n y
+        p11 p12 ... p1y
+        p21 p22 ... p2y
+        ...
+        pn1 pn2 ... pny
+
+    where n is the number of secrets, y is the number of outputs and each two values 
+    must be separated by a space (" "). Suppose you have a file called 
+    :code:`channel.txt`. To create a channel you have to type: ::
+
+        Distribution dist("prior_distribution.txt");
+        Channel channel(dist, "channel.txt");
+
+    .. seealso:: Channel(Distribution& prior, std::string file)
+
+* **Use an existing matrix of numbers**
+
+    The type of the matrix must be :code:`std::vector<std::vector<long double>>`.
+    To create a channel from a matrix :code:`M` you have to type: ::
+
+        Distribution prior("prior_distribution.txt");
+        std::vector<std::vector<long double>> M({{0.25, 0.25, 0.50},
+                                                 {0.30, 0.30, 0.40},
+                                                 {1.00, 0.00, 0.00}});
+        Channel channel(prior, M);
+
+    .. seealso:: Channel(Distribution& prior, std::vector<std::vector<long double>>& matrix)
+
+* **Generate a random channel**
+
+    To create a random channel, there are 2 parameters in the constructor:
+    
+    * First: Prior distribution;
+    * Second: Number of channel outputs.
+
+    For example, to create a channel with 3 outputs, you have to type: ::
+
+        Distribution prior("prior_distribution.txt");
+        Channel channel(prior, 3);
+
+    .. seealso:: Channel(Distribution& prior, int num_out)
+
+**************************************************
+
+Using channels
+--------------
+
+Suppose you have created a channel using one of the constructors above and stored 
+it in the variable :code:`channel`.
+
+Acessing the prior distribution
+###############################
+
+There is a Distribution object: :code:`prior`. You can get, for example, the 
+number of secrets: ::
+
+    int number_secrets = channel.prior.num_el;
+
+Acessing the channel matrix
+###########################
+
+To get a conditional probability from the channel matrix, you have to access the 
+attribute :code:`matrix`. The rows are indexed from 0 to n-1, where n is the number of 
+secrets, and the columns are indexed from 0 to y-1, where y is the number of 
+outputs.
+
+For example, to get the probability p(y3|x2), you have to type: ::
+
+    long double p = channel.matrix[2][1];
+
+Getting the number of outputs from the channel
+##############################################
+
+The number of outputs is stored in the attribute :code:`num_out`: ::
+
+    int number_outputs = channel.num_out;
+
+Printing
+########
+
+To print the channel on the screen, you can use the method :code:`toString()`.
+The method has one parameter: the precision of the probabilities, and it 
+returns a :code:`std::string`.
+
+For example, if you want to get a string with precision of 4, you have to type: ::
+
+    std::string str_channel = channel.toString(4);
+    std::cout << str_channel << std::endl;
+
+The result is the following: ::
+
+    0.2500 0.2500 0.5000
+    1.0000 0.0000 0.0000
+    0.9000 0.0100 0.0900
+
+For more details, see the documentation of Channel::toString().
+You can also print the channel right into a file using the method 
+:code:`printToFile()`. See the documentation of Channel::printToFile().
+
+For more details about the class, see the documentation here.
+
+**************************************************
+
+Hyper-distributions
+*******************
+
+A hyper-distribution is a distribution on distributions on a set of secrets.
+Each output in an informational channel is a possible "world", and each possible 
+world is a new distribution on the set of secrets. We call the possible worlds 
+the *inner distributions*. Each possible world has a probability to occur, and we 
+call the distribution on the possible worlds as the *outer distribution*.
+
+Before creating a Hyper object, you need to have a Channel and a prior Distribution on a set of secrets.
+
+To create a Hyper object there are 2 options available:
+Read the prior distribution and the channel from files
+You can read the prior distribution on a set of secrets and the channel from files.
+
+The prior distribution must be in the following format:
+n
+p1
+p2
+...
+pn
+where n is the number of secrets and pi is the probability of the ith secret occurs.
+
+The channel must be in the following format:
+n y
+p11 p12 ... p1y
+p21 p22 ... p2y
+...
+pn1 pn2 ... pny
+where n is the number of secrets (the rows), y is the number of possible outputs (the columns) and each value (xi,yj) is the conditional probability p(yj|xi). Each two values must be separated by a space (" ").
+
+Suppose you have the prior distribution in a file called prior_distribution.txt and a channel in a file called channel.txt.
+To create the hyper-distribution you have to type:
+Hyper hyper("prior_distribution.txt", "channel.txt");
+
+Reference
+Hyper(std::string prior_file,
+std::string channel_file)
+
+
+Use existing Distribution and Channel objects
+As a Channel has a Distribution object attribute (corresponding to the prior distribution on the set of secrets), it is not necessary to give a distribution as a parameter. So to create a hyper-distribution, you can give only the channel:
+Distribution prior("prior_distribution.txt");
+Channel channel(prior, "channel.txt");
+Hyper hyper(channel);
+
+Reference
+Hyper(Channel& channel)
+
+Creating hyper-distributions
+----------------------------
+
+
+Using hyper-distributions
+-------------------------
+
+
+Gain functions
+**************
+
+
+Creating gain functions
+-----------------------
+
+
+Using gain functions
+--------------------
+
+
+Vulnerabilities, entropies and leakages measurements
+****************************************************
+
+
+Measurement functions 
+---------------------

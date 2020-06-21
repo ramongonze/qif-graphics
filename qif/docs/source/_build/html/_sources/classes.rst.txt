@@ -1,0 +1,7 @@
+Classes
+=======
+
+.. include:: classes/distribution.inc
+.. include:: classes/channel.inc
+.. include:: classes/hyper.inc
+.. include:: classes/gain.inc
