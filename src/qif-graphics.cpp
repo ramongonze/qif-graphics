@@ -20,7 +20,7 @@
 #define RAYGUI_SUPPORT_RICONS
 #include "/home/ramon/raygui/src/raygui.h"
 
-// #include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #include "../qif/qif.h"
 
 #include <iostream>
@@ -55,13 +55,11 @@ int main(){
 
 	LoopVariables V;
 	V.I = Information();
-	SetCameraMode(V.I.camera3d, CAMERA_FREE); // Set a free camera mode
-
 	V.L = Layout();
 	V.L.init();
 	V.L.alternativeFont = LoadFont("fonts/dejavu.fnt"); // Used to get pi symbol
 	
-	// emscripten_set_main_loop_arg(updateDrawFrame, &V, 0, 1);
+	emscripten_set_main_loop_arg(updateDrawFrame, &V, 0, 1);
 
 	SetTargetFPS(60);
 	//--------------------------------------------------------------------------------------
@@ -102,12 +100,6 @@ void updateDrawFrame(void* V_){
 			L->updateChannelBySpinner();
 		}
 
-		if(L->SpinnerGainValue != L->recTextBoxGain.size()){ // If true, spinnerChannel has been changed
-			L->CheckBoxDrawingChecked = false;
-			I->hyperReady = false;
-			L->updateGainBySpinner();
-		}
-
 		// Buttons
 		if(L->ButtonPriorClicked){
 			L->ButtonPriorClicked = false;
@@ -127,15 +119,14 @@ void updateDrawFrame(void* V_){
 		}
 
 		// Check if a TextBox is being pressed.
-		int textBoxPressed = L->checkTextBoxPressed();
-		if(textBoxPressed){
+		if(L->checkTextBoxPressed()){
 			L->CheckBoxDrawingChecked = false;
 			I->hyperReady = false;
 			printError(NO_ERROR, *L);
 
 			if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
 				IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
-				L->moveAmongTextBoxes(textBoxPressed);
+				L->moveAmongTextBoxes();
 			}
 		}
 
@@ -188,8 +179,6 @@ void updateDrawFrame(void* V_){
 		// when user moves the prior distribution, so we might not draw all the TextBoxes.
 		if(I->hyperReady) numPost = I->hyper.num_post; 
 		else numPost = L->TextBoxOuterText.size();
-
-		UpdateCamera(&(I->camera3d));          // Update camera
 	//----------------------------------------------------------------------------------
 
 	// Draw
@@ -213,14 +202,14 @@ void updateDrawFrame(void* V_){
 				GuiGroupBox(L->recGroupBoxPrior, L->GroupBoxPriorText);
 				GuiGroupBox(L->recGroupBoxChannel, L->GroupBoxChannelText);
 				GuiGroupBox(L->recGroupBoxPosteriors, L->GroupBoxPosteriorsText);
-				GuiGroupBox(L->recGroupBoxGain, L->GroupBoxGainText);
+				// GuiGroupBox(L->recGroupBoxGain, L->GroupBoxGainText);
 				GuiGroupBox(L->recGroupBoxVisualization, L->GroupBoxVisualizationText);
 				GuiGroupBox(L->recGroupBoxDrawing, L->GroupBoxDrawingText);
 			//----------------------------------------------------------------------------------
 
 			// Spinners
 			//----------------------------------------------------------------------------------
-				if (GuiSpinner(L->recSpinnerChannel, "", &L->SpinnerChannelValue, 1, 7, L->SpinnerChannelEditMode)) L->SpinnerChannelEditMode = !L->SpinnerChannelEditMode;
+				if (GuiSpinner(L->recSpinnerChannel, "", &L->SpinnerChannelValue, 0, 100, L->SpinnerChannelEditMode)) L->SpinnerChannelEditMode = !L->SpinnerChannelEditMode;
 			//----------------------------------------------------------------------------------
 
 			// Labels
@@ -252,7 +241,7 @@ void updateDrawFrame(void* V_){
 
 			// CheckBoxes
 			//----------------------------------------------------------------------------------
-				L->CheckBoxGainChecked = GuiCheckBox(L->recCheckBoxGain, L->CheckBoxGainText, L->CheckBoxGainChecked);
+				// L->CheckBoxGainChecked = GuiCheckBox(L->recCheckBoxGain, L->CheckBoxGainText, L->CheckBoxGainChecked);
 				L->CheckBoxDrawingChecked = GuiCheckBox(L->recCheckBoxDrawing, L->CheckBoxDrawingText, L->CheckBoxDrawingChecked);
 			//----------------------------------------------------------------------------------
 
@@ -266,22 +255,26 @@ void updateDrawFrame(void* V_){
 				GuiStatusBar(L->recStatusBar, &(L->StatusBarDrawingText[0]));
 			//----------------------------------------------------------------------------------
 
+			// ScrollPanelChannelScrollOffset = GuiScrollPanel((Rectangle){rec[8].x, rec[8].y, rec[8].width - ScrollPanelChannelBoundsOffset.x, rec[8].height - ScrollPanelChannelBoundsOffset.y }, rec[8], ScrollPanelChannelScrollOffset);
+			// ScrollPanelGainScrollOffset = GuiScrollPanel((Rectangle){rec[9].x, rec[9].y, rec[9].width - ScrollPanelGainBoundsOffset.x, rec[9].height - ScrollPanelGainBoundsOffset.y }, rec[9], ScrollPanelGainScrollOffset);
+			// ScrollPanelPosteriorsScrollOffset = GuiScrollPanel((Rectangle){rec[33].x, rec[33].y, rec[33].width - ScrollPanelPosteriorsBoundsOffset.x, rec[33].height - ScrollPanelPosteriorsBoundsOffset.y }, rec[33], ScrollPanelPosteriorsScrollOffset);
+
 			// TextBoxes
 			//----------------------------------------------------------------------------------
-				if(L->CheckBoxGainChecked){
-					GuiLabel(L->recLabelActions, L->LabelActionsText);
-					if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
+				// if(L->CheckBoxGainChecked){
+				// 	GuiLabel(L->recLabelActions, L->LabelActionsText);
+				// 	if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
 
-					// Gain function
-					for(int i = 0; i < L->TextBoxGainText.size(); i++){
-						for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
-							if (GuiTextBox(L->recTextBoxGain[i][j], L->TextBoxGainText[i][j], 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
-						}
-					}
+				// 	// Gain function
+				// 	for(int i = 0; i < L->TextBoxGainText.size(); i++){
+				// 		for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
+				// 			if (GuiTextBox(L->recTextBoxGain[i][j], L->TextBoxGainText[i][j], 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
+				// 		}
+				// 	}
 
-					for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
-					for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
-				}
+				// 	for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
+				// 	for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
+				// }
 				
 				// Channel
 				for(int i = 0; i < L->TextBoxChannelText.size(); i++){
@@ -316,7 +309,6 @@ void updateDrawFrame(void* V_){
 				// if (GuiDropdownBox(L->recDropDownLoad, L->DropDownLoadText, &L->DropDownLoadActive, L->DropDownLoadEditMode)) L->DropDownLoadEditMode = !L->DropDownLoadEditMode;
 				// if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
 			//----------------------------------------------------------------------------------
-			
 			// Visualization
 			//----------------------------------------------------------------------------------
 				if(L->CheckBoxDrawingChecked){
@@ -334,32 +326,6 @@ void updateDrawFrame(void* V_){
 					// Circles
 					drawCircles(*I, *L);
 				}
-
-				// 3D
-				//----------------------------------------------------------------------------------
-					// if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)){
-					// 	I->ray = GetMouseRay(GetMousePosition(), I->camera3d);
-					// }
-
-					// Temporary
-					DrawLine(L->recGroupBoxVisualization.x, L->recGroupBoxVisualization.y + L->recGroupBoxVisualization.height/2.0f, 
-							 L->recGroupBoxVisualization.x + L->recGroupBoxVisualization.width, L->recGroupBoxVisualization.y + L->recGroupBoxVisualization.height/2.0f, RED);
-					DrawLine(L->recGroupBoxVisualization.x + L->recGroupBoxVisualization.width/2.0f, L->recGroupBoxVisualization.y, 
-							 L->recGroupBoxVisualization.x + L->recGroupBoxVisualization.width/2.0f, L->recGroupBoxVisualization.y + L->recGroupBoxVisualization.height, RED);
-					//  Vector2 v = GetWorldToScreen(I->ray.direction, I->camera3d);
-					//  printf("Direction 3D: %.2f, %.2f, %.2f\n", I->ray.direction.x, I->ray.direction.y, I->ray.direction.z);
-					//  v = GetWorldToScreen(I->ray.position, I->camera3d);
-					//  printf("Position 3D: %.2f, %.2f, %.2f\n\n", I->ray.position.x, I->ray.position.y, I->ray.position.z);
-
-					I->camera3d.target = (Vector3){0.0f, 0.0f, 0.0f};
-					BeginMode3D(I->camera3d);
-						// Draw3Grid(20, 0.7f, (Vector3){0.0f, 0.0f, 0.0f}, (Vector3){0.75f, 0.75f, 0.75f});
-						Draw3Grid(20, 0.7f, (Vector3){ORIGIN_3D_X, 
-													  ORIGIN_3D_Y, 
-													  ORIGIN_3D_Z},
-													  (Vector3){0.75f, 0.75f, 0.75f});
-					EndMode3D();
-				//----------------------------------------------------------------------------------
 			//----------------------------------------------------------------------------------
 			//----------------------------------------------------------------------------------
 		EndDrawing();

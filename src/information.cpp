@@ -5,19 +5,6 @@ Information::Information(){
     this->mouseClickedOnPrior = false;
     this->prior = vector<long double>(3, 0);
     this->channel = vector<vector<long double>>(3, vector<long double>(3, 0));
-    
-    // Define the camera to look into our 3d world
-    this->camera3d = { 0 };
-    this->camera3d.position = (Vector3){ 40.0f, 40.0f, 40.0f}; // Camera position
-    this->camera3d.target = (Vector3){ 0.0f, 0.0f, 0.0f };     // Camera looking at point
-    this->camera3d.up = (Vector3){ 0.0f, 1.0f, 0.0f };         // Camera up vector (rotation towards target)
-    this->camera3d.fovy = 45.0f;                               // Camera field-of-view Y
-    this->camera3d.type = CAMERA_PERSPECTIVE;                  // Camera mode type  
-
-    this->initialCamera3dPosition = this->camera3d.position;
-
-    // Test
-    this->ray = { 0 };                    // Picking line ray
 }
 
 int Information::checkPriorText(vector<char*> &prior_){

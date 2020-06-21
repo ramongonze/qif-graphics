@@ -5,7 +5,7 @@ Layout::Layout(){
 	//----------------------------------------------------------------------------------
         // Define anchors
         //----------------------------------------------------------------------------------
-            anchorGain = { 95 + OFFSET_X, 345 + OFFSET_Y };            // ANCHOR ID:1
+            // anchorGain = { 95 + OFFSET_X, 345 + OFFSET_Y };            // ANCHOR ID:1
             anchorChannel = { 95 + OFFSET_X, 115 + OFFSET_Y };            // ANCHOR ID:2
             anchorPrior = { 400 + OFFSET_X, 95 + OFFSET_Y };            // ANCHOR ID:3
             anchorDrawing = { 150 + OFFSET_X, 570 + OFFSET_Y };            // ANCHOR ID:4
@@ -19,7 +19,7 @@ Layout::Layout(){
 			GroupBoxPriorText = "Prior";    // GROUPBOX: GroupBoxPrior
 			GroupBoxChannelText = "Channel";    // GROUPBOX: GroupBoxChannel
 			GroupBoxPosteriorsText = "Posteriors";    // GROUPBOX: GroupBoxPosteriors
-			GroupBoxGainText = "Gain function";    // GROUPBOX: GroupBoxGain
+			// GroupBoxGainText = "Gain function";    // GROUPBOX: GroupBoxGain
 			GroupBoxVisualizationText = "Visualization";    // GROUPBOX: GroupBoxVisualization
 			GroupBoxDrawingText = "Drawing";    // GROUPBOX: GroupBoxDrawing
 		//----------------------------------------------------------------------------------
@@ -28,11 +28,11 @@ Layout::Layout(){
 		//----------------------------------------------------------------------------------
 			LabelTitleText = "QIF Graphics - 1.0.0";
             LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
-			LabelActionsText = "Actions";    // LABEL: LabelActions
+			// LabelActionsText = "Actions";    // LABEL: LabelActions
 			LabelClickDrawText = "Click to draw:";    // LABEL: LabelClickDraw
 			LabelOuterNameText = "Outer";    // LABEL: LabelOuter
-			LabelGainXText = vector<string>({"X1", "X2", "X3"}); 
-			LabelGainWText = vector<string>({"W1", "W2", "W3"});
+			// LabelGainXText = vector<string>({"X1", "X2", "X3"}); 
+			// LabelGainWText = vector<string>({"W1", "W2", "W3"});
 			LabelChannelXText = vector<string>({"X1", "X2", "X3"});
 			LabelChannelYText = vector<string>({"Y1", "Y2", "Y3"});
 			LabelPriorText = vector<string>({"X1", "X2", "X3"});
@@ -51,7 +51,7 @@ Layout::Layout(){
 
 		// CheckBoxes
 		//----------------------------------------------------------------------------------
-			CheckBoxGainText = "Enable";    // CHECKBOXEX: CheckBoxGain
+			// CheckBoxGainText = "Enable";    // CHECKBOXEX: CheckBoxGain
 			CheckBoxDrawingText = "";    // CHECKBOXEX: CheckBoxDrawing
 		//----------------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ Layout::Layout(){
 
 		// TextBoxes. Obs: All matrices invert rows and columns (to make easy adding and removing columns).
 		//----------------------------------------------------------------------------------
-			TextBoxGainEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
+			// TextBoxGainEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
 			TextBoxChannelEditMode = vector<vector<bool>>(3, vector<bool>(3, false));
 			TextBoxPriorEditMode = vector<bool>(3, false);
 			TextBoxOuterEditMode = vector<bool>(3, false);
@@ -78,16 +78,16 @@ Layout::Layout(){
                 strcpy(TextBoxOuterText[i], "0");
             }
 
-			TextBoxGainText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
+			// TextBoxGainText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
 			TextBoxChannelText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
 			TextBoxInnersText = vector<vector<char*>>(3, vector<char*>(3, nullptr));
             for(int i = 0; i < 3; i++){
                 for(int j = 0; j < 3; j++){
-                    TextBoxGainText[i][j] = (char*) malloc(128*sizeof(char));
+                    // TextBoxGainText[i][j] = (char*) malloc(128*sizeof(char));
                     TextBoxChannelText[i][j] = (char*) malloc(128*sizeof(char));
                     TextBoxInnersText[i][j] = (char*) malloc(128*sizeof(char));
 
-                    strcpy(TextBoxGainText[i][j], "0");
+                    // strcpy(TextBoxGainText[i][j], "0");
                     strcpy(TextBoxChannelText[i][j], "0");
                     strcpy(TextBoxInnersText[i][j], "0");
                 }
@@ -105,9 +105,9 @@ Layout::Layout(){
 		//----------------------------------------------------------------------------------
 			SpinnerChannelEditMode = false;
 			SpinnerChannelValue = 3;            // Spinner: SpinnerChannel
-			SpinnerGainEditMode = false;
-			SpinnerGainValue = 3;            // Spinner: SpinnerGain
-			CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
+			// SpinnerGainEditMode = false;
+			// SpinnerGainValue = 3;            // Spinner: SpinnerGain
+			// CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
 			CheckBoxDrawingChecked = false;            // CheckBoxEx: CheckBoxDrawing
 			// DropDownLoadEditMode = false;
 			// DropDownLoadActive = 0;            // DropdownBox: DropDownLoad
@@ -115,6 +115,12 @@ Layout::Layout(){
 			// DropDownExportActive = 0;            // DropdownBox: DropDownExport
 			// DropDownBoxFileEditMode = false;
 			// DropDownBoxFileActive = 0;            // DropdownBox: DropDownBoxFile
+			// Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
+			// Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
+			// Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
+			// Vector2 ScrollPanelGainBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelGain
+			// Vector2 ScrollPanelPosteriorsScrollOffset = { 0, 0 };
+			// Vector2 ScrollPanelPosteriorsBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelPosteriors
 		//----------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------
 }
@@ -131,7 +137,7 @@ void Layout::init(){
         recGroupBoxPrior = (Rectangle){ 365 + OFFSET_X, 40 + OFFSET_Y, 95, 215 };
         recGroupBoxChannel = (Rectangle){ 60 + OFFSET_X, 40 + OFFSET_Y, 290, 215 };
         recGroupBoxPosteriors = (Rectangle){ 475 + OFFSET_X, 40 + OFFSET_Y, 305, 215 };
-        recGroupBoxGain = (Rectangle){ 60 + OFFSET_X, 270 + OFFSET_Y, 290, 215 };
+        // recGroupBoxGain = (Rectangle){ 60 + OFFSET_X, 270 + OFFSET_Y, 290, 215 };
         recGroupBoxVisualization = (Rectangle){ 365 + OFFSET_X, 270 + OFFSET_Y, 416, 344 };
         recGroupBoxDrawing = (Rectangle){ 60 + OFFSET_X, 495 + OFFSET_Y, 290, 119 };
     //--------------------------------------------------------------------------------------
@@ -149,14 +155,14 @@ void Layout::init(){
     // Spinners
     //--------------------------------------------------------------------------------------
         recSpinnerChannel = (Rectangle){ 265 + OFFSET_X, 50 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerChannel
-        recSpinnerGain = (Rectangle){ 265 + OFFSET_X, 280 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerGain
+        // recSpinnerGain = (Rectangle){ 265 + OFFSET_X, 280 + OFFSET_Y, 80, 20 };    // Spinner: SpinnerGain
     //--------------------------------------------------------------------------------------
 
     // Labels
     //--------------------------------------------------------------------------------------
         recLabelTitle = (Rectangle) { recPanelMenu.x + 5, recPanelMenu.y + 2.5, 70, 20 };
         recLabelOutputs = (Rectangle){ 210 + OFFSET_X, 50 + OFFSET_Y, 50, 20 };
-        recLabelActions = (Rectangle){ 210 + OFFSET_X, 280, 50 + OFFSET_Y, 20 };
+        // recLabelActions = (Rectangle){ 210 + OFFSET_X, 280, 50 + OFFSET_Y, 20 };
         recLabelClickDraw = (Rectangle){ anchorDrawing.x + 0, anchorDrawing.y + 0, 75, 25 };
         recLabelOuterName = (Rectangle){ anchorOuter.x + -40, anchorOuter.y + 0, 40, 35 };
 
@@ -175,16 +181,16 @@ void Layout::init(){
 
         // Gain matrix
         //--------------------------------------------------------------------------------------
-            recLabelGainX = {
-                (Rectangle){ anchorGain.x + -20, anchorGain.y + 0, 15, 35 },    // Label: LabelGainX1
-                (Rectangle){ anchorGain.x + -20, anchorGain.y + 35, 15, 35 },    // Label: LabelGainX2
-                (Rectangle){ anchorGain.x + -20, anchorGain.y + 70, 15, 35 }    // Label: LabelGainX3
-            };
-            recLabelGainW = {
-                (Rectangle){ anchorGain.x + 10, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW1
-                (Rectangle){ anchorGain.x + 45, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW2
-                (Rectangle){ anchorGain.x + 80, anchorGain.y + -20, 20, 20 }    // Label: LabelGainW3
-            };
+            // recLabelGainX = {
+            //     (Rectangle){ anchorGain.x + -20, anchorGain.y + 0, 15, 35 },    // Label: LabelGainX1
+            //     (Rectangle){ anchorGain.x + -20, anchorGain.y + 35, 15, 35 },    // Label: LabelGainX2
+            //     (Rectangle){ anchorGain.x + -20, anchorGain.y + 70, 15, 35 }    // Label: LabelGainX3
+            // };
+            // recLabelGainW = {
+            //     (Rectangle){ anchorGain.x + 10, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW1
+            //     (Rectangle){ anchorGain.x + 45, anchorGain.y + -20, 20, 20 },    // Label: LabelGainW2
+            //     (Rectangle){ anchorGain.x + 80, anchorGain.y + -20, 20, 20 }    // Label: LabelGainW3
+            // };
         //--------------------------------------------------------------------------------------
 
         // Channel matrix
@@ -261,12 +267,12 @@ void Layout::init(){
 
         // Gain Matrix
         //--------------------------------------------------------------------------------------
-        recTextBoxGain = vector<vector<Rectangle>>(3, vector<Rectangle>(3));
-        for(int i = 0; i < recTextBoxGain.size(); i++){ // columns
-            for(int j = 0; j < recTextBoxGain[i].size(); j++){ // rows
-                recTextBoxGain[i][j] = (Rectangle){ anchorGain.x + (i*35), anchorGain.y + (j*35), 35, 35 };
-            }
-        }
+        // recTextBoxGain = vector<vector<Rectangle>>(3, vector<Rectangle>(3));
+        // for(int i = 0; i < recTextBoxGain.size(); i++){ // columns
+        //     for(int j = 0; j < recTextBoxGain[i].size(); j++){ // rows
+        //         recTextBoxGain[i][j] = (Rectangle){ anchorGain.x + (i*35), anchorGain.y + (j*35), 35, 35 };
+        //     }
+        // }
         //--------------------------------------------------------------------------------------
         
         // Channel matrix
@@ -309,7 +315,7 @@ void Layout::init(){
 void Layout::updateChannelBySpinner(){
     if(SpinnerChannelValue <= 0){
         SpinnerChannelValue = 1;
-    }else if(SpinnerChannelValue > 7){
+    }else if(SpinnerChannelValue > 7){ // Temporary, because ScrollPanel is not working
         SpinnerChannelValue = 7;
     }else if(SpinnerChannelValue < recTextBoxChannel.size()){
         int diff = abs((int)SpinnerChannelValue - (int)recTextBoxChannel.size());
@@ -338,43 +344,6 @@ void Layout::updateChannelBySpinner(){
                 TextBoxChannelEditMode[i][j] = false;
                 TextBoxChannelText[i][j] = (char*) malloc(128*sizeof(char));
                 strcpy(TextBoxChannelText[i][j], "0");
-            }
-        }
-    }
-}
-
-void Layout::updateGainBySpinner(){
-    if(SpinnerGainValue <= 0){
-        SpinnerGainValue = 1;
-    }else if(SpinnerGainValue > 7){
-        SpinnerGainValue = 7;
-    }else if(SpinnerGainValue < recTextBoxGain.size()){
-        int diff = abs((int)SpinnerGainValue - (int)recTextBoxGain.size());
-        for(int i = 0; i < diff; i++){
-            recTextBoxGain.pop_back();
-            TextBoxGainEditMode.pop_back();
-            recLabelGainW.pop_back();
-            LabelGainWText.pop_back();
-
-            for(int j = 0; j < 3; j++) free(TextBoxGainText[TextBoxGainText.size()-1][j]);
-            TextBoxGainText.pop_back();
-        }
-    }else{
-        for(int i = recTextBoxGain.size(); i < SpinnerGainValue; i++){
-            recTextBoxGain.push_back(vector<Rectangle>(3));
-            recLabelGainW.push_back((Rectangle){anchorGain.x + (10 + 35*i), anchorGain.y + -20, 20, 20});
-
-            TextBoxGainEditMode.push_back(vector<bool>(3, false));
-            TextBoxGainText.push_back(vector<char*>(3));
-            
-            char buffer[5];
-            sprintf(buffer, "W%d", i+1);
-            LabelGainWText.push_back(string(buffer));
-            for(int j = 0; j < 3; j++){
-                recTextBoxGain[i][j] = (Rectangle){ anchorGain.x + (i*35), anchorGain.y + (j*35), 35, 35 };
-                TextBoxGainEditMode[i][j] = false;
-                TextBoxGainText[i][j] = (char*) malloc(128*sizeof(char));
-                strcpy(TextBoxGainText[i][j], "0");
             }
         }
     }
@@ -490,172 +459,109 @@ void Layout::updatePrior(Distribution &prior, Circle &priorCircle){
     recLabelPriorCircle = (Rectangle) { priorCircle.center.x - 6, priorCircle.center.y - 10, 20, 20 };
 }
 
-int Layout::checkTextBoxPressed(){
+bool Layout::checkTextBoxPressed(){
     for(int i = 0; i < TextBoxPriorEditMode.size(); i++){
-        if(TextBoxPriorEditMode[i] == true) return 1;
+        if(TextBoxPriorEditMode[i] == true) return true;
     }
 
     for(int i = 0; i < TextBoxChannelEditMode.size(); i++){
         for(int j = 0; j < TextBoxChannelEditMode[i].size(); j++){
-            if(TextBoxChannelEditMode[i][j] == true) return 2;
+            if(TextBoxChannelEditMode[i][j] == true) return true;
         }
     }
 
-    for(int i = 0; i < TextBoxGainEditMode.size(); i++){
-        for(int j = 0; j < TextBoxGainEditMode[i].size(); j++){
-            if(TextBoxGainEditMode[i][j] == true) return 3;
-        }
-    }
+    // for(int i = 0; i < TextBoxGainEditMode.size(); i++){
+    //     for(int j = 0; j < TextBoxGainEditMode[i].size(); j++){
+    //         if(TextBoxGainEditMode[i][j] == true) return true;
+    //     }
+    // }
 
-    return 0;
+    return false;
 }
 
-void Layout::moveAmongTextBoxes(int matrix){
-    int nRows, nColumns;
-
-    switch (matrix){
-    case 1: // Prior
-        for(int i = 0; i < 3; i++){
-            if(TextBoxPriorEditMode[i] == true){
-                if(IsKeyPressed(KEY_TAB)){
-                    TextBoxPriorEditMode[i] = false;
-                    if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
-                        TextBoxPriorEditMode[i] = false;
-                        if(i == 0) TextBoxPriorEditMode[2] = true;
-                        else if(i == 1) TextBoxPriorEditMode[0] = true;
-                        else TextBoxPriorEditMode[1] = true;
-                    }else{
-                        if(i == 0) TextBoxPriorEditMode[1] = true;
-                        else if(i == 1) TextBoxPriorEditMode[2] = true;
-                        else TextBoxPriorEditMode[0] = true;
-                    }
-                }else if(IsKeyPressed(KEY_UP)){
+void Layout::moveAmongTextBoxes(){
+    // Prior
+    for(int i = 0; i < 3; i++){
+        if(TextBoxPriorEditMode[i] == true){
+            if(IsKeyPressed(KEY_TAB)){
+                TextBoxPriorEditMode[i] = false;
+                if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
                     TextBoxPriorEditMode[i] = false;
                     if(i == 0) TextBoxPriorEditMode[2] = true;
                     else if(i == 1) TextBoxPriorEditMode[0] = true;
                     else TextBoxPriorEditMode[1] = true;
-                }else if(IsKeyPressed(KEY_DOWN)){
-                    TextBoxPriorEditMode[i] = false;
+                }else{
                     if(i == 0) TextBoxPriorEditMode[1] = true;
                     else if(i == 1) TextBoxPriorEditMode[2] = true;
                     else TextBoxPriorEditMode[0] = true;
                 }
+            }else if(IsKeyPressed(KEY_UP)){
+                TextBoxPriorEditMode[i] = false;
+                if(i == 0) TextBoxPriorEditMode[2] = true;
+                else if(i == 1) TextBoxPriorEditMode[0] = true;
+                else TextBoxPriorEditMode[1] = true;
+            }else if(IsKeyPressed(KEY_DOWN)){
+                TextBoxPriorEditMode[i] = false;
+                if(i == 0) TextBoxPriorEditMode[1] = true;
+                else if(i == 1) TextBoxPriorEditMode[2] = true;
+                else TextBoxPriorEditMode[0] = true;
+            }
 
+            return;
+        }
+    }
+
+    int nRows = TextBoxChannelEditMode[0].size();
+    int nColumns = TextBoxChannelEditMode.size();
+
+    // Channel
+    for(int i = 0; i < nColumns; i++){
+        for(int j = 0; j < nRows; j++){
+            if(TextBoxChannelEditMode[i][j] == true){
+                if(IsKeyPressed(KEY_TAB)){
+                    TextBoxChannelEditMode[i][j] = false;
+                    if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
+                        if(i == 0 && j == 0){
+                            TextBoxChannelEditMode[nColumns-1][nRows-1] = true; // Select the first text box (row 0 and column 0)
+                        }else if(i == 0){
+                            TextBoxChannelEditMode[nColumns-1][j-1] = true;
+                        }else{
+                            TextBoxChannelEditMode[i-1][j] = true;
+                        }
+                        return;
+                    }else{
+                        if(i == nColumns-1 && j == nRows-1){
+                            TextBoxChannelEditMode[0][0] = true; // Select the first text box (row 0 and column 0)
+                        }else if(i == nColumns-1){
+                            TextBoxChannelEditMode[0][j+1] = true;
+                        }else{
+                            TextBoxChannelEditMode[i+1][j] = true;
+                        }
+                        return;
+                    }
+                }else if(IsKeyPressed(KEY_UP)){
+                    if(j > 0){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i][j-1] = true;
+                    }
+                }else if(IsKeyPressed(KEY_DOWN)){
+                    if(j < nRows-1){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i][j+1] = true;   
+                    }
+                }else if(IsKeyPressed(KEY_LEFT)){
+                    if(i > 0){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i-1][j] = true;
+                    }
+                }else if(IsKeyPressed(KEY_RIGHT)){
+                    if(i < nColumns-1){
+                        TextBoxChannelEditMode[i][j] = false;
+                        TextBoxChannelEditMode[i+1][j] = true;
+                    }
+                }                
                 return;
             }
         }
-        break;
-    case 2: // Channel
-        nRows = TextBoxChannelEditMode[0].size();
-        nColumns = TextBoxChannelEditMode.size();
-
-        for(int i = 0; i < nColumns; i++){
-            for(int j = 0; j < nRows; j++){
-                if(TextBoxChannelEditMode[i][j] == true){
-                    if(IsKeyPressed(KEY_TAB)){
-                        TextBoxChannelEditMode[i][j] = false;
-                        if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
-                            if(i == 0 && j == 0){
-                                TextBoxChannelEditMode[nColumns-1][nRows-1] = true; // Select the first text box (row 0 and column 0)
-                            }else if(i == 0){
-                                TextBoxChannelEditMode[nColumns-1][j-1] = true;
-                            }else{
-                                TextBoxChannelEditMode[i-1][j] = true;
-                            }
-                            return;
-                        }else{
-                            if(i == nColumns-1 && j == nRows-1){
-                                TextBoxChannelEditMode[0][0] = true; // Select the first text box (row 0 and column 0)
-                            }else if(i == nColumns-1){
-                                TextBoxChannelEditMode[0][j+1] = true;
-                            }else{
-                                TextBoxChannelEditMode[i+1][j] = true;
-                            }
-                            return;
-                        }
-                    }else if(IsKeyPressed(KEY_UP)){
-                        if(j > 0){
-                            TextBoxChannelEditMode[i][j] = false;
-                            TextBoxChannelEditMode[i][j-1] = true;
-                        }
-                    }else if(IsKeyPressed(KEY_DOWN)){
-                        if(j < nRows-1){
-                            TextBoxChannelEditMode[i][j] = false;
-                            TextBoxChannelEditMode[i][j+1] = true;   
-                        }
-                    }else if(IsKeyPressed(KEY_LEFT)){
-                        if(i > 0){
-                            TextBoxChannelEditMode[i][j] = false;
-                            TextBoxChannelEditMode[i-1][j] = true;
-                        }
-                    }else if(IsKeyPressed(KEY_RIGHT)){
-                        if(i < nColumns-1){
-                            TextBoxChannelEditMode[i][j] = false;
-                            TextBoxChannelEditMode[i+1][j] = true;
-                        }
-                    }                
-                    return;
-                }
-            }
-        }
-        break;
-    case 3: // Gain
-        nRows = TextBoxGainEditMode[0].size();
-        nColumns = TextBoxGainEditMode.size();
-
-        for(int i = 0; i < nColumns; i++){
-            for(int j = 0; j < nRows; j++){
-                if(TextBoxGainEditMode[i][j] == true){
-                    if(IsKeyPressed(KEY_TAB)){
-                        TextBoxGainEditMode[i][j] = false;
-                        if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
-                            if(i == 0 && j == 0){
-                                TextBoxGainEditMode[nColumns-1][nRows-1] = true; // Select the first text box (row 0 and column 0)
-                            }else if(i == 0){
-                                TextBoxGainEditMode[nColumns-1][j-1] = true;
-                            }else{
-                                TextBoxGainEditMode[i-1][j] = true;
-                            }
-                            return;
-                        }else{
-                            if(i == nColumns-1 && j == nRows-1){
-                                TextBoxGainEditMode[0][0] = true; // Select the first text box (row 0 and column 0)
-                            }else if(i == nColumns-1){
-                                TextBoxGainEditMode[0][j+1] = true;
-                            }else{
-                                TextBoxGainEditMode[i+1][j] = true;
-                            }
-                            return;
-                        }
-                    }else if(IsKeyPressed(KEY_UP)){
-                        if(j > 0){
-                            TextBoxGainEditMode[i][j] = false;
-                            TextBoxGainEditMode[i][j-1] = true;
-                        }
-                    }else if(IsKeyPressed(KEY_DOWN)){
-                        if(j < nRows-1){
-                            TextBoxGainEditMode[i][j] = false;
-                            TextBoxGainEditMode[i][j+1] = true;   
-                        }
-                    }else if(IsKeyPressed(KEY_LEFT)){
-                        if(i > 0){
-                            TextBoxGainEditMode[i][j] = false;
-                            TextBoxGainEditMode[i-1][j] = true;
-                        }
-                    }else if(IsKeyPressed(KEY_RIGHT)){
-                        if(i < nColumns-1){
-                            TextBoxGainEditMode[i][j] = false;
-                            TextBoxGainEditMode[i+1][j] = true;
-                        }
-                    }                
-                    return;
-                }
-            }
-        }
-        break;
-    default:
-        fprintf(stderr, "Invalid matrix option at 'moveAmongTextBoxes' function.");
-        exit(0);
-        break;
     }
 }
