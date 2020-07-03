@@ -94,13 +94,6 @@ Layout::Layout(){
             }
 		//----------------------------------------------------------------------------------
 
-		// DropDowns
-		//----------------------------------------------------------------------------------
-			// DropDownLoadText = "Load;Prior;Channel;Gain function";    // DROPDOWNBOX: DropDownLoad
-			// DropDownExportText = "Export;Prior;Channel;Posteriors;Gain function";    // DROPDOWNBOX: DropDownExport
-			// DropDownBoxFileText = "File;Open;Save;Save as";    // DROPDOWNBOX: DropDownBoxFile
-		//----------------------------------------------------------------------------------
-
 		// Define controls variables
 		//----------------------------------------------------------------------------------
 			SpinnerChannelEditMode = false;
@@ -109,18 +102,6 @@ Layout::Layout(){
 			// SpinnerGainValue = 3;            // Spinner: SpinnerGain
 			// CheckBoxGainChecked = false;            // CheckBoxEx: CheckBoxGain
 			CheckBoxDrawingChecked = false;            // CheckBoxEx: CheckBoxDrawing
-			// DropDownLoadEditMode = false;
-			// DropDownLoadActive = 0;            // DropdownBox: DropDownLoad
-			// DropDownExportEditMode = false;
-			// DropDownExportActive = 0;            // DropdownBox: DropDownExport
-			// DropDownBoxFileEditMode = false;
-			// DropDownBoxFileActive = 0;            // DropdownBox: DropDownBoxFile
-			// Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
-			// Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelGainBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelGain
-			// Vector2 ScrollPanelPosteriorsScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelPosteriorsBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelPosteriors
 		//----------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------
 }
@@ -302,13 +283,6 @@ void Layout::init(){
             }
         }
         //--------------------------------------------------------------------------------------
-    //--------------------------------------------------------------------------------------
-
-    // DropDowns
-    //--------------------------------------------------------------------------------------
-        // recDropDownFile = (Rectangle){ 50 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownBoxFile
-        // recDropDownLoad = (Rectangle){ 155 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownLoad
-        // recDropDownExport = (Rectangle){ 260 + OFFSET_X, 0 + OFFSET_Y, 105, 25 };    // DropdownBox: DropDownExport
     //--------------------------------------------------------------------------------------
 }
 

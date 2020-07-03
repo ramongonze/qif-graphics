@@ -189,7 +189,6 @@ void updateDrawFrame(void* V_){
 			// raygui: controls drawing
 			//----------------------------------------------------------------------------------
 			// Draw controls
-			// if (DropDownLoadEditMode || DropDownExportEditMode || DropDownBoxFileEditMode) GuiLock();
 
 			// Panels
 			//----------------------------------------------------------------------------------
@@ -255,10 +254,6 @@ void updateDrawFrame(void* V_){
 				GuiStatusBar(L->recStatusBar, &(L->StatusBarDrawingText[0]));
 			//----------------------------------------------------------------------------------
 
-			// ScrollPanelChannelScrollOffset = GuiScrollPanel((Rectangle){rec[8].x, rec[8].y, rec[8].width - ScrollPanelChannelBoundsOffset.x, rec[8].height - ScrollPanelChannelBoundsOffset.y }, rec[8], ScrollPanelChannelScrollOffset);
-			// ScrollPanelGainScrollOffset = GuiScrollPanel((Rectangle){rec[9].x, rec[9].y, rec[9].width - ScrollPanelGainBoundsOffset.x, rec[9].height - ScrollPanelGainBoundsOffset.y }, rec[9], ScrollPanelGainScrollOffset);
-			// ScrollPanelPosteriorsScrollOffset = GuiScrollPanel((Rectangle){rec[33].x, rec[33].y, rec[33].width - ScrollPanelPosteriorsBoundsOffset.x, rec[33].height - ScrollPanelPosteriorsBoundsOffset.y }, rec[33], ScrollPanelPosteriorsScrollOffset);
-
 			// TextBoxes
 			//----------------------------------------------------------------------------------
 				// if(L->CheckBoxGainChecked){
@@ -303,12 +298,7 @@ void updateDrawFrame(void* V_){
 				GuiUnlock();
 
 			//----------------------------------------------------------------------------------
-			// DropDowns
-			//----------------------------------------------------------------------------------
-				// if (GuiDropdownBox(L->recDropDownFile, L->DropDownBoxFileText, &L->DropDownBoxFileActive, L->DropDownBoxFileEditMode)) L->DropDownBoxFileEditMode = !L->DropDownBoxFileEditMode;
-				// if (GuiDropdownBox(L->recDropDownLoad, L->DropDownLoadText, &L->DropDownLoadActive, L->DropDownLoadEditMode)) L->DropDownLoadEditMode = !L->DropDownLoadEditMode;
-				// if (GuiDropdownBox(L->recDropDownExport, L->DropDownExportText, &L->DropDownExportActive, L->DropDownExportEditMode)) L->DropDownExportEditMode = !L->DropDownExportEditMode;
-			//----------------------------------------------------------------------------------
+
 			// Visualization
 			//----------------------------------------------------------------------------------
 				if(L->CheckBoxDrawingChecked){

@@ -85,13 +85,6 @@ public:
 			vector<vector<char*>> TextBoxInnersText;
 		//----------------------------------------------------------------------------------
 
-		// DropDowns
-		//----------------------------------------------------------------------------------
-			// char *DropDownLoadText;
-			// char *DropDownExportText;
-			// char *DropDownBoxFileText;
-		//----------------------------------------------------------------------------------
-
 		/* Triangle
 		 *       v0
 		 *       /\
@@ -120,18 +113,6 @@ public:
 			// int SpinnerGainValue;
 			// bool CheckBoxGainChecked;
 			bool CheckBoxDrawingChecked;
-			// bool DropDownLoadEditMode;
-			// int DropDownLoadActive;
-			// bool DropDownExportEditMode;
-			// int DropDownExportActive;
-			// bool DropDownBoxFileEditMode;
-			// int DropDownBoxFileActive;
-			// Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
-			// Vector2 ScrollPanelGainScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelGainBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelGain
-			// Vector2 ScrollPanelPosteriorsScrollOffset = { 0, 0 };
-			// Vector2 ScrollPanelPosteriorsBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelPosteriors
 		//----------------------------------------------------------------------------------
 	//----------------------------------------------------------------------------------
 
