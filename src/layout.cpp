@@ -283,6 +283,14 @@ void Layout::init(){
             }
         }
         //--------------------------------------------------------------------------------------
+        
+        // Information icons
+		//----------------------------------------------------------------------------------
+            recTextBoxHelpPrior = { recGroupBoxPrior.x + recGroupBoxPrior.width - 25, recGroupBoxPrior.y + recGroupBoxPrior.height - 25, 20, 20};
+            recTextBoxHelpChannel = { recGroupBoxChannel.x + recGroupBoxChannel.width - 25, recGroupBoxChannel.y + recGroupBoxChannel.height - 25, 20, 20};
+            recTextBoxHelpPosterior = { recGroupBoxPosteriors.x + recGroupBoxPosteriors.width - 25, recGroupBoxPosteriors.y + recGroupBoxPosteriors.height - 25, 20, 20};
+            recTextBoxHelpVisualization = { recGroupBoxVisualization.x + recGroupBoxVisualization.width - 25, recGroupBoxVisualization.y + recGroupBoxVisualization.height - 25, 20, 20};
+		//----------------------------------------------------------------------------------
     //--------------------------------------------------------------------------------------
 }
 

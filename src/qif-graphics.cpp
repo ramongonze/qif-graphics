@@ -17,7 +17,7 @@
 #include "information.h"
 
 #define RAYGUI_IMPLEMENTATION
-#define RAYGUI_SUPPORT_RICONS
+#define RAYGUI_SUPPORT_ICONS
 #include "/home/ramon/raygui/src/raygui.h"
 
 #include <emscripten/emscripten.h>
@@ -50,7 +50,6 @@ int main(){
 	int screenWidth = WINDOWS_WIDTH;
 	int screenHeight = WINDOWS_HEIGHT;
 
-
 	InitWindow(screenWidth, screenHeight, "QIF-graphics");
 
 	LoopVariables V;
@@ -60,6 +59,8 @@ int main(){
 	V.L.alternativeFont = LoadFont("fonts/dejavu.fnt"); // Used to get pi symbol
 	
 	emscripten_set_main_loop_arg(updateDrawFrame, &V, 0, 1);
+
+	GuiSetStyle(TEXTBOX, TEXT_PADDING, 2); 
 
 	SetTargetFPS(60);
 	//--------------------------------------------------------------------------------------
@@ -256,6 +257,7 @@ void updateDrawFrame(void* V_){
 
 			// TextBoxes
 			//----------------------------------------------------------------------------------
+				GuiSetStyle(TEXTBOX, TEXT_PADDING, 3);
 				// if(L->CheckBoxGainChecked){
 				// 	GuiLabel(L->recLabelActions, L->LabelActionsText);
 				// 	if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
@@ -297,6 +299,14 @@ void updateDrawFrame(void* V_){
 				}
 				GuiUnlock();
 
+				// Information rectangles
+				//----------------------------------------------------------------------------------
+					GuiSetStyle(TEXTBOX, TEXT_PADDING, 1);
+					GuiTextBox(L->recTextBoxHelpPrior, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+					GuiTextBox(L->recTextBoxHelpChannel, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+					GuiTextBox(L->recTextBoxHelpPosterior, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+					GuiTextBox(L->recTextBoxHelpVisualization, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+				//----------------------------------------------------------------------------------
 			//----------------------------------------------------------------------------------
 
 			// Visualization
@@ -318,6 +328,7 @@ void updateDrawFrame(void* V_){
 				}
 			//----------------------------------------------------------------------------------
 			//----------------------------------------------------------------------------------
+		
 		EndDrawing();
 	//----------------------------------------------------------------------------------
 }

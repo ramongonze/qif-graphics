@@ -164,9 +164,12 @@ public:
         vector<Rectangle> recTextBoxOuter;
         vector<vector<Rectangle>> recTextBoxInners;
 
-        Rectangle recDropDownFile;
-        Rectangle recDropDownLoad;
-        Rectangle recDropDownExport;
+		Rectangle recTextBoxHelpPrior;
+        Rectangle recTextBoxHelpChannel;
+		Rectangle recTextBoxHelpPosterior;
+		Rectangle recTextBoxHelpVisualization;
+		// Rectangle recTextBoxHelpGain;
+
 	//--------------------------------------------------------------------------------------
 
     Font alternativeFont;
