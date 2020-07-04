@@ -2,7 +2,7 @@
 Graphical tool for representing the Quantitative Information Flow (QIF) among a set of three secrets.
 Developed in C/C++ all the graphic structures were made using [raylib](https://raylib.com) library and [emscripten](https://emscripten.org) to compile the project do .js and WebAssembly.
 
-The tool is in version 1.0.0 and is available at https://homepages.dcc.ufmg.br/~ramon.gonze.
+The tool is in version 1.0.1 and is available at https://homepages.dcc.ufmg.br/~ramon.gonze.
 
 ![qif100](images/qif100.png)
 

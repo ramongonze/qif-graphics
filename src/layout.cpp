@@ -26,7 +26,7 @@ Layout::Layout(){
 
 		// Labels
 		//----------------------------------------------------------------------------------
-			LabelTitleText = "QIF Graphics - 1.0.0";
+			LabelTitleText = "QIF Graphics - 1.0.1";
             LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
 			// LabelActionsText = "Actions";    // LABEL: LabelActions
 			LabelClickDrawText = "Click to draw:";    // LABEL: LabelClickDraw
