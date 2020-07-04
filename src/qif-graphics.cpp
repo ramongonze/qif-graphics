@@ -320,7 +320,7 @@ void updateDrawFrame(void* V_){
 
 			// Information rectangles
 			//----------------------------------------------------------------------------------
-				GuiSetStyle(TEXTBOX, TEXT_PADDING, 1);
+				GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
 				GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, ColorToInt(LIGHTGRAY));
 
 				GuiTextBox(L->recTextBoxHelpPrior, (char*)GuiIconText(RICON_HELP, ""), 1, false);
