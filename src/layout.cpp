@@ -92,6 +92,12 @@ Layout::Layout(){
                     strcpy(TextBoxInnersText[i][j], "0");
                 }
             }
+            
+            TextBoxHelpPrior = "--> Prior distribution on the set of secrets {x1, x2, x3}\n--> All probabilities can be written as fractions or decimal numbers";
+            TextBoxHelpChannel = "--> Informational channel\n--> Each value [xi,yj] corresponds to the conditional probability of the output being yj when the value of the secret is xi\n--> All probabilities can be written as fractions or decimal numbers";
+            TextBoxHelpPosteriors = "--> Posterior distributions\n--> It is a distribution on distributions on the set of secrets {x1, x2, x3}\n--> The outer distribution is a distribution on channel outputs\n--> Each value [xk,Il] in the inner distributions corresponds to the conditional probability of xk being the secret when the output from the channel is Il";
+            TextBoxHelpVisualization = "--> The blue ball corresponds to the prior distribution and the green ones to inners\n--> Click and drag the prior over the triangle to see what happens with inners when the prior changes";
+            // TextBoxHelpGain = "";
 		//----------------------------------------------------------------------------------
 
 		// Define controls variables
@@ -286,10 +292,15 @@ void Layout::init(){
         
         // Information icons
 		//----------------------------------------------------------------------------------
-            recTextBoxHelpPrior = { recGroupBoxPrior.x + recGroupBoxPrior.width - 25, recGroupBoxPrior.y + recGroupBoxPrior.height - 25, 20, 20};
-            recTextBoxHelpChannel = { recGroupBoxChannel.x + recGroupBoxChannel.width - 25, recGroupBoxChannel.y + recGroupBoxChannel.height - 25, 20, 20};
-            recTextBoxHelpPosterior = { recGroupBoxPosteriors.x + recGroupBoxPosteriors.width - 25, recGroupBoxPosteriors.y + recGroupBoxPosteriors.height - 25, 20, 20};
-            recTextBoxHelpVisualization = { recGroupBoxVisualization.x + recGroupBoxVisualization.width - 25, recGroupBoxVisualization.y + recGroupBoxVisualization.height - 25, 20, 20};
+            recTextBoxHelpPrior = { recGroupBoxPrior.x + recGroupBoxPrior.width - 23, recGroupBoxPrior.y + recGroupBoxPrior.height - 23, 18, 18};
+            recTextBoxHelpChannel = { recGroupBoxChannel.x + recGroupBoxChannel.width - 23, recGroupBoxChannel.y + recGroupBoxChannel.height - 23, 18, 18};
+            recTextBoxHelpPosteriors = { recGroupBoxPosteriors.x + recGroupBoxPosteriors.width - 23, recGroupBoxPosteriors.y + recGroupBoxPosteriors.height - 23, 18, 18};
+            recTextBoxHelpVisualization = { recGroupBoxVisualization.x + recGroupBoxVisualization.width - 23, recGroupBoxVisualization.y + recGroupBoxVisualization.height - 23, 18, 18};
+            
+            recTextBoxHelpTextPrior = { recGroupBoxPrior.x + recGroupBoxPrior.width - 23, recGroupBoxPrior.y + recGroupBoxPrior.height + 5, 300, 50};
+            recTextBoxHelpTextChannel = { recGroupBoxChannel.x + recGroupBoxChannel.width - 23, recGroupBoxChannel.y + recGroupBoxChannel.height + 5, 300, 95};
+            recTextBoxHelpTextPosteriors = { recGroupBoxPosteriors.x + recGroupBoxPosteriors.width - 5 - 300, recGroupBoxPosteriors.y + recGroupBoxPosteriors.height + 5, 300, 125};
+            recTextBoxHelpTextVisualization = { recGroupBoxVisualization.x + recGroupBoxVisualization.width - 5 - 300, recGroupBoxVisualization.y + recGroupBoxVisualization.height - 30 - 65, 300, 65};
 		//----------------------------------------------------------------------------------
     //--------------------------------------------------------------------------------------
 }

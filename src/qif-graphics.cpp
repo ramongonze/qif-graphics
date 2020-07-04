@@ -60,8 +60,6 @@ int main(){
 	
 	emscripten_set_main_loop_arg(updateDrawFrame, &V, 0, 1);
 
-	GuiSetStyle(TEXTBOX, TEXT_PADDING, 2); 
-
 	SetTargetFPS(60);
 	//--------------------------------------------------------------------------------------
 	
@@ -90,7 +88,7 @@ void updateDrawFrame(void* V_){
 	Information* I = &(V->I);
 	Layout* L = &(V->L);
 	int error = NO_ERROR;     // Flag that indicates if an error has been occurred
-	Vector2 mousePosition;
+	Vector2 mousePosition = GetMousePosition();
 	int numPost;
 
 	// Update
@@ -133,7 +131,6 @@ void updateDrawFrame(void* V_){
 
 		if(L->CheckBoxDrawingChecked){
 			if(I->hyperReady){
-				mousePosition = GetMousePosition();
 				if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
 					euclidianDistance(I->priorCircle.center, mousePosition) <= PRIOR_RADIUS){
 					I->mouseClickedOnPrior = true;
@@ -186,6 +183,8 @@ void updateDrawFrame(void* V_){
 	//----------------------------------------------------------------------------------
 		BeginDrawing();
 			ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))); 
+			GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, ColorToInt(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))));
+			
 
 			// raygui: controls drawing
 			//----------------------------------------------------------------------------------
@@ -298,15 +297,6 @@ void updateDrawFrame(void* V_){
 					}
 				}
 				GuiUnlock();
-
-				// Information rectangles
-				//----------------------------------------------------------------------------------
-					GuiSetStyle(TEXTBOX, TEXT_PADDING, 1);
-					GuiTextBox(L->recTextBoxHelpPrior, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-					GuiTextBox(L->recTextBoxHelpChannel, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-					GuiTextBox(L->recTextBoxHelpPosterior, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-					GuiTextBox(L->recTextBoxHelpVisualization, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-				//----------------------------------------------------------------------------------
 			//----------------------------------------------------------------------------------
 
 			// Visualization
@@ -326,6 +316,23 @@ void updateDrawFrame(void* V_){
 					// Circles
 					drawCircles(*I, *L);
 				}
+			//----------------------------------------------------------------------------------
+
+			// Information rectangles
+			//----------------------------------------------------------------------------------
+				GuiSetStyle(TEXTBOX, TEXT_PADDING, 1);
+				GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, ColorToInt(LIGHTGRAY));
+
+				GuiTextBox(L->recTextBoxHelpPrior, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+				GuiTextBox(L->recTextBoxHelpChannel, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+				GuiTextBox(L->recTextBoxHelpPosteriors, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+				GuiTextBox(L->recTextBoxHelpVisualization, (char*)GuiIconText(RICON_HELP, ""), 1, false);
+				
+				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpPrior)) GuiTextBoxMulti(L->recTextBoxHelpTextPrior, L->TextBoxHelpPrior, 10, false);	
+				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpChannel)) GuiTextBoxMulti(L->recTextBoxHelpTextChannel, L->TextBoxHelpChannel, 10, false);	
+				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpPosteriors)) GuiTextBoxMulti(L->recTextBoxHelpTextPosteriors, L->TextBoxHelpPosteriors, 10, false);	
+				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpVisualization)) GuiTextBoxMulti(L->recTextBoxHelpTextVisualization, L->TextBoxHelpVisualization, 10, false);	
+				// if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpGain)) GuiTextBoxMulti(L->recTextBoxHelpTextGain, "oi", 10, false);	
 			//----------------------------------------------------------------------------------
 			//----------------------------------------------------------------------------------
 		

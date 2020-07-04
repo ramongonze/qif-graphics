@@ -2,7 +2,4 @@
 *.out
 *.a
 *.bc
-*.html
-*.js
-*.wasm
-*.data
+build/

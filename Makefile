@@ -365,7 +365,9 @@ endif
 
 # Default target entry
 # NOTE: We call this Makefile target or Makefile.Android target
-all:
+all: compile move
+
+compile:
 	$(MAKE) $(MAKEFILE_PARAMS)
 
 # Project target defined by PROJECT_NAME
@@ -409,3 +411,13 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 endif
 	@echo Cleaning done
 
+move: compile
+ifeq ($(PLATFORM),PLATFORM_WEB)
+	mkdir -p build
+	rm -rf $(PWD)/build/*
+	mv "$(PWD)/$(PROJECT_NAME).html" build/
+	mv "$(PWD)/$(PROJECT_NAME).js" build/
+	mv "$(PWD)/$(PROJECT_NAME).wasm" build/
+	mv "$(PWD)/$(PROJECT_NAME).data" build/
+endif
+	

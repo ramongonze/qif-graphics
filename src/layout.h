@@ -83,6 +83,12 @@ public:
 
 			vector<vector<bool>> TextBoxInnersEditMode;
 			vector<vector<char*>> TextBoxInnersText;
+
+			char *TextBoxHelpPrior;
+			char *TextBoxHelpChannel;
+			char *TextBoxHelpPosteriors;
+			char *TextBoxHelpVisualization;
+			// char *TextBoxHelpGain;
 		//----------------------------------------------------------------------------------
 
 		/* Triangle
@@ -166,9 +172,15 @@ public:
 
 		Rectangle recTextBoxHelpPrior;
         Rectangle recTextBoxHelpChannel;
-		Rectangle recTextBoxHelpPosterior;
+		Rectangle recTextBoxHelpPosteriors;
 		Rectangle recTextBoxHelpVisualization;
 		// Rectangle recTextBoxHelpGain;
+		
+		Rectangle recTextBoxHelpTextPrior;
+		Rectangle recTextBoxHelpTextChannel;
+		Rectangle recTextBoxHelpTextPosteriors;
+		Rectangle recTextBoxHelpTextVisualization;
+		// Rectangle recTextBoxHelpTextGain;
 
 	//--------------------------------------------------------------------------------------
 
