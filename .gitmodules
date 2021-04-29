@@ -1,3 +1,6 @@
 [submodule "libs/qif"]
 	path = libs/qif
 	url = https://github.com/ramongonze/qif
+[submodule "libs/raylib"]
+	path = libs/raylib
+	url = https://github.com/raysan5/raylib
