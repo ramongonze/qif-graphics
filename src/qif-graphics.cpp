@@ -18,11 +18,8 @@
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
-#include "/home/ramon/raygui/src/raygui.h"
-
-#include <emscripten/emscripten.h>
-#include "../qif/qif.h"
-
+#include "../libs/raygui/src/raygui.h"
+#include "../libs/qif/qif.h
 #include <iostream>
 
 typedef struct LoopVariables{
@@ -57,8 +54,6 @@ int main(){
 	V.L = Layout();
 	V.L.init();
 	V.L.alternativeFont = LoadFont("fonts/dejavu.fnt"); // Used to get pi symbol
-	
-	emscripten_set_main_loop_arg(updateDrawFrame, &V, 0, 1);
 
 	SetTargetFPS(60);
 	//--------------------------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #ifndef _qif_graphics
 #define _qif_graphics
 
-#include "../qif/qif.h"
+#include "../libs/qif/qif.h"
 #include "raylib.h"
 
 using namespace std;
