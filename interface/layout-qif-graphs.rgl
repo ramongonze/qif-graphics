@@ -1,0 +1,100 @@
+#
+# rgl layout text file (v2.1) - raygui layout file generated using rGuiLayout
+#
+# Number of controls:     82
+#
+# Ref. window:    r <x> <y> <width> <height>
+# Anchor info:    a <id> <name> <posx> <posy> <enabled>
+# Control info:   c <id> <type> <name> <rectangle> <anchor_id> <text>
+#
+r 0 0 -1 -1
+a 000 anchorMain 0 0 0
+a 001 AnchorPrior 10 60 1
+a 002 anchorChannel 10 180 1
+a 003 AnchorVisualization 340 60 1
+a 004 AnchorPosterior 10 420 1
+a 005 anchor05 0 0 0
+a 006 anchor06 0 0 0
+a 007 anchor07 0 0 0
+c 000 1 GroupBoxPrior 0 0 310 100 1 Prior distribution
+c 001 1 GroupBoxChannel 0 0 310 220 2 Channel
+c 002 1 GroupBoxVisualization 0 0 623 623 3 Visualization
+c 003 1 GroupBoxPosteriors 0 0 310 263 4 Posterior distributions
+c 004 10 ToggleGroup004 563 -33 41 25 0 ONE;TWO;THREE
+c 005 13 TextBoxChannel00 50 80 40 40 2 0
+c 006 13 TextBoxChannel10 50 120 40 40 2 0
+c 007 13 TextBoxChannel20 50 160 40 40 2 0
+c 008 13 TextBoxChannel01 90 80 40 40 2 0
+c 009 13 TextBoxChannel11 90 120 40 40 2 0
+c 010 13 TextBoxChannel21 90 160 40 40 2 0
+c 011 16 SpinnerChannel 200 15 90 25 2 
+c 012 13 TextBoxChannel02 130 80 40 40 2 0
+c 013 13 TextBoxChannel03 170 80 40 40 2 0
+c 014 13 TextBoxChannel04 210 80 40 40 2 0
+c 015 13 TextBoxChannel05 250 80 40 40 2 0
+c 016 13 TextBoxPrior00 90 40 40 40 1 0
+c 017 13 TextBoxPrior01 130 40 40 40 1 0
+c 018 13 TextBoxPrior02 170 40 40 40 1 0
+c 019 13 TextBoxChannel12 130 120 40 40 2 0
+c 020 13 TextBoxChannel22 130 160 40 40 2 0
+c 021 13 TextBoxChannel13 170 120 40 40 2 0
+c 022 13 TextBoxChannel23 170 160 40 40 2 0
+c 023 13 TextBoxChannel14 210 120 40 40 2 0
+c 024 13 TextBoxChannel24 210 160 40 40 2 0
+c 025 13 TextBoxChannel15 250 120 40 40 2 0
+c 026 13 TextBoxChannel25 250 160 40 40 2 0
+c 027 4 LabelOutputs 130 15 58 25 2 Outputs
+c 028 2 LineMenu 0 40 973 10 0 
+c 029 5 ButtonExamples 190 5 80 32 0 Examples
+c 030 5 ButtonAbout 280 5 80 32 0 About
+c 031 13 TextBoxOuter00 50 65 40 40 4 0
+c 032 13 TextBoxInner00 50 123 40 40 4 0
+c 033 13 TextBoxInner10 50 163 40 40 4 0
+c 034 13 TextBoxInner20 50 203 40 40 4 0
+c 035 13 TextBoxInner01 90 123 40 40 4 0
+c 036 13 TextBoxInner11 90 163 40 40 4 0
+c 037 13 TextBoxInner21 90 203 40 40 4 0
+c 038 13 TextBoxInner02 130 123 40 40 4 0
+c 039 13 TextBoxInner12 130 163 40 40 4 0
+c 040 13 TextBoxInner22 130 203 40 40 4 0
+c 041 13 TextBoxInner03 170 123 40 40 4 0
+c 042 13 TextBoxInner13 170 163 40 40 4 0
+c 043 13 TextBoxInner23 170 203 40 40 4 0
+c 044 13 TextBoxInner04 210 123 40 40 4 0
+c 045 13 TextBoxInner14 210 163 40 40 4 0
+c 046 13 TextBoxInner24 210 203 40 40 4 0
+c 047 13 TextBoxInner05 250 123 40 40 4 0
+c 048 13 TextBoxInner15 250 163 40 40 4 0
+c 049 13 TextBoxInner25 250 203 40 40 4 0
+c 050 4 LabelOuter 5 72 40 25 4 Outer
+c 051 13 TextBoxOuter01 90 65 40 40 4 0
+c 052 13 TextBoxOuter02 130 65 40 40 4 0
+c 053 13 TextBoxOuter03 170 65 40 40 4 0
+c 054 13 TextBoOuter04 210 65 40 40 4 0
+c 055 13 TextBoxOuter05 250 65 40 40 4 0
+c 056 5 ButtonDraw 20 20 80 32 3 Draw
+c 057 13 TextBoxStatus 115 20 488 32 3 Status
+c 058 3 Panel081 20 72 583 531 3 
+c 059 4 LabelPriorX2 140 20 20 20 1 X2
+c 060 4 LabelPriorX3 180 20 20 20 1 X3
+c 061 4 LabelPriorX1 100 20 20 20 1 X1
+c 062 4 LabelChannelY1 60 60 20 20 2 Y1
+c 063 4 LabelChannelY2 100 60 20 20 2 Y2
+c 064 4 LabelChannelY3 140 60 20 20 2 Y3
+c 065 4 LabelChannelY4 180 60 20 20 2 Y4
+c 066 4 LabelChannelY5 220 60 20 20 2 Y5
+c 067 4 LabelChannelY6 260 60 20 20 2 Y6
+c 068 4 LabelOuterI1 60 45 20 20 4 I1
+c 069 4 LabelOuterI2 100 45 20 20 4 I2
+c 070 4 LabelOuterI3 140 45 20 20 4 I3
+c 071 4 LabelOuterI4 180 45 20 20 4 I4
+c 072 4 LabelOuterI5 220 45 20 20 4 I5
+c 073 4 LabelOuterI6 260 45 20 20 4 I6
+c 074 4 LabelChannelX1 25 80 20 40 2 X1
+c 075 4 LabelChannelX2 25 120 20 40 2 X2
+c 076 4 LabelChannelX3 25 160 20 40 2 X3
+c 077 4 LabelPosteriorsX3 25 203 20 40 4 X3
+c 078 4 LabelPosteriorsX2 25 163 20 40 4 X2
+c 079 4 LabelPosteriorsX1 25 123 20 40 4 X1
+c 080 5 ButtonOpen 10 5 80 32 0 Open
+c 081 5 ButtonSave 100 5 80 32 0 Save

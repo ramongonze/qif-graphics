@@ -1,0 +1,8 @@
+#
+# rgs style text file (v3.1) - raygui style file generated using rGuiStyler
+#
+# Info:  p <controlId> <propertyId> <propertyValue>  // Property description
+#
+# WARNING: This style uses a custom font, must be provided with style file
+f 22 0 ../fonts/Heebo-VariableFont_wght.ttf
+p 00 16 0x00000016    DEFAULT_EXT00 
