@@ -1,5 +1,5 @@
-#ifndef _information
-#define _information
+#ifndef _data
+#define _data
 
 #include "graphics.h"
 #include <exception>
