@@ -18,15 +18,22 @@
 #define RAYGUI_SUPPORT_RICONS
 #include "../libs/raygui/src/raygui.h"
 
+#include "gui/gui.h"
+
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-static void ButtonOpen();                // Button: ButtonOpen logic
-static void ButtonSave();                // Button: ButtonSave logic
-static void ButtonExamples();                // Button: ButtonExamples logic
-static void ButtonHelp();                // Button: ButtonHelp logic
-static void ButtonAbout();                // Button: ButtonAbout logic
-static void ButtonDraw();                // Button: ButtonDraw logic
+static void buttonOpen();                // Button: buttonOpen logic
+static void buttonSave();                // Button: buttonSave logic
+static void buttonExamples();                // Button: buttonExamples logic
+static void buttonHelp();                // Button: buttonHelp logic
+static void buttonAbout();                // Button: buttonAbout logic
+static void buttonDraw();                // Button: buttonDraw logic
+
+//----------------------------------------------------------------------------------
+// Draw Functions Declaration
+//----------------------------------------------------------------------------------
+static void drawMenu(GuiMenu &menu);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -42,12 +49,9 @@ int main()
 
     // qif-graphics: controls initialization
     //----------------------------------------------------------------------------------
+    Gui gui = Gui();
+
     // Const text
-    const char *ButtonOpenText = "Open";    // BUTTON: ButtonOpen
-    const char *ButtonSaveText = "Save";    // BUTTON: ButtonSave
-    const char *ButtonExamplesText = "Examples";    // BUTTON: ButtonExamples
-    const char *ButtonHelpText = "Help";    // BUTTON: ButtonHelp
-    const char *ButtonAboutText = "About";    // BUTTON: ButtonAbout
     const char *GroupBoxPriorText = "Prior distribution";    // GROUPBOX: GroupBoxPrior
     const char *LabelPriorX1Text = "X1";    // LABEL: LabelPriorX1
     const char *LabelPriorX2Text = "X2";    // LABEL: LabelPriorX2
@@ -69,7 +73,7 @@ int main()
     const char *LabelPosteriorsX2Text = "X2";    // LABEL: LabelPosteriorsX2
     const char *LabelPosteriorsX3Text = "X3";    // LABEL: LabelPosteriorsX3
     const char *GroupBoxVisualizationText = "Visualization";    // GROUPBOX: GroupBoxVisualization
-    const char *ButtonDrawText = "Draw";    // BUTTON: ButtonDraw
+    const char *buttonDrawText = "Draw";    // BUTTON: buttonDraw
     
     // Define anchors
     Vector2 AnchorPrior = { 10, 65 };            // ANCHOR ID:1
@@ -137,12 +141,12 @@ int main()
 
     // Define controls rectangles
     Rectangle layoutRecs[57] = {
-        (Rectangle){ 10, 10, 80, 32 },    // Button: ButtonOpen
-        (Rectangle){ 100, 10, 80, 32 },    // Button: ButtonSave
-        (Rectangle){ 190, 10, 80, 32 },    // Button: ButtonExamples
-        (Rectangle){ 280, 10, 80, 32 },    // Button: ButtonHelp
-        (Rectangle){ 370, 10, 80, 32 },    // Button: ButtonAbout
-        (Rectangle){ 0, 45, 1045, 10 },    // Line: LineMenu
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
         (Rectangle){ AnchorPrior.x + 0, AnchorPrior.y + 0, 350, 100 },    // GroupBox: GroupBoxPrior
         (Rectangle){ AnchorPrior.x + 125, AnchorPrior.y + 20, 20, 20 },    // Label: LabelPriorX1
         (Rectangle){ AnchorPrior.x + 165, AnchorPrior.y + 20, 20, 20 },    // Label: LabelPriorX2
@@ -191,7 +195,7 @@ int main()
         (Rectangle){ AnchorPosterior.x + 145, AnchorPosterior.y + 155, 40, 40 },    // TextBox: TextBoxInners12
         (Rectangle){ AnchorPosterior.x + 145, AnchorPosterior.y + 195, 40, 40 },    // TextBox: TextBoxInners22
         (Rectangle){ AnchorVisualization.x + 0, AnchorVisualization.y + 0, 655, 655 },    // GroupBox: GroupBoxVisualization
-        (Rectangle){ AnchorVisualization.x + 20, AnchorVisualization.y + 20, 80, 32 },    // Button: ButtonDraw
+        (Rectangle){ AnchorVisualization.x + 20, AnchorVisualization.y + 20, 80, 32 },    // Button: buttonDraw
         (Rectangle){ AnchorVisualization.x + 115, AnchorVisualization.y + 20, 520, 32 },    // TextBox: TextBoxStatus
         (Rectangle){ AnchorVisualization.x + 20, AnchorVisualization.y + 72, 615, 563 },    // Panel: PanelVisualization
     };
@@ -219,12 +223,7 @@ int main()
             // raygui: controls drawing
             //----------------------------------------------------------------------------------
             // Draw controls
-            if (GuiButton(layoutRecs[0], ButtonOpenText)) ButtonOpen(); 
-            if (GuiButton(layoutRecs[1], ButtonSaveText)) ButtonSave(); 
-            if (GuiButton(layoutRecs[2], ButtonExamplesText)) ButtonExamples(); 
-            if (GuiButton(layoutRecs[3], ButtonHelpText)) ButtonHelp(); 
-            if (GuiButton(layoutRecs[4], ButtonAboutText)) ButtonAbout(); 
-            GuiLine(layoutRecs[5], NULL);
+            drawMenu(gui.menu);
             GuiGroupBox(layoutRecs[6], GroupBoxPriorText);
             GuiLabel(layoutRecs[7], LabelPriorX1Text);
             GuiLabel(layoutRecs[8], LabelPriorX2Text);
@@ -277,7 +276,7 @@ int main()
                 if (GuiTextBox((Rectangle){layoutRecs[52].x + ScrollPanelPosteriorsScrollOffset.x, layoutRecs[52].y + ScrollPanelPosteriorsScrollOffset.y, layoutRecs[52].width, layoutRecs[52].height}, TextBoxInners22Text, 128, TextBoxInners22EditMode)) TextBoxInners22EditMode = !TextBoxInners22EditMode;
             EndScissorMode();
             GuiGroupBox(layoutRecs[53], GroupBoxVisualizationText);
-            if (GuiButton(layoutRecs[54], ButtonDrawText)) ButtonDraw(); 
+            if (GuiButton(layoutRecs[54], buttonDrawText)) buttonDraw(); 
             if (GuiTextBox(layoutRecs[55], TextBoxStatusText, 128, TextBoxStatusEditMode)) TextBoxStatusEditMode = !TextBoxStatusEditMode;
             GuiPanel(layoutRecs[56]);
             //----------------------------------------------------------------------------------
@@ -295,36 +294,42 @@ int main()
 }
 
 //------------------------------------------------------------------------------------
+// Draw Functions Definitions (local)
+//------------------------------------------------------------------------------------
+static void drawMenu(GuiMenu &menu){
+    if (GuiButton(menu.layoutRecs[BUTTON_OPEN], menu.buttonOpenText)) buttonOpen(); 
+    if (GuiButton(menu.layoutRecs[BUTTON_SAVE], menu.buttonSaveText)) buttonSave(); 
+    if (GuiButton(menu.layoutRecs[BUTTON_EXAMPLES], menu.buttonExamplesText)) buttonExamples(); 
+    if (GuiButton(menu.layoutRecs[BUTTON_HELP], menu.buttonHelpText)) buttonHelp(); 
+    if (GuiButton(menu.layoutRecs[BUTTON_ABOUT], menu.buttonAboutText)) buttonAbout(); 
+    GuiLine(menu.layoutRecs[LINE_MENU], NULL);
+}
+
+//------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-// Button: ButtonOpen logic
-static void ButtonOpen()
-{
+// Button: buttonOpen logic
+static void buttonOpen(){
     // TODO: Implement control logic
 }
-// Button: ButtonSave logic
-static void ButtonSave()
-{
+// Button: buttonSave logic
+static void buttonSave(){
     // TODO: Implement control logic
 }
-// Button: ButtonExamples logic
-static void ButtonExamples()
-{
+// Button: buttonExamples logic
+static void buttonExamples(){
     // TODO: Implement control logic
 }
-// Button: ButtonHelp logic
-static void ButtonHelp()
-{
+// Button: buttonHelp logic
+static void buttonHelp(){
     // TODO: Implement control logic
 }
-// Button: ButtonAbout logic
-static void ButtonAbout()
-{
+// Button: buttonAbout logic
+static void buttonAbout(){
     // TODO: Implement control logic
 }
-// Button: ButtonDraw logic
-static void ButtonDraw()
-{
+// Button: buttonDraw logic
+static void buttonDraw(){
     // TODO: Implement control logic
 }
 
