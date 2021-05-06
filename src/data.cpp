@@ -1,13 +1,13 @@
-#include "information.h"
+#include "data.h"
 
-Information::Information(){
+Data::Data(){
 	this->hyperReady = false;
     this->mouseClickedOnPrior = false;
     this->prior = vector<long double>(3, 0);
     this->channel = vector<vector<long double>>(3, vector<long double>(3, 0));
 }
 
-int Information::checkPriorText(vector<char*> &prior_){
+int Data::checkPriorText(vector<char*> &prior_){
     vector<pair<string, string>> newPrior(prior_.size());
     vector<string> priorStr(prior_.size());
 
@@ -47,7 +47,7 @@ int Information::checkPriorText(vector<char*> &prior_){
     }
 }
 
-int Information::checkChannelText(vector<vector<char*>> &channel_){
+int Data::checkChannelText(vector<vector<char*>> &channel_){
     vector<vector<pair<string, string>>> newChannel(channel_.size(), vector<pair<string, string>>(channel_[0].size()));
     vector<vector<string>> channelStr(channel_.size(), vector<string>(channel_[0].size()));
 
@@ -94,7 +94,7 @@ int Information::checkChannelText(vector<vector<char*>> &channel_){
     }
 }
 
-void Information::buildCircles(vector<Vector2> &TrianglePoints){
+void Data::buildCircles(vector<Vector2> &TrianglePoints){
     Point p;
     
     // Prior
@@ -114,7 +114,7 @@ void Information::buildCircles(vector<Vector2> &TrianglePoints){
     }
 }
 
-int Information::orientation(Point p1, Point p2, Point p3){
+int Data::orientation(Point p1, Point p2, Point p3){
     int val = (p2.y - p1.y) * (p3.x - p2.x) - 
               (p2.x - p1.x) * (p3.y - p2.y); 
   
@@ -124,7 +124,7 @@ int Information::orientation(Point p1, Point p2, Point p3){
     else return 2; // counterclock wise
 }
 
-Point Information::pointIntersection(Point A, Point B, Point C, Point D){
+Point Data::pointIntersection(Point A, Point B, Point C, Point D){
     // Line AB represented as a1x + b1y = c1 
     long double a1 = B.y - A.y; 
     long double b1 = A.x - B.x; 
@@ -142,7 +142,7 @@ Point Information::pointIntersection(Point A, Point B, Point C, Point D){
     return p; 
 }
 
-Point Information::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
+Point Data::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
     Point mousePosition(mouse.x, WINDOWS_HEIGHT - mouse.y);
     Point TP0(TrianglePoints[0].x, WINDOWS_HEIGHT - TrianglePoints[0].y);
     Point TP1(TrianglePoints[1].x, WINDOWS_HEIGHT - TrianglePoints[1].y);
@@ -248,7 +248,7 @@ Point Information::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
     return p;
 }
 
-void Information::updateHyper(vector<Vector2> &TrianglePoints){
+void Data::updateHyper(vector<Vector2> &TrianglePoints){
     
     Point mousePosition;
     vector<long double> newPrior(3);
@@ -262,7 +262,7 @@ void Information::updateHyper(vector<Vector2> &TrianglePoints){
     this->prior = vector<long double>({newPrior[0], newPrior[1], newPrior[2]});
 }
 
-void Information::newRandomPrior(){
+void Data::newRandomPrior(){
     srand(unsigned(time(0)));
 
     int threshold = 100, p;
@@ -276,7 +276,7 @@ void Information::newRandomPrior(){
     random_shuffle(prior.begin(), prior.end());
 }
 
-void Information::newRandomChannel(int num_out){
+void Data::newRandomChannel(int num_out){
     srand(unsigned(time(0)));
     vector<long double> prob(num_out);
     this->channel = vector<vector<long double>>(num_out, vector<long double>(3, 0));

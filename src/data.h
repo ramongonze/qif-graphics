@@ -7,9 +7,9 @@
 #include <ctime> // std::time
 #include <cstdlib> // std::srand
 
-class Information{
+class Data{
 public:
-	Information();
+	Data();
 
 	Hyper hyper;				// Hyper-distribution
 	vector<vector<long double>> channel;			// Channel matrix
