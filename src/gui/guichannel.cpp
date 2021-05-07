@@ -37,14 +37,14 @@ GuiChannel::GuiChannel(){
         layoutRecsLabelX[i] = (Rectangle){AnchorChannel.x + 40, AnchorChannel.y + 90 + i*40, 20, 40};
     }
 
-    layoutRecsLabelY = vector<Rectangle>(3);
-    for(int i = 0; i < layoutRecsLabelY.size(); i++){
+    layoutRecsLabelY = vector<Rectangle>(numOutputs);
+    for(int i = 0; i < numOutputs; i++){
         layoutRecsLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*40, AnchorChannel.y + 70, 20, 20};
     }
 
-    layoutRecsTextBoxChannel = vector<vector<Rectangle>>(3, vector<Rectangle>(3));
+    layoutRecsTextBoxChannel = vector<vector<Rectangle>>(3, vector<Rectangle>(numOutputs));
     for(int i = 0; i < 3; i++){
-        for(int j = 0; j < 3; j++){
+        for(int j = 0; j < numOutputs; j++){
             layoutRecsTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + j*40, AnchorChannel.y + 90 + i*40, 40, 40};
         }
     }

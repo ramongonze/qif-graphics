@@ -2,4 +2,5 @@
 
 Gui::Gui(){
     channel = GuiChannel();
+    posteriors = GuiPosteriors();
 }
