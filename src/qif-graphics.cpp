@@ -187,7 +187,7 @@ static void drawGuiMenu(GuiMenu &menu){
 static void drawGuiPrior(GuiPrior &prior){
     GuiGroupBox(prior.layoutRecsGroupBox, prior.GroupBoxPriorText);
     for(int i = 0; i < 3; i++){
-        GuiLabel(prior.layoutRecsLabel[i], prior.LabelPriorText[i]);
+        GuiLabel(prior.layoutRecsLabel[i], prior.LabelPriorText[i].c_str());
         if (GuiTextBox(prior.layoutRecsTextBox[i], prior.TextBoxPriorText[i], 128, prior.TextBoxPriorEditMode[i])) prior.TextBoxPriorEditMode[i] = !prior.TextBoxPriorEditMode[i];
 
     }
