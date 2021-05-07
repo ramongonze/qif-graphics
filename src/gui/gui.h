@@ -5,6 +5,7 @@
 #include "guiprior.h"
 #include "guichannel.h"
 #include "guiposteriors.h"
+#include "guivisualization.h"
 
 class Gui{
 private:
@@ -16,6 +17,7 @@ public:
     GuiPrior prior;
     GuiChannel channel;
     GuiPosteriors posteriors;
+    GuiVisualization visualization;
 };
 
 #endif

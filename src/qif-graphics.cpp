@@ -38,6 +38,7 @@ static void drawGuiMenu(GuiMenu &menu);
 static void drawGuiPrior(GuiPrior &prior);
 static void drawGuiChannel(GuiChannel &channel);
 static void drawGuiPosteriors(GuiPosteriors &posteriors);
+static void drawGuiVisualization(GuiVisualization &visualization);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -54,78 +55,6 @@ int main()
     // qif-graphics: controls initialization
     //----------------------------------------------------------------------------------
     Gui gui = Gui();
-
-    // Const text
-    const char *GroupBoxVisualizationText = "Visualization";    // GROUPBOX: GroupBoxVisualization
-    const char *buttonDrawText = "Draw";    // BUTTON: buttonDraw
-    
-    // Define anchors
-    Vector2 AnchorVisualization = { 380, 65 };            // ANCHOR ID:3
-    
-    // Define controls variable
-    bool TextBoxStatusEditMode = false;
-    char TextBoxStatusText[128] = "Status";            // TextBox: TextBoxStatus
-
-    // Define controls rectangles
-    Rectangle layoutRecs[57] = {
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ AnchorVisualization.x + 0, AnchorVisualization.y + 0, 655, 655 },    // GroupBox: GroupBoxVisualization
-        (Rectangle){ AnchorVisualization.x + 20, AnchorVisualization.y + 20, 80, 32 },    // Button: buttonDraw
-        (Rectangle){ AnchorVisualization.x + 115, AnchorVisualization.y + 20, 520, 32 },    // TextBox: TextBoxStatus
-        (Rectangle){ AnchorVisualization.x + 20, AnchorVisualization.y + 72, 615, 563 },    // Panel: PanelVisualization
-    };
     //----------------------------------------------------------------------------------
 
     SetTargetFPS(60);
@@ -154,10 +83,7 @@ int main()
             drawGuiPrior(gui.prior);
             drawGuiChannel(gui.channel);
             drawGuiPosteriors(gui.posteriors);
-            GuiGroupBox(layoutRecs[53], GroupBoxVisualizationText);
-            if (GuiButton(layoutRecs[54], buttonDrawText)) buttonDraw(); 
-            if (GuiTextBox(layoutRecs[55], TextBoxStatusText, 128, TextBoxStatusEditMode)) TextBoxStatusEditMode = !TextBoxStatusEditMode;
-            GuiPanel(layoutRecs[56]);
+            drawGuiVisualization(gui.visualization);
             //----------------------------------------------------------------------------------
 
         EndDrawing();
@@ -242,6 +168,13 @@ static void drawGuiPosteriors(GuiPosteriors &posteriors){
             }
         }
     EndScissorMode();
+}
+
+static void drawGuiVisualization(GuiVisualization &visualization){
+    GuiGroupBox(visualization.layoutRecsGroupBoxVisualization, visualization.GroupBoxVisualizationText);
+    if (GuiButton(visualization.layoutRecsButtonDraw, visualization.ButtonDrawText)) buttonDraw(); 
+    GuiTextBox(visualization.layoutRecsTextBoxStatus, visualization.TextBoxStatusText, 128, visualization.TextBoxStatusEditMode);
+    GuiPanel(visualization.layoutRecsPanelVisualization);
 }
 
 //------------------------------------------------------------------------------------

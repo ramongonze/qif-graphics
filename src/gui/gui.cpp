@@ -5,4 +5,5 @@ Gui::Gui(){
     prior = GuiPrior();
     channel = GuiChannel();
     posteriors = GuiPosteriors();
+    visualization = GuiVisualization();
 }
