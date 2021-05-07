@@ -3,8 +3,6 @@
 
 #include "../../libs/raylib/src/raylib.h"
 
-#define REC_GROUP_BOX_PRIOR 0
-
 class GuiPrior{
 private:
     /* data */
