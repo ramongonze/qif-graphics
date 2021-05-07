@@ -1,35 +1,32 @@
 #ifndef _guimenu
 #define _guimenu
 
+#include <vector>
 #include "../../libs/raylib/src/raylib.h"
+using namespace std;
 
-#define BUTTON_OPEN 0
-#define BUTTON_SAVE 1
-#define BUTTON_EXAMPLES 2
-#define BUTTON_HELP 3
-#define BUTTON_ABOUT 4
-#define LINE_MENU 5
+#define REC_BUTTON_OPEN 0
+#define REC_BUTTON_SAVE 1
+#define REC_BUTTON_EXAMPLES 2
+#define REC_BUTTON_HELP 3
+#define REC_BUTTON_ABOUT 4
 
 class GuiMenu{
 private:
     /* data */
 public:
+    GuiMenu();
+
     // Const text
-    const char *buttonOpenText = "Open";    // BUTTON: buttonOpen
-    const char *buttonSaveText = "Save";    // BUTTON: buttonSave
-    const char *buttonExamplesText = "Examples";    // BUTTON: buttonExamples
-    const char *buttonHelpText = "Help";    // BUTTON: buttonHelp
-    const char *buttonAboutText = "About";    // BUTTON: buttonAbout
+    const char *buttonOpenText;    // BUTTON: buttonOpen
+    const char *buttonSaveText;    // BUTTON: buttonSave
+    const char *buttonExamplesText;    // BUTTON: buttonExamples
+    const char *buttonHelpText;    // BUTTON: buttonHelp
+    const char *buttonAboutText;    // BUTTON: buttonAbout
 
     // Define controls rectangles
-    Rectangle layoutRecs[6] = {
-        (Rectangle){ 10, 10, 80, 32 },    // Button: buttonOpen
-        (Rectangle){ 100, 10, 80, 32 },    // Button: buttonSave
-        (Rectangle){ 190, 10, 80, 32 },    // Button: buttonExamples
-        (Rectangle){ 280, 10, 80, 32 },    // Button: buttonHelp
-        (Rectangle){ 370, 10, 80, 32 },    // Button: buttonAbout
-        (Rectangle){ 0, 45, 1045, 10 },    // Line: LineMenu
-    };
+    vector<Rectangle> layoutRecsButtons;
+    Rectangle layoutRecsLine;
 };
 
 #endif

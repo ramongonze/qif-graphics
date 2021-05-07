@@ -176,12 +176,12 @@ int main()
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
 static void drawGuiMenu(GuiMenu &menu){
-    if (GuiButton(menu.layoutRecs[BUTTON_OPEN], menu.buttonOpenText)) buttonOpen(); 
-    if (GuiButton(menu.layoutRecs[BUTTON_SAVE], menu.buttonSaveText)) buttonSave(); 
-    if (GuiButton(menu.layoutRecs[BUTTON_EXAMPLES], menu.buttonExamplesText)) buttonExamples(); 
-    if (GuiButton(menu.layoutRecs[BUTTON_HELP], menu.buttonHelpText)) buttonHelp(); 
-    if (GuiButton(menu.layoutRecs[BUTTON_ABOUT], menu.buttonAboutText)) buttonAbout(); 
-    GuiLine(menu.layoutRecs[LINE_MENU], NULL);
+    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_OPEN], menu.buttonOpenText)) buttonOpen(); 
+    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_SAVE], menu.buttonSaveText)) buttonSave(); 
+    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], menu.buttonExamplesText)) buttonExamples(); 
+    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_HELP], menu.buttonHelpText)) buttonHelp(); 
+    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_ABOUT], menu.buttonAboutText)) buttonAbout(); 
+    GuiLine(menu.layoutRecsLine, NULL);
 }
 
 static void drawGuiPrior(GuiPrior &prior){
