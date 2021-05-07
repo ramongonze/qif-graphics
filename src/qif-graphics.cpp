@@ -33,7 +33,8 @@ static void buttonDraw();                // Button: buttonDraw logic
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
-static void drawMenu(GuiMenu &menu);
+static void drawGuiMenu(GuiMenu &menu);
+static void drawGuiPrior(GuiPrior &prior);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -52,10 +53,6 @@ int main()
     Gui gui = Gui();
 
     // Const text
-    const char *GroupBoxPriorText = "Prior distribution";    // GROUPBOX: GroupBoxPrior
-    const char *LabelPriorX1Text = "X1";    // LABEL: LabelPriorX1
-    const char *LabelPriorX2Text = "X2";    // LABEL: LabelPriorX2
-    const char *LabelPriorX3Text = "X3";    // LABEL: LabelPriorX3
     const char *GroupBoxChannelText = "Channel";    // GROUPBOX: GroupBoxChannel
     const char *LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
     const char *LabelChannelX1Text = "X1";    // LABEL: LabelChannelX1
@@ -76,18 +73,11 @@ int main()
     const char *buttonDrawText = "Draw";    // BUTTON: buttonDraw
     
     // Define anchors
-    Vector2 AnchorPrior = { 10, 65 };            // ANCHOR ID:1
     Vector2 AnchorChannel = { 10, 185 };            // ANCHOR ID:2
     Vector2 AnchorVisualization = { 380, 65 };            // ANCHOR ID:3
     Vector2 AnchorPosterior = { 10, 450 };            // ANCHOR ID:4
     
     // Define controls variables
-    bool TextBoxPrior0EditMode = false;
-    char TextBoxPrior0Text[128] = "0";            // TextBox: TextBoxPrior0
-    bool TextBoxPrior1EditMode = false;
-    char TextBoxPrior1Text[128] = "0";            // TextBox: TextBoxPrior1
-    bool TextBoxPrior2EditMode = false;
-    char TextBoxPrior2Text[128] = "0";            // TextBox: TextBoxPrior2
     bool SpinnerChannelEditMode = false;
     int SpinnerChannelValue = 0;            // Spinner: SpinnerChannel
     Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
@@ -147,13 +137,13 @@ int main()
         (Rectangle){ 0, 0 },    // Filling
         (Rectangle){ 0, 0 },    // Filling
         (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ AnchorPrior.x + 0, AnchorPrior.y + 0, 350, 100 },    // GroupBox: GroupBoxPrior
-        (Rectangle){ AnchorPrior.x + 125, AnchorPrior.y + 20, 20, 20 },    // Label: LabelPriorX1
-        (Rectangle){ AnchorPrior.x + 165, AnchorPrior.y + 20, 20, 20 },    // Label: LabelPriorX2
-        (Rectangle){ AnchorPrior.x + 205, AnchorPrior.y + 20, 20, 20 },    // Label: LabelPriorX3
-        (Rectangle){ AnchorPrior.x + 115, AnchorPrior.y + 40, 40, 40 },    // TextBox: TextBoxPrior0
-        (Rectangle){ AnchorPrior.x + 155, AnchorPrior.y + 40, 40, 40 },    // TextBox: TextBoxPrior1
-        (Rectangle){ AnchorPrior.x + 195, AnchorPrior.y + 40, 40, 40 },    // TextBox: TextBoxPrior2
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
         (Rectangle){ AnchorChannel.x + 0, AnchorChannel.y + 0, 350, 245 },    // GroupBox: GroupBoxChannel
         (Rectangle){ AnchorChannel.x + 245, AnchorChannel.y + 15, 90, 25 },    // Spinner: SpinnerChannel
         (Rectangle){ AnchorChannel.x + 15, AnchorChannel.y + 55, 320, 175 },    // ScrollPanel: ScrollPanelChannel
@@ -223,14 +213,8 @@ int main()
             // raygui: controls drawing
             //----------------------------------------------------------------------------------
             // Draw controls
-            drawMenu(gui.menu);
-            GuiGroupBox(layoutRecs[6], GroupBoxPriorText);
-            GuiLabel(layoutRecs[7], LabelPriorX1Text);
-            GuiLabel(layoutRecs[8], LabelPriorX2Text);
-            GuiLabel(layoutRecs[9], LabelPriorX3Text);
-            if (GuiTextBox(layoutRecs[10], TextBoxPrior0Text, 128, TextBoxPrior0EditMode)) TextBoxPrior0EditMode = !TextBoxPrior0EditMode;
-            if (GuiTextBox(layoutRecs[11], TextBoxPrior1Text, 128, TextBoxPrior1EditMode)) TextBoxPrior1EditMode = !TextBoxPrior1EditMode;
-            if (GuiTextBox(layoutRecs[12], TextBoxPrior2Text, 128, TextBoxPrior2EditMode)) TextBoxPrior2EditMode = !TextBoxPrior2EditMode;
+            drawGuiMenu(gui.menu);
+            drawGuiPrior(gui.prior);
             GuiGroupBox(layoutRecs[13], GroupBoxChannelText);
             if (GuiSpinner(layoutRecs[14], "", &SpinnerChannelValue, 0, 100, SpinnerChannelEditMode)) SpinnerChannelEditMode = !SpinnerChannelEditMode;
             Rectangle viewScrollChannel = GuiScrollPanel((Rectangle){layoutRecs[15].x, layoutRecs[15].y, layoutRecs[15].width - ScrollPanelChannelBoundsOffset.x, layoutRecs[15].height - ScrollPanelChannelBoundsOffset.y }, layoutRecs[15], &ScrollPanelChannelScrollOffset);
@@ -296,13 +280,22 @@ int main()
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
-static void drawMenu(GuiMenu &menu){
+static void drawGuiMenu(GuiMenu &menu){
     if (GuiButton(menu.layoutRecs[BUTTON_OPEN], menu.buttonOpenText)) buttonOpen(); 
     if (GuiButton(menu.layoutRecs[BUTTON_SAVE], menu.buttonSaveText)) buttonSave(); 
     if (GuiButton(menu.layoutRecs[BUTTON_EXAMPLES], menu.buttonExamplesText)) buttonExamples(); 
     if (GuiButton(menu.layoutRecs[BUTTON_HELP], menu.buttonHelpText)) buttonHelp(); 
     if (GuiButton(menu.layoutRecs[BUTTON_ABOUT], menu.buttonAboutText)) buttonAbout(); 
     GuiLine(menu.layoutRecs[LINE_MENU], NULL);
+}
+
+static void drawGuiPrior(GuiPrior &prior){
+    GuiGroupBox(prior.layoutRecsGroupBox, prior.GroupBoxPriorText);
+    for(int i = 0; i < 3; i++){
+        GuiLabel(prior.layoutRecsLabel[i], prior.LabelPriorText[i]);
+        if (GuiTextBox(prior.layoutRecsTextBox[i], prior.TextBoxPriorText[i], 128, prior.TextBoxPriorEditMode[i])) prior.TextBoxPriorEditMode[i] = !prior.TextBoxPriorEditMode[i];
+
+    }
 }
 
 //------------------------------------------------------------------------------------
