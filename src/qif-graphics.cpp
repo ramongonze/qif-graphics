@@ -18,6 +18,7 @@
 #define RAYGUI_SUPPORT_RICONS
 #include "../libs/raygui/src/raygui.h"
 
+#include <iostream>
 #include "gui/gui.h"
 
 //----------------------------------------------------------------------------------
@@ -35,6 +36,7 @@ static void buttonDraw();                // Button: buttonDraw logic
 //----------------------------------------------------------------------------------
 static void drawGuiMenu(GuiMenu &menu);
 static void drawGuiPrior(GuiPrior &prior);
+static void drawGuiChannel(GuiChannel &channel);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -53,14 +55,6 @@ int main()
     Gui gui = Gui();
 
     // Const text
-    const char *GroupBoxChannelText = "Channel";    // GROUPBOX: GroupBoxChannel
-    const char *LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
-    const char *LabelChannelX1Text = "X1";    // LABEL: LabelChannelX1
-    const char *LabelChannelX2Text = "X2";    // LABEL: LabelChannelX2
-    const char *LabelChannelX3Text = "X3";    // LABEL: LabelChannelX3
-    const char *LabelChannelY1Text = "Y1";    // LABEL: LabelChannelY1
-    const char *LabelChannelY2Text = "Y2";    // LABEL: LabelChannelY2
-    const char *LabelChannelY3Text = "Y3";    // LABEL: LabelChannelY3
     const char *GroupBoxPosteriorsText = "Posterior distributions";    // GROUPBOX: GroupBoxPosteriors
     const char *LabelOuterText = "Outer";    // LABEL: LabelOuter
     const char *LabelPosteriors0Text = "I1";    // LABEL: LabelPosteriors0
@@ -73,33 +67,10 @@ int main()
     const char *buttonDrawText = "Draw";    // BUTTON: buttonDraw
     
     // Define anchors
-    Vector2 AnchorChannel = { 10, 185 };            // ANCHOR ID:2
     Vector2 AnchorVisualization = { 380, 65 };            // ANCHOR ID:3
     Vector2 AnchorPosterior = { 10, 450 };            // ANCHOR ID:4
     
-    // Define controls variables
-    bool SpinnerChannelEditMode = false;
-    int SpinnerChannelValue = 0;            // Spinner: SpinnerChannel
-    Vector2 ScrollPanelChannelScrollOffset = { 0, 0 };
-    Vector2 ScrollPanelChannelBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelChannel
-    bool TextBoxChannel00EditMode = false;
-    char TextBoxChannel00Text[128] = "0";            // TextBox: TextBoxChannel00
-    bool TextBoxChannel01EditMode = false;
-    char TextBoxChannel01Text[128] = "0";            // TextBox: TextBoxChannel01
-    bool TextBoxChannel02EditMode = false;
-    char TextBoxChannel02Text[128] = "0";            // TextBox: TextBoxChannel02
-    bool TextBoxChannel10EditMode = false;
-    char TextBoxChannel10Text[128] = "0";            // TextBox: TextBoxChannel10
-    bool TextBoxChannel11EditMode = false;
-    char TextBoxChannel11Text[128] = "0";            // TextBox: TextBoxChannel11
-    bool TextBoxChannel12EditMode = false;
-    char TextBoxChannel12Text[128] = "0";            // TextBox: TextBoxChannel12
-    bool TextBoxChannel20EditMode = false;
-    char TextBoxChannel20Text[128] = "0";            // TextBox: TextBoxChannel20
-    bool TextBoxChannel21EditMode = false;
-    char TextBoxChannel21Text[128] = "0";            // TextBox: TextBoxChannel21
-    bool TextBoxChannel22EditMode = false;
-    char TextBoxChannel22Text[128] = "0";            // TextBox: TextBoxChannel22
+    // Define controls variable
     Vector2 ScrollPanelPosteriorsScrollOffset = { 0, 0 };
     Vector2 ScrollPanelPosteriorsBoundsOffset = { 0, 0 };            // ScrollPanel: ScrollPanelPosteriors
     bool TextBoxOuter0EditMode = false;
@@ -144,25 +115,25 @@ int main()
         (Rectangle){ 0, 0 },    // Filling
         (Rectangle){ 0, 0 },    // Filling
         (Rectangle){ 0, 0 },    // Filling
-        (Rectangle){ AnchorChannel.x + 0, AnchorChannel.y + 0, 350, 245 },    // GroupBox: GroupBoxChannel
-        (Rectangle){ AnchorChannel.x + 245, AnchorChannel.y + 15, 90, 25 },    // Spinner: SpinnerChannel
-        (Rectangle){ AnchorChannel.x + 15, AnchorChannel.y + 55, 320, 175 },    // ScrollPanel: ScrollPanelChannel
-        (Rectangle){ AnchorChannel.x + 175, AnchorChannel.y + 15, 58, 25 },    // Label: LabelOutputs
-        (Rectangle){ AnchorChannel.x + 40, AnchorChannel.y + 90, 20, 40 },    // Label: LabelChannelX1
-        (Rectangle){ AnchorChannel.x + 40, AnchorChannel.y + 130, 20, 40 },    // Label: LabelChannelX2
-        (Rectangle){ AnchorChannel.x + 40, AnchorChannel.y + 170, 20, 40 },    // Label: LabelChannelX3
-        (Rectangle){ AnchorChannel.x + 75, AnchorChannel.y + 70, 20, 20 },    // Label: LabelChannelY1
-        (Rectangle){ AnchorChannel.x + 115, AnchorChannel.y + 70, 20, 20 },    // Label: LabelChannelY2
-        (Rectangle){ AnchorChannel.x + 155, AnchorChannel.y + 70, 20, 20 },    // Label: LabelChannelY3
-        (Rectangle){ AnchorChannel.x + 65, AnchorChannel.y + 90, 40, 40 },    // TextBox: TextBoxChannel00
-        (Rectangle){ AnchorChannel.x + 105, AnchorChannel.y + 90, 40, 40 },    // TextBox: TextBoxChannel01
-        (Rectangle){ AnchorChannel.x + 145, AnchorChannel.y + 90, 40, 40 },    // TextBox: TextBoxChannel02
-        (Rectangle){ AnchorChannel.x + 65, AnchorChannel.y + 130, 40, 40 },    // TextBox: TextBoxChannel10
-        (Rectangle){ AnchorChannel.x + 105, AnchorChannel.y + 130, 40, 40 },    // TextBox: TextBoxChannel11
-        (Rectangle){ AnchorChannel.x + 145, AnchorChannel.y + 130, 40, 40 },    // TextBox: TextBoxChannel12
-        (Rectangle){ AnchorChannel.x + 65, AnchorChannel.y + 170, 40, 40 },    // TextBox: TextBoxChannel20
-        (Rectangle){ AnchorChannel.x + 105, AnchorChannel.y + 170, 40, 40 },    // TextBox: TextBoxChannel21
-        (Rectangle){ AnchorChannel.x + 145, AnchorChannel.y + 170, 40, 40 },    // TextBox: TextBoxChannel22
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
+        (Rectangle){ 0, 0 },    // Filling
         (Rectangle){ AnchorPosterior.x + 0, AnchorPosterior.y + 0, 350, 270 },    // GroupBox: GroupBoxPosteriors
         (Rectangle){ AnchorPosterior.x + 15, AnchorPosterior.y + 20, 320, 235 },    // ScrollPanel: ScrollPanelPosteriors
         (Rectangle){ AnchorPosterior.x + 20, AnchorPosterior.y + 55, 40, 40 },    // Label: LabelOuter
@@ -215,27 +186,7 @@ int main()
             // Draw controls
             drawGuiMenu(gui.menu);
             drawGuiPrior(gui.prior);
-            GuiGroupBox(layoutRecs[13], GroupBoxChannelText);
-            if (GuiSpinner(layoutRecs[14], "", &SpinnerChannelValue, 0, 100, SpinnerChannelEditMode)) SpinnerChannelEditMode = !SpinnerChannelEditMode;
-            Rectangle viewScrollChannel = GuiScrollPanel((Rectangle){layoutRecs[15].x, layoutRecs[15].y, layoutRecs[15].width - ScrollPanelChannelBoundsOffset.x, layoutRecs[15].height - ScrollPanelChannelBoundsOffset.y }, layoutRecs[15], &ScrollPanelChannelScrollOffset);
-            BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
-                GuiLabel((Rectangle){layoutRecs[16].x + ScrollPanelChannelScrollOffset.x, layoutRecs[16].y + ScrollPanelChannelScrollOffset.y, layoutRecs[16].width, layoutRecs[16].height}, LabelOutputsText);
-                GuiLabel((Rectangle){layoutRecs[17].x + ScrollPanelChannelScrollOffset.x, layoutRecs[17].y + ScrollPanelChannelScrollOffset.y, layoutRecs[17].width, layoutRecs[17].height}, LabelChannelX1Text);
-                GuiLabel((Rectangle){layoutRecs[18].x + ScrollPanelChannelScrollOffset.x, layoutRecs[18].y + ScrollPanelChannelScrollOffset.y, layoutRecs[18].width, layoutRecs[18].height}, LabelChannelX2Text);
-                GuiLabel((Rectangle){layoutRecs[19].x + ScrollPanelChannelScrollOffset.x, layoutRecs[19].y + ScrollPanelChannelScrollOffset.y, layoutRecs[19].width, layoutRecs[19].height}, LabelChannelX3Text);
-                GuiLabel((Rectangle){layoutRecs[20].x + ScrollPanelChannelScrollOffset.x, layoutRecs[20].y + ScrollPanelChannelScrollOffset.y, layoutRecs[20].width, layoutRecs[20].height}, LabelChannelY1Text);
-                GuiLabel((Rectangle){layoutRecs[21].x + ScrollPanelChannelScrollOffset.x, layoutRecs[21].y + ScrollPanelChannelScrollOffset.y, layoutRecs[21].width, layoutRecs[21].height}, LabelChannelY2Text);
-                GuiLabel((Rectangle){layoutRecs[22].x + ScrollPanelChannelScrollOffset.x, layoutRecs[22].y + ScrollPanelChannelScrollOffset.y, layoutRecs[22].width, layoutRecs[22].height}, LabelChannelY3Text);
-                if (GuiTextBox((Rectangle){layoutRecs[23].x + ScrollPanelChannelScrollOffset.x, layoutRecs[23].y + ScrollPanelChannelScrollOffset.y, layoutRecs[23].width, layoutRecs[23].height}, TextBoxChannel00Text, 128, TextBoxChannel00EditMode)) TextBoxChannel00EditMode = !TextBoxChannel00EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[24].x + ScrollPanelChannelScrollOffset.x, layoutRecs[24].y + ScrollPanelChannelScrollOffset.y, layoutRecs[24].width, layoutRecs[24].height}, TextBoxChannel01Text, 128, TextBoxChannel01EditMode)) TextBoxChannel01EditMode = !TextBoxChannel01EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[25].x + ScrollPanelChannelScrollOffset.x, layoutRecs[25].y + ScrollPanelChannelScrollOffset.y, layoutRecs[25].width, layoutRecs[25].height}, TextBoxChannel02Text, 128, TextBoxChannel02EditMode)) TextBoxChannel02EditMode = !TextBoxChannel02EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[26].x + ScrollPanelChannelScrollOffset.x, layoutRecs[26].y + ScrollPanelChannelScrollOffset.y, layoutRecs[26].width, layoutRecs[26].height}, TextBoxChannel10Text, 128, TextBoxChannel10EditMode)) TextBoxChannel10EditMode = !TextBoxChannel10EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[27].x + ScrollPanelChannelScrollOffset.x, layoutRecs[27].y + ScrollPanelChannelScrollOffset.y, layoutRecs[27].width, layoutRecs[27].height}, TextBoxChannel11Text, 128, TextBoxChannel11EditMode)) TextBoxChannel11EditMode = !TextBoxChannel11EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[28].x + ScrollPanelChannelScrollOffset.x, layoutRecs[28].y + ScrollPanelChannelScrollOffset.y, layoutRecs[28].width, layoutRecs[28].height}, TextBoxChannel12Text, 128, TextBoxChannel12EditMode)) TextBoxChannel12EditMode = !TextBoxChannel12EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[29].x + ScrollPanelChannelScrollOffset.x, layoutRecs[29].y + ScrollPanelChannelScrollOffset.y, layoutRecs[29].width, layoutRecs[29].height}, TextBoxChannel20Text, 128, TextBoxChannel20EditMode)) TextBoxChannel20EditMode = !TextBoxChannel20EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[30].x + ScrollPanelChannelScrollOffset.x, layoutRecs[30].y + ScrollPanelChannelScrollOffset.y, layoutRecs[30].width, layoutRecs[30].height}, TextBoxChannel21Text, 128, TextBoxChannel21EditMode)) TextBoxChannel21EditMode = !TextBoxChannel21EditMode;
-                if (GuiTextBox((Rectangle){layoutRecs[31].x + ScrollPanelChannelScrollOffset.x, layoutRecs[31].y + ScrollPanelChannelScrollOffset.y, layoutRecs[31].width, layoutRecs[31].height}, TextBoxChannel22Text, 128, TextBoxChannel22EditMode)) TextBoxChannel22EditMode = !TextBoxChannel22EditMode;
-            EndScissorMode();
+            drawGuiChannel(gui.channel);
             GuiGroupBox(layoutRecs[32], GroupBoxPosteriorsText);
             Rectangle viewScrollPosteriors = GuiScrollPanel((Rectangle){layoutRecs[33].x, layoutRecs[33].y, layoutRecs[33].width - ScrollPanelPosteriorsBoundsOffset.x, layoutRecs[33].height - ScrollPanelPosteriorsBoundsOffset.y }, layoutRecs[33], &ScrollPanelPosteriorsScrollOffset);
             BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
@@ -296,6 +247,31 @@ static void drawGuiPrior(GuiPrior &prior){
         if (GuiTextBox(prior.layoutRecsTextBox[i], prior.TextBoxPriorText[i], 128, prior.TextBoxPriorEditMode[i])) prior.TextBoxPriorEditMode[i] = !prior.TextBoxPriorEditMode[i];
 
     }
+}
+
+static void drawGuiChannel(GuiChannel &channel){
+    GuiGroupBox(channel.layoutRecsGroupBox, channel.GroupBoxChannelText);
+    if (GuiSpinner(channel.layoutRecsSpinner, "", &(channel.SpinnerChannelValue), 0, 100, channel.SpinnerChannelEditMode)) channel.SpinnerChannelEditMode = !channel.SpinnerChannelEditMode;
+    Rectangle viewScrollChannel = GuiScrollPanel(
+        (Rectangle){channel.layoutRecsScrollPanel.x, channel.layoutRecsScrollPanel.y, channel.layoutRecsScrollPanel.width - channel.ScrollPanelChannelBoundsOffset.x, channel.layoutRecsScrollPanel.height - channel.ScrollPanelChannelBoundsOffset.y },
+        channel.layoutRecsScrollPanel,
+        &(channel.ScrollPanelChannelScrollOffset)
+    );
+    BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
+        GuiLabel((Rectangle){channel.layoutRecsLabelOutputs.x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelOutputs.y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelOutputs.width, channel.layoutRecsLabelOutputs.height}, channel.LabelOutputsText);
+        for(int i = 0; i < 3; i++){
+            GuiLabel((Rectangle){channel.layoutRecsLabelX[i].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelX[i].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelX[i].width, channel.layoutRecsLabelX[i].height}, channel.LabelChannelXText[i].c_str());
+        
+            for(int j = 0; j < channel.numOutputs; j++){
+                if (GuiTextBox((Rectangle){channel.layoutRecsTextBoxChannel[i][j].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsTextBoxChannel[i][j].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsTextBoxChannel[i][j].width, channel.layoutRecsTextBoxChannel[i][j].height}, channel.TextBoxChannelText[i][j], 128, channel.TextBoxChannelEditMode[i][j]))channel.TextBoxChannelEditMode[i][j] = !channel.TextBoxChannelEditMode[i][j];
+            }
+        }
+
+        for(int j = 0; j < channel.numOutputs; j++){
+            GuiLabel((Rectangle){channel.layoutRecsLabelY[j].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelY[j].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelY[j].width, channel.layoutRecsLabelY[j].height}, channel.LabelChannelYText[j].c_str());
+        }
+        
+    EndScissorMode();
 }
 
 //------------------------------------------------------------------------------------
