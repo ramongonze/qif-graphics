@@ -23,14 +23,9 @@
 #include "data.h"
 
 //----------------------------------------------------------------------------------
-// Controls Functions Declaration
+// General Functions Declaration
 //----------------------------------------------------------------------------------
-static void buttonOpen();                // Button: buttonOpen logic
-static void buttonSave();                // Button: buttonSave logic
-static void buttonExamples();                // Button: buttonExamples logic
-static void buttonHelp();                // Button: buttonHelp logic
-static void buttonAbout();                // Button: buttonAbout logic
-static void buttonDraw();                // Button: buttonDraw logic
+void printError(int error, GuiVisualization &visualization);
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
@@ -40,6 +35,16 @@ static void drawGuiPrior(GuiPrior &prior);
 static void drawGuiChannel(GuiChannel &channel);
 static void drawGuiPosteriors(GuiPosteriors &posteriors);
 static void drawGuiVisualization(GuiVisualization &visualization);
+
+//----------------------------------------------------------------------------------
+// Controls Functions Declaration
+//----------------------------------------------------------------------------------
+static void buttonOpen();                // Button: buttonOpen logic
+static void buttonSave();                // Button: buttonSave logic
+static void buttonExamples();                // Button: buttonExamples logic
+static void buttonHelp();                // Button: buttonHelp logic
+static void buttonAbout();                // Button: buttonAbout logic
+static void buttonDraw();                // Button: buttonDraw logic
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -71,12 +76,23 @@ int main()
         int error = NO_ERROR;     // Flag that indicates if an error has been occurred
         Vector2 mousePosition = GetMousePosition();
         int numPost;
-
+        
+        // Check if channel spinner value was changed
         if(gui.channel.SpinnerChannelValue != gui.channel.numOutputs){
             data.hyperReady = false;
             gui.channel.updateChannelBySpinner();
         }
 
+        // Check if a TextBox is being pressed
+        if(gui.checkTextBoxPressed()){
+            data.hyperReady = false;
+            printError(NO_ERROR, gui.visualization);
+
+            if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
+				IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+				gui.moveAmongTextBoxes();
+			}
+        }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -105,6 +121,25 @@ int main()
     //--------------------------------------------------------------------------------------
 
     return 0;
+}
+
+//------------------------------------------------------------------------------------
+// General Functions Definitions (local)
+//------------------------------------------------------------------------------------
+void printError(int error, GuiVisualization &visualization){
+	switch(error){
+		case INVALID_VALUE:
+			strcpy(visualization.TextBoxStatusText, "Some value in prior or channel is invalid!");
+			break;
+		case INVALID_PRIOR:
+			strcpy(visualization.TextBoxStatusText, "The prior distribution is invalid!");
+			break;
+		case INVALID_CHANNEL:
+			strcpy(visualization.TextBoxStatusText, "The channel is invalid!");
+			break;
+		case NO_ERROR:
+			strcpy(visualization.TextBoxStatusText, "Status");
+	}
 }
 
 //------------------------------------------------------------------------------------

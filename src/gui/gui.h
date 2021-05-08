@@ -18,6 +18,16 @@ public:
     GuiChannel channel;
     GuiPosteriors posteriors;
     GuiVisualization visualization;
+
+    // Methods
+
+    /* Check if a textbox in prior or channel matrices was pressed.
+	 * Returns true if yes or false otherwise. */
+    bool checkTextBoxPressed();
+
+    /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move
+	 * the pressed TextBox. */
+	void moveAmongTextBoxes();
 };
 
 #endif
