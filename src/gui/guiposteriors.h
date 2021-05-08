@@ -28,6 +28,7 @@ public:
     // Define controls variable
     Vector2 ScrollPanelPosteriorsScrollOffset;
     Vector2 ScrollPanelPosteriorsBoundsOffset;            // ScrollPanel: ScrollPanelPosteriors
+    Vector2 ScrollPanelPosteriorsContent;      // Width and height of scroll panel content
     vector<bool> TextBoxOuterEditMode;
     vector<char*> TextBoxOuterText;
 

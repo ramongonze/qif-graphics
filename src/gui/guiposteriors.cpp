@@ -36,6 +36,7 @@ GuiPosteriors::GuiPosteriors(){
     // Define controls rectangles
     layoutRecsGroupBox = {AnchorPosterior.x + 0, AnchorPosterior.y + 0, 350, 270};    // GroupBox: GroupBoxPosteriors
     layoutRecsScrollPanel = {AnchorPosterior.x + 15, AnchorPosterior.y + 20, 320, 235};    // ScrollPanel: ScrollPanelPosteriors
+    ScrollPanelPosteriorsContent.y = layoutRecsScrollPanel.height - 20;
     layoutRecsLabelOuter = {AnchorPosterior.x + 20, AnchorPosterior.y + 55, 40, 40};    // Label: LabelOuter
     layoutRecsLabelPosteriors = vector<Rectangle>(numPosteriors);
     for(int i = 0; i < numPosteriors; i++){
@@ -52,10 +53,12 @@ GuiPosteriors::GuiPosteriors(){
         layoutRecsTextBoxOuter[i] = (Rectangle){ AnchorPosterior.x + 65 + i*40, AnchorPosterior.y + 55, 40, 40 };    // TextBox: TextBoxOuter0
     }
 
-    layoutRecsTextBoxInners = vector<vector<Rectangle>>(3, vector<Rectangle>(numPosteriors));
-    for(int i = 0; i < 3; i++){
-        for(int j = 0; j < numPosteriors; j++){
-            layoutRecsTextBoxInners[i][j] = (Rectangle){ AnchorPosterior.x + 65 + i*40, AnchorPosterior.y + 115 + j*40, 40, 40 };    // TextBox: TextBoxInners00
+    layoutRecsTextBoxInners = vector<vector<Rectangle>>(numPosteriors, vector<Rectangle>(3));
+    for(int i = 0; i < numPosteriors; i++){
+        for(int j = 0; j < 3; j++){
+            layoutRecsTextBoxInners[i][j] = (Rectangle){AnchorPosterior.x + 65 + i*40, AnchorPosterior.y + 115 + j*40, 40, 40};    // TextBox: TextBoxInners00
         }
     }
+
+    ScrollPanelPosteriorsContent.x = layoutRecsTextBoxInners[numPosteriors-1][0].x + 40;
 }

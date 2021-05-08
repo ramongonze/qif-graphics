@@ -31,6 +31,7 @@ public:
     int SpinnerChannelValue;            // Spinner: SpinnerChannel
     Vector2 ScrollPanelChannelScrollOffset;
     Vector2 ScrollPanelChannelBoundsOffset;            // ScrollPanel: ScrollPanelChannel
+    Vector2 ScrollPanelChannelContent;      // Width and height of scroll panel content
     vector<vector<bool>> TextBoxChannelEditMode;
     vector<vector<char*>> TextBoxChannelText;
 
@@ -41,7 +42,14 @@ public:
     Rectangle layoutRecsLabelOutputs;    // Label: LabelOutputs
     vector<Rectangle> layoutRecsLabelX;
     vector<Rectangle> layoutRecsLabelY;
+    
+    // Important: The matrix is indexed by columns x rows
     vector<vector<Rectangle>> layoutRecsTextBoxChannel;
+
+    // Methods
+    
+    // If the channel spinner was changed, update the TextBoxChannel matrices
+    void updateChannelBySpinner();
 };
 
 #endif

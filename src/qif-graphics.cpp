@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include "gui/gui.h"
+#include "data.h"
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -58,16 +59,24 @@ int main()
     //----------------------------------------------------------------------------------
 
     SetTargetFPS(60);
+    Data data = Data();
     //--------------------------------------------------------------------------------------
 
     GuiLoadStyle("src/gui/style-qif-graphics.rgs");
 
     // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
+    while(!WindowShouldClose()){    // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
-        // TODO: Implement required update logic
+        int error = NO_ERROR;     // Flag that indicates if an error has been occurred
+        Vector2 mousePosition = GetMousePosition();
+        int numPost;
+
+        if(gui.channel.SpinnerChannelValue != gui.channel.numOutputs){
+            data.hyperReady = false;
+            gui.channel.updateChannelBySpinner();
+        }
+
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -124,29 +133,31 @@ static void drawGuiChannel(GuiChannel &channel){
     if (GuiSpinner(channel.layoutRecsSpinner, "", &(channel.SpinnerChannelValue), 0, 100, channel.SpinnerChannelEditMode)) channel.SpinnerChannelEditMode = !channel.SpinnerChannelEditMode;
     Rectangle viewScrollChannel = GuiScrollPanel(
         (Rectangle){channel.layoutRecsScrollPanel.x, channel.layoutRecsScrollPanel.y, channel.layoutRecsScrollPanel.width - channel.ScrollPanelChannelBoundsOffset.x, channel.layoutRecsScrollPanel.height - channel.ScrollPanelChannelBoundsOffset.y },
-        channel.layoutRecsScrollPanel,
+        (Rectangle){channel.layoutRecsScrollPanel.x, channel.layoutRecsScrollPanel.y, channel.ScrollPanelChannelContent.x, channel.ScrollPanelChannelContent.y},
         &(channel.ScrollPanelChannelScrollOffset)
     );
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
         GuiLabel((Rectangle){channel.layoutRecsLabelOutputs.x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelOutputs.y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelOutputs.width, channel.layoutRecsLabelOutputs.height}, channel.LabelOutputsText);
-        for(int i = 0; i < 3; i++){
-            GuiLabel((Rectangle){channel.layoutRecsLabelX[i].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelX[i].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelX[i].width, channel.layoutRecsLabelX[i].height}, channel.LabelChannelXText[i].c_str());
-        
-            for(int j = 0; j < channel.numOutputs; j++){
+        for(int i = 0; i < channel.numOutputs; i++){
+            GuiLabel((Rectangle){channel.layoutRecsLabelY[i].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelY[i].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelY[i].width, channel.layoutRecsLabelY[i].height}, channel.LabelChannelYText[i].c_str());
+            for(int j = 0; j < 3; j++){
                 if (GuiTextBox((Rectangle){channel.layoutRecsTextBoxChannel[i][j].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsTextBoxChannel[i][j].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsTextBoxChannel[i][j].width, channel.layoutRecsTextBoxChannel[i][j].height}, channel.TextBoxChannelText[i][j], 128, channel.TextBoxChannelEditMode[i][j]))channel.TextBoxChannelEditMode[i][j] = !channel.TextBoxChannelEditMode[i][j];
             }
         }
 
-        for(int j = 0; j < channel.numOutputs; j++){
-            GuiLabel((Rectangle){channel.layoutRecsLabelY[j].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelY[j].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelY[j].width, channel.layoutRecsLabelY[j].height}, channel.LabelChannelYText[j].c_str());
+        for(int i = 0; i < 3; i++){
+            GuiLabel((Rectangle){channel.layoutRecsLabelX[i].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelX[i].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelX[i].width, channel.layoutRecsLabelX[i].height}, channel.LabelChannelXText[i].c_str());
         }
-        
     EndScissorMode();
 }
 
 static void drawGuiPosteriors(GuiPosteriors &posteriors){
     GuiGroupBox(posteriors.layoutRecsGroupBox, posteriors.GroupBoxPosteriorsText);
-    Rectangle viewScrollPosteriors = GuiScrollPanel((Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y }, posteriors.layoutRecsScrollPanel, &(posteriors.ScrollPanelPosteriorsScrollOffset));
+    Rectangle viewScrollPosteriors = GuiScrollPanel(
+        (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y },
+        (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.ScrollPanelPosteriorsContent.x, posteriors.ScrollPanelPosteriorsContent.y},
+        &(posteriors.ScrollPanelPosteriorsScrollOffset)
+    );
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
         GuiLabel((Rectangle){posteriors.layoutRecsLabelOuter.x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelOuter.y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelOuter.width, posteriors.layoutRecsLabelOuter.height}, posteriors.LabelOuterText);
 
@@ -162,8 +173,8 @@ static void drawGuiPosteriors(GuiPosteriors &posteriors){
             GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxOuter[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxOuter[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxOuter[i].width, posteriors.layoutRecsTextBoxOuter[i].height}, posteriors.TextBoxOuterText[i], 128, posteriors.TextBoxOuterEditMode[i]);
         }
 
-        for(int i = 0; i < 3; i++){
-            for(int j = 0; j < posteriors.numPosteriors; j++){
+        for(int i = 0; i < posteriors.numPosteriors; i++){
+            for(int j = 0; j < 3; j++){
                 GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxInners[i][j].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxInners[i][j].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxInners[i][j].width, posteriors.layoutRecsTextBoxInners[i][j].height}, posteriors.TextBoxInnersText[i][j], 128, posteriors.TextBoxInnersEditMode[i][j]);
             }
         }
