@@ -6,6 +6,7 @@ Gui::Gui(){
     channel = GuiChannel();
     posteriors = GuiPosteriors();
     visualization = GuiVisualization();
+    drawing = false;
 }
 
 bool Gui::checkTextBoxPressed(){

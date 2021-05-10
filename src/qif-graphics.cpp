@@ -34,7 +34,7 @@ static void drawGuiMenu(GuiMenu &menu);
 static void drawGuiPrior(GuiPrior &prior);
 static void drawGuiChannel(GuiChannel &channel);
 static void drawGuiPosteriors(GuiPosteriors &posteriors);
-static void drawGuiVisualization(GuiVisualization &visualization);
+static void drawGuiVisualization(Gui &gui, Data &data);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -44,13 +44,12 @@ static void buttonSave();                // Button: buttonSave logic
 static void buttonExamples();                // Button: buttonExamples logic
 static void buttonHelp();                // Button: buttonHelp logic
 static void buttonAbout();                // Button: buttonAbout logic
-static void buttonDraw();                // Button: buttonDraw logic
+static void buttonDraw(Gui &gui, Data &data);       // Button: buttonDraw logic
 
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
-int main()
-{
+int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     int screenWidth = 1045;
@@ -68,7 +67,9 @@ int main()
     //--------------------------------------------------------------------------------------
 
     GuiLoadStyle("src/gui/style-qif-graphics.rgs");
-
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 2);
+    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
+    
     // Main game loop
     while(!WindowShouldClose()){    // Detect window close button or ESC key
         // Update
@@ -93,6 +94,8 @@ int main()
 				gui.moveAmongTextBoxes();
 			}
         }
+
+        
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -108,7 +111,7 @@ int main()
             drawGuiPrior(gui.prior);
             drawGuiChannel(gui.channel);
             drawGuiPosteriors(gui.posteriors);
-            drawGuiVisualization(gui.visualization);
+            drawGuiVisualization(gui, data);
             //----------------------------------------------------------------------------------
 
         EndDrawing();
@@ -159,7 +162,6 @@ static void drawGuiPrior(GuiPrior &prior){
     for(int i = 0; i < 3; i++){
         GuiLabel(prior.layoutRecsLabel[i], prior.LabelPriorText[i].c_str());
         if (GuiTextBox(prior.layoutRecsTextBox[i], prior.TextBoxPriorText[i], 128, prior.TextBoxPriorEditMode[i])) prior.TextBoxPriorEditMode[i] = !prior.TextBoxPriorEditMode[i];
-
     }
 }
 
@@ -216,11 +218,11 @@ static void drawGuiPosteriors(GuiPosteriors &posteriors){
     EndScissorMode();
 }
 
-static void drawGuiVisualization(GuiVisualization &visualization){
-    GuiGroupBox(visualization.layoutRecsGroupBoxVisualization, visualization.GroupBoxVisualizationText);
-    if (GuiButton(visualization.layoutRecsButtonDraw, visualization.ButtonDrawText)) buttonDraw(); 
-    GuiTextBox(visualization.layoutRecsTextBoxStatus, visualization.TextBoxStatusText, 128, visualization.TextBoxStatusEditMode);
-    GuiPanel(visualization.layoutRecsPanelVisualization);
+static void drawGuiVisualization(Gui &gui, Data &data){
+    GuiGroupBox(gui.visualization.layoutRecsGroupBoxVisualization, gui.visualization.GroupBoxVisualizationText);
+    if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data); 
+    GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, 128, gui.visualization.TextBoxStatusEditMode);
+    GuiPanel(gui.visualization.layoutRecsPanelVisualization);
 }
 
 //------------------------------------------------------------------------------------
@@ -247,7 +249,19 @@ static void buttonAbout(){
     // TODO: Implement control logic
 }
 // Button: buttonDraw logic
-static void buttonDraw(){
-    // TODO: Implement control logic
+static void buttonDraw(Gui &gui, Data &data){
+    int error = NO_ERROR;
+
+    // Check if prior and channel are ok
+    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText) == NO_ERROR){
+        // Check if typed numbers represent distributions
+        if(Distribution::isDistribution(data.prior) == false) error = INVALID_PRIOR;
+        else if(Channel::isChannel(data.channel) == false) error = INVALID_CHANNEL;
+    }else{
+        error = INVALID_VALUE;
+        gui.drawing = false;
+    }
+    
+    printError(error, gui.visualization);
 }
 

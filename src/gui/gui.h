@@ -18,6 +18,9 @@ public:
     GuiChannel channel;
     GuiPosteriors posteriors;
     GuiVisualization visualization;
+    
+    // Flag that indicates wheter the triangle is being drawn.
+    bool drawing;
 
     // Methods
 
