@@ -5,8 +5,8 @@
 #include <string>
 #include <string.h>
 #include "../../libs/raylib/src/raylib.h"
+#include "../graphics.h"
 using namespace std;
-
 
 class GuiChannel{
 private:

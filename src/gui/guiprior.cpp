@@ -17,15 +17,17 @@ GuiPrior::GuiPrior(){
     }
 
     // Define controls rectangles
-    layoutRecsGroupBox = {AnchorPrior.x + 0, AnchorPrior.y + 0, 350, 100};    // GroupBox: GroupBoxPrior
+    layoutRecsGroupBox = {AnchorPrior.x + 0, AnchorPrior.y + 0, 350, 110};    // GroupBox: GroupBoxPrior
 
+    int xBasePosition = layoutRecsGroupBox.x + (int)((layoutRecsGroupBox.width - 3*TEXTBOX_SIZE)/2);
+    int yBasePosition = layoutRecsGroupBox.y + (int)((layoutRecsGroupBox.height-TEXTBOX_SIZE-10)/2);
     layoutRecsLabel = vector<Rectangle>(3);
     for(int i = 0; i < 3; i++){
-        layoutRecsLabel[i] = (Rectangle){AnchorPrior.x + 125 + i*40, AnchorPrior.y + 20, 20, 20};    // Label: LabelPriorX1
+        layoutRecsLabel[i] = (Rectangle){xBasePosition + i*TEXTBOX_SIZE, yBasePosition, TEXTBOX_SIZE, 20};    // Label: LabelPriorX
     }
 
     layoutRecsTextBox = vector<Rectangle>(3);
     for(int i = 0; i < 3; i++){
-        layoutRecsTextBox[i] = (Rectangle){AnchorPrior.x + 115 + i*40, AnchorPrior.y + 40, 40, 40};    // TextBox: TextBoxPrior0
+        layoutRecsTextBox[i] = (Rectangle){xBasePosition + i*TEXTBOX_SIZE, yBasePosition + 20, TEXTBOX_SIZE, TEXTBOX_SIZE};    // TextBox: TextBoxPrior0
     }
 }

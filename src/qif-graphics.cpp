@@ -53,7 +53,7 @@ int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     int screenWidth = 1045;
-    int screenHeight = 730;
+    int screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "QIF Graphics");
 
@@ -67,8 +67,9 @@ int main(){
     //--------------------------------------------------------------------------------------
 
     GuiLoadStyle("src/gui/style-qif-graphics.rgs");
-    GuiSetStyle(TEXTBOX, TEXT_PADDING, 2);
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
     
     // Main game loop
     while(!WindowShouldClose()){    // Detect window close button or ESC key
@@ -220,8 +221,12 @@ static void drawGuiPosteriors(GuiPosteriors &posteriors){
 
 static void drawGuiVisualization(Gui &gui, Data &data){
     GuiGroupBox(gui.visualization.layoutRecsGroupBoxVisualization, gui.visualization.GroupBoxVisualizationText);
-    if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data); 
+    if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
     GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, 128, gui.visualization.TextBoxStatusEditMode);
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
     GuiPanel(gui.visualization.layoutRecsPanelVisualization);
 }
 

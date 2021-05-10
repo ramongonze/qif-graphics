@@ -14,6 +14,7 @@ using namespace std;
 
 // Settings
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
+#define TEXTBOX_SIZE 50
 #define WINDOWS_WIDTH 750
 #define WINDOWS_HEIGHT 630
 
