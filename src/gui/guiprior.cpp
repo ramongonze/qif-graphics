@@ -4,7 +4,8 @@ GuiPrior::GuiPrior(){
     // Const text
     GroupBoxPriorText = "Prior distribution";    // GROUPBOX: GroupBoxPrior
     LabelPriorText = vector<string>({"X1", "X2", "X3"});    // LABEL: LabelPriorX1
-
+    buttonRandomText = "Random";
+    
     // Define anchors
     AnchorPrior = {10, 65};            // ANCHOR ID:1
 
@@ -30,4 +31,6 @@ GuiPrior::GuiPrior(){
     for(int i = 0; i < 3; i++){
         layoutRecsTextBox[i] = (Rectangle){xBasePosition + i*TEXTBOX_SIZE, yBasePosition + 20, TEXTBOX_SIZE, TEXTBOX_SIZE};    // TextBox: TextBoxPrior0
     }
+
+    layoutRecsButtonRandom = (Rectangle){AnchorPrior.x + 15, AnchorPrior.y + 15, 70, 28};
 }

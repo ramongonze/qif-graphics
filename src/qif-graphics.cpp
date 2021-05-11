@@ -31,8 +31,8 @@ void printError(int error, GuiVisualization &visualization);
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
 static void drawGuiMenu(GuiMenu &menu);
-static void drawGuiPrior(GuiPrior &prior);
-static void drawGuiChannel(GuiChannel &channel);
+static void drawGuiPrior(Gui &gui, Data &data);
+static void drawGuiChannel(Gui &gui, Data &data);
 static void drawGuiPosteriors(GuiPosteriors &posteriors);
 static void drawGuiVisualization(Gui &gui, Data &data);
 static void drawCircles(Gui &gui, Data &data);
@@ -40,12 +40,14 @@ static void drawCircles(Gui &gui, Data &data);
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-static void buttonOpen();                // Button: buttonOpen logic
-static void buttonSave();                // Button: buttonSave logic
-static void buttonExamples();                // Button: buttonExamples logic
-static void buttonHelp();                // Button: buttonHelp logic
-static void buttonAbout();                // Button: buttonAbout logic
-static void buttonDraw(Gui &gui, Data &data);       // Button: buttonDraw logic
+static void buttonOpen();;
+static void buttonSave();
+static void buttonExamples();
+static void buttonHelp();
+static void buttonAbout();
+static void buttonRandomPrior(Gui &gui, Data &data);
+static void buttonRandomChannel(Gui &gui, Data &data);
+static void buttonDraw(Gui &gui, Data &data);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -124,8 +126,8 @@ int main(){
             //----------------------------------------------------------------------------------
             // Draw controls
             drawGuiMenu(gui.menu);
-            drawGuiPrior(gui.prior);
-            drawGuiChannel(gui.channel);
+            drawGuiPrior(gui, data);
+            drawGuiChannel(gui, data);
             drawGuiPosteriors(gui.posteriors);
             drawGuiVisualization(gui, data);
             //----------------------------------------------------------------------------------
@@ -173,33 +175,36 @@ static void drawGuiMenu(GuiMenu &menu){
     GuiLine(menu.layoutRecsLine, NULL);
 }
 
-static void drawGuiPrior(GuiPrior &prior){
-    GuiGroupBox(prior.layoutRecsGroupBox, prior.GroupBoxPriorText);
+static void drawGuiPrior(Gui &gui, Data &data){
+    GuiGroupBox(gui.prior.layoutRecsGroupBox, gui.prior.GroupBoxPriorText);
+    if (GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
     for(int i = 0; i < 3; i++){
-        GuiLabel(prior.layoutRecsLabel[i], prior.LabelPriorText[i].c_str());
-        if (GuiTextBox(prior.layoutRecsTextBox[i], prior.TextBoxPriorText[i], 128, prior.TextBoxPriorEditMode[i])) prior.TextBoxPriorEditMode[i] = !prior.TextBoxPriorEditMode[i];
+        GuiLabel(gui.prior.layoutRecsLabel[i], gui.prior.LabelPriorText[i].c_str());
+        if (GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], 128, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
     }
 }
 
-static void drawGuiChannel(GuiChannel &channel){
-    GuiGroupBox(channel.layoutRecsGroupBox, channel.GroupBoxChannelText);
-    if (GuiSpinner(channel.layoutRecsSpinner, "", &(channel.SpinnerChannelValue), 0, 100, channel.SpinnerChannelEditMode)) channel.SpinnerChannelEditMode = !channel.SpinnerChannelEditMode;
+static void drawGuiChannel(Gui &gui, Data &data){
+    GuiGroupBox(gui.channel.layoutRecsGroupBox, gui.channel.GroupBoxChannelText);
+    if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
+
+    if (GuiSpinner(gui.channel.layoutRecsSpinner, "", &(gui.channel.SpinnerChannelValue), 0, 100, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
     Rectangle viewScrollChannel = GuiScrollPanel(
-        (Rectangle){channel.layoutRecsScrollPanel.x, channel.layoutRecsScrollPanel.y, channel.layoutRecsScrollPanel.width - channel.ScrollPanelChannelBoundsOffset.x, channel.layoutRecsScrollPanel.height - channel.ScrollPanelChannelBoundsOffset.y },
-        (Rectangle){channel.layoutRecsScrollPanel.x, channel.layoutRecsScrollPanel.y, channel.ScrollPanelChannelContent.x, channel.ScrollPanelChannelContent.y},
-        &(channel.ScrollPanelChannelScrollOffset)
+        (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.layoutRecsScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.layoutRecsScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
+        (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
+        &(gui.channel.ScrollPanelChannelScrollOffset)
     );
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
-        GuiLabel((Rectangle){channel.layoutRecsLabelOutputs.x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelOutputs.y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelOutputs.width, channel.layoutRecsLabelOutputs.height}, channel.LabelOutputsText);
-        for(int i = 0; i < channel.numOutputs; i++){
-            GuiLabel((Rectangle){channel.layoutRecsLabelY[i].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelY[i].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelY[i].width, channel.layoutRecsLabelY[i].height}, channel.LabelChannelYText[i].c_str());
+        GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
+        for(int i = 0; i < gui.channel.numOutputs; i++){
+            GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
             for(int j = 0; j < 3; j++){
-                if (GuiTextBox((Rectangle){channel.layoutRecsTextBoxChannel[i][j].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsTextBoxChannel[i][j].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsTextBoxChannel[i][j].width, channel.layoutRecsTextBoxChannel[i][j].height}, channel.TextBoxChannelText[i][j], 128, channel.TextBoxChannelEditMode[i][j]))channel.TextBoxChannelEditMode[i][j] = !channel.TextBoxChannelEditMode[i][j];
+                if (GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[i][j], 128, gui.channel.TextBoxChannelEditMode[i][j]))gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
             }
         }
 
         for(int i = 0; i < 3; i++){
-            GuiLabel((Rectangle){channel.layoutRecsLabelX[i].x + channel.ScrollPanelChannelScrollOffset.x, channel.layoutRecsLabelX[i].y + channel.ScrollPanelChannelScrollOffset.y, channel.layoutRecsLabelX[i].width, channel.layoutRecsLabelX[i].height}, channel.LabelChannelXText[i].c_str());
+            GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
         }
     EndScissorMode();
 }
@@ -275,27 +280,39 @@ static void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-// Button: buttonOpen logic
 static void buttonOpen(){
     // TODO: Implement control logic
 }
-// Button: buttonSave logic
+
 static void buttonSave(){
     // TODO: Implement control logic
 }
-// Button: buttonExamples logic
+
 static void buttonExamples(){
     // TODO: Implement control logic
 }
-// Button: buttonHelp logic
+
 static void buttonHelp(){
     // TODO: Implement control logic
 }
-// Button: buttonAbout logic
+
 static void buttonAbout(){
     // TODO: Implement control logic
 }
-// Button: buttonDraw logic
+
+static void buttonRandomPrior(Gui &gui, Data &data){
+    data.newRandomPrior();
+    gui.drawing = false;
+    Distribution newPrior(data.prior);
+    gui.updatePrior(newPrior, data.priorCircle);
+}
+
+static void buttonRandomChannel(Gui &gui, Data &data){
+    data.newRandomChannel(gui.channel.numOutputs);
+    gui.drawing = false;
+    gui.channel.updateChannelTextBoxes(data.channel);
+}
+
 static void buttonDraw(Gui &gui, Data &data){
     int error = NO_ERROR;
 

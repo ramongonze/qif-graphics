@@ -16,6 +16,7 @@ public:
 
     // Const text
     const char *GroupBoxPriorText;    // GROUPBOX: GroupBoxPrior
+    const char *buttonRandomText;
     vector<string> LabelPriorText;    // LABEL: LabelPriorX1
 
     // Define anchors
@@ -29,6 +30,7 @@ public:
     Rectangle layoutRecsGroupBox;    // GroupBox: GroupBoxPrior
     vector<Rectangle> layoutRecsLabel;
     vector<Rectangle> layoutRecsTextBox;
+    Rectangle layoutRecsButtonRandom;
 
 };
 

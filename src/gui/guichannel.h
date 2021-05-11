@@ -20,6 +20,7 @@ public:
     // Text
     const char *GroupBoxChannelText;    // GROUPBOX: GroupBoxChannel
     const char *LabelOutputsText;    // LABEL: LabelOutputs
+    const char *buttonRandomText;
     vector<string> LabelChannelXText;
     vector<string> LabelChannelYText;
 
@@ -40,6 +41,7 @@ public:
     Rectangle layoutRecsSpinner;    // Spinner: SpinnerChannel
     Rectangle layoutRecsScrollPanel;    // ScrollPanel: ScrollPanelChannel
     Rectangle layoutRecsLabelOutputs;    // Label: LabelOutputs
+    Rectangle layoutRecsButtonRandom;
     vector<Rectangle> layoutRecsLabelX;
     vector<Rectangle> layoutRecsLabelY;
     
@@ -50,6 +52,9 @@ public:
     
     // If the channel spinner was changed, update the TextBoxChannel matrices
     void updateChannelBySpinner();
+
+    // Update channel textboxes text when the random button is pressed
+    void updateChannelTextBoxes(vector<vector<long double>> &channel);
 };
 
 #endif

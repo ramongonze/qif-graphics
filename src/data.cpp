@@ -149,13 +149,9 @@ Point Data::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
     Point TP1(TrianglePoints[1].x, WINDOWS_HEIGHT - TrianglePoints[1].y);
     Point TP2(TrianglePoints[2].x, WINDOWS_HEIGHT - TrianglePoints[2].y);
 
-    // cout << "mousePosition: " << mousePosition.x << ", " << mousePosition.y << endl;
-
     int oL = orientation(TP1, mousePosition, TP0); // Left edge
     int oR = orientation(TP2, mousePosition, TP0); // Right edge
     int oD = orientation(TP1, mousePosition, TP2); // Down edge
-
-    // cout << "oL: " << oL << ", oR: " << oR << ", oD: " << oD << endl;
 
     // Check if the mosuePoint is colinear with one of the triangle edges.
     if(oL == 0){

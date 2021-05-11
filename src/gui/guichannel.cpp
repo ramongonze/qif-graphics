@@ -9,6 +9,7 @@ GuiChannel::GuiChannel(){
     LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
     LabelChannelXText = vector<string>({"X1", "X2", "X3"});
     LabelChannelYText = vector<string>({"Y1", "Y2", "Y3"});
+    buttonRandomText = "Random";
 
     // Define anchors
     AnchorChannel = {10, 195};            // ANCHOR ID:2
@@ -52,6 +53,8 @@ GuiChannel::GuiChannel(){
         }
     }
 
+    layoutRecsButtonRandom = (Rectangle){AnchorChannel.x + 15, AnchorChannel.y + 15, 70, 28};
+
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[numOutputs-1][0].x + TEXTBOX_SIZE;
 }
 
@@ -94,4 +97,15 @@ void GuiChannel::updateChannelBySpinner(){
     }
 
     numOutputs = SpinnerChannelValue;
+}
+
+void GuiChannel::updateChannelTextBoxes(vector<vector<long double>> &channel){
+    char buffer[128];
+
+    for(int i = 0; i < channel.size(); i++){
+        for(int j = 0; j < channel[i].size(); j++){
+            sprintf(buffer, "%.3Lf", channel[i][j]);
+            strcpy(TextBoxChannelText[i][j], buffer);
+        }
+    }
 }
