@@ -6,6 +6,8 @@
 #include "guichannel.h"
 #include "guiposteriors.h"
 #include "guivisualization.h"
+#include <fstream>
+#include <cmath>
 
 class Gui{
 private:
@@ -31,6 +33,18 @@ public:
     /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move
 	 * the pressed TextBox. */
 	void moveAmongTextBoxes();
+
+	/* Update TextBoxes of prior distribution .*/
+	void updatePrior(Distribution &prior, Circle &priorCircle);
+
+    void updatePriorRectangle(Circle &priorCircle);
+
+    /* If a hyper-distributin has been built, update outer and inners TextBoxes;.
+	 * 
+	 * @Parameters:
+	 * 		hyper: Hyper-distribution;
+	 */
+	void updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles);
 };
 
 #endif

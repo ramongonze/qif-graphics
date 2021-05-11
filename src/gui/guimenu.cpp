@@ -16,5 +16,5 @@ GuiMenu::GuiMenu(){
     layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){280, 10, 80, 32};    // Button: buttonHelp
     layoutRecsButtons[REC_BUTTON_ABOUT] = (Rectangle){370, 10, 80, 32};    // Button: buttonAbout
     
-    layoutRecsLine = (Rectangle){0, 45, 1045, 10};    // Line: LineMenu
+    layoutRecsLine = (Rectangle){0, 45, 1130, 10};    // Line: LineMenu
 }

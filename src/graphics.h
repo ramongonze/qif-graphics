@@ -19,7 +19,7 @@ using namespace std;
 #define WINDOWS_HEIGHT 630
 
 // Prior probability distribution radius (in pixels) **********************************************/
-#define PRIOR_RADIUS 30
+#define PRIOR_RADIUS 50
 
 class Point{
 	public:

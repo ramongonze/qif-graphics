@@ -35,6 +35,7 @@ static void drawGuiPrior(GuiPrior &prior);
 static void drawGuiChannel(GuiChannel &channel);
 static void drawGuiPosteriors(GuiPosteriors &posteriors);
 static void drawGuiVisualization(Gui &gui, Data &data);
+static void drawCircles(Gui &gui, Data &data);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -52,7 +53,7 @@ static void buttonDraw(Gui &gui, Data &data);       // Button: buttonDraw logic
 int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
-    int screenWidth = 1045;
+    int screenWidth = 1130;
     int screenHeight = 800;
 
     InitWindow(screenWidth, screenHeight, "QIF Graphics");
@@ -81,13 +82,13 @@ int main(){
         
         // Check if channel spinner value was changed
         if(gui.channel.SpinnerChannelValue != gui.channel.numOutputs){
-            data.hyperReady = false;
+            gui.drawing = false;
             gui.channel.updateChannelBySpinner();
         }
 
         // Check if a TextBox is being pressed
         if(gui.checkTextBoxPressed()){
-            data.hyperReady = false;
+            gui.drawing = false;
             printError(NO_ERROR, gui.visualization);
 
             if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
@@ -96,7 +97,21 @@ int main(){
 			}
         }
 
-        
+        if(gui.drawing){
+            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
+                euclidianDistance(data.priorCircle.center, mousePosition) <= PRIOR_RADIUS){
+                data.mouseClickedOnPrior = true;
+            }
+
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data.mouseClickedOnPrior = false;
+            
+            if(data.mouseClickedOnPrior){
+                data.updateHyper(gui.visualization.trianglePoints);
+                data.buildCircles(gui.visualization.trianglePoints);
+                gui.updatePrior(data.hyper.prior, data.priorCircle);
+                gui.updatePosteriors(data.hyper, data.innersCircles);
+            }
+        }
         //----------------------------------------------------------------------------------
 
         // Draw
@@ -222,12 +237,39 @@ static void drawGuiPosteriors(GuiPosteriors &posteriors){
 static void drawGuiVisualization(Gui &gui, Data &data){
     GuiGroupBox(gui.visualization.layoutRecsGroupBoxVisualization, gui.visualization.GroupBoxVisualizationText);
     if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
+    
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
     GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, 128, gui.visualization.TextBoxStatusEditMode);
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
+    
     GuiPanel(gui.visualization.layoutRecsPanelVisualization);
+
+    if(gui.drawing){
+        // Triangle
+        DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
+        for(int i = 0; i < 3; i++){
+            DrawTextEx(gui.visualization.alternativeFont, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
+        }
+        
+        // Circles
+        drawCircles(gui, data);
+    }
+}
+
+static void drawCircles(Gui &gui, Data &data){
+	// Prior
+    DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, (Color){0, 102, 204, 210});
+    DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, (Color){0, 102, 204, 240});
+	DrawTextEx(gui.visualization.alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.visualization.alternativeFont.baseSize, 1.0, BLACK);
+
+	// Inners
+	for(int i = 0; i < data.innersCircles.size(); i++){
+        DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, (Color){40, 164, 40, 210});
+        DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, (Color){40, 164, 40, 240});
+        DrawTextEx(gui.visualization.alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
+	}
 }
 
 //------------------------------------------------------------------------------------
@@ -262,6 +304,20 @@ static void buttonDraw(Gui &gui, Data &data){
         // Check if typed numbers represent distributions
         if(Distribution::isDistribution(data.prior) == false) error = INVALID_PRIOR;
         else if(Channel::isChannel(data.channel) == false) error = INVALID_CHANNEL;
+
+        if(error == NO_ERROR){
+            Distribution newPrior(data.prior);
+            Channel newChannel(newPrior, data.channel);
+            data.hyper = Hyper(newChannel);
+
+            data.buildCircles(gui.visualization.trianglePoints);
+
+            gui.updatePriorRectangle(data.priorCircle);
+            gui.updatePosteriors(data.hyper, data.innersCircles);
+            gui.drawing = true;
+        }else{
+            gui.drawing = false;
+        }
     }else{
         error = INVALID_VALUE;
         gui.drawing = false;

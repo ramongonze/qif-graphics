@@ -31,6 +31,7 @@ int Data::checkPriorText(vector<char*> &prior_){
             	newPrior[i] = make_pair("$", priorStr[i]);
             }
         }
+        
         // Update values
         this->prior = vector<long double>(priorStr.size());
         for(int i = 0; i < priorStr.size(); i++){
