@@ -5,10 +5,15 @@ GuiPosteriors::GuiPosteriors(){
     numPosteriors = 3;
     
     // Const text
-    GroupBoxPosteriorsText = "Posterior distributions";    // GROUPBOX: GroupBoxPosteriors
-    LabelOuterText = "Outer";    // LABEL: LabelOuter
-    LabelPosteriorsText = vector<string>({"I1", "I2", "I3"});
-    LabelPosteriorsXText = vector<string>({"X1", "X2", "X3"});
+    GroupBoxPosteriorsText = (char*) malloc(128*sizeof(char));
+    LabelOuterText = (char*) malloc(128*sizeof(char));
+    strcpy(GroupBoxPosteriorsText, "Posterior distributions");
+    strcpy(LabelOuterText, "Outer");
+
+    LabelPosteriorsXText = vector<string>(3);
+    LabelPosteriorsText = vector<string>(3);
+    LabelPosteriorsXText = {"X1", "X2", "X3"};
+    LabelPosteriorsText = {"I1", "I2", "I3"};
 
     // Define anchors
     AnchorPosterior = {10, 490};            // ANCHOR ID:4

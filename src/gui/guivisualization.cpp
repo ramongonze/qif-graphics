@@ -2,8 +2,10 @@
 
 GuiVisualization::GuiVisualization(){
     // Const text
-    GroupBoxVisualizationText = "Visualization";    // GROUPBOX: GroupBoxVisualization
-    ButtonDrawText = "Draw";    // BUTTON: buttonDraw
+    GroupBoxVisualizationText = (char*) malloc(128*sizeof(char));
+    ButtonDrawText = (char*) malloc(128*sizeof(char));
+    strcpy(GroupBoxVisualizationText, "Visualization");
+    strcpy(ButtonDrawText, "Draw");
     
     // Define anchors
     AnchorVisualization = {380, 65};            // ANCHOR ID:3

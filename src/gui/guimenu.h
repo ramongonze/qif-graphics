@@ -3,6 +3,8 @@
 
 #include <vector>
 #include "../../libs/raylib/src/raylib.h"
+#include <stdlib.h>
+#include <string.h>
 using namespace std;
 
 #define REC_BUTTON_OPEN 0

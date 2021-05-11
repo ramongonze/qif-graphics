@@ -30,24 +30,24 @@ void printError(int error, GuiVisualization &visualization);
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
-static void drawGuiMenu(GuiMenu &menu);
-static void drawGuiPrior(Gui &gui, Data &data);
-static void drawGuiChannel(Gui &gui, Data &data);
-static void drawGuiPosteriors(GuiPosteriors &posteriors);
-static void drawGuiVisualization(Gui &gui, Data &data);
-static void drawCircles(Gui &gui, Data &data);
+void drawGuiMenu(GuiMenu &menu);
+void drawGuiPrior(Gui &gui, Data &data);
+void drawGuiChannel(Gui &gui, Data &data);
+void drawGuiPosteriors(GuiPosteriors &posteriors);
+void drawGuiVisualization(Gui &gui, Data &data);
+void drawCircles(Gui &gui, Data &data);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-static void buttonOpen();;
-static void buttonSave();
-static void buttonExamples();
-static void buttonHelp();
-static void buttonAbout();
-static void buttonRandomPrior(Gui &gui, Data &data);
-static void buttonRandomChannel(Gui &gui, Data &data);
-static void buttonDraw(Gui &gui, Data &data);
+void buttonOpen();;
+void buttonSave();
+void buttonExamples();
+void buttonHelp();
+void buttonAbout();
+void buttonRandomPrior(Gui &gui, Data &data);
+void buttonRandomChannel(Gui &gui, Data &data);
+void buttonDraw(Gui &gui, Data &data);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -78,9 +78,7 @@ int main(){
     while(!WindowShouldClose()){    // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
-        int error = NO_ERROR;     // Flag that indicates if an error has been occurred
         Vector2 mousePosition = GetMousePosition();
-        int numPost;
         
         // Check if channel spinner value was changed
         if(gui.channel.SpinnerChannelValue != gui.channel.numOutputs){
@@ -166,7 +164,7 @@ void printError(int error, GuiVisualization &visualization){
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
-static void drawGuiMenu(GuiMenu &menu){
+void drawGuiMenu(GuiMenu &menu){
     if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_OPEN], menu.buttonOpenText)) buttonOpen(); 
     if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_SAVE], menu.buttonSaveText)) buttonSave(); 
     if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], menu.buttonExamplesText)) buttonExamples(); 
@@ -175,7 +173,7 @@ static void drawGuiMenu(GuiMenu &menu){
     GuiLine(menu.layoutRecsLine, NULL);
 }
 
-static void drawGuiPrior(Gui &gui, Data &data){
+void drawGuiPrior(Gui &gui, Data &data){
     GuiGroupBox(gui.prior.layoutRecsGroupBox, gui.prior.GroupBoxPriorText);
     if (GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
     for(int i = 0; i < 3; i++){
@@ -184,7 +182,7 @@ static void drawGuiPrior(Gui &gui, Data &data){
     }
 }
 
-static void drawGuiChannel(Gui &gui, Data &data){
+void drawGuiChannel(Gui &gui, Data &data){
     GuiGroupBox(gui.channel.layoutRecsGroupBox, gui.channel.GroupBoxChannelText);
     if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
 
@@ -209,7 +207,7 @@ static void drawGuiChannel(Gui &gui, Data &data){
     EndScissorMode();
 }
 
-static void drawGuiPosteriors(GuiPosteriors &posteriors){
+void drawGuiPosteriors(GuiPosteriors &posteriors){
     GuiGroupBox(posteriors.layoutRecsGroupBox, posteriors.GroupBoxPosteriorsText);
     Rectangle viewScrollPosteriors = GuiScrollPanel(
         (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y },
@@ -239,7 +237,7 @@ static void drawGuiPosteriors(GuiPosteriors &posteriors){
     EndScissorMode();
 }
 
-static void drawGuiVisualization(Gui &gui, Data &data){
+void drawGuiVisualization(Gui &gui, Data &data){
     GuiGroupBox(gui.visualization.layoutRecsGroupBoxVisualization, gui.visualization.GroupBoxVisualizationText);
     if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
     
@@ -263,14 +261,14 @@ static void drawGuiVisualization(Gui &gui, Data &data){
     }
 }
 
-static void drawCircles(Gui &gui, Data &data){
+void drawCircles(Gui &gui, Data &data){
 	// Prior
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, (Color){0, 102, 204, 210});
     DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, (Color){0, 102, 204, 240});
 	DrawTextEx(gui.visualization.alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.visualization.alternativeFont.baseSize, 1.0, BLACK);
 
 	// Inners
-	for(int i = 0; i < data.innersCircles.size(); i++){
+	for(long unsigned int i = 0; i < data.innersCircles.size(); i++){
         DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, (Color){40, 164, 40, 210});
         DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, (Color){40, 164, 40, 240});
         DrawTextEx(gui.visualization.alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
@@ -280,40 +278,40 @@ static void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-static void buttonOpen(){
+void buttonOpen(){
     // TODO: Implement control logic
 }
 
-static void buttonSave(){
+void buttonSave(){
     // TODO: Implement control logic
 }
 
-static void buttonExamples(){
+void buttonExamples(){
     // TODO: Implement control logic
 }
 
-static void buttonHelp(){
+void buttonHelp(){
     // TODO: Implement control logic
 }
 
-static void buttonAbout(){
+void buttonAbout(){
     // TODO: Implement control logic
 }
 
-static void buttonRandomPrior(Gui &gui, Data &data){
+void buttonRandomPrior(Gui &gui, Data &data){
     data.newRandomPrior();
     gui.drawing = false;
     Distribution newPrior(data.prior);
     gui.updatePrior(newPrior, data.priorCircle);
 }
 
-static void buttonRandomChannel(Gui &gui, Data &data){
+void buttonRandomChannel(Gui &gui, Data &data){
     data.newRandomChannel(gui.channel.numOutputs);
     gui.drawing = false;
     gui.channel.updateChannelTextBoxes(data.channel);
 }
 
-static void buttonDraw(Gui &gui, Data &data){
+void buttonDraw(Gui &gui, Data &data){
     int error = NO_ERROR;
 
     // Check if prior and channel are ok

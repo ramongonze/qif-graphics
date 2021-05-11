@@ -2,9 +2,12 @@
 
 GuiPrior::GuiPrior(){
     // Const text
-    GroupBoxPriorText = "Prior distribution";    // GROUPBOX: GroupBoxPrior
-    LabelPriorText = vector<string>({"X1", "X2", "X3"});    // LABEL: LabelPriorX1
-    buttonRandomText = "Random";
+    GroupBoxPriorText = (char*) malloc(128*sizeof(char));
+    buttonRandomText = (char*) malloc(128*sizeof(char));
+    strcpy(GroupBoxPriorText, "Prior distribution");
+    strcpy(buttonRandomText, "Random");
+    LabelPriorText = vector<string>(3);
+    LabelPriorText = {"X1", "X2", "X3"};
     
     // Define anchors
     AnchorPrior = {10, 65};            // ANCHOR ID:1
@@ -20,8 +23,8 @@ GuiPrior::GuiPrior(){
     // Define controls rectangles
     layoutRecsGroupBox = {AnchorPrior.x + 0, AnchorPrior.y + 0, 350, 110};    // GroupBox: GroupBoxPrior
 
-    int xBasePosition = layoutRecsGroupBox.x + (int)((layoutRecsGroupBox.width - 3*TEXTBOX_SIZE)/2);
-    int yBasePosition = layoutRecsGroupBox.y + (int)((layoutRecsGroupBox.height-TEXTBOX_SIZE-10)/2);
+    float xBasePosition = layoutRecsGroupBox.x + (int)((layoutRecsGroupBox.width - 3*TEXTBOX_SIZE)/2);
+    float yBasePosition = layoutRecsGroupBox.y + (int)((layoutRecsGroupBox.height-TEXTBOX_SIZE-10)/2);
     layoutRecsLabel = vector<Rectangle>(3);
     for(int i = 0; i < 3; i++){
         layoutRecsLabel[i] = (Rectangle){xBasePosition + i*TEXTBOX_SIZE, yBasePosition, TEXTBOX_SIZE, 20};    // Label: LabelPriorX

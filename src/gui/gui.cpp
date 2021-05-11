@@ -10,12 +10,12 @@ Gui::Gui(){
 }
 
 bool Gui::checkTextBoxPressed(){
-    for(int i = 0; i < prior.TextBoxPriorEditMode.size(); i++)
+    for(long unsigned int i = 0; i < prior.TextBoxPriorEditMode.size(); i++)
         if(prior.TextBoxPriorEditMode[i] == true)
             return true;
 
-    for(int i = 0; i < channel.TextBoxChannelEditMode.size(); i++)
-        for(int j = 0; j < channel.TextBoxChannelEditMode[i].size(); j++)
+    for(long unsigned int i = 0; i < channel.TextBoxChannelEditMode.size(); i++)
+        for(long unsigned int j = 0; j < channel.TextBoxChannelEditMode[i].size(); j++)
             if(channel.TextBoxChannelEditMode[i][j] == true)
                 return true;
 
@@ -124,8 +124,8 @@ void Gui::updatePrior(Distribution &_prior, Circle &priorCircle){
 
 void Gui::updatePriorRectangle(Circle &priorCircle){
     visualization.layoutRecsLabelPriorCircle = (Rectangle) {
-        priorCircle.center.x - 8,
-        priorCircle.center.y - 15,
+        (float) priorCircle.center.x - 8,
+        (float) priorCircle.center.y - 15,
         30,
         30
     };
@@ -206,8 +206,8 @@ void Gui::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles){
 
         // Update circle labels and rectangles
         visualization.layoutRecsLabelInnersCircles[i] = (Rectangle){
-            innersCircles[i].center.x - 8,
-            innersCircles[i].center.y - 11,
+            (float) innersCircles[i].center.x - 8,
+            (float) innersCircles[i].center.y - 11,
             20,
             20
         };

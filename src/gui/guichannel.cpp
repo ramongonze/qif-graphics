@@ -5,11 +5,16 @@ GuiChannel::GuiChannel(){
     numOutputs = 3;
 
     // Text
-    GroupBoxChannelText = "Channel";    // GROUPBOX: GroupBoxChannel
-    LabelOutputsText = "Outputs";    // LABEL: LabelOutputs
-    LabelChannelXText = vector<string>({"X1", "X2", "X3"});
-    LabelChannelYText = vector<string>({"Y1", "Y2", "Y3"});
-    buttonRandomText = "Random";
+    GroupBoxChannelText = (char*) malloc(128*sizeof(char));
+    LabelOutputsText = (char*) malloc(128*sizeof(char));
+    buttonRandomText = (char*) malloc(128*sizeof(char));
+    strcpy(GroupBoxChannelText, "Channel");
+    strcpy(LabelOutputsText, "Outputs");
+    strcpy(buttonRandomText, "Random");
+    LabelChannelXText = vector<string>(3);
+    LabelChannelXText = {"X1", "X2", "X3"};
+    LabelChannelYText = vector<string>(3);
+    LabelChannelYText = {"Y1", "Y2", "Y3"};
 
     // Define anchors
     AnchorChannel = {10, 195};            // ANCHOR ID:2
@@ -36,8 +41,7 @@ GuiChannel::GuiChannel(){
     layoutRecsLabelOutputs = {AnchorChannel.x + 175, AnchorChannel.y + 15, 58, 25};    // Label: LabelOutputs
     layoutRecsLabelX = vector<Rectangle>(3);
 
-    int xBasePosition = layoutRecsScrollPanel.x + 10;
-    for(int i = 0; i < layoutRecsLabelX.size(); i++){
+    for(long unsigned int i = 0; i < layoutRecsLabelX.size(); i++){
         layoutRecsLabelX[i] = (Rectangle){AnchorChannel.x + 40, AnchorChannel.y + 90 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
     }
 
@@ -54,7 +58,6 @@ GuiChannel::GuiChannel(){
     }
 
     layoutRecsButtonRandom = (Rectangle){AnchorChannel.x + 15, AnchorChannel.y + 15, 70, 28};
-
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[numOutputs-1][0].x + TEXTBOX_SIZE;
 }
 
@@ -82,7 +85,7 @@ void GuiChannel::updateChannelBySpinner(){
             TextBoxChannelEditMode.push_back(vector<bool>(3, false));
             TextBoxChannelText.push_back(vector<char*>(3));
             
-            char buffer[5];
+            char buffer[128];
             sprintf(buffer, "Y%d", i+1);
             LabelChannelYText.push_back(string(buffer));
             for(int j = 0; j < 3; j++){
@@ -102,8 +105,8 @@ void GuiChannel::updateChannelBySpinner(){
 void GuiChannel::updateChannelTextBoxes(vector<vector<long double>> &channel){
     char buffer[128];
 
-    for(int i = 0; i < channel.size(); i++){
-        for(int j = 0; j < channel[i].size(); j++){
+    for(long unsigned int i = 0; i < channel.size(); i++){
+        for(long unsigned int j = 0; j < channel[i].size(); j++){
             sprintf(buffer, "%.3Lf", channel[i][j]);
             strcpy(TextBoxChannelText[i][j], buffer);
         }

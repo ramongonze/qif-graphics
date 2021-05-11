@@ -11,12 +11,12 @@ int Data::checkPriorText(vector<char*> &prior_){
     vector<pair<string, string>> newPrior(prior_.size());
     vector<string> priorStr(prior_.size());
 
-    for(int i = 0; i < priorStr.size(); i++){
+    for(long unsigned int i = 0; i < priorStr.size(); i++){
     	priorStr[i] = string(prior_[i]);
     }
 
     try{
-        for(int i = 0; i < prior_.size(); i++){
+        for(long unsigned int i = 0; i < prior_.size(); i++){
             size_t pos = priorStr[i].find('/');
             if(pos != string::npos){ // If true, the user is typing a fraction
                 string numerator = priorStr[i].substr(0, pos);
@@ -34,7 +34,7 @@ int Data::checkPriorText(vector<char*> &prior_){
         
         // Update values
         this->prior = vector<long double>(priorStr.size());
-        for(int i = 0; i < priorStr.size(); i++){
+        for(long unsigned int i = 0; i < priorStr.size(); i++){
         	if(newPrior[i].first == "$"){
         		this->prior[i] = std::stold(newPrior[i].second);
         	}else{
@@ -52,15 +52,15 @@ int Data::checkChannelText(vector<vector<char*>> &channel_){
     vector<vector<pair<string, string>>> newChannel(channel_.size(), vector<pair<string, string>>(channel_[0].size()));
     vector<vector<string>> channelStr(channel_.size(), vector<string>(channel_[0].size()));
 
-    for(int i = 0; i < channelStr.size(); i++){
-    	for(int j = 0; j < channelStr[i].size(); j++){
+    for(long unsigned int i = 0; i < channelStr.size(); i++){
+    	for(long unsigned int j = 0; j < channelStr[i].size(); j++){
     		channelStr[i][j] = string(channel_[i][j]);
     	}
     }
 
     try{
-        for(int i = 0; i < channelStr.size(); i++){
-            for(int j = 0; j < channelStr[i].size(); j++){
+        for(long unsigned int i = 0; i < channelStr.size(); i++){
+            for(long unsigned int j = 0; j < channelStr[i].size(); j++){
                 size_t pos = channelStr[i][j].find('/');
                 if(pos != string::npos){ // If true, the user is typing a fraction
                     string numerator = channelStr[i][j].substr(0, pos);
@@ -79,8 +79,8 @@ int Data::checkChannelText(vector<vector<char*>> &channel_){
 
         // Update values. Columns and rows are inverted in channelStr.
         this->channel = vector<vector<long double>>(channelStr[0].size(), vector<long double>(channelStr.size()));
-        for(int i = 0; i < channelStr.size(); i++){
-        	for(int j = 0; j < channelStr[i].size(); j++){
+        for(long unsigned int i = 0; i < channelStr.size(); i++){
+        	for(long unsigned int j = 0; j < channelStr[i].size(); j++){
         		if(newChannel[i][j].first == "$"){
         			this->channel[j][i] = std::stold(newChannel[i][j].second);
         		}else{
@@ -289,7 +289,7 @@ void Data::newRandomChannel(int num_out){
 
         random_shuffle(prob.begin(), prob.end());
 
-        for(int j = 0; j < channel.size(); j++){
+        for(long unsigned int j = 0; j < channel.size(); j++){
             channel[j][i] = prob[j];
         }
     }

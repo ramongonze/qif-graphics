@@ -2,11 +2,17 @@
 
 GuiMenu::GuiMenu(){
     // Const text
-    buttonOpenText = "Open";    // BUTTON: buttonOpen
-    buttonSaveText = "Save";    // BUTTON: buttonSave
-    buttonExamplesText = "Examples";    // BUTTON: buttonExamples
-    buttonHelpText = "Help";    // BUTTON: buttonHelp
-    buttonAboutText = "About";    // BUTTON: buttonAbout
+    buttonOpenText = (char*) malloc(128*sizeof(char));
+    buttonSaveText = (char*) malloc(128*sizeof(char));
+    buttonExamplesText = (char*) malloc(128*sizeof(char));
+    buttonHelpText = (char*) malloc(128*sizeof(char));
+    buttonAboutText = (char*) malloc(128*sizeof(char));
+
+    strcpy(buttonOpenText, "Open");
+    strcpy(buttonSaveText, "Save");
+    strcpy(buttonExamplesText, "Examples");
+    strcpy(buttonHelpText, "Help");
+    strcpy(buttonAboutText, "About");
 
     // Define controls rectangles
     layoutRecsButtons = vector<Rectangle>(6);
