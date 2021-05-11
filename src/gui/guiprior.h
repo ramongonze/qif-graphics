@@ -15,8 +15,8 @@ public:
     GuiPrior();
 
     // Const text
-    const char *GroupBoxPriorText;    // GROUPBOX: GroupBoxPrior
-    const char *buttonRandomText;
+    char *GroupBoxPriorText;    // GROUPBOX: GroupBoxPrior
+    char *buttonRandomText;
     vector<string> LabelPriorText;    // LABEL: LabelPriorX1
 
     // Define anchors

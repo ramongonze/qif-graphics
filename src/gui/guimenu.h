@@ -18,11 +18,11 @@ public:
     GuiMenu();
 
     // Const text
-    const char *buttonOpenText;    // BUTTON: buttonOpen
-    const char *buttonSaveText;    // BUTTON: buttonSave
-    const char *buttonExamplesText;    // BUTTON: buttonExamples
-    const char *buttonHelpText;    // BUTTON: buttonHelp
-    const char *buttonAboutText;    // BUTTON: buttonAbout
+    char *buttonOpenText;    // BUTTON: buttonOpen
+    char *buttonSaveText;    // BUTTON: buttonSave
+    char *buttonExamplesText;    // BUTTON: buttonExamples
+    char *buttonHelpText;    // BUTTON: buttonHelp
+    char *buttonAboutText;    // BUTTON: buttonAbout
 
     // Define controls rectangles
     vector<Rectangle> layoutRecsButtons;

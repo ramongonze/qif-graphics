@@ -18,9 +18,9 @@ public:
     int numOutputs;
 
     // Text
-    const char *GroupBoxChannelText;    // GROUPBOX: GroupBoxChannel
-    const char *LabelOutputsText;    // LABEL: LabelOutputs
-    const char *buttonRandomText;
+    char *GroupBoxChannelText;    // GROUPBOX: GroupBoxChannel
+    char *LabelOutputsText;    // LABEL: LabelOutputs
+    char *buttonRandomText;
     vector<string> LabelChannelXText;
     vector<string> LabelChannelYText;
 

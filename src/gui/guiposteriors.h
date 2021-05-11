@@ -18,8 +18,8 @@ public:
     int numPosteriors;
 
     // Const text
-    const char *GroupBoxPosteriorsText;    // GROUPBOX: GroupBoxPosteriors
-    const char *LabelOuterText;    // LABEL: LabelOuter
+    char *GroupBoxPosteriorsText;    // GROUPBOX: GroupBoxPosteriors
+    char *LabelOuterText;    // LABEL: LabelOuter
     vector<string> LabelPosteriorsText;     // LabelPosteriors
     vector<string> LabelPosteriorsXText;    // LabelPosteriorsX
 

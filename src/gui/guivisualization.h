@@ -18,8 +18,8 @@ public:
     GuiVisualization();
 
     // Const text
-    const char *GroupBoxVisualizationText;    // GROUPBOX: GroupBoxVisualization
-    const char *ButtonDrawText;    // BUTTON: buttonDraw
+    char *GroupBoxVisualizationText;    // GROUPBOX: GroupBoxVisualization
+    char *ButtonDrawText;    // BUTTON: buttonDraw
     char *LabelPriorCircleText;
     
     // Define anchors
