@@ -5,6 +5,7 @@ Data::Data(){
     this->mouseClickedOnPrior = false;
     this->prior = vector<long double>(3, 0);
     this->channel = vector<vector<long double>>(3, vector<long double>(3, 0));
+    this->error = NO_ERROR;
 }
 
 int Data::checkPriorText(vector<char*> &prior_){

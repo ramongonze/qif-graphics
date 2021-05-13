@@ -89,7 +89,8 @@ int main(){
         // Check if a TextBox is being pressed
         if(gui.checkTextBoxPressed()){
             gui.drawing = false;
-            printError(NO_ERROR, gui.visualization);
+            data.error = false;
+            printError(data.error, gui.visualization);
 
             if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
 				IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
@@ -243,6 +244,7 @@ void drawGuiVisualization(Gui &gui, Data &data){
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, (Color){DARKBLUE.r, DARKBLUE.g, DARKBLUE.b, 60});
     GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, 128, gui.visualization.TextBoxStatusEditMode);
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
@@ -299,6 +301,10 @@ void buttonAbout(){
 }
 
 void buttonRandomPrior(Gui &gui, Data &data){
+    if(data.error == INVALID_PRIOR){
+        data.error = NO_ERROR;
+        strcpy(gui.visualization.TextBoxStatusText, "Status");
+    }
     data.newRandomPrior();
     gui.drawing = false;
     Distribution newPrior(data.prior);
@@ -306,21 +312,26 @@ void buttonRandomPrior(Gui &gui, Data &data){
 }
 
 void buttonRandomChannel(Gui &gui, Data &data){
+    if(data.error == INVALID_CHANNEL){
+        data.error = NO_ERROR;
+        strcpy(gui.visualization.TextBoxStatusText, "Status");
+    }
+    
     data.newRandomChannel(gui.channel.numOutputs);
     gui.drawing = false;
     gui.channel.updateChannelTextBoxes(data.channel);
 }
 
 void buttonDraw(Gui &gui, Data &data){
-    int error = NO_ERROR;
+    data.error = NO_ERROR;
 
     // Check if prior and channel are ok
     if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText) == NO_ERROR){
         // Check if typed numbers represent distributions
-        if(Distribution::isDistribution(data.prior) == false) error = INVALID_PRIOR;
-        else if(Channel::isChannel(data.channel) == false) error = INVALID_CHANNEL;
+        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
+        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
 
-        if(error == NO_ERROR){
+        if(data.error == NO_ERROR){
             Distribution newPrior(data.prior);
             Channel newChannel(newPrior, data.channel);
             data.hyper = Hyper(newChannel);
@@ -334,10 +345,9 @@ void buttonDraw(Gui &gui, Data &data){
             gui.drawing = false;
         }
     }else{
-        error = INVALID_VALUE;
+        data.error = INVALID_VALUE;
         gui.drawing = false;
     }
     
-    printError(error, gui.visualization);
+    printError(data.error, gui.visualization);
 }
-
