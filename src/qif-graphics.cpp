@@ -15,12 +15,28 @@
 #include "../libs/raylib/src/raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
-#define RAYGUI_SUPPORT_RICONS
+#define RAYGUI_SUPPORT_ICONS
 #include "../libs/raygui/src/raygui.h"
+
+#define GUI_FILE_DIALOG_IMPLEMENTATION
+#include "gui/gui_file_dialog.h"
 
 #include <iostream>
 #include "gui/gui.h"
 #include "data.h"
+
+//----------------------------------------------------------------------------------
+// General classes
+//----------------------------------------------------------------------------------
+class Windows{
+public:
+    GuiFileDialogState fileDialogStateMenuOpen;
+
+    Windows(){
+        fileDialogStateMenuOpen = InitGuiFileDialog(OPEN_WINDOW_WIDTH, OPEN_WINDOW_HEIGHT, GetWorkingDirectory(), false);
+    }
+};
+
 
 //----------------------------------------------------------------------------------
 // General Functions Declaration
@@ -30,7 +46,7 @@ void printError(int error, GuiVisualization &visualization);
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
-void drawGuiMenu(GuiMenu &menu);
+void drawGuiMenu(Gui &gui, Windows &windows);
 void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
 void drawGuiPosteriors(GuiPosteriors &posteriors);
@@ -40,7 +56,7 @@ void drawCircles(Gui &gui, Data &data);
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-void buttonOpen();;
+void buttonOpen(Windows &windows);
 void buttonSave();
 void buttonExamples();
 void buttonHelp();
@@ -55,12 +71,9 @@ void buttonDraw(Gui &gui, Data &data);
 int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
-    int screenWidth = 1130;
-    int screenHeight = 800;
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
+    Windows windows;
 
-    InitWindow(screenWidth, screenHeight, "QIF Graphics");
-
-    // qif-graphics: controls initialization
     //----------------------------------------------------------------------------------
     Gui gui = Gui();
     //----------------------------------------------------------------------------------
@@ -98,6 +111,7 @@ int main(){
 			}
         }
 
+        // Check if prior circle was moved
         if(gui.drawing){
             if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
                 euclidianDistance(data.priorCircle.center, mousePosition) <= PRIOR_RADIUS){
@@ -124,11 +138,11 @@ int main(){
             // raygui: controls drawing
             //----------------------------------------------------------------------------------
             // Draw controls
-            drawGuiMenu(gui.menu);
             drawGuiPrior(gui, data);
             drawGuiChannel(gui, data);
             drawGuiPosteriors(gui.posteriors);
             drawGuiVisualization(gui, data);
+            drawGuiMenu(gui, windows);
             //----------------------------------------------------------------------------------
 
         EndDrawing();
@@ -165,13 +179,23 @@ void printError(int error, GuiVisualization &visualization){
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void drawGuiMenu(GuiMenu &menu){
-    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_OPEN], menu.buttonOpenText)) buttonOpen(); 
-    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_SAVE], menu.buttonSaveText)) buttonSave(); 
-    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], menu.buttonExamplesText)) buttonExamples(); 
-    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_HELP], menu.buttonHelpText)) buttonHelp(); 
-    if (GuiButton(menu.layoutRecsButtons[REC_BUTTON_ABOUT], menu.buttonAboutText)) buttonAbout(); 
-    GuiLine(menu.layoutRecsLine, NULL);
+void drawGuiMenu(Gui &gui, Windows &windows){
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(windows);
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(); 
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_ABOUT], gui.menu.buttonAboutText)) buttonAbout(); 
+    GuiLine(gui.menu.layoutRecsLine, NULL);
+    
+    if (windows.fileDialogStateMenuOpen.SelectFilePressed){
+        // Load qif graphicss file
+        if (IsFileExtension(windows.fileDialogStateMenuOpen.fileNameText, ".qifg")){
+            strcpy(gui.menu.fileNameToLoad, TextFormat("%s/%s", windows.fileDialogStateMenuOpen.dirPathText, windows.fileDialogStateMenuOpen.fileNameText));
+        }
+
+        windows.fileDialogStateMenuOpen.SelectFilePressed = false;
+    }
+    GuiFileDialog(&(windows.fileDialogStateMenuOpen));
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
@@ -280,8 +304,8 @@ void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void buttonOpen(){
-    // TODO: Implement control logic
+void buttonOpen(Windows &windows){
+    windows.fileDialogStateMenuOpen.fileDialogActive = true;
 }
 
 void buttonSave(){

@@ -388,7 +388,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
 endif
 
 # Define all source files required
-PROJECT_SOURCE_FILES ?= src/*.cpp src/*.h src/gui/*.cpp libs/qif/src/*.cpp libs/qif/src/*.h
+PROJECT_SOURCE_FILES ?= src/*.cpp src/*.h src/gui/*.h src/gui/*.cpp libs/qif/src/*.cpp libs/qif/src/*.h
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))

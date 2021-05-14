@@ -5,6 +5,7 @@
 #include "../../libs/raylib/src/raylib.h"
 #include <stdlib.h>
 #include <string.h>
+
 using namespace std;
 
 #define REC_BUTTON_OPEN 0
@@ -12,6 +13,8 @@ using namespace std;
 #define REC_BUTTON_EXAMPLES 2
 #define REC_BUTTON_HELP 3
 #define REC_BUTTON_ABOUT 4
+#define OPEN_WINDOW_WIDTH 800
+#define OPEN_WINDOW_HEIGHT 400
 
 class GuiMenu{
 private:
@@ -19,16 +22,19 @@ private:
 public:
     GuiMenu();
 
-    // Const text
+    // Text
     char *buttonOpenText;    // BUTTON: buttonOpen
     char *buttonSaveText;    // BUTTON: buttonSave
     char *buttonExamplesText;    // BUTTON: buttonExamples
     char *buttonHelpText;    // BUTTON: buttonHelp
     char *buttonAboutText;    // BUTTON: buttonAbout
+    char *fileTextInput;
+    char *fileTextInputName;
+    char *fileNameToLoad;
 
     // Define controls rectangles
-    vector<Rectangle> layoutRecsButtons;
     Rectangle layoutRecsLine;
+    vector<Rectangle> layoutRecsButtons;
 };
 
 #endif
