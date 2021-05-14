@@ -102,8 +102,8 @@ extern "C" {            // Prevents name mangling of functions
 //----------------------------------------------------------------------------------
 // Module Functions Declaration
 //----------------------------------------------------------------------------------
-GuiFileDialogState InitGuiFileDialog(int width, int height, const char *initPath, bool active);
-void GuiFileDialog(GuiFileDialogState *state);
+GuiFileDialogState InitGuiFileDialog(int width, int height, const char *initPath, bool active, int window);
+void GuiFileDialog(GuiFileDialogState *state, int window);
 
 #ifdef __cplusplus
 }
@@ -127,6 +127,8 @@ void GuiFileDialog(GuiFileDialogState *state);
 //----------------------------------------------------------------------------------
 #define MAX_DIRECTORY_FILES    1024
 #define MAX_DIR_PATH_LENGTH    1024
+#define WINDOW_OPEN 0
+#define WINDOW_SAVE 1
 
 //----------------------------------------------------------------------------------
 // Types and Structures Definition
@@ -149,13 +151,14 @@ typedef char *FileInfo;
 //----------------------------------------------------------------------------------
 // Global Variables Definition
 //----------------------------------------------------------------------------------
-FileInfo *dirFilesIcon = NULL;
+FileInfo* dirFilesIcon[2];
+const char* windowTexts[2] = {"#198#Open", "#198#Save"};
 
 //----------------------------------------------------------------------------------
 // Internal Module Functions Definition
 //----------------------------------------------------------------------------------
 // Read all filenames from directory (supported file types)
-static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterExt);
+static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterExt, int window);
 
 #if defined(USE_CUSTOM_LISTVIEW_FILEINFO)
 // List View control for files info with extended parameters
@@ -165,8 +168,9 @@ static int GuiListViewFiles(Rectangle bounds, FileInfo *files, int count, int *f
 //----------------------------------------------------------------------------------
 // Module Functions Definition
 //----------------------------------------------------------------------------------
-GuiFileDialogState InitGuiFileDialog(int width, int height, const char *initPath, bool active)
+GuiFileDialogState InitGuiFileDialog(int width, int height, const char *initPath, bool active, int window)
 {
+    dirFilesIcon[window] = NULL;
     GuiFileDialogState state = { 0 };
 
     // Default dialog size is 440x310
@@ -214,17 +218,18 @@ GuiFileDialogState InitGuiFileDialog(int width, int height, const char *initPath
 }
 
 // Read files in new path
-static void FD_RELOAD_DIRPATH(GuiFileDialogState *state)
+static void FD_RELOAD_DIRPATH(GuiFileDialogState *state, int window)
 {
     for (int i = 0; i < state->dirFilesCount; i++) RL_FREE(state->dirFiles[i]);
     RL_FREE(state->dirFiles);
 
-    state->dirFiles = ReadDirectoryFiles(state->dirPathText, &state->dirFilesCount, state->filterExt);
+    state->dirFiles = ReadDirectoryFiles(state->dirPathText, &state->dirFilesCount, state->filterExt, window);
     state->itemFocused = 0;
 }
 
 // Update and draw file dialog
-void GuiFileDialog(GuiFileDialogState *state)
+// window: menu window number
+void GuiFileDialog(GuiFileDialogState *state, int window)
 {
     if (state->fileDialogActive)
     {
@@ -234,15 +239,15 @@ void GuiFileDialog(GuiFileDialogState *state)
         // Load dirFilesIcon and state->dirFiles lazily on windows open
         // NOTE: they are automatically unloaded at fileDialog closing
         //------------------------------------------------------------------------------------
-        if (dirFilesIcon == NULL)
+        if (dirFilesIcon[window] == NULL)
         {
-            dirFilesIcon = (FileInfo *)RL_MALLOC(MAX_DIRECTORY_FILES*sizeof(FileInfo));    // Max files to read
-            for (int i = 0; i < MAX_DIRECTORY_FILES; i++) dirFilesIcon[i] = (char *)calloc(MAX_DIR_PATH_LENGTH, 1);    // Max file name length
+            dirFilesIcon[window] = (FileInfo *)RL_MALLOC(MAX_DIRECTORY_FILES*sizeof(FileInfo));    // Max files to read
+            for (int i = 0; i < MAX_DIRECTORY_FILES; i++) dirFilesIcon[window][i] = (char *)calloc(MAX_DIR_PATH_LENGTH, 1);    // Max file name length
         }
 
         if (state->dirFiles == NULL)
         {
-            state->dirFiles = ReadDirectoryFiles(state->dirPathText, &state->dirFilesCount, state->filterExt);
+            state->dirFiles = ReadDirectoryFiles(state->dirPathText, &state->dirFilesCount, state->filterExt, window);
 
             for(int f = 0; f < state->dirFilesCount; f++)
             {
@@ -257,7 +262,7 @@ void GuiFileDialog(GuiFileDialogState *state)
         //------------------------------------------------------------------------------------
 
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Fade(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)), 0.85f));
-        state->fileDialogActive = !GuiWindowBox((Rectangle){ state->position.x + 0, state->position.y + 0, (float)winWidth, (float)winHeight }, "#198#Open");
+        state->fileDialogActive = !GuiWindowBox((Rectangle){ state->position.x + 0, state->position.y + 0, (float)winWidth, (float)winHeight }, windowTexts[window]);
 
         if (GuiButton((Rectangle){ state->position.x + winWidth - 50, state->position.y + 35, 40, 25 }, "< ..")) // || IsKeyReleased(KEY_DPAD_Y))
         {
@@ -265,7 +270,7 @@ void GuiFileDialog(GuiFileDialogState *state)
             strcpy(state->dirPathText, GetPrevDirectoryPath(state->dirPathText));
 
             // RL_FREE previous dirFiles (reloaded by ReadDirectoryFiles())
-            FD_RELOAD_DIRPATH(state);
+            FD_RELOAD_DIRPATH(state, window);
 
             state->filesListActive = -1;
             strcpy(state->fileNameText, "\0");
@@ -282,7 +287,7 @@ void GuiFileDialog(GuiFileDialogState *state)
                 if (DirectoryExists(state->dirPathText))
                 {
                     // RL_FREE previous dirFiles (reloaded by ReadDirectoryFiles())
-                    FD_RELOAD_DIRPATH(state);
+                    FD_RELOAD_DIRPATH(state, window);
 
                     strcpy(state->dirPathTextCopy, state->dirPathText);
                 }
@@ -304,7 +309,7 @@ void GuiFileDialog(GuiFileDialogState *state)
         FileInfo fileInfo;
         state->filesListActive = GuiListViewFiles((Rectangle){ state->position.x + 10, state->position.y + 70, (float)winWidth - 20, (float)winHeight - 135 }, fileInfo, state->dirFilesCount, &state->itemFocused, &state->filesListScrollIndex, state->filesListActive);
 # else
-        state->filesListActive = GuiListViewEx((Rectangle){ state->position.x + 10, state->position.y + 70, (float)winWidth - 20, (float)winHeight - 135 }, (const char**)dirFilesIcon, state->dirFilesCount, &state->itemFocused, &state->filesListScrollIndex, state->filesListActive);
+        state->filesListActive = GuiListViewEx((Rectangle){ state->position.x + 10, state->position.y + 70, (float)winWidth - 20, (float)winHeight - 135 }, (const char**)dirFilesIcon[window], state->dirFilesCount, &state->itemFocused, &state->filesListScrollIndex, state->filesListActive);
 # endif
         GuiSetStyle(LISTVIEW, TEXT_ALIGNMENT, prevTextAlignment);
         GuiSetStyle(LISTVIEW, LIST_ITEMS_HEIGHT, prevElementsHeight);
@@ -322,7 +327,7 @@ void GuiFileDialog(GuiFileDialogState *state)
                 strcpy(state->dirPathTextCopy, state->dirPathText);
 
                 // RL_FREE previous dirFiles (reloaded by ReadDirectoryFiles())
-                FD_RELOAD_DIRPATH(state);
+                FD_RELOAD_DIRPATH(state, window);
 
                 strcpy(state->dirPathTextCopy, state->dirPathText);
 
@@ -389,13 +394,13 @@ void GuiFileDialog(GuiFileDialogState *state)
             for (int i = 0; i < state->dirFilesCount; i++)
             {
                 RL_FREE(state->dirFiles[i]);
-                RL_FREE(dirFilesIcon[i]);
+                RL_FREE(dirFilesIcon[window][i]);
             }
 
             RL_FREE(state->dirFiles);
-            RL_FREE(dirFilesIcon);
+            RL_FREE(dirFilesIcon[window]);
 
-            dirFilesIcon = NULL;
+            dirFilesIcon[window] = NULL;
             state->dirFiles = NULL;
         }
     }
@@ -417,7 +422,7 @@ static inline int FileCompare(const char *d1, const char *d2, const char *dir)
 }
 
 // Read all filenames from directory (supported file types)
-static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterExt)
+static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterExt, int window)
 {
     int validFilesCount = 0;
     char **validFiles = (char **)RL_MALLOC(MAX_DIRECTORY_FILES*sizeof(char *));    // Max files to read
@@ -474,13 +479,13 @@ static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterE
             strncpy(validFiles[validFilesCount], files[i], MAX_DIR_PATH_LENGTH);
 
             // Only filter files by extensions, directories should be available
-            if (DirectoryExists(TextFormat("%s/%s", dir, files[i]))) strcpy(dirFilesIcon[validFilesCount], TextFormat("#%i#%s", 1, files[i]));
+            if (DirectoryExists(TextFormat("%s/%s", dir, files[i]))) strcpy(dirFilesIcon[window][validFilesCount], TextFormat("#%i#%s", 1, files[i]));
             else
             {
                 // TODO: Assign custom filetype icons depending on file extension (image, audio, text, video, models...)
 
-                if (IsFileExtension(files[i], ".png")) strcpy(dirFilesIcon[validFilesCount], TextFormat("#%i#%s", 12, files[i]));
-                else strcpy(dirFilesIcon[validFilesCount], TextFormat("#%i#%s", 10, files[i]));
+                if (IsFileExtension(files[i], ".qifg")) strcpy(dirFilesIcon[window][validFilesCount], TextFormat("#%i#%s", 12, files[i]));
+                else strcpy(dirFilesIcon[window][validFilesCount], TextFormat("#%i#%s", 10, files[i]));
             }
 
             validFilesCount++;
@@ -495,8 +500,8 @@ static char **ReadDirectoryFiles(const char *dir, int *filesCount, char *filterE
                 {
                     // TODO: Assign custom filetype icons depending on file extension (image, audio, text, video, models...)
 
-                    if (IsFileExtension(files[i], ".png")) strcpy(dirFilesIcon[validFilesCount], TextFormat("#%i#%s", 12, files[i]));
-                    else strcpy(dirFilesIcon[validFilesCount], TextFormat("#%i#%s", 10, files[i]));
+                    if (IsFileExtension(files[i], ".qifg")) strcpy(dirFilesIcon[window][validFilesCount], TextFormat("#%i#%s", 12, files[i]));
+                    else strcpy(dirFilesIcon[window][validFilesCount], TextFormat("#%i#%s", 10, files[i]));
 
                     validFilesCount++;
                 }

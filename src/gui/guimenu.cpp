@@ -4,10 +4,12 @@ GuiMenu::GuiMenu(){
     // Data
     fileTextInput = (char*) malloc(4*128*sizeof(char));
     fileTextInputName = (char*) malloc(4*128*sizeof(char));
-    fileNameToLoad = (char*) malloc(4*128*sizeof(char));
+    fileNameToLoadOpen = (char*) malloc(4*128*sizeof(char));
+    fileNameToLoadSave = (char*) malloc(4*128*sizeof(char));
     strcpy(fileTextInputName, "\0");
     strcpy(fileTextInput, "\0");
-    strcpy(fileNameToLoad, "\0");
+    strcpy(fileNameToLoadOpen, "\0");
+    strcpy(fileNameToLoadSave, "\0");
 
     // Const text
     buttonOpenText = (char*) malloc(128*sizeof(char));

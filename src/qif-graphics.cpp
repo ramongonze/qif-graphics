@@ -31,9 +31,11 @@
 class Windows{
 public:
     GuiFileDialogState fileDialogStateMenuOpen;
+    GuiFileDialogState fileDialogStateMenuSave;
 
     Windows(){
-        fileDialogStateMenuOpen = InitGuiFileDialog(OPEN_WINDOW_WIDTH, OPEN_WINDOW_HEIGHT, GetWorkingDirectory(), false);
+        fileDialogStateMenuOpen = InitGuiFileDialog(OPEN_WINDOW_WIDTH, OPEN_WINDOW_HEIGHT, GetWorkingDirectory(), false, WINDOW_OPEN);
+        fileDialogStateMenuSave = InitGuiFileDialog(OPEN_WINDOW_WIDTH, OPEN_WINDOW_HEIGHT, GetWorkingDirectory(), false, WINDOW_SAVE);
     }
 };
 
@@ -57,7 +59,7 @@ void drawCircles(Gui &gui, Data &data);
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
 void buttonOpen(Windows &windows);
-void buttonSave();
+void buttonSave(Windows &windows);
 void buttonExamples();
 void buttonHelp();
 void buttonAbout();
@@ -181,21 +183,34 @@ void printError(int error, GuiVisualization &visualization){
 //------------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Windows &windows){
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(windows);
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(); 
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(windows); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_ABOUT], gui.menu.buttonAboutText)) buttonAbout(); 
     GuiLine(gui.menu.layoutRecsLine, NULL);
     
+    // Window Open
     if (windows.fileDialogStateMenuOpen.SelectFilePressed){
         // Load qif graphicss file
         if (IsFileExtension(windows.fileDialogStateMenuOpen.fileNameText, ".qifg")){
-            strcpy(gui.menu.fileNameToLoad, TextFormat("%s/%s", windows.fileDialogStateMenuOpen.dirPathText, windows.fileDialogStateMenuOpen.fileNameText));
+            strcpy(gui.menu.fileNameToLoadOpen, TextFormat("%s/%s", windows.fileDialogStateMenuOpen.dirPathText, windows.fileDialogStateMenuOpen.fileNameText));
         }
 
         windows.fileDialogStateMenuOpen.SelectFilePressed = false;
     }
-    GuiFileDialog(&(windows.fileDialogStateMenuOpen));
+    GuiFileDialog(&(windows.fileDialogStateMenuOpen), WINDOW_OPEN);
+
+    // Window Save
+    if (windows.fileDialogStateMenuSave.SelectFilePressed){
+        // Load qif graphicss file
+        if (IsFileExtension(windows.fileDialogStateMenuSave.fileNameText, ".qifg")){
+            strcpy(gui.menu.fileNameToLoadSave, TextFormat("%s/%s", windows.fileDialogStateMenuSave.dirPathText, windows.fileDialogStateMenuSave.fileNameText));
+        }
+
+        windows.fileDialogStateMenuSave.SelectFilePressed = false;
+    }
+
+    GuiFileDialog(&(windows.fileDialogStateMenuSave), WINDOW_SAVE);
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
@@ -308,8 +323,8 @@ void buttonOpen(Windows &windows){
     windows.fileDialogStateMenuOpen.fileDialogActive = true;
 }
 
-void buttonSave(){
-    // TODO: Implement control logic
+void buttonSave(Windows &windows){
+    windows.fileDialogStateMenuSave.fileDialogActive = true;
 }
 
 void buttonExamples(){

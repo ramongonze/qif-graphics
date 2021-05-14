@@ -30,7 +30,8 @@ public:
     char *buttonAboutText;    // BUTTON: buttonAbout
     char *fileTextInput;
     char *fileTextInputName;
-    char *fileNameToLoad;
+    char *fileNameToLoadOpen;
+    char *fileNameToLoadSave;
 
     // Define controls rectangles
     Rectangle layoutRecsLine;
