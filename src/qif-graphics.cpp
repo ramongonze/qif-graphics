@@ -48,7 +48,7 @@ void printError(int error, GuiVisualization &visualization);
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Windows &windows);
+void drawGuiMenu(Gui &gui, Data &data, Windows &windows);
 void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
 void drawGuiPosteriors(GuiPosteriors &posteriors);
@@ -144,7 +144,7 @@ int main(){
             drawGuiChannel(gui, data);
             drawGuiPosteriors(gui.posteriors);
             drawGuiVisualization(gui, data);
-            drawGuiMenu(gui, windows);
+            drawGuiMenu(gui, data, windows);
             //----------------------------------------------------------------------------------
 
         EndDrawing();
@@ -181,7 +181,7 @@ void printError(int error, GuiVisualization &visualization){
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Windows &windows){
+void drawGuiMenu(Gui &gui, Data &data, Windows &windows){
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(windows);
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(windows); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
@@ -190,16 +190,24 @@ void drawGuiMenu(Gui &gui, Windows &windows){
     GuiLine(gui.menu.layoutRecsLine, NULL);
     
     // Window Open
-    if (windows.fileDialogStateMenuOpen.SelectFilePressed){
-        // Load qif graphicss file
+    if(windows.fileDialogStateMenuOpen.SelectFilePressed){
+        // Load qif graphics file
+        windows.fileDialogStateMenuOpen.SelectFilePressed = false;
         if (IsFileExtension(windows.fileDialogStateMenuOpen.fileNameText, ".qifg")){
             strcpy(gui.menu.fileNameToLoadOpen, TextFormat("%s/%s", windows.fileDialogStateMenuOpen.dirPathText, windows.fileDialogStateMenuOpen.fileNameText));
+            data.openPriorAndChannel(gui.menu.fileNameToLoadOpen);
+            windows.fileDialogStateMenuOpen.fileDialogActive = false;
+            strcpy(windows.fileDialogStateMenuOpen.fileNameText, "\0");     // Clean buffer
+            strcpy(gui.menu.fileNameToLoadOpen, "\0");     // Clean buffer
+        }else{
+            gui.menu.windowErrorActive = true;
         }
-
-        windows.fileDialogStateMenuOpen.SelectFilePressed = false;
     }
     GuiFileDialog(&(windows.fileDialogStateMenuOpen), WINDOW_OPEN);
-
+    if(gui.menu.windowErrorActive && GuiMessageBox(gui.menu.layoutRecsWindowError, gui.menu.windowErrorTitle, gui.menu.windowErrorMessage, gui.menu.windowErrorButtonText) >= 0){
+        gui.menu.windowErrorActive = false;
+    }
+    
     // Window Save
     if (windows.fileDialogStateMenuSave.SelectFilePressed){
         // Load qif graphicss file
@@ -207,7 +215,6 @@ void drawGuiMenu(Gui &gui, Windows &windows){
             strcpy(gui.menu.fileNameToLoadSave, TextFormat("%s/%s", windows.fileDialogStateMenuSave.dirPathText, windows.fileDialogStateMenuSave.fileNameText));
         }
 
-        windows.fileDialogStateMenuSave.SelectFilePressed = false;
     }
 
     GuiFileDialog(&(windows.fileDialogStateMenuSave), WINDOW_SAVE);

@@ -295,3 +295,10 @@ void Data::newRandomChannel(int num_out){
         }
     }
 }
+
+// Open a .qifg file when the button Open is pressed
+void Data::openPriorAndChannel(char *file){
+
+    // // Clean buffer
+    // strcpy(file, "\0");
+}

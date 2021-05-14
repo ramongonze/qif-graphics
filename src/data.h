@@ -6,6 +6,7 @@
 #include <algorithm> // std::random_shuffle
 #include <ctime> // std::time
 #include <cstdlib> // std::srand
+#include <string.h> // strcpy
 
 class Data{
 public:
@@ -15,7 +16,6 @@ public:
 	vector<vector<long double>> channel;			// Channel matrix
 	vector<long double> prior;	// Prior distribution
 	int error;		// Indicates if there is error with prior or channel
-
 	bool hyperReady;  // Flag that indicates wheter a hyper distribution has been built.
 	bool mouseClickedOnPrior; // Flag that indicates wheter the mouse was clicked in the previous frame on the prior circle.
 
@@ -65,6 +65,9 @@ public:
 	 *		num_out: Number of outputs in L->TextBoxesChannelText.
 	*/
 	void newRandomChannel(int num_out);
+
+	// Open a .qifg file when the button Open is pressed
+	void openPriorAndChannel(char *file);
 };
 
 #endif

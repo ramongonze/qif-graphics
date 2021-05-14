@@ -381,7 +381,8 @@ void GuiFileDialog(GuiFileDialogState *state, int window)
 #endif
         }, "Select");// || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_DPAD_A);
 
-        if (state->SelectFilePressed) state->fileDialogActive = false;
+        // Commented because the action can generate a window error
+        // if (state->SelectFilePressed) state->fileDialogActive = false;
 
 #ifdef PLATFORM_DESKTOP
         if (GuiButton((Rectangle){ state->position.x + winWidth - 120, state->position.y + winHeight - 30, 110, 25 }, "Quit")) state->fileDialogActive = false;

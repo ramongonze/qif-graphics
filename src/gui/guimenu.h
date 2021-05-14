@@ -22,20 +22,25 @@ private:
 public:
     GuiMenu();
 
+    // Data
+    bool windowErrorActive;
+
     // Text
     char *buttonOpenText;    // BUTTON: buttonOpen
     char *buttonSaveText;    // BUTTON: buttonSave
     char *buttonExamplesText;    // BUTTON: buttonExamples
     char *buttonHelpText;    // BUTTON: buttonHelp
     char *buttonAboutText;    // BUTTON: buttonAbout
-    char *fileTextInput;
-    char *fileTextInputName;
     char *fileNameToLoadOpen;
     char *fileNameToLoadSave;
+    char *windowErrorTitle;
+    char *windowErrorMessage;
+    char *windowErrorButtonText;
 
     // Define controls rectangles
-    Rectangle layoutRecsLine;
     vector<Rectangle> layoutRecsButtons;
+    Rectangle layoutRecsLine;
+    Rectangle layoutRecsWindowError;
 };
 
 #endif
