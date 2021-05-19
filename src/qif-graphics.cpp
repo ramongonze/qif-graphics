@@ -18,27 +18,10 @@
 #define RAYGUI_SUPPORT_ICONS
 #include "../libs/raygui/src/raygui.h"
 
-#define GUI_FILE_DIALOG_IMPLEMENTATION
-#include "gui/gui_file_dialog.h"
-
 #include <iostream>
+#include <string>
 #include "gui/gui.h"
 #include "data.h"
-
-//----------------------------------------------------------------------------------
-// General classes
-//----------------------------------------------------------------------------------
-class Windows{
-public:
-    GuiFileDialogState fileDialogStateMenuOpen;
-    GuiFileDialogState fileDialogStateMenuSave;
-
-    Windows(){
-        fileDialogStateMenuOpen = InitGuiFileDialog(OPEN_WINDOW_WIDTH, OPEN_WINDOW_HEIGHT, GetWorkingDirectory(), false, WINDOW_OPEN);
-        fileDialogStateMenuSave = InitGuiFileDialog(OPEN_WINDOW_WIDTH, OPEN_WINDOW_HEIGHT, GetWorkingDirectory(), false, WINDOW_SAVE);
-    }
-};
-
 
 //----------------------------------------------------------------------------------
 // General Functions Declaration
@@ -48,7 +31,7 @@ void printError(int error, GuiVisualization &visualization);
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Data &data, Windows &windows);
+void drawGuiMenu(Gui &gui, Data &data);
 void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
 void drawGuiPosteriors(GuiPosteriors &posteriors);
@@ -58,8 +41,8 @@ void drawCircles(Gui &gui, Data &data);
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-void buttonOpen(Windows &windows);
-void buttonSave(Windows &windows);
+void buttonOpen(GuiMenu &menu);
+void buttonSave(GuiMenu &menu);
 void buttonExamples();
 void buttonHelp();
 void buttonAbout();
@@ -74,7 +57,6 @@ int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
-    Windows windows;
 
     //----------------------------------------------------------------------------------
     Gui gui = Gui();
@@ -144,7 +126,7 @@ int main(){
             drawGuiChannel(gui, data);
             drawGuiPosteriors(gui.posteriors);
             drawGuiVisualization(gui, data);
-            drawGuiMenu(gui, data, windows);
+            drawGuiMenu(gui, data);
             //----------------------------------------------------------------------------------
 
         EndDrawing();
@@ -181,43 +163,14 @@ void printError(int error, GuiVisualization &visualization){
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Data &data, Windows &windows){
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(windows);
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(windows); 
+void drawGuiMenu(Gui &gui, Data &data){
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(gui.menu);
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(gui.menu);
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_ABOUT], gui.menu.buttonAboutText)) buttonAbout(); 
     GuiLine(gui.menu.layoutRecsLine, NULL);
     
-    // Window Open
-    if(windows.fileDialogStateMenuOpen.SelectFilePressed){
-        // Load qif graphics file
-        windows.fileDialogStateMenuOpen.SelectFilePressed = false;
-        if (IsFileExtension(windows.fileDialogStateMenuOpen.fileNameText, ".qifg")){
-            strcpy(gui.menu.fileNameToLoadOpen, TextFormat("%s/%s", windows.fileDialogStateMenuOpen.dirPathText, windows.fileDialogStateMenuOpen.fileNameText));
-            data.openPriorAndChannel(gui.menu.fileNameToLoadOpen);
-            windows.fileDialogStateMenuOpen.fileDialogActive = false;
-            strcpy(windows.fileDialogStateMenuOpen.fileNameText, "\0");     // Clean buffer
-            strcpy(gui.menu.fileNameToLoadOpen, "\0");     // Clean buffer
-        }else{
-            gui.menu.windowErrorActive = true;
-        }
-    }
-    GuiFileDialog(&(windows.fileDialogStateMenuOpen), WINDOW_OPEN);
-    if(gui.menu.windowErrorActive && GuiMessageBox(gui.menu.layoutRecsWindowError, gui.menu.windowErrorTitle, gui.menu.windowErrorMessage, gui.menu.windowErrorButtonText) >= 0){
-        gui.menu.windowErrorActive = false;
-    }
-    
-    // Window Save
-    if (windows.fileDialogStateMenuSave.SelectFilePressed){
-        // Load qif graphicss file
-        if (IsFileExtension(windows.fileDialogStateMenuSave.fileNameText, ".qifg")){
-            strcpy(gui.menu.fileNameToLoadSave, TextFormat("%s/%s", windows.fileDialogStateMenuSave.dirPathText, windows.fileDialogStateMenuSave.fileNameText));
-        }
-
-    }
-
-    GuiFileDialog(&(windows.fileDialogStateMenuSave), WINDOW_SAVE);
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
@@ -326,12 +279,36 @@ void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void buttonOpen(Windows &windows){
-    windows.fileDialogStateMenuOpen.fileDialogActive = true;
+void buttonOpen(GuiMenu &menu){
+    FILE *file = popen("zenity --file-selection --title=Open --file-filter=*.qifg", "r");
+    fgets(menu.fileNameToOpen, 2048, file);
+    fclose(file);
+
+    // Remove \n from the end
+    string newFileName = string(menu.fileNameToOpen);
+    newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
+    strcpy(menu.fileNameToOpen, newFileName.c_str());
 }
 
-void buttonSave(Windows &windows){
-    windows.fileDialogStateMenuSave.fileDialogActive = true;
+void buttonSave(GuiMenu &menu){
+    FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
+    fgets(menu.fileNameToSave, 2048, file);
+    fclose(file);
+
+    // Remove \n from the end
+    string newFileName = string(menu.fileNameToSave);
+    newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
+    strcpy(menu.fileNameToSave, newFileName.c_str());
+
+    // Fix file extension if it is not .qifg
+    string fn = string(menu.fileNameToSave);
+    if(fn.find_last_of(".") == string::npos){
+        string newFileName = fn + ".qifg";
+        strcpy(menu.fileNameToSave, newFileName.c_str());
+    }else if(fn.substr(fn.find_last_of(".") + 1) != "qifg"){
+        string newFileName = fn.substr(0, fn.find_last_of(".")) + ".qifg";
+        strcpy(menu.fileNameToSave, newFileName.c_str());
+    }
 }
 
 void buttonExamples(){

@@ -31,16 +31,12 @@ public:
     char *buttonExamplesText;    // BUTTON: buttonExamples
     char *buttonHelpText;    // BUTTON: buttonHelp
     char *buttonAboutText;    // BUTTON: buttonAbout
-    char *fileNameToLoadOpen;
-    char *fileNameToLoadSave;
-    char *windowErrorTitle;
-    char *windowErrorMessage;
-    char *windowErrorButtonText;
+    char *fileNameToOpen;
+    char *fileNameToSave;
 
     // Define controls rectangles
     vector<Rectangle> layoutRecsButtons;
     Rectangle layoutRecsLine;
-    Rectangle layoutRecsWindowError;
 };
 
 #endif
