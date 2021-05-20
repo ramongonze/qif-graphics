@@ -72,17 +72,29 @@ int main(){
     GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt((Color){210, 210, 210, 255}));
     GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
     GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
     GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt((Color){179, 179, 179, 255}));
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
     GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
-    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
-    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BASE_COLOR_PRESSED, ColorToInt((Color){210, 210, 210, 255}));
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 1);
     GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_PRESSED, ColorToInt((Color){179, 179, 179, 255}));
     GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt((Color){76, 124, 154, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt((Color){50, 83, 103, 255}));
+    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
     GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt((Color){210, 210, 210, 255}));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
     GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
 
     // Main game loop
@@ -96,7 +108,7 @@ int main(){
             gui.drawing = false;
             gui.channel.updateChannelBySpinner();
         }
-
+        
         // Check if a TextBox is being pressed
         if(gui.checkTextBoxPressed()){
             gui.drawing = false;
@@ -213,12 +225,32 @@ void drawGuiChannel(Gui &gui, Data &data){
     if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
 
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
     if (GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue), 0, 100, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){76, 124, 154, 255}));
     Rectangle viewScrollChannel = GuiScrollPanel(
         (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.layoutRecsScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.layoutRecsScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
         (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
         &(gui.channel.ScrollPanelChannelScrollOffset)
     );
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
         GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
         for(int i = 0; i < gui.channel.numOutputs; i++){
@@ -237,11 +269,14 @@ void drawGuiChannel(Gui &gui, Data &data){
 void drawGuiPosteriors(GuiPosteriors &posteriors){
     drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText);
 
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){76, 124, 154, 255}));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
         (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y },
         (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.ScrollPanelPosteriorsContent.x, posteriors.ScrollPanelPosteriorsContent.y},
         &(posteriors.ScrollPanelPosteriorsScrollOffset)
     );
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+    
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
         GuiLabel((Rectangle){posteriors.layoutRecsLabelOuter.x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelOuter.y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelOuter.width, posteriors.layoutRecsLabelOuter.height}, posteriors.LabelOuterText);
 
