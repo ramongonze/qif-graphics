@@ -59,6 +59,7 @@ int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
+    GuiLoadStyle("src/gui/style-qif-graphics.rgs");
     initStyle();
 
     //----------------------------------------------------------------------------------
@@ -142,7 +143,6 @@ int main(){
 // General Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void initStyle(){
-    GuiLoadStyle("src/gui/style-qif-graphics.rgs");
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
     GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
     GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
@@ -150,6 +150,7 @@ void initStyle(){
     GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
     GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
     GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(WHITE));
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
     GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
@@ -166,6 +167,11 @@ void initStyle(){
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    GuiSetStyle(DROPDOWNBOX, TEXT_INNER_PADDING, 5);
     GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
     GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
     GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
@@ -200,11 +206,15 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
 //------------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Data &data){
     DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(gui.menu);
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(gui.menu);
+    
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], 120, "File;Open file;Save;Save as...;Exit", &(gui.menu.dropdownBoxOpen), gui.menu.dropDownOpenEditMode)) gui.menu.dropDownOpenEditMode = !gui.menu.dropDownOpenEditMode;
+    initStyle();
+
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_ABOUT], gui.menu.buttonAboutText)) buttonAbout();
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
@@ -352,6 +362,26 @@ void drawCircles(Gui &gui, Data &data){
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void buttonOpen(GuiMenu &menu){
+    /* File format:
+    -----BEGIN OF FILE-----
+    prior
+    n
+    p1
+    ...
+    pn
+
+    channel
+    n m
+    p11 p12 ... p1m
+    p21 p22 ... p2m
+    ...
+    pn1 pn2 ... pnm
+    -----END OF FILE-----
+
+    where n is the number of secrets (consequently the # elements in prior and # rows in channel)
+    and m is the number of outputs in the channel (# of columns).
+    */
+
     FILE *file = popen("zenity --file-selection --title=Open --file-filter=*.qifg", "r");
     fgets(menu.fileNameToOpen, 2048, file);
     fclose(file);
@@ -359,7 +389,7 @@ void buttonOpen(GuiMenu &menu){
     // Remove \n from the end
     string newFileName = string(menu.fileNameToOpen);
     newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
-    strcpy(menu.fileNameToOpen, newFileName.c_str());
+    strcpy(menu.fileNameToOpen, newFileName.c_str());    
 }
 
 void buttonSave(GuiMenu &menu){

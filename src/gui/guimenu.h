@@ -8,13 +8,12 @@
 
 using namespace std;
 
-#define REC_BUTTON_OPEN 0
-#define REC_BUTTON_SAVE 1
-#define REC_BUTTON_EXAMPLES 2
-#define REC_BUTTON_HELP 3
-#define REC_BUTTON_ABOUT 4
 #define OPEN_WINDOW_WIDTH 800
 #define OPEN_WINDOW_HEIGHT 400
+
+#define REC_BUTTON_OPEN 0
+#define REC_BUTTON_EXAMPLES 1
+#define REC_BUTTON_HELP 2
 
 class GuiMenu{
 private:
@@ -24,13 +23,13 @@ public:
 
     // Data
     bool windowErrorActive;
+    int dropdownBoxOpen;
+    bool dropDownOpenEditMode;
 
     // Text
     char *buttonOpenText;    // BUTTON: buttonOpen
-    char *buttonSaveText;    // BUTTON: buttonSave
     char *buttonExamplesText;    // BUTTON: buttonExamples
     char *buttonHelpText;    // BUTTON: buttonHelp
-    char *buttonAboutText;    // BUTTON: buttonAbout
     char *fileNameToOpen;
     char *fileNameToSave;
 
