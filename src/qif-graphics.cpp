@@ -26,6 +26,7 @@
 //----------------------------------------------------------------------------------
 // General Functions Declaration
 //----------------------------------------------------------------------------------
+void initStyle();
 void printError(int error, GuiVisualization &visualization);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title);
 
@@ -58,6 +59,7 @@ int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
+    initStyle();
 
     //----------------------------------------------------------------------------------
     Gui gui = Gui();
@@ -66,36 +68,6 @@ int main(){
     SetTargetFPS(60);
     Data data = Data();
     //--------------------------------------------------------------------------------------
-
-    GuiLoadStyle("src/gui/style-qif-graphics.rgs");
-    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
-    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt((Color){210, 210, 210, 255}));
-    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
-    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
-    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
-    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt((Color){179, 179, 179, 255}));
-    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
-    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
-    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
-    GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
-    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
-    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
-    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-    GuiSetStyle(TEXTBOX, BASE_COLOR_PRESSED, ColorToInt((Color){210, 210, 210, 255}));
-    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 1);
-    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-    GuiSetStyle(VALUEBOX, BASE_COLOR_NORMAL, ColorToInt(WHITE));
-    GuiSetStyle(VALUEBOX, BASE_COLOR_PRESSED, ColorToInt((Color){179, 179, 179, 255}));
-    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
-    GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt((Color){76, 124, 154, 255}));
-    GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt((Color){50, 83, 103, 255}));
-    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
-    GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt((Color){210, 210, 210, 255}));
-    GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
-    GuiSetStyle(SCROLLBAR, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
-    GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
 
     // Main game loop
     while(!WindowShouldClose()){    // Detect window close button or ESC key
@@ -142,7 +114,7 @@ int main(){
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
-            ClearBackground((Color){179, 179, 179, 255}); 
+            ClearBackground(BG_BASE_COLOR_DARK); 
 
             // raygui: controls drawing
             //----------------------------------------------------------------------------------
@@ -169,6 +141,38 @@ int main(){
 //------------------------------------------------------------------------------------
 // General Functions Definitions (local)
 //------------------------------------------------------------------------------------
+void initStyle(){
+    GuiLoadStyle("src/gui/style-qif-graphics.rgs");
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
+    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
+    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 1);
+    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
+    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
+}
+
 void printError(int error, GuiVisualization &visualization){
 	switch(error){
 		case INVALID_VALUE:
@@ -186,7 +190,7 @@ void printError(int error, GuiVisualization &visualization){
 }
 
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title){
-    DrawRectangleRec(layoutTitle, (Color){27, 58, 130, 255});
+    DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
     DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
     DrawTextEx(GuiGetFont(), title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, GuiGetFont().baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
 }
@@ -195,7 +199,7 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Data &data){
-    DrawRectangleRec(gui.menu.layoutRecsMenu, (Color){25, 41, 51, 255});
+    DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(gui.menu);
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(gui.menu);
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
@@ -208,9 +212,9 @@ void drawGuiPrior(Gui &gui, Data &data){
     DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){27, 58, 130, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR));
     if (GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     for(int i = 0; i < 3; i++){
         GuiLabel(gui.prior.layoutRecsLabel[i], gui.prior.LabelPriorText[i].c_str());
@@ -221,9 +225,9 @@ void drawGuiPrior(Gui &gui, Data &data){
 void drawGuiChannel(Gui &gui, Data &data){
     drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.GroupBoxChannelText);
     
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){27, 58, 130, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR));
     if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
     GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
@@ -243,13 +247,13 @@ void drawGuiChannel(Gui &gui, Data &data){
     GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
     GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
 
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){76, 124, 154, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollChannel = GuiScrollPanel(
         (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.layoutRecsScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.layoutRecsScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
         (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
         &(gui.channel.ScrollPanelChannelScrollOffset)
     );
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
         GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
@@ -269,14 +273,14 @@ void drawGuiChannel(Gui &gui, Data &data){
 void drawGuiPosteriors(GuiPosteriors &posteriors){
     drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText);
 
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){76, 124, 154, 255}));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
         (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y },
         (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.ScrollPanelPosteriorsContent.x, posteriors.ScrollPanelPosteriorsContent.y},
         &(posteriors.ScrollPanelPosteriorsScrollOffset)
     );
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
-    
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
         GuiLabel((Rectangle){posteriors.layoutRecsLabelOuter.x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelOuter.y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelOuter.width, posteriors.layoutRecsLabelOuter.height}, posteriors.LabelOuterText);
 
@@ -306,8 +310,13 @@ void drawGuiVisualization(Gui &gui, Data &data){
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, (Color){DARKBLUE.r, DARKBLUE.g, DARKBLUE.b, 60});
+    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, WHITE);
+    DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, WHITE);
+    
+    if(strcmp(gui.visualization.TextBoxStatusText, "Status")) GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RED));
     GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, 128, gui.visualization.TextBoxStatusEditMode);
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
     
@@ -327,14 +336,14 @@ void drawGuiVisualization(Gui &gui, Data &data){
 
 void drawCircles(Gui &gui, Data &data){
 	// Prior
-    DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, (Color){0, 102, 204, 210});
-    DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, (Color){0, 102, 204, 240});
+    DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
+    DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
 	DrawTextEx(gui.visualization.alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.visualization.alternativeFont.baseSize, 1.0, BLACK);
 
 	// Inners
 	for(long unsigned int i = 0; i < data.innersCircles.size(); i++){
-        DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, (Color){40, 164, 40, 210});
-        DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, (Color){40, 164, 40, 240});
+        DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR);
+        DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR_LINES);
         DrawTextEx(gui.visualization.alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
 	}
 }
