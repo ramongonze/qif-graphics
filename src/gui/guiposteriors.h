@@ -37,7 +37,8 @@ public:
     vector<vector<char*>> TextBoxInnersText;
 
     // Define controls rectangles
-    Rectangle layoutRecsGroupBox;    // GroupBox: GroupBoxPosteriors
+    Rectangle layoutRecsTitle;
+    Rectangle layoutRecsContent;
     Rectangle layoutRecsScrollPanel;    // ScrollPanel: ScrollPanelPosteriors
     Rectangle layoutRecsLabelOuter;    // Label: LabelOuter
     vector<Rectangle> layoutRecsLabelPosteriors;

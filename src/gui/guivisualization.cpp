@@ -8,17 +8,18 @@ GuiVisualization::GuiVisualization(){
     strcpy(ButtonDrawText, "Draw");
     
     // Define anchors
-    AnchorVisualization = {380, 65};            // ANCHOR ID:3
+    AnchorVisualization = {380, 35};            // ANCHOR ID:3
     
     // Define controls variable
     TextBoxStatusEditMode = false;
     strcpy(TextBoxStatusText, "Status");    // TextBox: TextBoxStatus
 
     // Define controls rectangles
-    layoutRecsGroupBoxVisualization = (Rectangle){AnchorVisualization.x + 0, AnchorVisualization.y + 0, 740, 725};    // GroupBox: GroupBoxVisualization;
-    layoutRecsButtonDraw = (Rectangle){AnchorVisualization.x + 20, AnchorVisualization.y + 20, 80, 32};    // Button: buttonDraw;
-    layoutRecsTextBoxStatus = (Rectangle){AnchorVisualization.x + 115, AnchorVisualization.y + 20, 605, 32};    // TextBox: TextBoxStatus;
-    layoutRecsPanelVisualization = (Rectangle){AnchorVisualization.x + 20, AnchorVisualization.y + 72, 700, 633};    // Panel: PanelVisualization;
+    layoutRecsTitle = {AnchorVisualization.x, AnchorVisualization.y, 730, 20};    // GroupBox: GroupBoxVisualization;
+    layoutRecsContent = {AnchorVisualization.x, AnchorVisualization.y + 20, 730, 710};
+    layoutRecsButtonDraw = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 35, 80, 32};    // Button: buttonDraw;
+    layoutRecsTextBoxStatus = (Rectangle){AnchorVisualization.x + 105, AnchorVisualization.y + 35, 615, 32};    // TextBox: TextBoxStatus;
+    layoutRecsPanelVisualization = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 82, 710, 638};    // Panel: PanelVisualization;
 
     trianglePoints = vector<Vector2>(3);
     float trianglePaddingX = 40;        // PanelVisualization padding in x axis
@@ -40,7 +41,7 @@ GuiVisualization::GuiVisualization(){
 
     LabelTriangleText = vector<string>({"X1", "X2", "X3"});
     layoutRecsLabelTriangle = vector<Rectangle>(3);
-    layoutRecsLabelTriangle[0] = (Rectangle){trianglePoints[0].x - 15, trianglePoints[0].y - 35, 40, 40};        
+    layoutRecsLabelTriangle[0] = (Rectangle){trianglePoints[0].x - 10, trianglePoints[0].y - 35, 40, 40};        
     layoutRecsLabelTriangle[1] = (Rectangle){trianglePoints[1].x - 35, trianglePoints[1].y -  2, 40, 40};        
     layoutRecsLabelTriangle[2] = (Rectangle){trianglePoints[2].x +  5, trianglePoints[2].y -  2, 40, 40};
 }

@@ -27,11 +27,12 @@ public:
     vector<char*> TextBoxPriorText;
 
     // Define controls rectangles
-    Rectangle layoutRecsGroupBox;    // GroupBox: GroupBoxPrior
+    Rectangle layoutRecsTitle;
+    Rectangle layoutRecsContent;
+    Rectangle layoutRecsPanel;
     vector<Rectangle> layoutRecsLabel;
     vector<Rectangle> layoutRecsTextBox;
     Rectangle layoutRecsButtonRandom;
-
 };
 
 #endif

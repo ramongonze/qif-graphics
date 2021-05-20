@@ -9,8 +9,8 @@
 #include <fstream>
 #include <cmath>
 
-#define SCREEN_WIDTH 1130
-#define SCREEN_HEIGHT 800
+#define SCREEN_WIDTH 1120
+#define SCREEN_HEIGHT 775
 
 class Gui{
 private:

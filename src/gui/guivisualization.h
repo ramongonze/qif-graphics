@@ -30,7 +30,8 @@ public:
     char TextBoxStatusText[128];            // TextBox: TextBoxStatus
 
     // Define controls rectangles
-    Rectangle layoutRecsGroupBoxVisualization;
+    Rectangle layoutRecsTitle;
+    Rectangle layoutRecsContent;
     Rectangle layoutRecsButtonDraw;
     Rectangle layoutRecsTextBoxStatus;
     Rectangle layoutRecsPanelVisualization;

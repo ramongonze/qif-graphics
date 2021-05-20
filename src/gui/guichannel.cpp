@@ -10,14 +10,14 @@ GuiChannel::GuiChannel(){
     buttonRandomText = (char*) malloc(128*sizeof(char));
     strcpy(GroupBoxChannelText, "Channel");
     strcpy(LabelOutputsText, "Outputs");
-    strcpy(buttonRandomText, "Random");
+    strcpy(buttonRandomText, "Gen. Random");
     LabelChannelXText = vector<string>(3);
     LabelChannelXText = {"X1", "X2", "X3"};
     LabelChannelYText = vector<string>(3);
     LabelChannelYText = {"Y1", "Y2", "Y3"};
 
     // Define anchors
-    AnchorChannel = {10, 195};            // ANCHOR ID:2
+    AnchorChannel = {10, 165};            // ANCHOR ID:2
 
     // Define controls variables
     SpinnerChannelEditMode = false;
@@ -34,30 +34,31 @@ GuiChannel::GuiChannel(){
     }
     
     // Define control rectangles
-    layoutRecsGroupBox = {AnchorChannel.x + 0, AnchorChannel.y + 0, 350, 275};    // GroupBox: GroupBoxChannel
-    layoutRecsSpinner = {AnchorChannel.x + 245, AnchorChannel.y + 15, 90, 25};    // Spinner: SpinnerChannel
-    layoutRecsScrollPanel = {AnchorChannel.x + 15, AnchorChannel.y + 55, 320, 205};    // ScrollPanel: ScrollPanelChannel
+    layoutRecsTitle = {AnchorChannel.x, AnchorChannel.y, 350, 25};
+    layoutRecsContent = {layoutRecsTitle.x, layoutRecsTitle.y + 20, 350, 265};
+    layoutRecsSpinner = {AnchorChannel.x + 10, AnchorChannel.y + 30, 90, 25};    // Spinner: SpinnerChannel
+    layoutRecsScrollPanel = {AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};    // ScrollPanel: ScrollPanelChannel
     ScrollPanelChannelContent.y = layoutRecsScrollPanel.height - 20;
-    layoutRecsLabelOutputs = {AnchorChannel.x + 175, AnchorChannel.y + 15, 58, 25};    // Label: LabelOutputs
+    layoutRecsLabelOutputs = {AnchorChannel.x + 175, AnchorChannel.y + 5, 78, 25};    // Label: LabelOutputs
     layoutRecsLabelX = vector<Rectangle>(3);
 
     for(long unsigned int i = 0; i < layoutRecsLabelX.size(); i++){
-        layoutRecsLabelX[i] = (Rectangle){AnchorChannel.x + 40, AnchorChannel.y + 90 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
+        layoutRecsLabelX[i] = (Rectangle){AnchorChannel.x + 40, AnchorChannel.y + 100 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
     }
 
     layoutRecsLabelY = vector<Rectangle>(numOutputs);
     for(int i = 0; i < numOutputs; i++){
-        layoutRecsLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 70, 20, 20};
+        layoutRecsLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
     }
 
     layoutRecsTextBoxChannel = vector<vector<Rectangle>>(numOutputs, vector<Rectangle>(3));
     for(int i = 0; i < numOutputs; i++){
         for(int j = 0; j < 3; j++){
-            layoutRecsTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + i*TEXTBOX_SIZE, AnchorChannel.y + 90 + j*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};
+            layoutRecsTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + i*TEXTBOX_SIZE, AnchorChannel.y + 100 + j*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};
         }
     }
 
-    layoutRecsButtonRandom = (Rectangle){AnchorChannel.x + 15, AnchorChannel.y + 15, 70, 28};
+    layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 110, layoutRecsTitle.y, 110, 20};
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[numOutputs-1][0].x + TEXTBOX_SIZE;
 }
 
@@ -80,7 +81,7 @@ void GuiChannel::updateChannelBySpinner(){
     }else{
         for(int i = numOutputs; i < SpinnerChannelValue; i++){
             layoutRecsTextBoxChannel.push_back(vector<Rectangle>(3));
-            layoutRecsLabelY.push_back((Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 70, 20, 20});
+            layoutRecsLabelY.push_back((Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20});
 
             TextBoxChannelEditMode.push_back(vector<bool>(3, false));
             TextBoxChannelText.push_back(vector<char*>(3));
@@ -89,7 +90,7 @@ void GuiChannel::updateChannelBySpinner(){
             sprintf(buffer, "Y%d", i+1);
             LabelChannelYText.push_back(string(buffer));
             for(int j = 0; j < 3; j++){
-                layoutRecsTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + (i*TEXTBOX_SIZE), AnchorChannel.y + 90 + (j*TEXTBOX_SIZE), TEXTBOX_SIZE, TEXTBOX_SIZE};
+                layoutRecsTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + (i*TEXTBOX_SIZE), AnchorChannel.y + 100 + (j*TEXTBOX_SIZE), TEXTBOX_SIZE, TEXTBOX_SIZE};
                 TextBoxChannelEditMode[i][j] = false;
                 TextBoxChannelText[i][j] = (char*) malloc(128*sizeof(char));
                 strcpy(TextBoxChannelText[i][j], "0");

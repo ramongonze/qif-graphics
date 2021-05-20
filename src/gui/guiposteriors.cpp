@@ -16,7 +16,7 @@ GuiPosteriors::GuiPosteriors(){
     LabelPosteriorsText = {"I1", "I2", "I3"};
 
     // Define anchors
-    AnchorPosterior = {10, 490};            // ANCHOR ID:4
+    AnchorPosterior = {10, 460};            // ANCHOR ID:4
 
     // Define controls variable
     ScrollPanelPosteriorsScrollOffset = {0, 0};
@@ -39,29 +39,30 @@ GuiPosteriors::GuiPosteriors(){
     }
 
     // Define controls rectangles
-    layoutRecsGroupBox = {AnchorPosterior.x + 0, AnchorPosterior.y + 0, 350, 300};    // GroupBox: GroupBoxPosteriors
-    layoutRecsScrollPanel = {AnchorPosterior.x + 15, AnchorPosterior.y + 20, 320, 265};    // ScrollPanel: ScrollPanelPosteriors
+    layoutRecsTitle = {AnchorPosterior.x, AnchorPosterior.y, 350, 25};
+    layoutRecsContent = {AnchorPosterior.x, AnchorPosterior.y + 20, 350, 285};
+    layoutRecsScrollPanel = {AnchorPosterior.x + 10, AnchorPosterior.y + 30, 330, 265};    // ScrollPanel: ScrollPanelPosteriors
     ScrollPanelPosteriorsContent.y = layoutRecsScrollPanel.height - 20;
-    layoutRecsLabelOuter = {AnchorPosterior.x + 15, AnchorPosterior.y + 55, TEXTBOX_SIZE, TEXTBOX_SIZE};    // Label: LabelOuter
+    layoutRecsLabelOuter = {AnchorPosterior.x + 10, AnchorPosterior.y + 65, TEXTBOX_SIZE, TEXTBOX_SIZE};    // Label: LabelOuter
     layoutRecsLabelPosteriors = vector<Rectangle>(numPosteriors);
     for(int i = 0; i < numPosteriors; i++){
-        layoutRecsLabelPosteriors[i] = (Rectangle){AnchorPosterior.x + 75 + i*TEXTBOX_SIZE, AnchorPosterior.y + 35, 20, 20};    // Label: LabelPosteriors
+        layoutRecsLabelPosteriors[i] = (Rectangle){AnchorPosterior.x + 75 + i*TEXTBOX_SIZE, AnchorPosterior.y + 45, 20, 20};    // Label: LabelPosteriors
     }
     
     layoutRecsLabelX = vector<Rectangle>(numPosteriors);
     for(int i = 0; i < numPosteriors; i++){
-        layoutRecsLabelX[i] = (Rectangle){AnchorPosterior.x + 40, AnchorPosterior.y + 115 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};    // Label: LabelPosteriorsX1
+        layoutRecsLabelX[i] = (Rectangle){AnchorPosterior.x + 40, AnchorPosterior.y + 125 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};    // Label: LabelPosteriorsX1
     }
 
     layoutRecsTextBoxOuter = vector<Rectangle>(numPosteriors);
     for(int i = 0; i < numPosteriors; i++){
-        layoutRecsTextBoxOuter[i] = (Rectangle){ AnchorPosterior.x + 65 + i*TEXTBOX_SIZE, AnchorPosterior.y + 55, TEXTBOX_SIZE, TEXTBOX_SIZE };    // TextBox: TextBoxOuter0
+        layoutRecsTextBoxOuter[i] = (Rectangle){ AnchorPosterior.x + 65 + i*TEXTBOX_SIZE, AnchorPosterior.y + 65, TEXTBOX_SIZE, TEXTBOX_SIZE };    // TextBox: TextBoxOuter0
     }
 
     layoutRecsTextBoxInners = vector<vector<Rectangle>>(numPosteriors, vector<Rectangle>(3));
     for(int i = 0; i < numPosteriors; i++){
         for(int j = 0; j < 3; j++){
-            layoutRecsTextBoxInners[i][j] = (Rectangle){AnchorPosterior.x + 65 + i*TEXTBOX_SIZE, AnchorPosterior.y + 115 + j*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};    // TextBox: TextBoxInners00
+            layoutRecsTextBoxInners[i][j] = (Rectangle){AnchorPosterior.x + 65 + i*TEXTBOX_SIZE, AnchorPosterior.y + 125 + j*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};    // TextBox: TextBoxInners00
         }
     }
 

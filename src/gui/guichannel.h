@@ -37,7 +37,8 @@ public:
     vector<vector<char*>> TextBoxChannelText;
 
     // Define control rectangles
-    Rectangle layoutRecsGroupBox;    // GroupBox: GroupBoxChannel
+    Rectangle layoutRecsTitle;
+    Rectangle layoutRecsContent;
     Rectangle layoutRecsSpinner;    // Spinner: SpinnerChannel
     Rectangle layoutRecsScrollPanel;    // ScrollPanel: ScrollPanelChannel
     Rectangle layoutRecsLabelOutputs;    // Label: LabelOutputs

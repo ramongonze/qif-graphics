@@ -23,11 +23,11 @@ GuiMenu::GuiMenu(){
 
     // Define controls rectangles
     layoutRecsButtons = vector<Rectangle>(6);
-    layoutRecsButtons[REC_BUTTON_OPEN] = (Rectangle){10, 10, 80, 32};    // Button: buttonOpen
-    layoutRecsButtons[REC_BUTTON_SAVE] = (Rectangle){100, 10, 80, 32};    // Button: buttonSave
-    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){190, 10, 80, 32};    // Button: buttonExamples
-    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){280, 10, 80, 32};    // Button: buttonHelp
-    layoutRecsButtons[REC_BUTTON_ABOUT] = (Rectangle){370, 10, 80, 32};    // Button: buttonAbout
+    layoutRecsButtons[REC_BUTTON_OPEN] = (Rectangle){0, 0, 50, 25};    // Button: buttonOpen
+    layoutRecsButtons[REC_BUTTON_SAVE] = (Rectangle){50, 0, 50, 25};    // Button: buttonSave
+    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){100, 0, 80, 25};    // Button: buttonExamples
+    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){180, 0, 50, 25};    // Button: buttonHelp
+    layoutRecsButtons[REC_BUTTON_ABOUT] = (Rectangle){230, 0, 60, 25};    // Button: buttonAbout
     
-    layoutRecsLine = (Rectangle){0, 45, 1130, 10};    // Line: LineMenu
+    layoutRecsMenu = (Rectangle){0, 0, 1130, 25};    // Line: LineMenu
 }

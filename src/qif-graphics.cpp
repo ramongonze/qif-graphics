@@ -27,6 +27,7 @@
 // General Functions Declaration
 //----------------------------------------------------------------------------------
 void printError(int error, GuiVisualization &visualization);
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title);
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
@@ -67,10 +68,23 @@ int main(){
     //--------------------------------------------------------------------------------------
 
     GuiLoadStyle("src/gui/style-qif-graphics.rgs");
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
+    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt((Color){210, 210, 210, 255}));
+    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt((Color){179, 179, 179, 255}));
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
-    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
-    
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
+    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt((Color){179, 179, 179, 255}));
+    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+    GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt((Color){210, 210, 210, 255}));
+    GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
+
     // Main game loop
     while(!WindowShouldClose()){    // Detect window close button or ESC key
         // Update
@@ -116,8 +130,7 @@ int main(){
         // Draw
         //----------------------------------------------------------------------------------
         BeginDrawing();
-
-            ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))); 
+            ClearBackground((Color){179, 179, 179, 255}); 
 
             // raygui: controls drawing
             //----------------------------------------------------------------------------------
@@ -160,22 +173,33 @@ void printError(int error, GuiVisualization &visualization){
 	}
 }
 
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title){
+    DrawRectangleRec(layoutTitle, (Color){27, 58, 130, 255});
+    DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
+    DrawTextEx(GuiGetFont(), title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, GuiGetFont().baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+}
+
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Data &data){
+    DrawRectangleRec(gui.menu.layoutRecsMenu, (Color){25, 41, 51, 255});
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], gui.menu.buttonOpenText)) buttonOpen(gui.menu);
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_SAVE], gui.menu.buttonSaveText)) buttonSave(gui.menu);
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_ABOUT], gui.menu.buttonAboutText)) buttonAbout(); 
-    GuiLine(gui.menu.layoutRecsLine, NULL);
-    
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_ABOUT], gui.menu.buttonAboutText)) buttonAbout();
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
-    GuiGroupBox(gui.prior.layoutRecsGroupBox, gui.prior.GroupBoxPriorText);
+    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.GroupBoxPriorText);
+    DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
+    DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
+
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){27, 58, 130, 255}));
     if (GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
+
     for(int i = 0; i < 3; i++){
         GuiLabel(gui.prior.layoutRecsLabel[i], gui.prior.LabelPriorText[i].c_str());
         if (GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], 128, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
@@ -183,10 +207,13 @@ void drawGuiPrior(Gui &gui, Data &data){
 }
 
 void drawGuiChannel(Gui &gui, Data &data){
-    GuiGroupBox(gui.channel.layoutRecsGroupBox, gui.channel.GroupBoxChannelText);
+    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.GroupBoxChannelText);
+    
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){27, 58, 130, 255}));
     if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt((Color){25, 41, 51, 255}));
 
-    if (GuiSpinner(gui.channel.layoutRecsSpinner, "", &(gui.channel.SpinnerChannelValue), 0, 100, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
+    if (GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue), 0, 100, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
     Rectangle viewScrollChannel = GuiScrollPanel(
         (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.layoutRecsScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.layoutRecsScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
         (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
@@ -208,7 +235,8 @@ void drawGuiChannel(Gui &gui, Data &data){
 }
 
 void drawGuiPosteriors(GuiPosteriors &posteriors){
-    GuiGroupBox(posteriors.layoutRecsGroupBox, posteriors.GroupBoxPosteriorsText);
+    drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText);
+
     Rectangle viewScrollPosteriors = GuiScrollPanel(
         (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y },
         (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.ScrollPanelPosteriorsContent.x, posteriors.ScrollPanelPosteriorsContent.y},
@@ -238,7 +266,7 @@ void drawGuiPosteriors(GuiPosteriors &posteriors){
 }
 
 void drawGuiVisualization(Gui &gui, Data &data){
-    GuiGroupBox(gui.visualization.layoutRecsGroupBoxVisualization, gui.visualization.GroupBoxVisualizationText);
+    drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText);
     if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);

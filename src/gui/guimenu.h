@@ -36,7 +36,7 @@ public:
 
     // Define controls rectangles
     vector<Rectangle> layoutRecsButtons;
-    Rectangle layoutRecsLine;
+    Rectangle layoutRecsMenu;
 };
 
 #endif
