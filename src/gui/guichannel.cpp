@@ -17,7 +17,7 @@ GuiChannel::GuiChannel(){
     LabelChannelYText = {"Y1", "Y2", "Y3"};
 
     // Define anchors
-    AnchorChannel = {10, 165};            // ANCHOR ID:2
+    AnchorChannel = {10, 185};            // ANCHOR ID:2
 
     // Define controls variables
     SpinnerChannelEditMode = false;

@@ -8,7 +8,7 @@ GuiVisualization::GuiVisualization(){
     strcpy(ButtonDrawText, "Draw");
     
     // Define anchors
-    AnchorVisualization = {380, 35};            // ANCHOR ID:3
+    AnchorVisualization = {370, 35};            // ANCHOR ID:3
     
     // Define controls variable
     TextBoxStatusEditMode = false;
@@ -16,10 +16,10 @@ GuiVisualization::GuiVisualization(){
 
     // Define controls rectangles
     layoutRecsTitle = {AnchorVisualization.x, AnchorVisualization.y, 730, 20};    // GroupBox: GroupBoxVisualization;
-    layoutRecsContent = {AnchorVisualization.x, AnchorVisualization.y + 20, 730, 710};
+    layoutRecsContent = {AnchorVisualization.x, AnchorVisualization.y + 20, 730, 730};
     layoutRecsButtonDraw = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 35, 80, 32};    // Button: buttonDraw;
     layoutRecsTextBoxStatus = (Rectangle){AnchorVisualization.x + 105, AnchorVisualization.y + 35, 615, 32};    // TextBox: TextBoxStatus;
-    layoutRecsPanelVisualization = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 82, 710, 638};    // Panel: PanelVisualization;
+    layoutRecsPanelVisualization = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 82, 710, 658};    // Panel: PanelVisualization;
 
     trianglePoints = vector<Vector2>(3);
     float trianglePaddingX = 40;        // PanelVisualization padding in x axis

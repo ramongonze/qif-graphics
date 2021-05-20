@@ -16,7 +16,7 @@ GuiPosteriors::GuiPosteriors(){
     LabelPosteriorsText = {"I1", "I2", "I3"};
 
     // Define anchors
-    AnchorPosterior = {10, 460};            // ANCHOR ID:4
+    AnchorPosterior = {10, 480};            // ANCHOR ID:4
 
     // Define controls variable
     ScrollPanelPosteriorsScrollOffset = {0, 0};

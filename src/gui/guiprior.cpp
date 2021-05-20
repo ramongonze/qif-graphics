@@ -22,7 +22,7 @@ GuiPrior::GuiPrior(){
 
     // Define controls rectangles
     layoutRecsTitle = (Rectangle){AnchorPrior.x, AnchorPrior.y, 350, 25};
-    layoutRecsContent = (Rectangle){AnchorPrior.x, AnchorPrior.y + 20, 350, 100};    // GroupBox: GroupBoxPrior
+    layoutRecsContent = (Rectangle){AnchorPrior.x, AnchorPrior.y + 20, 350, 120};    // GroupBox: GroupBoxPrior
     layoutRecsPanel = (Rectangle){AnchorPrior.x + 10, AnchorPrior.y + 30, layoutRecsContent.width - 20, layoutRecsContent.height - 20};
 
     float xBasePosition = layoutRecsContent.x + (int)((layoutRecsContent.width - 3*TEXTBOX_SIZE)/2);
