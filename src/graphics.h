@@ -7,10 +7,11 @@
 using namespace std;
 
 // Errors ------------------------------------------------------------------------------------
-#define NO_ERROR		0
+#define NO_ERROR 0
 #define INVALID_CHANNEL 1
-#define INVALID_PRIOR	2 
-#define INVALID_VALUE	3 // i.e. "1/$2"
+#define INVALID_PRIOR 2 
+#define INVALID_VALUE 3 // i.e. "1/$2"
+#define INVALID_QIF_FILE 4
 
 // Settings ------------------------------------------------------------------------------------
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)

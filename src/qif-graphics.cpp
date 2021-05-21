@@ -43,7 +43,7 @@ void drawCircles(Gui &gui, Data &data);
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-void buttonOpen(GuiMenu &menu);
+void buttonFile(Gui &gui, Data &data);
 void buttonSave(GuiMenu &menu);
 void buttonExamples();
 void buttonHelp();
@@ -207,13 +207,18 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
 void drawGuiMenu(Gui &gui, Data &data){
     DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
     
+    // Button File
     GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_OPEN], 120, "File;Open file;Save;Save as...;Exit", &(gui.menu.dropdownBoxOpen), gui.menu.dropDownOpenEditMode)) gui.menu.dropDownOpenEditMode = !gui.menu.dropDownOpenEditMode;
+    if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxFileActive), gui.menu.dropdownFileEditMode)) gui.menu.dropdownFileEditMode = !gui.menu.dropdownFileEditMode;
     initStyle();
+    buttonFile(gui, data);
 
+    // Button Examples
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
+
+    // Button Help
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
 }
 
@@ -361,56 +366,63 @@ void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void buttonOpen(GuiMenu &menu){
-    /* File format:
-    -----BEGIN OF FILE-----
-    prior
-    n
-    p1
-    ...
-    pn
+void buttonFile(Gui &gui, Data &data){
+    vector<char*> newPrior;
+    vector<vector<char*>> newChannel;
 
-    channel
-    n m
-    p11 p12 ... p1m
-    p21 p22 ... p2m
-    ...
-    pn1 pn2 ... pnm
-    -----END OF FILE-----
+    switch(gui.menu.dropdownBoxFileActive){
+        case BUTTON_FILE_OPTION_OPEN:
+            if(gui.menu.readQIFFile(newPrior, newChannel) == NO_ERROR){
+                // If the current number of outputs is different from the file's, update it
+                int newNumOutputs = (int) newChannel.size();
+                if(gui.channel.SpinnerChannelValue != newNumOutputs){
+                    gui.channel.SpinnerChannelValue = newNumOutputs;
+                    gui.drawing = false;
+                    gui.channel.updateChannelBySpinner();
+                }
+                gui.prior.TextBoxPriorText = newPrior;
+                gui.channel.TextBoxChannelText = newChannel;
+                gui.drawing = false;
+            }            
+            break;
+        case BUTTON_FILE_OPTION_SAVE:
+            /* code */
+            break;
 
-    where n is the number of secrets (consequently the # elements in prior and # rows in channel)
-    and m is the number of outputs in the channel (# of columns).
-    */
+        case BUTTON_FILE_OPTION_SAVEAS:
+            /* code */
+            break;
 
-    FILE *file = popen("zenity --file-selection --title=Open --file-filter=*.qifg", "r");
-    fgets(menu.fileNameToOpen, 2048, file);
-    fclose(file);
+        case BUTTON_FILE_OPTION_EXIT:
+            /* code */
+            break;
 
-    // Remove \n from the end
-    string newFileName = string(menu.fileNameToOpen);
-    newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
-    strcpy(menu.fileNameToOpen, newFileName.c_str());    
+        default:
+            break;
+    }
+
+    gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
 }
 
 void buttonSave(GuiMenu &menu){
-    FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
-    fgets(menu.fileNameToSave, 2048, file);
-    fclose(file);
+    // FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
+    // fgets(menu.fileNameToSave, 2048, file);
+    // fclose(file);
 
-    // Remove \n from the end
-    string newFileName = string(menu.fileNameToSave);
-    newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
-    strcpy(menu.fileNameToSave, newFileName.c_str());
+    // // Remove \n from the end
+    // string newFileName = string(menu.fileNameToSave);
+    // newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
+    // strcpy(menu.fileNameToSave, newFileName.c_str());
 
-    // Fix file extension if it is not .qifg
-    string fn = string(menu.fileNameToSave);
-    if(fn.find_last_of(".") == string::npos){
-        string newFileName = fn + ".qifg";
-        strcpy(menu.fileNameToSave, newFileName.c_str());
-    }else if(fn.substr(fn.find_last_of(".") + 1) != "qifg"){
-        string newFileName = fn.substr(0, fn.find_last_of(".")) + ".qifg";
-        strcpy(menu.fileNameToSave, newFileName.c_str());
-    }
+    // // Fix file extension if it is not .qifg
+    // string fn = string(menu.fileNameToSave);
+    // if(fn.find_last_of(".") == string::npos){
+    //     string newFileName = fn + ".qifg";
+    //     strcpy(menu.fileNameToSave, newFileName.c_str());
+    // }else if(fn.substr(fn.find_last_of(".") + 1) != "qifg"){
+    //     string newFileName = fn.substr(0, fn.find_last_of(".")) + ".qifg";
+    //     strcpy(menu.fileNameToSave, newFileName.c_str());
+    // }
 }
 
 void buttonExamples(){
