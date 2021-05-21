@@ -44,7 +44,6 @@ void drawCircles(Gui &gui, Data &data);
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data);
-void buttonSave(GuiMenu &menu);
 void buttonExamples();
 void buttonHelp();
 void buttonAbout();
@@ -386,11 +385,15 @@ void buttonFile(Gui &gui, Data &data){
             }            
             break;
         case BUTTON_FILE_OPTION_SAVE:
-            /* code */
+            gui.menu.saveQIFFile(
+                gui.prior.TextBoxPriorText,
+                gui.channel.TextBoxChannelText,
+                strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+            );            
             break;
 
         case BUTTON_FILE_OPTION_SAVEAS:
-            /* code */
+            gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText, true);
             break;
 
         case BUTTON_FILE_OPTION_EXIT:
@@ -402,27 +405,6 @@ void buttonFile(Gui &gui, Data &data){
     }
 
     gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-}
-
-void buttonSave(GuiMenu &menu){
-    // FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
-    // fgets(menu.fileNameToSave, 2048, file);
-    // fclose(file);
-
-    // // Remove \n from the end
-    // string newFileName = string(menu.fileNameToSave);
-    // newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
-    // strcpy(menu.fileNameToSave, newFileName.c_str());
-
-    // // Fix file extension if it is not .qifg
-    // string fn = string(menu.fileNameToSave);
-    // if(fn.find_last_of(".") == string::npos){
-    //     string newFileName = fn + ".qifg";
-    //     strcpy(menu.fileNameToSave, newFileName.c_str());
-    // }else if(fn.substr(fn.find_last_of(".") + 1) != "qifg"){
-    //     string newFileName = fn.substr(0, fn.find_last_of(".")) + ".qifg";
-    //     strcpy(menu.fileNameToSave, newFileName.c_str());
-    // }
 }
 
 void buttonExamples(){

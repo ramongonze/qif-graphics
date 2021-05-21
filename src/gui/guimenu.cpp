@@ -106,3 +106,58 @@ int GuiMenu::readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel){
     return NO_ERROR;
 }
 
+void GuiMenu::saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, bool createNewFile){
+    /* File format:
+    -----BEGIN OF FILE-----
+    prior
+    p1 p2 p3
+    channel
+    m
+    p11 p12 ... p1m
+    p21 p22 ... p2m
+    p31 pn2 ... pnm
+    -----END OF FILE-----
+
+    where n is the number of secrets (consequently the # elements in prior and # rows in channel),
+    m is the number of outputs in the channel (# of columns) and every two numbers are separated
+    by a white space.
+    */
+
+    if(createNewFile){
+        FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
+        fgets(fileName, 2048, file);
+        fclose(file);
+
+        // Remove \n from the end
+        string newFileName = string(fileName);
+        newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
+        strcpy(fileName, newFileName.c_str());
+
+        // Fix file extension if it is not .qifg
+        string fn = string(fileName);
+        if(fn.find_last_of(".") == string::npos){
+            string newFileName = fn + ".qifg";
+            strcpy(fileName, newFileName.c_str());
+        }else if(fn.substr(fn.find_last_of(".") + 1) != "qifg"){
+            string newFileName = fn.substr(0, fn.find_last_of(".")) + ".qifg";
+            strcpy(fileName, newFileName.c_str());
+        }
+    }
+
+    string output = "";
+    output = output + "prior\n" + prior[0] + " " + prior[1] + " " + prior[2] + "\n";
+    output = output + "channel\n" + to_string(channel.size()) + "\n";
+    for(int j = 0; j < 3; j++){
+        long unsigned int i = 0;
+        while(i < channel.size()-1){
+            output = output + channel[i][j] + " ";
+            i++;
+        }
+        output = output + channel[i][j] + "\n";
+    }
+
+    ofstream outfile;
+    outfile.open(fileName);
+    outfile << output;
+    outfile.close();
+}
