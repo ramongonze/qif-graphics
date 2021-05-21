@@ -6,6 +6,7 @@ Data::Data(){
     this->prior = vector<long double>(3, 0);
     this->channel = vector<vector<long double>>(3, vector<long double>(3, 0));
     this->error = NO_ERROR;
+    this->fileSaved = true;
 }
 
 int Data::checkPriorText(vector<char*> &prior_){

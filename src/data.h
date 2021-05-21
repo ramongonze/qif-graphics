@@ -18,6 +18,7 @@ public:
 	int error;		// Indicates if there is error with prior or channel
 	bool hyperReady;  // Flag that indicates wheter a hyper distribution has been built.
 	bool mouseClickedOnPrior; // Flag that indicates wheter the mouse was clicked in the previous frame on the prior circle.
+	bool fileSaved; // Flag that indicates wheter the current prior/channel has been saved
 
 	Circle priorCircle;
 	vector<Circle> innersCircles;

@@ -33,7 +33,7 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Data &data);
+void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow);
 void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
 void drawGuiPosteriors(GuiPosteriors &posteriors);
@@ -43,10 +43,9 @@ void drawCircles(Gui &gui, Data &data);
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-void buttonFile(Gui &gui, Data &data);
+void buttonFile(Gui &gui, Data &data, bool *closeWindow);
 void buttonExamples();
 void buttonHelp();
-void buttonAbout();
 void buttonRandomPrior(Gui &gui, Data &data);
 void buttonRandomChannel(Gui &gui, Data &data);
 void buttonDraw(Gui &gui, Data &data);
@@ -58,6 +57,7 @@ int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
+    bool closeWindow = false;
     GuiLoadStyle("src/gui/style-qif-graphics.rgs");
     initStyle();
 
@@ -70,14 +70,16 @@ int main(){
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while(!WindowShouldClose()){    // Detect window close button or ESC key
+    while(!closeWindow){    // Detect window close button or ESC key
         // Update
         //----------------------------------------------------------------------------------
+        closeWindow = WindowShouldClose();
         Vector2 mousePosition = GetMousePosition();
         
         // Check if channel spinner value was changed
         if(gui.channel.SpinnerChannelValue != gui.channel.numOutputs){
             gui.drawing = false;
+            data.fileSaved = false;
             gui.channel.updateChannelBySpinner();
         }
         
@@ -85,6 +87,7 @@ int main(){
         if(gui.checkTextBoxPressed()){
             gui.drawing = false;
             data.error = false;
+            data.fileSaved = false;
             printError(data.error, gui.visualization);
 
             if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
@@ -103,6 +106,7 @@ int main(){
             if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data.mouseClickedOnPrior = false;
             
             if(data.mouseClickedOnPrior){
+                data.fileSaved = false;
                 data.updateHyper(gui.visualization.trianglePoints);
                 data.buildCircles(gui.visualization.trianglePoints);
                 gui.updatePrior(data.hyper.prior, data.priorCircle);
@@ -123,7 +127,7 @@ int main(){
             drawGuiChannel(gui, data);
             drawGuiPosteriors(gui.posteriors);
             drawGuiVisualization(gui, data);
-            drawGuiMenu(gui, data);
+            drawGuiMenu(gui, data, &closeWindow);
             //----------------------------------------------------------------------------------
 
         EndDrawing();
@@ -203,7 +207,7 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Data &data){
+void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
     DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
     
     // Button File
@@ -212,7 +216,7 @@ void drawGuiMenu(Gui &gui, Data &data){
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
     if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxFileActive), gui.menu.dropdownFileEditMode)) gui.menu.dropdownFileEditMode = !gui.menu.dropdownFileEditMode;
     initStyle();
-    buttonFile(gui, data);
+    buttonFile(gui, data, closeWindow);
 
     // Button Examples
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
@@ -365,7 +369,7 @@ void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void buttonFile(Gui &gui, Data &data){
+void buttonFile(Gui &gui, Data &data, bool *closeWindow){
     vector<char*> newPrior;
     vector<vector<char*>> newChannel;
 
@@ -389,15 +393,39 @@ void buttonFile(Gui &gui, Data &data){
                 gui.prior.TextBoxPriorText,
                 gui.channel.TextBoxChannelText,
                 strcmp(gui.menu.fileName, "\0") == 0 ? true : false
-            );            
+            );
+            if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
             break;
 
         case BUTTON_FILE_OPTION_SAVEAS:
             gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText, true);
+            if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;
             break;
 
         case BUTTON_FILE_OPTION_EXIT:
-            /* code */
+            if(data.fileSaved){
+                *closeWindow = true;
+            }else{
+                int ret;
+                FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
+                ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
+
+                if(ret == 0){
+                    // Yes
+                    gui.menu.saveQIFFile(
+                        gui.prior.TextBoxPriorText,
+                        gui.channel.TextBoxChannelText,
+                        strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+                    );
+                    if(strcmp(gui.menu.fileName, "\0")){
+                        data.fileSaved = true;
+                        *closeWindow = true;  
+                    }
+                }else{
+                    // No
+                    *closeWindow = true;
+                }
+            }
             break;
 
         default:
@@ -415,10 +443,6 @@ void buttonHelp(){
     // TODO: Implement control logic
 }
 
-void buttonAbout(){
-    // TODO: Implement control logic
-}
-
 void buttonRandomPrior(Gui &gui, Data &data){
     if(data.error == INVALID_PRIOR){
         data.error = NO_ERROR;
@@ -426,6 +450,7 @@ void buttonRandomPrior(Gui &gui, Data &data){
     }
     data.newRandomPrior();
     gui.drawing = false;
+    data.fileSaved = false;
     Distribution newPrior(data.prior);
     gui.updatePrior(newPrior, data.priorCircle);
 }
@@ -438,6 +463,7 @@ void buttonRandomChannel(Gui &gui, Data &data){
     
     data.newRandomChannel(gui.channel.numOutputs);
     gui.drawing = false;
+    data.fileSaved = false;
     gui.channel.updateChannelTextBoxes(data.channel);
 }
 
