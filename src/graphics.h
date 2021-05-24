@@ -2,7 +2,7 @@
 #define _qif_graphics
 
 #include "../libs/qif/qif.h"
-#include "raylib.h"
+#include "../libs/raylib/src/raylib.h"
 
 using namespace std;
 

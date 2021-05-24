@@ -17,11 +17,20 @@
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
 #include "../libs/raygui/src/raygui.h"
-
 #include <iostream>
 #include <string>
 #include "gui/gui.h"
 #include "data.h"
+
+#define PLATFORM_WEB
+#if defined(PLATFORM_WEB)
+    typedef struct WebLoopVariables{
+        Gui gui;
+        Data data;
+        bool closeWindow;
+    } WebLoopVariables;
+    #include "/home/ramon/lib/emsdk/upstream/emscripten/system/include/emscripten.h"
+#endif
 
 //----------------------------------------------------------------------------------
 // General Functions Declaration
@@ -29,6 +38,7 @@
 void initStyle();
 void printError(int error, GuiVisualization &visualization);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title);
+void UpdateDrawFrame(void* vars_);     // Update and Draw one frame
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
@@ -57,10 +67,15 @@ int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
-    bool closeWindow = false;
     GuiLoadStyle("src/gui/style-qif-graphics.rgs");
     initStyle();
 
+#if defined(PLATFORM_WEB)
+    WebLoopVariables vars;
+    vars.closeWindow = false;
+    emscripten_set_main_loop_arg(UpdateDrawFrame, &vars, 60, 1);
+#else
+    bool closeWindow = false;
     //----------------------------------------------------------------------------------
     Gui gui = Gui();
     //----------------------------------------------------------------------------------
@@ -71,68 +86,9 @@ int main(){
 
     // Main game loop
     while(!closeWindow){    // Detect window close button or ESC key
-        // Update
-        //----------------------------------------------------------------------------------
-        closeWindow = WindowShouldClose();
-        Vector2 mousePosition = GetMousePosition();
-        
-        // Check if channel spinner value was changed
-        if(gui.channel.SpinnerChannelValue != gui.channel.numOutputs){
-            gui.drawing = false;
-            data.fileSaved = false;
-            gui.channel.updateChannelBySpinner();
-        }
-        
-        // Check if a TextBox is being pressed
-        if(gui.checkTextBoxPressed()){
-            gui.drawing = false;
-            data.error = false;
-            data.fileSaved = false;
-            printError(data.error, gui.visualization);
-
-            if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
-				IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
-				gui.moveAmongTextBoxes();
-			}
-        }
-
-        // Check if prior circle was moved
-        if(gui.drawing){
-            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
-                euclidianDistance(data.priorCircle.center, mousePosition) <= PRIOR_RADIUS){
-                data.mouseClickedOnPrior = true;
-            }
-
-            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data.mouseClickedOnPrior = false;
-            
-            if(data.mouseClickedOnPrior){
-                data.fileSaved = false;
-                data.updateHyper(gui.visualization.trianglePoints);
-                data.buildCircles(gui.visualization.trianglePoints);
-                gui.updatePrior(data.hyper.prior, data.priorCircle);
-                gui.updatePosteriors(data.hyper, data.innersCircles);
-            }
-        }
-        //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-            ClearBackground(BG_BASE_COLOR_DARK); 
-
-            // raygui: controls drawing
-            //----------------------------------------------------------------------------------
-            // Draw controls
-            drawGuiPrior(gui, data);
-            drawGuiChannel(gui, data);
-            drawGuiPosteriors(gui.posteriors);
-            drawGuiVisualization(gui, data);
-            drawGuiMenu(gui, data, &closeWindow);
-            //----------------------------------------------------------------------------------
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
+        UpdateDrawFrame(&vars);
     }
+#endif
 
     // De-Initialization
     //--------------------------------------------------------------------------------------
@@ -202,6 +158,75 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
     DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
     DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
     DrawTextEx(GuiGetFont(), title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, GuiGetFont().baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+}
+
+void UpdateDrawFrame(void* vars_){
+    WebLoopVariables* vars = (WebLoopVariables*) vars_;
+    Gui* gui = &(vars->gui);
+    Data* data = &(vars->data);
+    bool* closeWindow = &(vars->closeWindow);
+
+    // Update
+    //----------------------------------------------------------------------------------
+    *closeWindow = WindowShouldClose();
+    Vector2 mousePosition = GetMousePosition();
+    
+    // Check if channel spinner value was changed
+    if(gui->channel.SpinnerChannelValue != gui->channel.numOutputs){
+        gui->drawing = false;
+        data->fileSaved = false;
+        gui->channel.updateChannelBySpinner();
+    }
+    
+    // Check if a TextBox is being pressed
+    if(gui->checkTextBoxPressed()){
+        gui->drawing = false;
+        data->error = false;
+        data->fileSaved = false;
+        printError(data->error, gui->visualization);
+
+        if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
+            IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+            gui->moveAmongTextBoxes();
+        }
+    }
+
+    // Check if prior circle was moved
+    if(gui->drawing){
+        if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
+            euclidianDistance(data->priorCircle.center, mousePosition) <= PRIOR_RADIUS){
+            data->mouseClickedOnPrior = true;
+        }
+
+        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data->mouseClickedOnPrior = false;
+        
+        if(data->mouseClickedOnPrior){
+            data->fileSaved = false;
+            data->updateHyper(gui->visualization.trianglePoints);
+            data->buildCircles(gui->visualization.trianglePoints);
+            gui->updatePrior(data->hyper.prior, data->priorCircle);
+            gui->updatePosteriors(data->hyper, data->innersCircles);
+        }
+    }
+    //----------------------------------------------------------------------------------
+
+    // Draw
+    //----------------------------------------------------------------------------------
+    BeginDrawing();
+        ClearBackground(BG_BASE_COLOR_DARK); 
+
+        // raygui: controls drawing
+        //----------------------------------------------------------------------------------
+        // Draw controls
+        drawGuiPrior(*gui, *data);
+        drawGuiChannel(*gui, *data);
+        drawGuiPosteriors(gui->posteriors);
+        drawGuiVisualization(*gui, *data);
+        drawGuiMenu(*gui, *data, closeWindow);
+        //----------------------------------------------------------------------------------
+
+    EndDrawing();
+    //----------------------------------------------------------------------------------
 }
 
 //------------------------------------------------------------------------------------
@@ -410,25 +435,26 @@ void buttonFile(Gui &gui, Data &data, bool *closeWindow){
             if(data.fileSaved){
                 *closeWindow = true;
             }else{
-                int ret;
-                FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
-                ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
+                
+                // int ret;
+                // FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
+                // ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
 
-                if(ret == 0){
-                    // Yes
-                    gui.menu.saveQIFFile(
-                        gui.prior.TextBoxPriorText,
-                        gui.channel.TextBoxChannelText,
-                        strcmp(gui.menu.fileName, "\0") == 0 ? true : false
-                    );
-                    if(strcmp(gui.menu.fileName, "\0")){
-                        data.fileSaved = true;
-                        *closeWindow = true;  
-                    }
-                }else{
-                    // No
-                    *closeWindow = true;
-                }
+                // if(ret == 0){
+                //     // Yes
+                //     gui.menu.saveQIFFile(
+                //         gui.prior.TextBoxPriorText,
+                //         gui.channel.TextBoxChannelText,
+                //         strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+                //     );
+                //     if(strcmp(gui.menu.fileName, "\0")){
+                //         data.fileSaved = true;
+                //         *closeWindow = true;  
+                //     }
+                // }else{
+                //     // No
+                //     *closeWindow = true;
+                // }
             }
             break;
 
