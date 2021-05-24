@@ -46,8 +46,8 @@ public:
     vector<Rectangle> layoutRecsButtons;
     Rectangle layoutRecsMenu;
 
-    int readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel);        // Parameters are output
-    void saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, bool createNewFile);
+    int readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel);        // Parameters are output
+    void saveQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel, bool createNewFile);
 };
 
 #endif

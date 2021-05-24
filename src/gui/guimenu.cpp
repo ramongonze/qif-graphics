@@ -25,7 +25,7 @@ GuiMenu::GuiMenu(){
     layoutRecsMenu = (Rectangle){0, 0, 1130, 25};    // Line: LineMenu
 }
 
-int GuiMenu::readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel){
+int GuiMenu::readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel){
     // /* File format:
     // -----BEGIN OF FILE-----
     // prior
@@ -106,7 +106,7 @@ int GuiMenu::readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel){
     return NO_ERROR;
 }
 
-void GuiMenu::saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, bool createNewFile){
+void GuiMenu::saveQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel, bool createNewFile){
     /* File format:
     -----BEGIN OF FILE-----
     prior

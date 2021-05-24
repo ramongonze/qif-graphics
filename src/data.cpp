@@ -9,16 +9,16 @@ Data::Data(){
     this->fileSaved = true;
 }
 
-int Data::checkPriorText(vector<char*> &prior_){
-    vector<pair<string, string>> newPrior(prior_.size());
-    vector<string> priorStr(prior_.size());
+int Data::checkPriorText(char* prior_[NUMBER_SECRETS]){
+    vector<pair<string, string>> newPrior(NUMBER_SECRETS);
+    vector<string> priorStr(NUMBER_SECRETS);
 
-    for(long unsigned int i = 0; i < priorStr.size(); i++){
+    for(int i = 0; i < NUMBER_SECRETS; i++){
     	priorStr[i] = string(prior_[i]);
     }
 
     try{
-        for(long unsigned int i = 0; i < prior_.size(); i++){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
             size_t pos = priorStr[i].find('/');
             if(pos != string::npos){ // If true, the user is typing a fraction
                 string numerator = priorStr[i].substr(0, pos);

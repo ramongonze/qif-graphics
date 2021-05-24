@@ -18,6 +18,8 @@ using namespace std;
 #define TEXTBOX_SIZE 50
 #define WINDOWS_WIDTH 750
 #define WINDOWS_HEIGHT 630
+#define NUMBER_SECRETS 3
+#define CHAR_BUFFER_SIZE 128
 
 // Color scheme ------------------------------------------------------------------------------------
 // GUI

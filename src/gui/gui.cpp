@@ -10,7 +10,7 @@ Gui::Gui(){
 }
 
 bool Gui::checkTextBoxPressed(){
-    for(long unsigned int i = 0; i < prior.TextBoxPriorEditMode.size(); i++)
+    for(long unsigned int i = 0; i < NUMBER_SECRETS; i++)
         if(prior.TextBoxPriorEditMode[i] == true)
             return true;
 

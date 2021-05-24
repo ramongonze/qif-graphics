@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <string.h>
+#include <stdio.h>
 #include "../../libs/raylib/src/raylib.h"
 #include "../graphics.h"
 using namespace std;
@@ -15,24 +16,31 @@ public:
     GuiPrior();
 
     // Const text
-    char *GroupBoxPriorText;    // GROUPBOX: GroupBoxPrior
+    char *panelPriorText;
     char *buttonRandomText;
-    vector<string> LabelPriorText;    // LABEL: LabelPriorX1
+    string LabelPriorText[NUMBER_SECRETS];
 
     // Define anchors
-    Vector2 AnchorPrior;            // ANCHOR ID:1
+    Vector2 AnchorPrior;
 
     // Define controls variables
-    vector<bool> TextBoxPriorEditMode;
-    vector<char*> TextBoxPriorText;
+    bool TextBoxPriorEditMode[NUMBER_SECRETS];
+    char* TextBoxPriorText[NUMBER_SECRETS];
 
     // Define controls rectangles
+    Rectangle layoutRecsPanel;
     Rectangle layoutRecsTitle;
     Rectangle layoutRecsContent;
-    Rectangle layoutRecsPanel;
-    vector<Rectangle> layoutRecsLabel;
-    vector<Rectangle> layoutRecsTextBox;
     Rectangle layoutRecsButtonRandom;
+    Rectangle layoutRecsLabel[NUMBER_SECRETS];
+    Rectangle layoutRecsTextBox[NUMBER_SECRETS];
+
+    // Copy the values of a prior array to another
+    static void copyPrior(char* origin[NUMBER_SECRETS], char* dest[NUMBER_SECRETS]){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            strcpy(dest[i], origin[i]);
+        }
+    }
 };
 
 #endif

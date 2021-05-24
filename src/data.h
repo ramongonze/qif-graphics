@@ -26,7 +26,7 @@ public:
 	/* Check if the numbers or fractions were typed correctly in the prior distribution.
 	 * If so, convert text to long double values and add them to this->prior.
 	 * Returns NO_ERROR or INVALID_VALUE */
-	int checkPriorText(vector<char*> &prior_);
+	int checkPriorText(char* prior_[NUMBER_SECRETS]);
 
 	/* Check if the numbers or fractions were typed correctly in the channel.
 	 * If so, conver text to long double values and add them to this->channel.

@@ -251,7 +251,7 @@ void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
-    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.GroupBoxPriorText);
+    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText);
     DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
@@ -263,9 +263,9 @@ void drawGuiPrior(Gui &gui, Data &data){
     GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
 
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < NUMBER_SECRETS; i++){
         GuiLabel(gui.prior.layoutRecsLabel[i], gui.prior.LabelPriorText[i].c_str());
-        if (GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], 128, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
+        if (GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], CHAR_BUFFER_SIZE, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
     }
 }
 
@@ -307,7 +307,7 @@ void drawGuiChannel(Gui &gui, Data &data){
         for(int i = 0; i < gui.channel.numOutputs; i++){
             GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
             for(int j = 0; j < 3; j++){
-                if (GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[i][j], 128, gui.channel.TextBoxChannelEditMode[i][j]))gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
+                if (GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j]))gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
             }
         }
 
@@ -340,12 +340,12 @@ void drawGuiPosteriors(GuiPosteriors &posteriors){
         }
 
         for(int i = 0; i < posteriors.numPosteriors; i++){
-            GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxOuter[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxOuter[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxOuter[i].width, posteriors.layoutRecsTextBoxOuter[i].height}, posteriors.TextBoxOuterText[i], 128, posteriors.TextBoxOuterEditMode[i]);
+            GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxOuter[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxOuter[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxOuter[i].width, posteriors.layoutRecsTextBoxOuter[i].height}, posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, posteriors.TextBoxOuterEditMode[i]);
         }
 
         for(int i = 0; i < posteriors.numPosteriors; i++){
             for(int j = 0; j < 3; j++){
-                GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxInners[i][j].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxInners[i][j].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxInners[i][j].width, posteriors.layoutRecsTextBoxInners[i][j].height}, posteriors.TextBoxInnersText[i][j], 128, posteriors.TextBoxInnersEditMode[i][j]);
+                GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxInners[i][j].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxInners[i][j].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxInners[i][j].width, posteriors.layoutRecsTextBoxInners[i][j].height}, posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, posteriors.TextBoxInnersEditMode[i][j]);
             }
         }
     EndScissorMode();
@@ -361,7 +361,7 @@ void drawGuiVisualization(Gui &gui, Data &data){
     DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, WHITE);
     
     if(strcmp(gui.visualization.TextBoxStatusText, "Status")) GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RED));
-    GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, 128, gui.visualization.TextBoxStatusEditMode);
+    GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, CHAR_BUFFER_SIZE, gui.visualization.TextBoxStatusEditMode);
     GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
@@ -399,7 +399,7 @@ void drawCircles(Gui &gui, Data &data){
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data, bool *closeWindow){
-    vector<char*> newPrior;
+    char* newPrior[NUMBER_SECRETS];
     vector<vector<char*>> newChannel;
 
     switch(gui.menu.dropdownBoxFileActive){
@@ -412,7 +412,8 @@ void buttonFile(Gui &gui, Data &data, bool *closeWindow){
                     gui.drawing = false;
                     gui.channel.updateChannelBySpinner();
                 }
-                gui.prior.TextBoxPriorText = newPrior;
+                // gui.prior.TextBoxPriorText = newPrior;
+                GuiPrior::copyPrior(newPrior, gui.prior.TextBoxPriorText);
                 gui.channel.TextBoxChannelText = newChannel;
                 gui.drawing = false;
             }            
