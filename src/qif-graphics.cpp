@@ -1,6 +1,6 @@
 /*******************************************************************************************
 *
-*   Qif-graphics v1.0.0 - Tool for QIF (Quantitative Information Flow).
+*   Qif-graphics v2.0.0 - QIF Graphics
 *
 *   LICENSE: Propietary License
 *
@@ -12,354 +12,491 @@
 *
 **********************************************************************************************/
 
-#include "raylib.h"
-#include "layout.h"
-#include "information.h"
+#include "../libs/raylib/src/raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
 #define RAYGUI_SUPPORT_ICONS
 #include "../libs/raygui/src/raygui.h"
-#include "../libs/qif/qif.h
+
 #include <iostream>
-
-typedef struct LoopVariables{
-	Information I;
-	Layout L;
-}LoopVariables;
+#include <string>
+#include "gui/gui.h"
+#include "data.h"
 
 //----------------------------------------------------------------------------------
-// Module Functions Declaration
+// General Functions Declaration
 //----------------------------------------------------------------------------------
-void updateDrawFrame(void* V_);     // Update and Draw one frame. Required to run on a browser.
-void printError(int error, Layout &L); // Changes status bar's text.
-void drawCircles(Information &I, Layout &L); // Draw prior and inner circles.
+void initStyle();
+void printError(int error, GuiVisualization &visualization);
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title);
+
+//----------------------------------------------------------------------------------
+// Draw Functions Declaration
+//----------------------------------------------------------------------------------
+void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow);
+void drawGuiPrior(Gui &gui, Data &data);
+void drawGuiChannel(Gui &gui, Data &data);
+void drawGuiPosteriors(GuiPosteriors &posteriors);
+void drawGuiVisualization(Gui &gui, Data &data);
+void drawCircles(Gui &gui, Data &data);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
+void buttonFile(Gui &gui, Data &data, bool *closeWindow);
+void buttonExamples();
+void buttonHelp();
+void buttonRandomPrior(Gui &gui, Data &data);
+void buttonRandomChannel(Gui &gui, Data &data);
+void buttonDraw(Gui &gui, Data &data);
 
 //------------------------------------------------------------------------------------
 // Program main entry point
 //------------------------------------------------------------------------------------
 int main(){
-	// Initialization
-	//---------------------------------------------------------------------------------------
-	int screenWidth = WINDOWS_WIDTH;
-	int screenHeight = WINDOWS_HEIGHT;
+    // Initialization
+    //---------------------------------------------------------------------------------------
+    InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
+    bool closeWindow = false;
+    GuiLoadStyle("src/gui/style-qif-graphics.rgs");
+    initStyle();
 
-	InitWindow(screenWidth, screenHeight, "QIF-graphics");
+    //----------------------------------------------------------------------------------
+    Gui gui = Gui();
+    //----------------------------------------------------------------------------------
 
-	LoopVariables V;
-	V.I = Information();
-	V.L = Layout();
-	V.L.init();
-	V.L.alternativeFont = LoadFont("fonts/dejavu.fnt"); // Used to get pi symbol
+    SetTargetFPS(60);
+    Data data = Data();
+    //--------------------------------------------------------------------------------------
 
-	SetTargetFPS(60);
-	//--------------------------------------------------------------------------------------
-	
-	// Main game loop
-	while (!WindowShouldClose()){    // Detect window close button or ESC key
-		updateDrawFrame(&V);
+    // Main game loop
+    while(!closeWindow){    // Detect window close button or ESC key
+        // Update
+        //----------------------------------------------------------------------------------
+        closeWindow = WindowShouldClose();
+        Vector2 mousePosition = GetMousePosition();
+        
+        // Check if channel spinner value was changed
+        if(gui.channel.SpinnerChannelValue != gui.channel.numOutputs){
+            gui.drawing = false;
+            data.fileSaved = false;
+            gui.channel.updateChannelBySpinner();
+        }
+        
+        // Check if a TextBox is being pressed
+        if(gui.checkTextBoxPressed()){
+            gui.drawing = false;
+            data.error = false;
+            data.fileSaved = false;
+            printError(data.error, gui.visualization);
+
+            if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
+				IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+				gui.moveAmongTextBoxes();
+			}
+        }
+
+        // Check if prior circle was moved
+        if(gui.drawing){
+            if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
+                euclidianDistance(data.priorCircle.center, mousePosition) <= PRIOR_RADIUS){
+                data.mouseClickedOnPrior = true;
+            }
+
+            if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data.mouseClickedOnPrior = false;
+            
+            if(data.mouseClickedOnPrior){
+                data.fileSaved = false;
+                data.updateHyper(gui.visualization.trianglePoints);
+                data.buildCircles(gui.visualization.trianglePoints);
+                gui.updatePrior(data.hyper.prior, data.priorCircle);
+                gui.updatePosteriors(data.hyper, data.innersCircles);
+            }
+        }
+        //----------------------------------------------------------------------------------
+
+        // Draw
+        //----------------------------------------------------------------------------------
+        BeginDrawing();
+            ClearBackground(BG_BASE_COLOR_DARK); 
+
+            // raygui: controls drawing
+            //----------------------------------------------------------------------------------
+            // Draw controls
+            drawGuiPrior(gui, data);
+            drawGuiChannel(gui, data);
+            drawGuiPosteriors(gui.posteriors);
+            drawGuiVisualization(gui, data);
+            drawGuiMenu(gui, data, &closeWindow);
+            //----------------------------------------------------------------------------------
+
+        EndDrawing();
+        //----------------------------------------------------------------------------------
+    }
+
+    // De-Initialization
+    //--------------------------------------------------------------------------------------
+    CloseWindow();        // Close window and OpenGL context
+    //--------------------------------------------------------------------------------------
+
+    return 0;
+}
+
+//------------------------------------------------------------------------------------
+// General Functions Definitions (local)
+//------------------------------------------------------------------------------------
+void initStyle(){
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
+    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
+    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 1);
+    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    GuiSetStyle(DROPDOWNBOX, TEXT_INNER_PADDING, 5);
+    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
+}
+
+void printError(int error, GuiVisualization &visualization){
+	switch(error){
+		case INVALID_VALUE:
+			strcpy(visualization.TextBoxStatusText, "Some value in prior or channel is invalid!");
+			break;
+		case INVALID_PRIOR:
+			strcpy(visualization.TextBoxStatusText, "The prior distribution is invalid!");
+			break;
+		case INVALID_CHANNEL:
+			strcpy(visualization.TextBoxStatusText, "The channel is invalid!");
+			break;
+		case NO_ERROR:
+			strcpy(visualization.TextBoxStatusText, "Status");
 	}
+}
 
-	// De-Initialization
-	//--------------------------------------------------------------------------------------
-	CloseWindow();        // Close window and OpenGL context
-	//--------------------------------------------------------------------------------------
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title){
+    DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
+    DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
+    DrawTextEx(GuiGetFont(), title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, GuiGetFont().baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+}
 
-	UnloadFont(V.L.alternativeFont);
+//------------------------------------------------------------------------------------
+// Draw Functions Definitions (local)
+//------------------------------------------------------------------------------------
+void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
+    DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
+    
+    // Button File
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxFileActive), gui.menu.dropdownFileEditMode)) gui.menu.dropdownFileEditMode = !gui.menu.dropdownFileEditMode;
+    initStyle();
+    buttonFile(gui, data, closeWindow);
 
-	return 0;
+    // Button Examples
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
+
+    // Button Help
+    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
+}
+
+void drawGuiPrior(Gui &gui, Data &data){
+    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.GroupBoxPriorText);
+    DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
+    DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
+
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR));
+    if (GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+
+    for(int i = 0; i < 3; i++){
+        GuiLabel(gui.prior.layoutRecsLabel[i], gui.prior.LabelPriorText[i].c_str());
+        if (GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], 128, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
+    }
+}
+
+void drawGuiChannel(Gui &gui, Data &data){
+    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.GroupBoxChannelText);
+    
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR));
+    if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+    if (GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue), 0, 100, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    Rectangle viewScrollChannel = GuiScrollPanel(
+        (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.layoutRecsScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.layoutRecsScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
+        (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
+        &(gui.channel.ScrollPanelChannelScrollOffset)
+    );
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+
+    BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
+        GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
+        for(int i = 0; i < gui.channel.numOutputs; i++){
+            GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
+            for(int j = 0; j < 3; j++){
+                if (GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[i][j], 128, gui.channel.TextBoxChannelEditMode[i][j]))gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
+            }
+        }
+
+        for(int i = 0; i < 3; i++){
+            GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
+        }
+    EndScissorMode();
+}
+
+void drawGuiPosteriors(GuiPosteriors &posteriors){
+    drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText);
+
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    Rectangle viewScrollPosteriors = GuiScrollPanel(
+        (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y },
+        (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.ScrollPanelPosteriorsContent.x, posteriors.ScrollPanelPosteriorsContent.y},
+        &(posteriors.ScrollPanelPosteriorsScrollOffset)
+    );
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+
+    BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
+        GuiLabel((Rectangle){posteriors.layoutRecsLabelOuter.x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelOuter.y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelOuter.width, posteriors.layoutRecsLabelOuter.height}, posteriors.LabelOuterText);
+
+        for(int i = 0; i < posteriors.numPosteriors; i++){
+            GuiLabel((Rectangle){posteriors.layoutRecsLabelPosteriors[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelPosteriors[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelPosteriors[i].width, posteriors.layoutRecsLabelPosteriors[i].height}, posteriors.LabelPosteriorsText[i].c_str());
+        }
+
+        for(int i = 0; i < 3; i++){
+            GuiLabel((Rectangle){posteriors.layoutRecsLabelX[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelX[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelX[i].width, posteriors.layoutRecsLabelX[i].height}, posteriors.LabelPosteriorsXText[i].c_str());
+        }
+
+        for(int i = 0; i < posteriors.numPosteriors; i++){
+            GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxOuter[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxOuter[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxOuter[i].width, posteriors.layoutRecsTextBoxOuter[i].height}, posteriors.TextBoxOuterText[i], 128, posteriors.TextBoxOuterEditMode[i]);
+        }
+
+        for(int i = 0; i < posteriors.numPosteriors; i++){
+            for(int j = 0; j < 3; j++){
+                GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxInners[i][j].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxInners[i][j].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxInners[i][j].width, posteriors.layoutRecsTextBoxInners[i][j].height}, posteriors.TextBoxInnersText[i][j], 128, posteriors.TextBoxInnersEditMode[i][j]);
+            }
+        }
+    EndScissorMode();
+}
+
+void drawGuiVisualization(Gui &gui, Data &data){
+    drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText);
+    if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
+    
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, WHITE);
+    DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, WHITE);
+    
+    if(strcmp(gui.visualization.TextBoxStatusText, "Status")) GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RED));
+    GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, 128, gui.visualization.TextBoxStatusEditMode);
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
+    
+    GuiPanel(gui.visualization.layoutRecsPanelVisualization);
+
+    if(gui.drawing){
+        // Triangle
+        DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
+        for(int i = 0; i < 3; i++){
+            DrawTextEx(gui.visualization.alternativeFont, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
+        }
+        
+        // Circles
+        drawCircles(gui, data);
+    }
+}
+
+void drawCircles(Gui &gui, Data &data){
+	// Prior
+    DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
+    DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
+	DrawTextEx(gui.visualization.alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.visualization.alternativeFont.baseSize, 1.0, BLACK);
+
+	// Inners
+	for(long unsigned int i = 0; i < data.innersCircles.size(); i++){
+        DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR);
+        DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR_LINES);
+        DrawTextEx(gui.visualization.alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
+	}
 }
 
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void updateDrawFrame(void* V_){
-	// Define controls rectangles
-	//----------------------------------------------------------------------------------
-	LoopVariables* V = (LoopVariables*) V_;
-	Information* I = &(V->I);
-	Layout* L = &(V->L);
-	int error = NO_ERROR;     // Flag that indicates if an error has been occurred
-	Vector2 mousePosition = GetMousePosition();
-	int numPost;
+void buttonFile(Gui &gui, Data &data, bool *closeWindow){
+    vector<char*> newPrior;
+    vector<vector<char*>> newChannel;
 
-	// Update
-	//----------------------------------------------------------------------------------
-		if(L->SpinnerChannelValue != L->recTextBoxChannel.size()){ // If true, spinnerChannel has been changed
-			L->CheckBoxDrawingChecked = false;
-			I->hyperReady = false;
-			L->updateChannelBySpinner();
-		}
+    switch(gui.menu.dropdownBoxFileActive){
+        case BUTTON_FILE_OPTION_OPEN:
+            if(gui.menu.readQIFFile(newPrior, newChannel) == NO_ERROR){
+                // If the current number of outputs is different from the file's, update it
+                int newNumOutputs = (int) newChannel.size();
+                if(gui.channel.SpinnerChannelValue != newNumOutputs){
+                    gui.channel.SpinnerChannelValue = newNumOutputs;
+                    gui.drawing = false;
+                    gui.channel.updateChannelBySpinner();
+                }
+                gui.prior.TextBoxPriorText = newPrior;
+                gui.channel.TextBoxChannelText = newChannel;
+                gui.drawing = false;
+            }            
+            break;
+        case BUTTON_FILE_OPTION_SAVE:
+            gui.menu.saveQIFFile(
+                gui.prior.TextBoxPriorText,
+                gui.channel.TextBoxChannelText,
+                strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+            );
+            if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
+            break;
 
-		// Buttons
-		if(L->ButtonPriorClicked){
-			L->ButtonPriorClicked = false;
-			L->CheckBoxDrawingChecked = false;
-			I->hyperReady = false;
-			I->newRandomPrior();
-			Distribution newPrior(I->prior);
-			L->updatePrior(newPrior, I->priorCircle);
-		}
+        case BUTTON_FILE_OPTION_SAVEAS:
+            gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText, true);
+            if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;
+            break;
 
-		if(L->ButtonChannelClicked){
-			L->ButtonChannelClicked = false;
-			L->CheckBoxDrawingChecked = false;
-			I->hyperReady = false;
-			I->newRandomChannel(L->TextBoxChannelText.size());
-			L->updateChannelTextBoxes(I->channel);
-		}
+        case BUTTON_FILE_OPTION_EXIT:
+            if(data.fileSaved){
+                *closeWindow = true;
+            }else{
+                int ret;
+                FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
+                ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
 
-		// Check if a TextBox is being pressed.
-		if(L->checkTextBoxPressed()){
-			L->CheckBoxDrawingChecked = false;
-			I->hyperReady = false;
-			printError(NO_ERROR, *L);
+                if(ret == 0){
+                    // Yes
+                    gui.menu.saveQIFFile(
+                        gui.prior.TextBoxPriorText,
+                        gui.channel.TextBoxChannelText,
+                        strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+                    );
+                    if(strcmp(gui.menu.fileName, "\0")){
+                        data.fileSaved = true;
+                        *closeWindow = true;  
+                    }
+                }else{
+                    // No
+                    *closeWindow = true;
+                }
+            }
+            break;
 
-			if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
-				IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
-				L->moveAmongTextBoxes();
-			}
-		}
+        default:
+            break;
+    }
 
-		if(L->CheckBoxDrawingChecked){
-			if(I->hyperReady){
-				if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
-					euclidianDistance(I->priorCircle.center, mousePosition) <= PRIOR_RADIUS){
-					I->mouseClickedOnPrior = true;
-				}
-
-				if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) I->mouseClickedOnPrior = false;
-				
-				if(I->mouseClickedOnPrior){
-					I->updateHyper(L->TrianglePoints);
-					I->buildCircles(L->TrianglePoints);
-					L->updatePrior(I->hyper.prior, I->priorCircle);
-					L->updatePosteriors(I->hyper, I->innersCircles, true);
-				}
-			}else{
-				// Check if no invalid character has been typed
-				if(I->checkPriorText(L->TextBoxPriorText) != NO_ERROR || I->checkChannelText(L->TextBoxChannelText) != NO_ERROR){
-					error = INVALID_VALUE;
-					L->CheckBoxDrawingChecked = false;
-				}else{
-					// Check if typed numbers represent distributions
-					if(Distribution::isDistribution(I->prior) == false) error = INVALID_PRIOR;
-					else if(Channel::isChannel(I->channel) == false) error = INVALID_CHANNEL;
-
-					if(error == NO_ERROR){
-						Distribution newPrior(I->prior);
-						Channel newChannel(newPrior, I->channel);
-						I->hyper = Hyper(newChannel);
-
-						I->hyperReady = true;
-						I->buildCircles(L->TrianglePoints);
-						L->updatePrior(I->hyper.prior, I->priorCircle);
-						L->updatePosteriors(I->hyper, I->innersCircles, false);
-					}else{
-						L->CheckBoxDrawingChecked = false;
-					}
-					
-				}
-				
-				printError(error, *L);
-			}
-		}
-
-		// I'm not using L->TextBoxOuterText.size() directly because the number of inners can decrease
-		// when user moves the prior distribution, so we might not draw all the TextBoxes.
-		if(I->hyperReady) numPost = I->hyper.num_post; 
-		else numPost = L->TextBoxOuterText.size();
-	//----------------------------------------------------------------------------------
-
-	// Draw
-	//----------------------------------------------------------------------------------
-		BeginDrawing();
-			ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))); 
-			GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, ColorToInt(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR))));
-			
-
-			// raygui: controls drawing
-			//----------------------------------------------------------------------------------
-			// Draw controls
-
-			// Panels
-			//----------------------------------------------------------------------------------
-				GuiPanel(L->recPanelMenu);
-				GuiPanel(L->recPanelBody);
-			//----------------------------------------------------------------------------------
-
-			// GroupBoxes
-			//----------------------------------------------------------------------------------
-				GuiGroupBox(L->recGroupBoxPrior, L->GroupBoxPriorText);
-				GuiGroupBox(L->recGroupBoxChannel, L->GroupBoxChannelText);
-				GuiGroupBox(L->recGroupBoxPosteriors, L->GroupBoxPosteriorsText);
-				// GuiGroupBox(L->recGroupBoxGain, L->GroupBoxGainText);
-				GuiGroupBox(L->recGroupBoxVisualization, L->GroupBoxVisualizationText);
-				GuiGroupBox(L->recGroupBoxDrawing, L->GroupBoxDrawingText);
-			//----------------------------------------------------------------------------------
-
-			// Spinners
-			//----------------------------------------------------------------------------------
-				if (GuiSpinner(L->recSpinnerChannel, "", &L->SpinnerChannelValue, 0, 100, L->SpinnerChannelEditMode)) L->SpinnerChannelEditMode = !L->SpinnerChannelEditMode;
-			//----------------------------------------------------------------------------------
-
-			// Labels
-			//----------------------------------------------------------------------------------
-				GuiLabel(L->recLabelTitle, L->LabelTitleText);
-				GuiLabel(L->recLabelOutputs, L->LabelOutputsText);
-				GuiLabel(L->recLabelClickDraw, L->LabelClickDrawText);
-
-				// Prior
-				for(int i = 0; i < L->LabelPriorText.size(); i++) GuiLabel(L->recLabelPrior[i], &(L->LabelPriorText[i][0]));
-
-				// Channel
-				for(int i = 0; i < L->LabelChannelXText.size(); i++) GuiLabel(L->recLabelChannelX[i], &(L->LabelChannelXText[i][0]));
-				for(int i = 0; i < L->LabelChannelYText.size(); i++) GuiLabel(L->recLabelChannelY[i], &(L->LabelChannelYText[i][0]));
-
-				// Outer
-				GuiLabel(L->recLabelOuterName, L->LabelOuterNameText);
-				for(int i = 0; i < numPost; i++) GuiLabel(L->recLabelOuter[i], &(L->LabelOuterText[i][0]));
-
-				// Inners
-				for(int i = 0; i < L->recLabelInners.size(); i++) GuiLabel(L->recLabelInners[i], &(L->LabelInnerText[i][0]));
-			//----------------------------------------------------------------------------------
-
-			// Buttons
-			//--------------------------------------------------------------------------------------
-				if(GuiButton(L->recButtonPrior, L->ButtonPriorText)) L->ButtonPriorClicked = true;
-				if(GuiButton(L->recButtonChannel, L->ButtonChannelText)) L->ButtonChannelClicked = true;
-			//--------------------------------------------------------------------------------------
-
-			// CheckBoxes
-			//----------------------------------------------------------------------------------
-				// L->CheckBoxGainChecked = GuiCheckBox(L->recCheckBoxGain, L->CheckBoxGainText, L->CheckBoxGainChecked);
-				L->CheckBoxDrawingChecked = GuiCheckBox(L->recCheckBoxDrawing, L->CheckBoxDrawingText, L->CheckBoxDrawingChecked);
-			//----------------------------------------------------------------------------------
-
-			// Lines
-			//----------------------------------------------------------------------------------
-				GuiLine(L->recLine1, NULL);
-			//----------------------------------------------------------------------------------
-
-			// StatusBar
-			//----------------------------------------------------------------------------------
-				GuiStatusBar(L->recStatusBar, &(L->StatusBarDrawingText[0]));
-			//----------------------------------------------------------------------------------
-
-			// TextBoxes
-			//----------------------------------------------------------------------------------
-				GuiSetStyle(TEXTBOX, TEXT_PADDING, 3);
-				// if(L->CheckBoxGainChecked){
-				// 	GuiLabel(L->recLabelActions, L->LabelActionsText);
-				// 	if (GuiSpinner(L->recSpinnerGain, "", &L->SpinnerGainValue, 0, 100, L->SpinnerGainEditMode)) L->SpinnerGainEditMode = !L->SpinnerGainEditMode;
-
-				// 	// Gain function
-				// 	for(int i = 0; i < L->TextBoxGainText.size(); i++){
-				// 		for(int j = 0; j < L->TextBoxGainText[i].size(); j++){
-				// 			if (GuiTextBox(L->recTextBoxGain[i][j], L->TextBoxGainText[i][j], 128, L->TextBoxGainEditMode[i][j])) L->TextBoxGainEditMode[i][j] = !L->TextBoxGainEditMode[i][j];        
-				// 		}
-				// 	}
-
-				// 	for(int i = 0; i < L->LabelGainXText.size(); i++) GuiLabel(L->recLabelGainX[i], &(L->LabelGainXText[i][0]));
-				// 	for(int i = 0; i < L->LabelGainWText.size(); i++) GuiLabel(L->recLabelGainW[i], &(L->LabelGainWText[i][0]));
-				// }
-				
-				// Channel
-				for(int i = 0; i < L->TextBoxChannelText.size(); i++){
-					for(int j = 0; j < L->TextBoxChannelText[i].size(); j++){
-						if (GuiTextBox(L->recTextBoxChannel[i][j], L->TextBoxChannelText[i][j], 128, L->TextBoxChannelEditMode[i][j])) L->TextBoxChannelEditMode[i][j] = !L->TextBoxChannelEditMode[i][j];        
-					}
-				}
-
-				// Prior
-				for(int i = 0; i < L->TextBoxPriorText.size(); i++){
-					if (GuiTextBox(L->recTextBoxPrior[i], L->TextBoxPriorText[i], 128, L->TextBoxPriorEditMode[i])) L->TextBoxPriorEditMode[i] = !L->TextBoxPriorEditMode[i];        
-				}
-
-				GuiLock();
-				// Outer
-				for(int i = 0; i < numPost; i++){
-					if (GuiTextBox(L->recTextBoxOuter[i], L->TextBoxOuterText[i], 128, L->TextBoxOuterEditMode[i])) L->TextBoxOuterEditMode[i] = !L->TextBoxOuterEditMode[i];        
-				}
-
-				// Inners
-				for(int i = 0; i < numPost; i++){
-					for(int j = 0; j < L->TextBoxInnersText[i].size(); j++){
-						if (GuiTextBox(L->recTextBoxInners[i][j], L->TextBoxInnersText[i][j], 128, L->TextBoxInnersEditMode[i][j])) L->TextBoxInnersEditMode[i][j] = !L->TextBoxInnersEditMode[i][j];        
-					}
-				}
-				GuiUnlock();
-			//----------------------------------------------------------------------------------
-
-			// Visualization
-			//----------------------------------------------------------------------------------
-				if(L->CheckBoxDrawingChecked){
-					// Triangle
-					//----------------------------------------------------------------------------------
-						DrawTriangleLines(L->TrianglePoints[0], L->TrianglePoints[1], L->TrianglePoints[2], BLACK);
-					//----------------------------------------------------------------------------------
-
-					// Labels
-					//----------------------------------------------------------------------------------
-						// Triangle
-						for(int i = 0; i < L->LabelTriangleText.size(); i++) GuiLabel(L->recLabelTriangle[i], &(L->LabelTriangleText[i][0]));
-					//----------------------------------------------------------------------------------
-
-					// Circles
-					drawCircles(*I, *L);
-				}
-			//----------------------------------------------------------------------------------
-
-			// Information rectangles
-			//----------------------------------------------------------------------------------
-				GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
-				GuiSetStyle(TEXTBOX, BASE_COLOR_NORMAL, ColorToInt(LIGHTGRAY));
-
-				GuiTextBox(L->recTextBoxHelpPrior, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-				GuiTextBox(L->recTextBoxHelpChannel, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-				GuiTextBox(L->recTextBoxHelpPosteriors, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-				GuiTextBox(L->recTextBoxHelpVisualization, (char*)GuiIconText(RICON_HELP, ""), 1, false);
-				
-				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpPrior)) GuiTextBoxMulti(L->recTextBoxHelpTextPrior, L->TextBoxHelpPrior, 10, false);	
-				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpChannel)) GuiTextBoxMulti(L->recTextBoxHelpTextChannel, L->TextBoxHelpChannel, 10, false);	
-				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpPosteriors)) GuiTextBoxMulti(L->recTextBoxHelpTextPosteriors, L->TextBoxHelpPosteriors, 10, false);	
-				if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpVisualization)) GuiTextBoxMulti(L->recTextBoxHelpTextVisualization, L->TextBoxHelpVisualization, 10, false);	
-				// if(CheckCollisionPointRec(mousePosition, L->recTextBoxHelpGain)) GuiTextBoxMulti(L->recTextBoxHelpTextGain, "oi", 10, false);	
-			//----------------------------------------------------------------------------------
-			//----------------------------------------------------------------------------------
-		
-		EndDrawing();
-	//----------------------------------------------------------------------------------
+    gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
 }
 
-void printError(int error, Layout &L){
-	switch(error){
-		case INVALID_VALUE:
-			L.StatusBarDrawingText = "Some value in prior or channel is invalid!";
-			break;
-		case INVALID_PRIOR:
-			L.StatusBarDrawingText = "The prior distribution is invalid!";
-			break;
-		case INVALID_CHANNEL:
-			L.StatusBarDrawingText = "The channel is invalid!";
-			break;
-		case NO_ERROR:
-			L.StatusBarDrawingText = "Status";
-	}
+void buttonExamples(){
+    // TODO: Implement control logic
 }
 
-void drawCircles(Information &I, Layout &L){
-	// Prior
-	DrawCircleGradient(I.priorCircle.center.x, I.priorCircle.center.y, I.priorCircle.radius, (Color){128, 191, 255, 190}, (Color){0, 102, 204, 190});
-	
-	DrawTextEx(L.alternativeFont, L.LabelPriorCircleText, (Vector2) { L.recLabelPriorCircle.x, L.recLabelPriorCircle.y }, L.alternativeFont.baseSize, 1.0, BLACK);
+void buttonHelp(){
+    // TODO: Implement control logic
+}
 
-	// Inners
-	for(int i = 0; i < I.innersCircles.size(); i++){
-		DrawCircleGradient(I.innersCircles[i].center.x, I.innersCircles[i].center.y, I.innersCircles[i].radius, (Color){153, 230, 153, 190}, (Color){40, 164, 40, 190});
-		GuiLabel(L.recLabelInnersCircles[i], &(L.LabelOuterText[i][0]));
-	}
+void buttonRandomPrior(Gui &gui, Data &data){
+    if(data.error == INVALID_PRIOR){
+        data.error = NO_ERROR;
+        strcpy(gui.visualization.TextBoxStatusText, "Status");
+    }
+    data.newRandomPrior();
+    gui.drawing = false;
+    data.fileSaved = false;
+    Distribution newPrior(data.prior);
+    gui.updatePrior(newPrior, data.priorCircle);
+}
+
+void buttonRandomChannel(Gui &gui, Data &data){
+    if(data.error == INVALID_CHANNEL){
+        data.error = NO_ERROR;
+        strcpy(gui.visualization.TextBoxStatusText, "Status");
+    }
+    
+    data.newRandomChannel(gui.channel.numOutputs);
+    gui.drawing = false;
+    data.fileSaved = false;
+    gui.channel.updateChannelTextBoxes(data.channel);
+}
+
+void buttonDraw(Gui &gui, Data &data){
+    data.error = NO_ERROR;
+
+    // Check if prior and channel are ok
+    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText) == NO_ERROR){
+        // Check if typed numbers represent distributions
+        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
+        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
+
+        if(data.error == NO_ERROR){
+            Distribution newPrior(data.prior);
+            Channel newChannel(newPrior, data.channel);
+            data.hyper = Hyper(newChannel);
+
+            data.buildCircles(gui.visualization.trianglePoints);
+
+            gui.updatePriorRectangle(data.priorCircle);
+            gui.updatePosteriors(data.hyper, data.innersCircles);
+            gui.drawing = true;
+        }else{
+            gui.drawing = false;
+        }
+    }else{
+        data.error = INVALID_VALUE;
+        gui.drawing = false;
+    }
+    
+    printError(data.error, gui.visualization);
 }

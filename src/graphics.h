@@ -6,19 +6,36 @@
 
 using namespace std;
 
-// Errors *****************************************************************************************/
-#define NO_ERROR		0
+// Errors ------------------------------------------------------------------------------------
+#define NO_ERROR 0
 #define INVALID_CHANNEL 1
-#define INVALID_PRIOR	2 
-#define INVALID_VALUE	3 // i.e. "1/$2"
+#define INVALID_PRIOR 2 
+#define INVALID_VALUE 3 // i.e. "1/$2"
+#define INVALID_QIF_FILE 4
 
-// Settings
+// Settings ------------------------------------------------------------------------------------
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
+#define TEXTBOX_SIZE 50
 #define WINDOWS_WIDTH 750
 #define WINDOWS_HEIGHT 630
 
-// Prior probability distribution radius (in pixels) **********************************************/
-#define PRIOR_RADIUS 30
+// Color scheme ------------------------------------------------------------------------------------
+// GUI
+#define BG_BASE_COLOR_LIGHT  CLITERAL(Color){210, 210, 210, 255}
+#define BG_BASE_COLOR_DARK  CLITERAL(Color){179, 179, 179, 255}
+#define MENU_BASE_COLOR_NORMAL  CLITERAL(Color){25, 41, 51, 255}
+#define MENU_BASE_COLOR_FOCUSED  CLITERAL(Color){76, 124, 154, 255}
+#define MENU_BASE_COLOR_PRESSED  CLITERAL(Color){50, 83, 103, 255}
+#define TITLES_BASE_COLOR  CLITERAL(Color){27, 58, 130, 255}
+
+// Circles
+#define PRIOR_COLOR  CLITERAL(Color){0, 102, 204, 210}
+#define PRIOR_COLOR_LINES  CLITERAL(Color){0, 102, 204, 240}
+#define INNERS_COLOR  CLITERAL(Color){40, 164, 40, 210}
+#define INNERS_COLOR_LINES  CLITERAL(Color){40, 164, 40, 240}
+
+// Prior probability distribution radius (in pixels) ----------------------------------------------/
+#define PRIOR_RADIUS 50
 
 class Point{
 	public:

@@ -1,0 +1,72 @@
+#
+# rgl layout text file (v2.1) - raygui layout file generated using rGuiLayout
+#
+# Number of controls:     58
+#
+# Ref. window:    r <x> <y> <width> <height>
+# Anchor info:    a <id> <name> <posx> <posy> <enabled>
+# Control info:   c <id> <type> <name> <rectangle> <anchor_id> <text>
+#
+r 0 0 -1 -1
+a 000 AnchorMain 0 0 0
+a 001 AnchorPrior 10 65 1
+a 002 AnchorChannel 10 185 1
+a 003 AnchorVisualization 380 65 1
+a 004 AnchorPosterior 10 450 1
+c 001 5 ButtonOpen 10 10 80 32 0 Open
+c 002 5 ButtonSave 100 10 80 32 0 Save
+c 003 5 ButtonExamples 190 10 80 32 0 Examples
+c 004 5 ButtonHelp 280 10 80 32 0 Help
+c 005 5 ButtonAbout 370 10 80 32 0 About
+c 006 2 LineMenu 0 45 1045 10 0 
+c 007 1 GroupBoxPrior 0 0 350 100 1 Prior distribution
+c 008 4 LabelPriorX1 125 20 20 20 1 X1
+c 009 4 LabelPriorX2 165 20 20 20 1 X2
+c 010 4 LabelPriorX3 205 20 20 20 1 X3
+c 011 13 TextBoxPrior0 115 40 40 40 1 0
+c 012 13 TextBoxPrior1 155 40 40 40 1 0
+c 013 13 TextBoxPrior2 195 40 40 40 1 0
+c 014 1 GroupBoxChannel 0 0 350 245 2 Channel
+c 015 16 SpinnerChannel 245 15 90 25 2 
+c 016 21 ScrollPanelChannel 15 55 320 175 2 
+c 017 4 LabelOutputs 175 15 58 25 2 Outputs
+c 018 4 LabelChannelX1 40 90 20 40 2 X1
+c 019 4 LabelChannelX2 40 130 20 40 2 X2
+c 020 4 LabelChannelX3 40 170 20 40 2 X3
+c 021 4 LabelChannelY1 75 70 20 20 2 Y1
+c 022 4 LabelChannelY2 115 70 20 20 2 Y2
+c 023 4 LabelChannelY3 155 70 20 20 2 Y3
+c 024 13 TextBoxChannel00 65 90 40 40 2 0
+c 025 13 TextBoxChannel01 105 90 40 40 2 0
+c 026 13 TextBoxChannel02 145 90 40 40 2 0
+c 027 13 TextBoxChannel10 65 130 40 40 2 0
+c 028 13 TextBoxChannel11 105 130 40 40 2 0
+c 029 13 TextBoxChannel12 145 130 40 40 2 0
+c 030 13 TextBoxChannel20 65 170 40 40 2 0
+c 031 13 TextBoxChannel21 105 170 40 40 2 0
+c 032 13 TextBoxChannel22 145 170 40 40 2 0
+c 033 1 GroupBoxPosteriors 0 0 350 270 4 Posterior distributions
+c 034 21 ScrollPanelPosteriors 15 20 320 235 4 
+c 035 4 LabelOuter 20 55 40 40 4 Outer
+c 036 4 LabelPosteriors0 75 35 20 20 4 I1
+c 037 4 LabelPosteriors1 115 35 20 20 4 I2
+c 038 4 LabelPosteriors2 155 35 20 20 4 I3
+c 039 4 LabelPosteriorsX1 40 115 20 40 4 X1
+c 040 4 LabelPosteriorsX2 40 155 20 40 4 X2
+c 041 4 LabelPosteriorsX3 40 195 20 40 4 X3
+c 042 13 TextBoxOuter0 65 55 40 40 4 0
+c 043 13 TextBoxOuter1 105 55 40 40 4 0
+c 044 13 TextBoxOuter2 145 55 40 40 4 0
+c 045 13 TextBoxInners00 65 115 40 40 4 0
+c 046 13 TextBoxInners10 65 155 40 40 4 0
+c 047 13 TextBoxInners20 65 195 40 40 4 0
+c 048 13 TextBoxInners01 105 115 40 40 4 0
+c 049 13 TextBoxInners11 105 155 40 40 4 0
+c 050 13 TextBoxInners21 105 195 40 40 4 0
+c 051 13 TextBoxInners02 145 115 40 40 4 0
+c 052 13 TextBoxInners12 145 155 40 40 4 0
+c 053 13 TextBoxInners22 145 195 40 40 4 0
+c 054 1 GroupBoxVisualization 0 0 655 655 3 Visualization
+c 055 5 ButtonDraw 20 20 80 32 3 Draw
+c 056 13 TextBoxStatus 115 20 520 32 3 Status
+c 057 3 PanelVisualization 20 72 615 563 3 
