@@ -6,3 +6,10 @@ build/
 qif-graphics
 *.epgz
 **/examples
+
+# Web version
+*.js
+*.wasm
+*.data
+qif-graphics.html
+
