@@ -2,6 +2,7 @@
 #define _guivisualization
 
 #include "../../libs/raylib/src/raylib.h"
+#include "../graphics.h"
 #include <string.h>
 #include <string>
 #include <vector>
@@ -17,17 +18,21 @@ private:
 public:
     GuiVisualization();
 
+    //------------------------------------------------------------------------------------
+    // Attributes
+    //------------------------------------------------------------------------------------
+
     // Const text
-    char *GroupBoxVisualizationText;    // GROUPBOX: GroupBoxVisualization
-    char *ButtonDrawText;    // BUTTON: buttonDraw
-    char *LabelPriorCircleText;
+    char GroupBoxVisualizationText[CHAR_BUFFER_SIZE];
+    char ButtonDrawText[CHAR_BUFFER_SIZE];
+    char LabelPriorCircleText[CHAR_BUFFER_SIZE];
     
     // Define anchors
-    Vector2 AnchorVisualization;            // ANCHOR ID:3
+    Vector2 AnchorVisualization;
     
     // Define controls variable
     bool TextBoxStatusEditMode;
-    char TextBoxStatusText[128];            // TextBox: TextBoxStatus
+    char TextBoxStatusText[CHAR_BUFFER_SIZE];
 
     // Define controls rectangles
     Rectangle layoutRecsTitle;
@@ -36,17 +41,17 @@ public:
     Rectangle layoutRecsTextBoxStatus;
     Rectangle layoutRecsPanelVisualization;
     Rectangle layoutRecsLabelPriorCircle;
-    vector<Rectangle> layoutRecsLabelInnersCircles;
-    vector<Rectangle> layoutRecsLabelTriangle;
+    Rectangle layoutRecsLabelInnersCircles[MAX_CHANNEL_OUTPUTS];
+    Rectangle layoutRecsLabelTriangle[3];
 
     /* Triangle vertices
      *       v0
      *       /\
      *   v1 /__\ v2 */
-    vector<Vector2> trianglePoints;
+    Vector2 trianglePoints[3];
 
     // Triangle vertex labels
-    vector<string> LabelTriangleText;
+    string LabelTriangleText[3];
 
     // Used to draw pi symbol
     Font alternativeFont;

@@ -2,7 +2,7 @@
 #define _qif_graphics
 
 #include "../libs/qif/qif.h"
-#include "raylib.h"
+#include "../libs/raylib/src/raylib.h"
 
 using namespace std;
 
@@ -14,10 +14,13 @@ using namespace std;
 #define INVALID_QIF_FILE 4
 
 // Settings ------------------------------------------------------------------------------------
-#define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
-#define TEXTBOX_SIZE 50
 #define WINDOWS_WIDTH 750
 #define WINDOWS_HEIGHT 630
+#define TEXTBOX_SIZE 50
+#define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
+#define CHAR_BUFFER_SIZE 128
+#define NUMBER_SECRETS 3
+#define MAX_CHANNEL_OUTPUTS 100
 
 // Color scheme ------------------------------------------------------------------------------------
 // GUI
@@ -90,7 +93,7 @@ long double euclidianDistance(Point a, Vector2 b);
  *
  * Return: A 'Point' structure containing a barycentric coordinate.
  */
-Point pixel2Bary(double x, double y, vector<Vector2> &TrianglePoints);
+Point pixel2Bary(double x, double y, Vector2 TrianglePoints[3]);
 
 /* Transforms barycentric coordinate in pixel coordinate
  * Parameters:
@@ -100,6 +103,6 @@ Point pixel2Bary(double x, double y, vector<Vector2> &TrianglePoints);
  *
  * Return: A 'Point' structure containing a barycentric coordinate.
  */
-Point bary2Pixel(double x, double y, vector<Vector2> &TrianglePoints);
+Point bary2Pixel(double x, double y, Vector2 TrianglePoints[3]);
 
 #endif

@@ -8,8 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../data.h"
 #include "../../libs/raylib/src/raylib.h"
+#include "../data.h"
+#include "guiprior.h"
+#include "guichannel.h"
 
 using namespace std;
 
@@ -32,22 +34,30 @@ private:
 public:
     GuiMenu();
 
+    //------------------------------------------------------------------------------------
+    // Attributes
+    //------------------------------------------------------------------------------------
+
     // Data
     int dropdownBoxFileActive;
     bool dropdownFileEditMode;
 
     // Text
-    char *buttonFileText;    // BUTTON: buttonOpen
-    char *buttonExamplesText;    // BUTTON: buttonExamples
-    char *buttonHelpText;    // BUTTON: buttonHelp
-    char *fileName;     // Used with file button to open/save files
+    char buttonFileText[CHAR_BUFFER_SIZE];
+    char buttonExamplesText[CHAR_BUFFER_SIZE];
+    char buttonHelpText[CHAR_BUFFER_SIZE];
+    char* fileName;     // Used with file button to open/save files
 
     // Define controls rectangles
-    vector<Rectangle> layoutRecsButtons;
+    Rectangle layoutRecsButtons[3];
     Rectangle layoutRecsMenu;
 
-    int readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel);        // Parameters are output
-    void saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, bool createNewFile);
+    //------------------------------------------------------------------------------------
+    // Methods
+    //------------------------------------------------------------------------------------
+
+    int readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs);        // Parameters are output
+    void saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs, bool createNewFile);
 };
 
 #endif

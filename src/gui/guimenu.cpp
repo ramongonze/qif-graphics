@@ -6,26 +6,22 @@ GuiMenu::GuiMenu(){
     dropdownFileEditMode = false;
 
     // Text
-    buttonFileText = (char*) malloc(128*sizeof(char));
-    buttonExamplesText = (char*) malloc(128*sizeof(char));
-    buttonHelpText = (char*) malloc(128*sizeof(char));
-    fileName = (char*) malloc(2048*sizeof(char));
-
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
     strcpy(buttonExamplesText, "Examples");
     strcpy(buttonHelpText, "Help");
+    
+    fileName = (char*) malloc(10*CHAR_BUFFER_SIZE*sizeof(char));
     strcpy(fileName, "\0");
 
     // Define controls rectangles
-    layoutRecsButtons = vector<Rectangle>(5);
-    layoutRecsButtons[REC_BUTTON_FILE] = (Rectangle){0, 0, 50, 25};    // Button: buttonOpen
-    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){50, 0, 80, 25};    // Button: buttonExamples
-    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){130, 0, 50, 25};    // Button: buttonHelp
+    layoutRecsButtons[REC_BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
+    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){50, 0, 80, 25};
+    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){130, 0, 50, 25};
     
-    layoutRecsMenu = (Rectangle){0, 0, 1130, 25};    // Line: LineMenu
+    layoutRecsMenu = (Rectangle){0, 0, 1130, 25};
 }
 
-int GuiMenu::readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel){
+int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs){
     /* File format:
     -----BEGIN OF FILE-----
     prior
@@ -40,8 +36,10 @@ int GuiMenu::readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel){
     where n is the number of secrets (consequently the # elements in prior and # rows in channel),
     m is the number of outputs in the channel (# of columns) and every two numbers are separated
     by a white space.
+    Parameter newNumOutputs returns the number of outputs read from file
     */
 
+#if !defined(PLATFORM_WEB)
     FILE *file = popen("zenity --file-selection --title=Open --file-filter=*.qifg", "r");
     fgets(fileName, 2048, file);
     fclose(file);
@@ -54,16 +52,16 @@ int GuiMenu::readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel){
     ifstream infile;
     int numOutputs;
     string buffer, probBuffer;
+    char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
+    char newChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
     try{
         infile.open(fileName); 
         
         // Prior
         getline(infile, buffer);
         if(buffer != "prior") throw exception();
-
-        vector<char*> newPrior(3, nullptr);
-        for(int i = 0; i < 3; i++){
-            newPrior[i] = (char*) malloc(128*sizeof(char));
+        
+        for(int i = 0; i < NUMBER_SECRETS; i++){
             infile >> probBuffer;
             strcpy(newPrior[i], probBuffer.c_str());
         }
@@ -74,39 +72,33 @@ int GuiMenu::readQIFFile(vector<char*> &prior, vector<vector<char*>> &channel){
         if(buffer != "channel") throw exception();
 
         infile >> numOutputs;
-        
-        vector<vector<char*>> newChannel = vector<vector<char*>>(numOutputs, vector<char*>(3, nullptr));
-        for(int i = 0; i < numOutputs; i++){
-            for(int j = 0; j < 3; j++){
-                newChannel[i][j] = (char*) malloc(128*sizeof(char));
-                strcpy(newChannel[i][j], "\0");
-            }
-        }
-        
+        *newNumOutputs = numOutputs;      // Return the number of outputs read from file
+    
         getline(infile, buffer);        // Skip \n
-        for(int j = 0; j < 3; j++){
-            for(int i = 0; i < numOutputs; i++){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            for(int j = 0; j < numOutputs; j++){
                 infile >> probBuffer;
                 strcpy(newChannel[i][j], probBuffer.c_str());
             }
             getline(infile, buffer);        // Skip \n
         }
-        
         infile.close();
 
         // If no exception was thrown update prior and channel vectors        
-        prior = newPrior;
-        channel = newChannel;
+        GuiPrior::copyPrior(newPrior, prior);
+        GuiChannel::copyChannelText(newChannel, channel, numOutputs);
     }catch(const exception& e){
-        cerr << "Invalid file: " << e.what() << '\n';        
+        cerr << "Invalid file. " << e.what() << '\n';        
         infile.close();
         return INVALID_QIF_FILE;
     }
-
     return NO_ERROR;
+#else
+    return NO_ERROR;
+#endif
 }
 
-void GuiMenu::saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, bool createNewFile){
+void GuiMenu::saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs, bool createNewFile){
     /* File format:
     -----BEGIN OF FILE-----
     prior
@@ -123,6 +115,7 @@ void GuiMenu::saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, 
     by a white space.
     */
 
+#if !defined(PLATFORM_WEB)
     if(createNewFile){
         FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
         fgets(fileName, 2048, file);
@@ -149,12 +142,12 @@ void GuiMenu::saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, 
     if(strcmp(fileName, "\0")){
         string output = "";
         output = output + "prior\n" + prior[0] + " " + prior[1] + " " + prior[2] + "\n";
-        output = output + "channel\n" + to_string(channel.size()) + "\n";
-        for(int j = 0; j < 3; j++){
-            long unsigned int i = 0;
-            while(i < channel.size()-1){
+        output = output + "channel\n" + to_string(numOutputs) + "\n";
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            int j = 0;
+            while(j < numOutputs-1){
                 output = output + channel[i][j] + " ";
-                i++;
+                j++;
             }
             output = output + channel[i][j] + "\n";
         }
@@ -164,4 +157,5 @@ void GuiMenu::saveQIFFile(vector<char*> &prior, vector<vector<char*>> &channel, 
         outfile << output;
         outfile.close();
     }
+#endif
 }

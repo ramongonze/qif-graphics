@@ -3,22 +3,22 @@
 Data::Data(){
 	this->hyperReady = false;
     this->mouseClickedOnPrior = false;
-    this->prior = vector<long double>(3, 0);
-    this->channel = vector<vector<long double>>(3, vector<long double>(3, 0));
+    this->prior = vector<long double>(NUMBER_SECRETS, 0);
+    this->channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(MAX_CHANNEL_OUTPUTS, 0));
     this->error = NO_ERROR;
     this->fileSaved = true;
 }
 
-int Data::checkPriorText(vector<char*> &prior_){
-    vector<pair<string, string>> newPrior(prior_.size());
-    vector<string> priorStr(prior_.size());
+int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
+    vector<pair<string, string>> newPrior(NUMBER_SECRETS);
+    vector<string> priorStr(NUMBER_SECRETS);
 
-    for(long unsigned int i = 0; i < priorStr.size(); i++){
+    for(int i = 0; i < NUMBER_SECRETS; i++){
     	priorStr[i] = string(prior_[i]);
     }
 
     try{
-        for(long unsigned int i = 0; i < prior_.size(); i++){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
             size_t pos = priorStr[i].find('/');
             if(pos != string::npos){ // If true, the user is typing a fraction
                 string numerator = priorStr[i].substr(0, pos);
@@ -35,8 +35,8 @@ int Data::checkPriorText(vector<char*> &prior_){
         }
         
         // Update values
-        this->prior = vector<long double>(priorStr.size());
-        for(long unsigned int i = 0; i < priorStr.size(); i++){
+        this->prior = vector<long double>(NUMBER_SECRETS);
+        for(int i = 0; i < NUMBER_SECRETS; i++){
         	if(newPrior[i].first == "$"){
         		this->prior[i] = std::stold(newPrior[i].second);
         	}else{
@@ -50,19 +50,19 @@ int Data::checkPriorText(vector<char*> &prior_){
     }
 }
 
-int Data::checkChannelText(vector<vector<char*>> &channel_){
-    vector<vector<pair<string, string>>> newChannel(channel_.size(), vector<pair<string, string>>(channel_[0].size()));
-    vector<vector<string>> channelStr(channel_.size(), vector<string>(channel_[0].size()));
+int Data::checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs){
+    vector<vector<pair<string, string>>> newChannel(NUMBER_SECRETS, vector<pair<string, string>>(numOutputs));
+    vector<vector<string>> channelStr(NUMBER_SECRETS, vector<string>(numOutputs));
 
-    for(long unsigned int i = 0; i < channelStr.size(); i++){
-    	for(long unsigned int j = 0; j < channelStr[i].size(); j++){
+    for(int i = 0; i < NUMBER_SECRETS; i++){
+    	for(int j = 0; j < numOutputs; j++){
     		channelStr[i][j] = string(channel_[i][j]);
     	}
     }
 
     try{
-        for(long unsigned int i = 0; i < channelStr.size(); i++){
-            for(long unsigned int j = 0; j < channelStr[i].size(); j++){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            for(int j = 0; j < numOutputs; j++){
                 size_t pos = channelStr[i][j].find('/');
                 if(pos != string::npos){ // If true, the user is typing a fraction
                     string numerator = channelStr[i][j].substr(0, pos);
@@ -80,13 +80,13 @@ int Data::checkChannelText(vector<vector<char*>> &channel_){
         }
 
         // Update values. Columns and rows are inverted in channelStr.
-        this->channel = vector<vector<long double>>(channelStr[0].size(), vector<long double>(channelStr.size()));
-        for(long unsigned int i = 0; i < channelStr.size(); i++){
-        	for(long unsigned int j = 0; j < channelStr[i].size(); j++){
+        this->channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(numOutputs));
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+        	for(int j = 0; j < numOutputs; j++){
         		if(newChannel[i][j].first == "$"){
-        			this->channel[j][i] = std::stold(newChannel[i][j].second);
+        			this->channel[i][j] = std::stold(newChannel[i][j].second);
         		}else{
-        			this->channel[j][i] = std::stold(newChannel[i][j].first)/std::stold(newChannel[i][j].second);
+        			this->channel[i][j] = std::stold(newChannel[i][j].first)/std::stold(newChannel[i][j].second);
         		}
         	}
         }
@@ -97,7 +97,7 @@ int Data::checkChannelText(vector<vector<char*>> &channel_){
     }
 }
 
-void Data::buildCircles(vector<Vector2> &TrianglePoints){
+void Data::buildCircles(Vector2 TrianglePoints[3]){
     Point p;
     
     // Prior
@@ -107,7 +107,6 @@ void Data::buildCircles(vector<Vector2> &TrianglePoints){
     priorCircle.radius = PRIOR_RADIUS;
 
     // Inners
-    innersCircles = vector<Circle>(hyper.num_post);
     for(int i = 0; i < hyper.num_post; i++){
         p = dist2Bary(hyper.inners[0][i], hyper.inners[1][i], hyper.inners[2][i]);
         p = bary2Pixel(p.x, p.y, TrianglePoints);
@@ -145,7 +144,7 @@ Point Data::pointIntersection(Point A, Point B, Point C, Point D){
     return p; 
 }
 
-Point Data::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
+Point Data::adjustPrior(Vector2 TrianglePoints[3], Vector2 mouse){
     Point mousePosition(mouse.x, WINDOWS_HEIGHT - mouse.y);
     Point TP0(TrianglePoints[0].x, WINDOWS_HEIGHT - TrianglePoints[0].y);
     Point TP1(TrianglePoints[1].x, WINDOWS_HEIGHT - TrianglePoints[1].y);
@@ -247,10 +246,10 @@ Point Data::adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse){
     return p;
 }
 
-void Data::updateHyper(vector<Vector2> &TrianglePoints){
+void Data::updateHyper(Vector2 TrianglePoints[3]){
     
     Point mousePosition;
-    vector<long double> newPrior(3);
+    vector<long double> newPrior(NUMBER_SECRETS);
 
     mousePosition = adjustPrior(TrianglePoints, GetMousePosition());
     mousePosition = pixel2Bary(mousePosition.x, mousePosition.y, TrianglePoints);
@@ -278,9 +277,9 @@ void Data::newRandomPrior(){
 void Data::newRandomChannel(int num_out){
     srand(unsigned(time(0)));
     vector<long double> prob(num_out);
-    this->channel = vector<vector<long double>>(num_out, vector<long double>(3, 0));
+    this->channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(num_out, 0));
 
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < NUMBER_SECRETS; i++){
         int threshold = 100, p;
         for(int j = 0; j < num_out-1; j++){
             p = rand() % threshold;
@@ -291,15 +290,8 @@ void Data::newRandomChannel(int num_out){
 
         random_shuffle(prob.begin(), prob.end());
 
-        for(long unsigned int j = 0; j < channel.size(); j++){
-            channel[j][i] = prob[j];
+        for(int j = 0; j < num_out; j++){
+            channel[i][j] = prob[j];
         }
     }
-}
-
-// Open a .qifg file when the button Open is pressed
-void Data::openPriorAndChannel(char *file){
-
-    // // Clean buffer
-    // strcpy(file, "\0");
 }

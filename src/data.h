@@ -12,6 +12,10 @@ class Data{
 public:
 	Data();
 
+	//------------------------------------------------------------------------------------
+    // Attributes
+    //------------------------------------------------------------------------------------
+
 	Hyper hyper;				// Hyper-distribution
 	vector<vector<long double>> channel;			// Channel matrix
 	vector<long double> prior;	// Prior distribution
@@ -21,21 +25,25 @@ public:
 	bool fileSaved; // Flag that indicates wheter the current prior/channel has been saved
 
 	Circle priorCircle;
-	vector<Circle> innersCircles;
+	Circle innersCircles[MAX_CHANNEL_OUTPUTS];
+
+	//------------------------------------------------------------------------------------
+    // Methods
+    //------------------------------------------------------------------------------------
 
 	/* Check if the numbers or fractions were typed correctly in the prior distribution.
 	 * If so, convert text to long double values and add them to this->prior.
 	 * Returns NO_ERROR or INVALID_VALUE */
-	int checkPriorText(vector<char*> &prior_);
+	int checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]);
 
 	/* Check if the numbers or fractions were typed correctly in the channel.
 	 * If so, conver text to long double values and add them to this->channel.
 	 * Returns NO_ERROR or INVALID_VALUE */
-	int checkChannelText(vector<vector<char*>> &channel_);
+	int checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs);
 
 	/* Create circle points and radius.
 	 * It asssumes that the hyper distribution attribute has already been built. */
-	void buildCircles(vector<Vector2> &TrianglePoints);
+	void buildCircles(Vector2 TrianglePoints[3]);
 
 	/* Given three points, returns 0 if the orientation is colinear, 1 if it is
 	 * clock wise or 2 if it is counterclock wise. */
@@ -46,7 +54,7 @@ public:
 
 	/* Adjust the new prior distribution. If the mouse position is outside the triangle,
 	 * moves the prior circle to the closest point of an edge from the triangle. */
-	Point adjustPrior(vector<Vector2> &TrianglePoints, Vector2 mouse);
+	Point adjustPrior(Vector2 TrianglePoints[3], Vector2 mouse);
 
 	/* Update the hyper distribution if the user moves the prior distribution
      * This function assumes that the hyper distribution has already been built. 
@@ -55,7 +63,7 @@ public:
 	 *		TrianglePoints: From Layout object.
 	 *
      */
-	void updateHyper(vector<Vector2> &TrianglePoints);
+	void updateHyper(Vector2 TrianglePoints[3]);
 
 	/* Generates a new random prior and keeps it in attribute 'prior'. */
 	void newRandomPrior();
@@ -66,9 +74,6 @@ public:
 	 *		num_out: Number of outputs in L->TextBoxesChannelText.
 	*/
 	void newRandomChannel(int num_out);
-
-	// Open a .qifg file when the button Open is pressed
-	void openPriorAndChannel(char *file);
 };
 
 #endif
