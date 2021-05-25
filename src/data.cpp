@@ -290,7 +290,7 @@ void Data::newRandomChannel(int num_out){
 
         random_shuffle(prob.begin(), prob.end());
 
-        for(long unsigned int j = 0; j < num_out; j++){
+        for(int j = 0; j < num_out; j++){
             channel[i][j] = prob[j];
         }
     }

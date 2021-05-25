@@ -8,8 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "../data.h"
 #include "../../libs/raylib/src/raylib.h"
+#include "../data.h"
+#include "guiprior.h"
+#include "guichannel.h"
 
 using namespace std;
 
@@ -44,7 +46,7 @@ public:
     char buttonFileText[CHAR_BUFFER_SIZE];
     char buttonExamplesText[CHAR_BUFFER_SIZE];
     char buttonHelpText[CHAR_BUFFER_SIZE];
-    char fileName[10*CHAR_BUFFER_SIZE];     // Used with file button to open/save files
+    char* fileName;     // Used with file button to open/save files
 
     // Define controls rectangles
     Rectangle layoutRecsButtons[3];
@@ -55,7 +57,7 @@ public:
     //------------------------------------------------------------------------------------
 
     int readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs);        // Parameters are output
-    void saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], bool createNewFile);
+    void saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs, bool createNewFile);
 };
 
 #endif

@@ -22,12 +22,13 @@
 #include "gui/gui.h"
 #include "data.h"
 
+typedef struct WebLoopVariables{
+    Gui gui;
+    Data data;
+    bool closeWindow;
+} WebLoopVariables;
+
 #if defined(PLATFORM_WEB)
-    typedef struct WebLoopVariables{
-        Gui gui;
-        Data data;
-        bool closeWindow;
-    } WebLoopVariables;
     #include "/home/ramon/lib/emsdk/upstream/emscripten/system/include/emscripten.h"
 #endif
 
@@ -69,22 +70,17 @@ int main(){
     GuiLoadStyle("src/gui/style-qif-graphics.rgs");
     initStyle();
 
-#if defined(PLATFORM_WEB)
     WebLoopVariables vars;
     vars.closeWindow = false;
+
+#if defined(PLATFORM_WEB)
     emscripten_set_main_loop_arg(UpdateDrawFrame, &vars, 60, 1);
 #else
-    bool closeWindow = false;
-    //----------------------------------------------------------------------------------
-    Gui gui = Gui();
-    //----------------------------------------------------------------------------------
-
     SetTargetFPS(60);
-    Data data = Data();
     //--------------------------------------------------------------------------------------
 
     // Main game loop
-    while(!closeWindow){    // Detect window close button or ESC key
+    while(!vars.closeWindow){    // Detect window close button or ESC key
         UpdateDrawFrame(&vars);
     }
 #endif
@@ -393,6 +389,7 @@ void drawCircles(Gui &gui, Data &data){
 void buttonFile(Gui &gui, Data &data, bool *closeWindow){
     switch(gui.menu.dropdownBoxFileActive){
         case BUTTON_FILE_OPTION_OPEN:
+        #if !defined(PLATFORM_WEB)
             char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
             char newChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
             int newNumOutputs;
@@ -407,49 +404,56 @@ void buttonFile(Gui &gui, Data &data, bool *closeWindow){
                 GuiPrior::copyPrior(newPrior, gui.prior.TextBoxPriorText);
                 GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText, newNumOutputs);
                 gui.drawing = false;
-            }            
+            }
+        #endif       
             break;
         case BUTTON_FILE_OPTION_SAVE:
+        #if !defined(PLATFORM_WEB)
             gui.menu.saveQIFFile(
                 gui.prior.TextBoxPriorText,
                 gui.channel.TextBoxChannelText,
+                gui.channel.numOutputs,
                 strcmp(gui.menu.fileName, "\0") == 0 ? true : false
             );
             if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
+        #endif
             break;
-
         case BUTTON_FILE_OPTION_SAVEAS:
-            gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText, true);
+        #if !defined(PLATFORM_WEB)
+            gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText, gui.channel.numOutputs, true);
             if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;
+        #endif
             break;
-
         case BUTTON_FILE_OPTION_EXIT:
+        #if !defined(PLATFORM_WEB)
             if(data.fileSaved){
                 *closeWindow = true;
             }else{
-                
-                // int ret;
-                // FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
-                // ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
+            #if !defined(PLATFORM_WEB)
+                int ret;
+                FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
+                ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
 
-                // if(ret == 0){
-                //     // Yes
-                //     gui.menu.saveQIFFile(
-                //         gui.prior.TextBoxPriorText,
-                //         gui.channel.TextBoxChannelText,
-                //         strcmp(gui.menu.fileName, "\0") == 0 ? true : false
-                //     );
-                //     if(strcmp(gui.menu.fileName, "\0")){
-                //         data.fileSaved = true;
-                //         *closeWindow = true;  
-                //     }
-                // }else{
-                //     // No
-                //     *closeWindow = true;
-                // }
+                if(ret == 0){
+                    // Yes
+                    gui.menu.saveQIFFile(
+                        gui.prior.TextBoxPriorText,
+                        gui.channel.TextBoxChannelText,
+                        gui.channel.numOutputs,
+                        strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+                    );
+                    if(strcmp(gui.menu.fileName, "\0")){
+                        data.fileSaved = true;
+                        *closeWindow = true;  
+                    }
+                }else{
+                    // No
+                    *closeWindow = true;
+                }
+            #endif
             }
+        #endif
             break;
-
         default:
             break;
     }
