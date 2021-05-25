@@ -18,6 +18,10 @@ private:
 public:
     Gui();
 
+    //------------------------------------------------------------------------------------
+    // Attributes
+    //------------------------------------------------------------------------------------
+
     GuiMenu menu;
     GuiPrior prior;
     GuiChannel channel;
@@ -27,7 +31,9 @@ public:
     // Flag that indicates wheter the triangle is being drawn.
     bool drawing;
 
+    //------------------------------------------------------------------------------------
     // Methods
+    //------------------------------------------------------------------------------------
 
     /* Check if a textbox in prior or channel matrices was pressed.
 	 * Returns true if yes or false otherwise. */
@@ -47,7 +53,7 @@ public:
 	 * @Parameters:
 	 * 		hyper: Hyper-distribution;
 	 */
-	void updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles);
+	void updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
 };
 
 #endif

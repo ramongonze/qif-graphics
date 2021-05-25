@@ -32,22 +32,30 @@ private:
 public:
     GuiMenu();
 
+    //------------------------------------------------------------------------------------
+    // Attributes
+    //------------------------------------------------------------------------------------
+
     // Data
     int dropdownBoxFileActive;
     bool dropdownFileEditMode;
 
     // Text
-    char *buttonFileText;    // BUTTON: buttonOpen
-    char *buttonExamplesText;    // BUTTON: buttonExamples
-    char *buttonHelpText;    // BUTTON: buttonHelp
-    char *fileName;     // Used with file button to open/save files
+    char buttonFileText[CHAR_BUFFER_SIZE];
+    char buttonExamplesText[CHAR_BUFFER_SIZE];
+    char buttonHelpText[CHAR_BUFFER_SIZE];
+    char fileName[10*CHAR_BUFFER_SIZE];     // Used with file button to open/save files
 
     // Define controls rectangles
-    vector<Rectangle> layoutRecsButtons;
+    Rectangle layoutRecsButtons[3];
     Rectangle layoutRecsMenu;
 
-    int readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel);        // Parameters are output
-    void saveQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel, bool createNewFile);
+    //------------------------------------------------------------------------------------
+    // Methods
+    //------------------------------------------------------------------------------------
+
+    int readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs);        // Parameters are output
+    void saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], bool createNewFile);
 };
 
 #endif

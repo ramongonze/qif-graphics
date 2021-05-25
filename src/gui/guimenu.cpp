@@ -6,26 +6,20 @@ GuiMenu::GuiMenu(){
     dropdownFileEditMode = false;
 
     // Text
-    buttonFileText = (char*) malloc(128*sizeof(char));
-    buttonExamplesText = (char*) malloc(128*sizeof(char));
-    buttonHelpText = (char*) malloc(128*sizeof(char));
-    fileName = (char*) malloc(2048*sizeof(char));
-
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
     strcpy(buttonExamplesText, "Examples");
     strcpy(buttonHelpText, "Help");
     strcpy(fileName, "\0");
 
     // Define controls rectangles
-    layoutRecsButtons = vector<Rectangle>(5);
-    layoutRecsButtons[REC_BUTTON_FILE] = (Rectangle){0, 0, 50, 25};    // Button: buttonOpen
-    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){50, 0, 80, 25};    // Button: buttonExamples
-    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){130, 0, 50, 25};    // Button: buttonHelp
+    layoutRecsButtons[REC_BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
+    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){50, 0, 80, 25};
+    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){130, 0, 50, 25};
     
-    layoutRecsMenu = (Rectangle){0, 0, 1130, 25};    // Line: LineMenu
+    layoutRecsMenu = (Rectangle){0, 0, 1130, 25};
 }
 
-int GuiMenu::readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel){
+int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs){
     // /* File format:
     // -----BEGIN OF FILE-----
     // prior
@@ -40,6 +34,7 @@ int GuiMenu::readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &cha
     // where n is the number of secrets (consequently the # elements in prior and # rows in channel),
     // m is the number of outputs in the channel (# of columns) and every two numbers are separated
     // by a white space.
+    // Parameter newNumOutputs returns the number of outputs read from file
     // */
 
     // FILE *file = popen("zenity --file-selection --title=Open --file-filter=*.qifg", "r");
@@ -60,10 +55,9 @@ int GuiMenu::readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &cha
     //     // Prior
     //     getline(infile, buffer);
     //     if(buffer != "prior") throw exception();
-
-    //     vector<char*> newPrior(3, nullptr);
-    //     for(int i = 0; i < 3; i++){
-    //         newPrior[i] = (char*) malloc(128*sizeof(char));
+    //     
+    //     for(int i = 0; i < NUMBER_SECRETS; i++){
+    //         newPrior[i] = (char*) malloc(CHAR_BUFFER_SIZE*sizeof(char));
     //         infile >> probBuffer;
     //         strcpy(newPrior[i], probBuffer.c_str());
     //     }
@@ -74,7 +68,9 @@ int GuiMenu::readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &cha
     //     if(buffer != "channel") throw exception();
 
     //     infile >> numOutputs;
-        
+    //     *newNumOutputs = numOutputs      // Return the number of outputs read from file
+    
+    //     // Memory must be allocated for newChannel
     //     vector<vector<char*>> newChannel = vector<vector<char*>>(numOutputs, vector<char*>(3, nullptr));
     //     for(int i = 0; i < numOutputs; i++){
     //         for(int j = 0; j < 3; j++){
@@ -97,6 +93,8 @@ int GuiMenu::readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &cha
     //     // If no exception was thrown update prior and channel vectors        
     //     prior = newPrior;
     //     channel = newChannel;
+    //
+    //     // TODO: Free memory from newPrior and newChannel
     // }catch(const exception& e){
     //     cerr << "Invalid file: " << e.what() << '\n';        
     //     infile.close();
@@ -106,7 +104,7 @@ int GuiMenu::readQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &cha
     return NO_ERROR;
 }
 
-void GuiMenu::saveQIFFile(char* prior[NUMBER_SECRETS], vector<vector<char*>> &channel, bool createNewFile){
+void GuiMenu::saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], bool createNewFile){
     /* File format:
     -----BEGIN OF FILE-----
     prior

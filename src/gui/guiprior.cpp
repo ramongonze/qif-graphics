@@ -2,8 +2,6 @@
 
 GuiPrior::GuiPrior(){
     // Const text
-    panelPriorText = (char*) malloc(CHAR_BUFFER_SIZE*sizeof(char));
-    buttonRandomText = (char*) malloc(CHAR_BUFFER_SIZE*sizeof(char));
     strcpy(panelPriorText, "Prior distribution");
     strcpy(buttonRandomText, "Gen. Random");
     for(int i = 0; i < NUMBER_SECRETS; i++){
@@ -11,12 +9,11 @@ GuiPrior::GuiPrior(){
     }
     
     // Define anchors
-    AnchorPrior = {10, 35};            // ANCHOR ID:1
+    AnchorPrior = {10, 35};
 
     // Define controls variables
     for(int i = 0; i < NUMBER_SECRETS; i++){
         TextBoxPriorEditMode[i] = false;
-        TextBoxPriorText[i] = (char*) malloc(CHAR_BUFFER_SIZE*sizeof(char));
         strcpy(TextBoxPriorText[i], "0");
     }
 

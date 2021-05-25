@@ -10,12 +10,12 @@ Gui::Gui(){
 }
 
 bool Gui::checkTextBoxPressed(){
-    for(long unsigned int i = 0; i < NUMBER_SECRETS; i++)
+    for(int i = 0; i < NUMBER_SECRETS; i++)
         if(prior.TextBoxPriorEditMode[i] == true)
             return true;
 
-    for(long unsigned int i = 0; i < channel.TextBoxChannelEditMode.size(); i++)
-        for(long unsigned int j = 0; j < channel.TextBoxChannelEditMode[i].size(); j++)
+    for(int i = 0; i < NUMBER_SECRETS; i++)
+        for(int j = 0; j < channel.numOutputs; j++)
             if(channel.TextBoxChannelEditMode[i][j] == true)
                 return true;
 
@@ -24,7 +24,7 @@ bool Gui::checkTextBoxPressed(){
 
 void Gui::moveAmongTextBoxes(){
     // Prior
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < NUMBER_SECRETS; i++){
         if(prior.TextBoxPriorEditMode[i] == true){
             if(IsKeyPressed(KEY_TAB)){
                 prior.TextBoxPriorEditMode[i] = false;
@@ -49,60 +49,47 @@ void Gui::moveAmongTextBoxes(){
                 else if(i == 1) prior.TextBoxPriorEditMode[2] = true;
                 else prior.TextBoxPriorEditMode[0] = true;
             }
-
             return;
         }
     }
 
-    int nRows = channel.TextBoxChannelEditMode[0].size();
-    int nColumns = channel.TextBoxChannelEditMode.size();
+    int nRows = NUMBER_SECRETS;
+    int nColumns = channel.numOutputs;
 
     // Channel
-    for(int i = 0; i < nColumns; i++){
-        for(int j = 0; j < nRows; j++){
+    for(int i = 0; i < nRows; i++){
+        for(int j = 0; j < nColumns; j++){
             if(channel.TextBoxChannelEditMode[i][j] == true){
+                channel.TextBoxChannelEditMode[i][j] = false;
                 if(IsKeyPressed(KEY_TAB)){
-                    channel.TextBoxChannelEditMode[i][j] = false;
                     if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
-                        if(i == 0 && j == 0){
-                            channel.TextBoxChannelEditMode[nColumns-1][nRows-1] = true; // Select the first text box (row 0 and column 0)
-                        }else if(i == 0){
-                            channel.TextBoxChannelEditMode[nColumns-1][j-1] = true;
+                        if(j > 0){
+                            channel.TextBoxChannelEditMode[i][j-1] = true;
+                        }else if(i > 0){
+                            channel.TextBoxChannelEditMode[i-1][nColumns-1] = true;
                         }else{
-                            channel.TextBoxChannelEditMode[i-1][j] = true;
+                            channel.TextBoxChannelEditMode[nRows-1][nColumns-1] = true;
                         }
-                        return;
                     }else{
-                        if(i == nColumns-1 && j == nRows-1){
-                            channel.TextBoxChannelEditMode[0][0] = true; // Select the first text box (row 0 and column 0)
-                        }else if(i == nColumns-1){
-                            channel.TextBoxChannelEditMode[0][j+1] = true;
+                        if(j < nColumns-1){
+                            channel.TextBoxChannelEditMode[i][j+1] = true;
+                        }else if(i < nRows-1){
+                            channel.TextBoxChannelEditMode[i+1][0] = true;
                         }else{
-                            channel.TextBoxChannelEditMode[i+1][j] = true;
+                            channel.TextBoxChannelEditMode[0][0] = true;
                         }
-                        return;
                     }
-                }else if(IsKeyPressed(KEY_UP)){
-                    if(j > 0){
-                        channel.TextBoxChannelEditMode[i][j] = false;
-                        channel.TextBoxChannelEditMode[i][j-1] = true;
-                    }
-                }else if(IsKeyPressed(KEY_DOWN)){
-                    if(j < nRows-1){
-                        channel.TextBoxChannelEditMode[i][j] = false;
-                        channel.TextBoxChannelEditMode[i][j+1] = true;   
-                    }
-                }else if(IsKeyPressed(KEY_LEFT)){
-                    if(i > 0){
-                        channel.TextBoxChannelEditMode[i][j] = false;
-                        channel.TextBoxChannelEditMode[i-1][j] = true;
-                    }
-                }else if(IsKeyPressed(KEY_RIGHT)){
-                    if(i < nColumns-1){
-                        channel.TextBoxChannelEditMode[i][j] = false;
-                        channel.TextBoxChannelEditMode[i+1][j] = true;
-                    }
-                }                
+                }else if(IsKeyPressed(KEY_UP) && i > 0){
+                    channel.TextBoxChannelEditMode[i-1][j] = true;
+                }else if(IsKeyPressed(KEY_DOWN) && i < nRows-1){
+                    channel.TextBoxChannelEditMode[i+1][j] = true;   
+                }else if(IsKeyPressed(KEY_LEFT) && j > 0){
+                    channel.TextBoxChannelEditMode[i][j-1] = true;
+                }else if(IsKeyPressed(KEY_RIGHT) && j < nColumns-1){
+                    channel.TextBoxChannelEditMode[i][j+1] = true;
+                }else{
+                    channel.TextBoxChannelEditMode[i][j] = true;
+                }
                 return;
             }
         }
@@ -131,85 +118,50 @@ void Gui::updatePriorRectangle(Circle &priorCircle){
     };
 }
 
-void Gui::updatePosteriors(Hyper &hyper, vector<Circle> &innersCircles){
+void Gui::updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
     std::ostringstream buffer;
     buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
     
-    // Match the number of columns in hyper and layout variables. 
-    int diff = hyper.num_post - posteriors.numPosteriors;
-    
-    if(diff){
-        if(diff < 0){
-            // Remove gui textboxes if there are more items than posteriors
-            for(int i = 0; i < -diff; i++){
-                posteriors.layoutRecsTextBoxOuter.pop_back();
-                posteriors.layoutRecsTextBoxInners.pop_back();
-                posteriors.layoutRecsLabelPosteriors.pop_back();
-                posteriors.LabelPosteriorsText.pop_back();
-                posteriors.TextBoxOuterEditMode.pop_back();
-                posteriors.TextBoxInnersEditMode.pop_back();
-
-                free(posteriors.TextBoxOuterText[posteriors.TextBoxOuterText.size()-1]);
-                posteriors.TextBoxOuterText.pop_back();
-                
-                for(int j = 0; j < 3; j++) free(posteriors.TextBoxInnersText[posteriors.TextBoxInnersText.size()-1][j]);
-                posteriors.TextBoxInnersText.pop_back();
-            }
-        }else if(diff > 0){
-            // Add gui textboxes if there are less items than posteriors
-            for(int i = 0; i < diff; i++){
-                posteriors.layoutRecsTextBoxOuter.push_back((Rectangle){0,0,0,0});
-                posteriors.layoutRecsLabelPosteriors.push_back((Rectangle){0,0,0,0});
-                posteriors.layoutRecsTextBoxInners.push_back(vector<Rectangle>(3));
-                posteriors.TextBoxInnersEditMode.push_back(vector<bool>(3, false));
-                posteriors.LabelPosteriorsText.push_back("0");
-
-                posteriors.TextBoxOuterText.push_back(nullptr);
-                posteriors.TextBoxOuterText[posteriors.TextBoxOuterText.size()-1] = (char*) malloc(128*sizeof(char));
-                posteriors.TextBoxOuterEditMode.push_back(false);
-
-                posteriors.TextBoxInnersText.push_back(vector<char*>(3));
-                for(int j = 0; j < 3; j++) posteriors.TextBoxInnersText[posteriors.TextBoxInnersText.size()-1][j] = (char*) malloc(128*sizeof(char));
-            }
-
-        }
-
-        // Update gui items 
-        for(int i = 0; i < hyper.num_post; i++){
-            posteriors.layoutRecsTextBoxOuter[i] = (Rectangle){posteriors.AnchorPosterior.x + 65 + i*TEXTBOX_SIZE, posteriors.AnchorPosterior.y + 55, TEXTBOX_SIZE, TEXTBOX_SIZE};
-            posteriors.layoutRecsLabelPosteriors[i] = (Rectangle){posteriors.AnchorPosterior.x + 75 + i*TEXTBOX_SIZE, posteriors.AnchorPosterior.y + 35, 20, 20};    // Label: LabelPosteriors
-            
-            buffer.str(""); buffer.clear();
-            buffer << "I" << i+1;
-            posteriors.LabelPosteriorsText[i] = buffer.str(); 
-
-            for(int j = 0; j < 3; j++){
-                posteriors.layoutRecsTextBoxInners[i][j] = (Rectangle){posteriors.AnchorPosterior.x + 65 + i*TEXTBOX_SIZE, posteriors.AnchorPosterior.y + 115 + j*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};    // TextBox: TextBoxInners00
+    // Match the number of columns in hyper and layout variables
+    if(hyper.num_post > posteriors.numPosteriors){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            for(int j = posteriors.numPosteriors; j < hyper.num_post; j++){
+                posteriors.TextBoxInnersEditMode[i][j] = false;
             }
         }
 
-        posteriors.numPosteriors = hyper.num_post;
-        posteriors.ScrollPanelPosteriorsContent.x = posteriors.layoutRecsTextBoxInners[posteriors.numPosteriors-1][0].x + TEXTBOX_SIZE;
+        for(int i = posteriors.numPosteriors; i < hyper.num_post; i++){
+            posteriors.TextBoxOuterEditMode[i] = false;
+        }
     }
 
+    // Update gui items
+    posteriors.numPosteriors = hyper.num_post;
+    posteriors.ScrollPanelPosteriorsContent.x = posteriors.layoutRecsTextBoxInners[0][posteriors.numPosteriors-1].x + TEXTBOX_SIZE;
+
     // Update values 
-    for(int i = 0; i < hyper.num_post; i++){           
+    for(int i = 0; i < NUMBER_SECRETS; i++){
+        for(int j = 0; j < hyper.num_post; j++){
+            buffer.str(""); buffer.clear();
+            buffer << hyper.inners[i][j];
+            strcpy(posteriors.TextBoxInnersText[i][j], buffer.str().c_str());
+        }
+    }
+
+    for(int i = 0; i < hyper.num_post; i++){
         buffer.str(""); buffer.clear();
         buffer << hyper.outer.prob[i];
         strcpy(posteriors.TextBoxOuterText[i], buffer.str().c_str());
+    }
 
-        for(int j = 0; j < 3; j++){
-            buffer.str(""); buffer.clear();
-            buffer << hyper.inners[j][i];
-            strcpy(posteriors.TextBoxInnersText[i][j], buffer.str().c_str());
-        }
 
-        // Update circle labels and rectangles
+    // Update circle labels and rectangles
+    for(int i = 0; i < hyper.num_post; i++){
         visualization.layoutRecsLabelInnersCircles[i] = (Rectangle){
             (float) innersCircles[i].center.x - 8,
             (float) innersCircles[i].center.y - 11,
             20,
             20
         };
-    }    
+    } 
 }

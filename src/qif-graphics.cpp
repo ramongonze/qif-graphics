@@ -22,7 +22,6 @@
 #include "gui/gui.h"
 #include "data.h"
 
-#define PLATFORM_WEB
 #if defined(PLATFORM_WEB)
     typedef struct WebLoopVariables{
         Gui gui;
@@ -193,8 +192,7 @@ void UpdateDrawFrame(void* vars_){
 
     // Check if prior circle was moved
     if(gui->drawing){
-        if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && 
-            euclidianDistance(data->priorCircle.center, mousePosition) <= PRIOR_RADIUS){
+        if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && euclidianDistance(data->priorCircle.center, mousePosition) <= PRIOR_RADIUS){
             data->mouseClickedOnPrior = true;
         }
 
@@ -270,7 +268,7 @@ void drawGuiPrior(Gui &gui, Data &data){
 }
 
 void drawGuiChannel(Gui &gui, Data &data){
-    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.GroupBoxChannelText);
+    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText);
     
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR));
     if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
@@ -304,15 +302,15 @@ void drawGuiChannel(Gui &gui, Data &data){
 
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
         GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
-        for(int i = 0; i < gui.channel.numOutputs; i++){
-            GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
-            for(int j = 0; j < 3; j++){
-                if (GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j]))gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
+            for(int j = 0; j < gui.channel.numOutputs; j++){
+                if(GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
             }
         }
 
-        for(int i = 0; i < 3; i++){
-            GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
+        for(int i = 0; i < gui.channel.numOutputs; i++){
+            GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
         }
     EndScissorMode();
 }
@@ -333,18 +331,12 @@ void drawGuiPosteriors(GuiPosteriors &posteriors){
 
         for(int i = 0; i < posteriors.numPosteriors; i++){
             GuiLabel((Rectangle){posteriors.layoutRecsLabelPosteriors[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelPosteriors[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelPosteriors[i].width, posteriors.layoutRecsLabelPosteriors[i].height}, posteriors.LabelPosteriorsText[i].c_str());
-        }
-
-        for(int i = 0; i < 3; i++){
-            GuiLabel((Rectangle){posteriors.layoutRecsLabelX[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelX[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelX[i].width, posteriors.layoutRecsLabelX[i].height}, posteriors.LabelPosteriorsXText[i].c_str());
-        }
-
-        for(int i = 0; i < posteriors.numPosteriors; i++){
             GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxOuter[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxOuter[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxOuter[i].width, posteriors.layoutRecsTextBoxOuter[i].height}, posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, posteriors.TextBoxOuterEditMode[i]);
         }
 
-        for(int i = 0; i < posteriors.numPosteriors; i++){
-            for(int j = 0; j < 3; j++){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            GuiLabel((Rectangle){posteriors.layoutRecsLabelX[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelX[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelX[i].width, posteriors.layoutRecsLabelX[i].height}, posteriors.LabelPosteriorsXText[i].c_str());
+            for(int j = 0; j < posteriors.numPosteriors; j++){
                 GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxInners[i][j].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxInners[i][j].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxInners[i][j].width, posteriors.layoutRecsTextBoxInners[i][j].height}, posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, posteriors.TextBoxInnersEditMode[i][j]);
             }
         }
@@ -388,7 +380,7 @@ void drawCircles(Gui &gui, Data &data){
 	DrawTextEx(gui.visualization.alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.visualization.alternativeFont.baseSize, 1.0, BLACK);
 
 	// Inners
-	for(long unsigned int i = 0; i < data.innersCircles.size(); i++){
+	for(int i = 0; i < data.hyper.num_post; i++){
         DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR);
         DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR_LINES);
         DrawTextEx(gui.visualization.alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
@@ -399,22 +391,21 @@ void drawCircles(Gui &gui, Data &data){
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data, bool *closeWindow){
-    char* newPrior[NUMBER_SECRETS];
-    vector<vector<char*>> newChannel;
-
     switch(gui.menu.dropdownBoxFileActive){
         case BUTTON_FILE_OPTION_OPEN:
-            if(gui.menu.readQIFFile(newPrior, newChannel) == NO_ERROR){
+            char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
+            char newChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+            int newNumOutputs;
+
+            if(gui.menu.readQIFFile(newPrior, newChannel, &newNumOutputs) == NO_ERROR){
                 // If the current number of outputs is different from the file's, update it
-                int newNumOutputs = (int) newChannel.size();
                 if(gui.channel.SpinnerChannelValue != newNumOutputs){
                     gui.channel.SpinnerChannelValue = newNumOutputs;
                     gui.drawing = false;
                     gui.channel.updateChannelBySpinner();
                 }
-                // gui.prior.TextBoxPriorText = newPrior;
                 GuiPrior::copyPrior(newPrior, gui.prior.TextBoxPriorText);
-                gui.channel.TextBoxChannelText = newChannel;
+                GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText, newNumOutputs);
                 gui.drawing = false;
             }            
             break;
@@ -502,7 +493,7 @@ void buttonDraw(Gui &gui, Data &data){
     data.error = NO_ERROR;
 
     // Check if prior and channel are ok
-    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText) == NO_ERROR){
+    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText, gui.channel.numOutputs) == NO_ERROR){
         // Check if typed numbers represent distributions
         if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
         else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;

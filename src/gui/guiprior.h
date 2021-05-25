@@ -15,9 +15,13 @@ private:
 public:
     GuiPrior();
 
+    //------------------------------------------------------------------------------------
+    // Attributes
+    //------------------------------------------------------------------------------------
+
     // Const text
-    char *panelPriorText;
-    char *buttonRandomText;
+    char panelPriorText[CHAR_BUFFER_SIZE];
+    char buttonRandomText[CHAR_BUFFER_SIZE];
     string LabelPriorText[NUMBER_SECRETS];
 
     // Define anchors
@@ -25,7 +29,7 @@ public:
 
     // Define controls variables
     bool TextBoxPriorEditMode[NUMBER_SECRETS];
-    char* TextBoxPriorText[NUMBER_SECRETS];
+    char TextBoxPriorText[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
 
     // Define controls rectangles
     Rectangle layoutRecsPanel;
@@ -35,8 +39,12 @@ public:
     Rectangle layoutRecsLabel[NUMBER_SECRETS];
     Rectangle layoutRecsTextBox[NUMBER_SECRETS];
 
+    //------------------------------------------------------------------------------------
+    // Methods
+    //------------------------------------------------------------------------------------
+
     // Copy the values of a prior array to another
-    static void copyPrior(char* origin[NUMBER_SECRETS], char* dest[NUMBER_SECRETS]){
+    static void copyPrior(char origin[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char dest[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
         for(int i = 0; i < NUMBER_SECRETS; i++){
             strcpy(dest[i], origin[i]);
         }
