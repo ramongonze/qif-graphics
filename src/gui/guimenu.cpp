@@ -16,9 +16,14 @@ GuiMenu::GuiMenu(){
     strcpy(fileName, "\0");
 
     // Define controls rectangles
+#if !defined(PLATFORM_WEB)
     layoutRecsButtons[REC_BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
     layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){50, 0, 80, 25};
     layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){130, 0, 50, 25};
+#else
+    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){0, 0, 80, 25};
+    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){80, 0, 50, 25};
+#endif
     
     layoutRecsMenu = (Rectangle){0, 0, 1130, 25};
 }
