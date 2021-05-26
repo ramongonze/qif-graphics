@@ -447,7 +447,7 @@ ifeq ($(PLATFORM),PLATFORM_DRM)
 	rm -fv *.o
 endif
 ifeq ($(PLATFORM),PLATFORM_WEB)
-	del *.o *.html *.js
+	rm *.html *.js *.data *.wasm
 endif
 	@echo Cleaning done
 
