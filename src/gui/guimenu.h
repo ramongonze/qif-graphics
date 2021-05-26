@@ -28,6 +28,10 @@ using namespace std;
 #define BUTTON_FILE_OPTION_SAVEAS 3
 #define BUTTON_FILE_OPTION_EXIT 4
 
+#define BUTTON_HELP_OPTION_HELP 0
+#define BUTTON_HELP_OPTION_GETTING_STARTED 1
+#define BUTTON_HELP_OPTION_ABOUT 2
+
 class GuiMenu{
 private:
     /* data */
@@ -40,7 +44,9 @@ public:
 
     // Data
     int dropdownBoxFileActive;
+    int dropdownBoxHelpActive;
     bool dropdownFileEditMode;
+    bool dropdownHelpEditMode;
 
     // Text
     char buttonFileText[CHAR_BUFFER_SIZE];

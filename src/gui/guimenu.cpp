@@ -4,11 +4,13 @@ GuiMenu::GuiMenu(){
     // Data
     dropdownBoxFileActive = 0;
     dropdownFileEditMode = false;
+    dropdownBoxHelpActive = 0;
+    dropdownHelpEditMode = false;
 
     // Text
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
     strcpy(buttonExamplesText, "Examples");
-    strcpy(buttonHelpText, "Help");
+    strcpy(buttonHelpText, "Help;Getting Started;About");
     
     fileName = (char*) malloc(10*CHAR_BUFFER_SIZE*sizeof(char));
     strcpy(fileName, "\0");

@@ -55,7 +55,7 @@ void drawCircles(Gui &gui, Data &data);
 //----------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data, bool *closeWindow);
 void buttonExamples();
-void buttonHelp();
+void buttonHelp(Gui &gui);
 void buttonRandomPrior(Gui &gui, Data &data);
 void buttonRandomChannel(Gui &gui, Data &data);
 void buttonDraw(Gui &gui, Data &data);
@@ -241,7 +241,13 @@ void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
     if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
 
     // Button Help
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxHelpActive), gui.menu.dropdownHelpEditMode)) gui.menu.dropdownHelpEditMode = !gui.menu.dropdownHelpEditMode;
+    initStyle();
+    buttonHelp(gui);
+    // if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
@@ -465,8 +471,17 @@ void buttonExamples(){
     // TODO: Implement control logic
 }
 
-void buttonHelp(){
-    // TODO: Implement control logic
+void buttonHelp(Gui &gui){
+    switch(gui.menu.dropdownBoxHelpActive){
+        case BUTTON_HELP_OPTION_GETTING_STARTED:
+            // TODO
+            break;
+        case BUTTON_HELP_OPTION_ABOUT:
+            // TODO
+            break;
+        default:
+            break;
+    }
 }
 
 void buttonRandomPrior(Gui &gui, Data &data){
