@@ -9,7 +9,7 @@ GuiPosteriors::GuiPosteriors(){
     strcpy(LabelOuterText, "Outer");
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        LabelPosteriorsXText[i] = "X" + to_string(i);
+        LabelPosteriorsXText[i] = "X" + to_string(i+1);
     }
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
         LabelPosteriorsText[i] = "I" + to_string(i+1);
