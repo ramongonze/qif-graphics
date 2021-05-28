@@ -1,12 +1,16 @@
 #include "data.h"
 
 Data::Data(){
-	this->hyperReady = false;
-    this->mouseClickedOnPrior = false;
-    this->prior = vector<long double>(NUMBER_SECRETS, 0);
-    this->channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(MAX_CHANNEL_OUTPUTS, 0));
-    this->error = NO_ERROR;
-    this->fileSaved = true;
+	hyperReady = false;
+    mouseClickedOnPrior = false;
+    prior = vector<long double>(NUMBER_SECRETS, 0);
+    channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(MAX_CHANNEL_OUTPUTS, 0));
+    error = NO_ERROR;
+    fileSaved = true;
+    
+    // Calculates the number of frames the animation will have, considering the software is running in 60 FPS
+    animation = -1;
+    animationRunning = false;
 }
 
 int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
@@ -99,20 +103,50 @@ int Data::checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CH
 
 void Data::buildCircles(Vector2 TrianglePoints[3]){
     Point p;
-    
-    // Prior
-    p = dist2Bary(hyper.prior);
-    p = bary2Pixel(p.x, p.y, TrianglePoints);    
-    priorCircle.center = Point(p.x, p.y);
-    priorCircle.radius = PRIOR_RADIUS;
 
-    // Inners
-    for(int i = 0; i < hyper.num_post; i++){
-        p = dist2Bary(hyper.inners[0][i], hyper.inners[1][i], hyper.inners[2][i]);
-        p = bary2Pixel(p.x, p.y, TrianglePoints);
+    if(animationRunning && animation == STEPS){
+        // First draw of the animation
+
+        // Prior
+        p = dist2Bary(hyper.prior);
+        p = bary2Pixel(p.x, p.y, TrianglePoints);    
+        priorCircle.center = Point(p.x, p.y);
+        priorCircle.radius = PRIOR_RADIUS;
+
+        for(int i = 0; i < hyper.num_post; i++){
+            p = dist2Bary(hyper.inners[0][i], hyper.inners[1][i], hyper.inners[2][i]);
+            p = bary2Pixel(p.x, p.y, TrianglePoints);
+            // All inners starts in prior position
+            innersCircles[i].center = priorCircle.center;
+            innersCircles[i].radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
+            
+            long double deltaX = p.x - priorCircle.center.x;
+            long double deltaY = p.y - priorCircle.center.y;
+            xJumpAnimation[i] = deltaX/STEPS;
+            yJumpAnimation[i] = deltaY/STEPS;
+        }
         
-        innersCircles[i].center = Point(p.x, p.y);
-        innersCircles[i].radius = (int) sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
+        animation--;
+    }else if(animationRunning && animation > 0){
+        for(int i = 0; i < hyper.num_post; i++){
+            innersCircles[i].center.x += xJumpAnimation[i];
+            innersCircles[i].center.y += yJumpAnimation[i];
+        }
+        animation--;
+    }else if((animationRunning && animation == 0) || animation == UPDATE_CIRCLES_BY_MOUSE){
+        // Prior
+        p = dist2Bary(hyper.prior);
+        p = bary2Pixel(p.x, p.y, TrianglePoints);    
+        priorCircle.center = Point(p.x, p.y);
+        priorCircle.radius = PRIOR_RADIUS;
+        
+        for(int i = 0; i < hyper.num_post; i++){
+            p = dist2Bary(hyper.inners[0][i], hyper.inners[1][i], hyper.inners[2][i]);
+            p = bary2Pixel(p.x, p.y, TrianglePoints);
+            innersCircles[i].center = Point(p.x, p.y);
+            innersCircles[i].radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
+        }
+        animationRunning = false;
     }
 }
 

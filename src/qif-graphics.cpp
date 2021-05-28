@@ -189,6 +189,12 @@ void UpdateDrawFrame(void* vars_){
 
     // Check if prior circle was moved
     if(gui->drawing){
+        // Animation
+        if(data->animationRunning){
+            data->buildCircles(gui->visualization.trianglePoints);
+        }
+
+        // Moving prior with mouse
         if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && euclidianDistance(data->priorCircle.center, mousePosition) <= PRIOR_RADIUS){
             data->mouseClickedOnPrior = true;
         }
@@ -198,6 +204,7 @@ void UpdateDrawFrame(void* vars_){
         if(data->mouseClickedOnPrior){
             data->fileSaved = false;
             data->updateHyper(gui->visualization.trianglePoints);
+            data->animation = UPDATE_CIRCLES_BY_MOUSE;
             data->buildCircles(gui->visualization.trianglePoints);
             gui->updatePrior(data->hyper.prior, data->priorCircle);
             gui->updatePosteriors(data->hyper, data->innersCircles);
@@ -222,14 +229,6 @@ void UpdateDrawFrame(void* vars_){
         drawGuiPosteriors(gui->posteriors);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
-
-        // if(gui->drawing){
-        //     char buffer[2000];
-        //     for(int i = 0; i < NUMBER_SECRETS; i++){
-        //         sprintf(buffer, "%.10Lf", data->hyper.prior.prob[i]);
-        //         DrawText(buffer, 400, 300+50*i, GetFontDefault().baseSize, BLACK);
-        //     }
-        // }
         //----------------------------------------------------------------------------------
 
     EndDrawing();
@@ -249,9 +248,6 @@ void calculatePosteriors(Gui &gui, Data &data){
             Distribution newPrior(data.prior);
             Channel newChannel(newPrior, data.channel);
             data.hyper = Hyper(newChannel);
-
-            data.buildCircles(gui.visualization.trianglePoints);
-
             gui.updatePriorRectangle(data.priorCircle);
             gui.updatePosteriors(data.hyper, data.innersCircles);
         }else{
@@ -553,6 +549,9 @@ void buttonRandomChannel(Gui &gui, Data &data){
 void buttonDraw(Gui &gui, Data &data){
     if(data.error == NO_ERROR){
         gui.drawing = true;
+        data.animationRunning = true;
+        data.animation = STEPS;
+        data.buildCircles(gui.visualization.trianglePoints);
     }else{
         printError(data.error, gui.visualization);
     }    

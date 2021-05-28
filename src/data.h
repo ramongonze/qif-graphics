@@ -7,6 +7,12 @@
 #include <ctime> // std::time
 #include <cstdlib> // std::srand
 #include <string.h> // strcpy
+#include <iostream>
+
+#define ANIMATION_DURATION 1 // Animation in seconds
+#define FPS 60
+#define STEPS (ANIMATION_DURATION*FPS)
+#define UPDATE_CIRCLES_BY_MOUSE -1
 
 class Data{
 public:
@@ -23,9 +29,13 @@ public:
 	bool hyperReady;  // Flag that indicates wheter a hyper distribution has been built.
 	bool mouseClickedOnPrior; // Flag that indicates wheter the mouse was clicked in the previous frame on the prior circle.
 	bool fileSaved; // Flag that indicates wheter the current prior/channel has been saved
+	int animation; // Animation control
+	bool animationRunning;
 
 	Circle priorCircle;
 	Circle innersCircles[MAX_CHANNEL_OUTPUTS];
+	long double xJumpAnimation[MAX_CHANNEL_OUTPUTS]; 		// x axis jump per inner
+	long double yJumpAnimation[MAX_CHANNEL_OUTPUTS]; 		// y axis jump per inner
 
 	//------------------------------------------------------------------------------------
     // Methods
