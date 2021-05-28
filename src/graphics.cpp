@@ -74,3 +74,32 @@ Point bary2Pixel(double x, double y, Vector2 TrianglePoints[3]){
 
 	return p;
 }
+
+vector<string> getStrTruncatedDist(Distribution dist, int precision){
+	int sum = 0;
+	vector<int> newDist(dist.num_el);
+	vector<string> newStrDist(dist.num_el);
+
+	istringstream probs = istringstream(dist.toString(precision));
+	string prob;
+	int i = 0;
+	while(probs >> prob){
+		newDist[i] = prob != "1.000" ? stoi(prob.substr(2)) : 1000;
+		sum += newDist[i];
+		newStrDist[i] = prob;
+		i++;
+	}
+
+	// Fix the probability distribution truncation increasing or decreasing the value of the last element
+	newDist[dist.num_el-1] += (1000 - sum);
+	if(newDist[dist.num_el-1] < 10){
+		newStrDist[dist.num_el-1] = "0.00" + to_string(newDist[dist.num_el-1]);
+	}else if(newDist[dist.num_el-1] < 100){
+		newStrDist[dist.num_el-1] = "0.0" + to_string(newDist[dist.num_el-1]);
+	}else if(newDist[dist.num_el-1] < 1000){
+		newStrDist[dist.num_el-1] = "0." + to_string(newDist[dist.num_el-1]);
+	}else{
+		newStrDist[dist.num_el-1] = "1.000";
+	}
+	return newStrDist;
+}

@@ -58,3 +58,14 @@ GuiPosteriors::GuiPosteriors(){
 
     ScrollPanelPosteriorsContent.x = layoutRecsTextBoxInners[0][numPosteriors-1].x + TEXTBOX_SIZE;
 }
+
+void GuiPosteriors::resetPosteriors(){
+    numPosteriors = NUMBER_SECRETS;
+
+    for(int i = 0; i < NUMBER_SECRETS; i++){
+        strcpy(TextBoxOuterText[i], "0");
+        for(int j = 0; j < numPosteriors; j++){
+            strcpy(TextBoxInnersText[i][j], "0");
+        }
+    }
+}

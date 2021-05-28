@@ -3,7 +3,7 @@
 GuiPrior::GuiPrior(){
     // Const text
     strcpy(panelPriorText, "Prior distribution");
-    strcpy(buttonRandomText, "Gen. Random");
+    strcpy(buttonRandomText, "Generate Random");
     for(int i = 0; i < NUMBER_SECRETS; i++){
         LabelPriorText[i] = "X" + to_string(i+1);
     }
@@ -32,5 +32,5 @@ GuiPrior::GuiPrior(){
         layoutRecsTextBox[i] = (Rectangle){xBasePosition + i*TEXTBOX_SIZE, yBasePosition + 20, TEXTBOX_SIZE, TEXTBOX_SIZE};
     }
 
-    layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 110, layoutRecsTitle.y, 110, 20};
+    layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 140, layoutRecsTitle.y, 140, 20};
 }

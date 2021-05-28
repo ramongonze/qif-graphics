@@ -7,7 +7,7 @@ GuiChannel::GuiChannel(){
     // Text
     strcpy(panelChannelText, "Channel");
     strcpy(LabelOutputsText, "Outputs");
-    strcpy(buttonRandomText, "Gen. Random");
+    strcpy(buttonRandomText, "Generate Random");
     for(int i = 0; i < NUMBER_SECRETS; i++){
         LabelChannelXText[i] = "X" + to_string(i+1);
     }
@@ -49,7 +49,7 @@ GuiChannel::GuiChannel(){
         layoutRecsLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
     }
 
-    layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 110, layoutRecsTitle.y, 110, 20};
+    layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 140, layoutRecsTitle.y, 140, 20};
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs-1].x + TEXTBOX_SIZE;
 }
 

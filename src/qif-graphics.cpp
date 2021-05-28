@@ -39,6 +39,7 @@ void initStyle();
 void printError(int error, GuiVisualization &visualization);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title);
 void UpdateDrawFrame(void* vars_);     // Update and Draw one frame
+void calculatePosteriors(Gui &gui, Data &data);
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
@@ -202,6 +203,10 @@ void UpdateDrawFrame(void* vars_){
             gui->updatePosteriors(data->hyper, data->innersCircles);
         }
     }
+    
+    // If prior and channel are ok, udpate and show posteriors
+    calculatePosteriors(*gui, *data);
+
     //----------------------------------------------------------------------------------
 
     // Draw
@@ -217,10 +222,45 @@ void UpdateDrawFrame(void* vars_){
         drawGuiPosteriors(gui->posteriors);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
+
+        // if(gui->drawing){
+        //     char buffer[2000];
+        //     for(int i = 0; i < NUMBER_SECRETS; i++){
+        //         sprintf(buffer, "%.10Lf", data->hyper.prior.prob[i]);
+        //         DrawText(buffer, 400, 300+50*i, GetFontDefault().baseSize, BLACK);
+        //     }
+        // }
         //----------------------------------------------------------------------------------
 
     EndDrawing();
     //----------------------------------------------------------------------------------
+}
+
+void calculatePosteriors(Gui &gui, Data &data){
+    data.error = NO_ERROR;
+
+    // Check if prior and channel are ok
+    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText, gui.channel.numOutputs) == NO_ERROR){
+        // Check if typed numbers represent distributions
+        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
+        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
+
+        if(data.error == NO_ERROR){
+            Distribution newPrior(data.prior);
+            Channel newChannel(newPrior, data.channel);
+            data.hyper = Hyper(newChannel);
+
+            data.buildCircles(gui.visualization.trianglePoints);
+
+            gui.updatePriorRectangle(data.priorCircle);
+            gui.updatePosteriors(data.hyper, data.innersCircles);
+        }else{
+            gui.posteriors.resetPosteriors();
+        }
+    }else{
+        data.error = INVALID_VALUE;
+        gui.posteriors.resetPosteriors();
+    }
 }
 
 //------------------------------------------------------------------------------------
@@ -257,7 +297,7 @@ void drawGuiPrior(Gui &gui, Data &data){
     DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
     if (GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
@@ -274,7 +314,7 @@ void drawGuiPrior(Gui &gui, Data &data){
 void drawGuiChannel(Gui &gui, Data &data){
     drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText);
     
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR));
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
     if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
@@ -511,31 +551,9 @@ void buttonRandomChannel(Gui &gui, Data &data){
 }
 
 void buttonDraw(Gui &gui, Data &data){
-    data.error = NO_ERROR;
-
-    // Check if prior and channel are ok
-    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText, gui.channel.numOutputs) == NO_ERROR){
-        // Check if typed numbers represent distributions
-        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
-        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
-
-        if(data.error == NO_ERROR){
-            Distribution newPrior(data.prior);
-            Channel newChannel(newPrior, data.channel);
-            data.hyper = Hyper(newChannel);
-
-            data.buildCircles(gui.visualization.trianglePoints);
-
-            gui.updatePriorRectangle(data.priorCircle);
-            gui.updatePosteriors(data.hyper, data.innersCircles);
-            gui.drawing = true;
-        }else{
-            gui.drawing = false;
-        }
+    if(data.error == NO_ERROR){
+        gui.drawing = true;
     }else{
-        data.error = INVALID_VALUE;
-        gui.drawing = false;
-    }
-    
-    printError(data.error, gui.visualization);
+        printError(data.error, gui.visualization);
+    }    
 }

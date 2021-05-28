@@ -96,14 +96,10 @@ void Gui::moveAmongTextBoxes(){
     }
 }
 
-void Gui::updatePrior(Distribution &_prior, Circle &priorCircle){
-    std::ostringstream buffer;
-    buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
-
-    for(int i = 0; i < _prior.num_el; i++){
-        buffer.str(""); buffer.clear();
-        buffer << _prior.prob[i];
-        strcpy(prior.TextBoxPriorText[i], buffer.str().c_str());
+void Gui::updatePrior(Distribution &prior_, Circle &priorCircle){
+    vector<string> truncPrior = getStrTruncatedDist(prior_, PROB_PRECISION);
+    for(int i = 0; i < NUMBER_SECRETS; i++){
+        strcpy(prior.TextBoxPriorText[i], truncPrior[i].c_str());
     }
 
     updatePriorRectangle(priorCircle);
@@ -119,9 +115,6 @@ void Gui::updatePriorRectangle(Circle &priorCircle){
 }
 
 void Gui::updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
-    std::ostringstream buffer;
-    buffer << std::fixed << std::setprecision(PROB_PRECISION); /* Probabilities precision */
-    
     // Match the number of columns in hyper and layout variables
     if(hyper.num_post > posteriors.numPosteriors){
         for(int i = 0; i < NUMBER_SECRETS; i++){
@@ -140,20 +133,22 @@ void Gui::updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUT
     posteriors.ScrollPanelPosteriorsContent.x = posteriors.layoutRecsTextBoxInners[0][posteriors.numPosteriors-1].x + TEXTBOX_SIZE;
 
     // Update values 
-    for(int i = 0; i < NUMBER_SECRETS; i++){
-        for(int j = 0; j < hyper.num_post; j++){
-            buffer.str(""); buffer.clear();
-            buffer << hyper.inners[i][j];
-            strcpy(posteriors.TextBoxInnersText[i][j], buffer.str().c_str());
-        }
+    vector<string> truncDist = getStrTruncatedDist(hyper.outer, PROB_PRECISION);
+    for(int i = 0; i < hyper.num_post; i++){
+        strcpy(posteriors.TextBoxOuterText[i], truncDist[i].c_str());
     }
 
     for(int i = 0; i < hyper.num_post; i++){
-        buffer.str(""); buffer.clear();
-        buffer << hyper.outer.prob[i];
-        strcpy(posteriors.TextBoxOuterText[i], buffer.str().c_str());
+        vector<long double> inner = vector<long double>(NUMBER_SECRETS);
+        for(int j = 0; j < NUMBER_SECRETS; j++){
+            inner[j] = hyper.inners[j][i];
+        }
+        Distribution innerDist = Distribution(inner);
+        vector<string> truncDist = getStrTruncatedDist(innerDist, PROB_PRECISION);
+        for(int j = 0; j < NUMBER_SECRETS; j++){
+            strcpy(posteriors.TextBoxInnersText[j][i], truncDist[j].c_str());
+        }
     }
-
 
     // Update circle labels and rectangles
     for(int i = 0; i < hyper.num_post; i++){

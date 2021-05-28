@@ -3,6 +3,7 @@
 
 #include "../libs/qif/qif.h"
 #include "../libs/raylib/src/raylib.h"
+#include <string>
 
 using namespace std;
 
@@ -30,6 +31,7 @@ using namespace std;
 #define MENU_BASE_COLOR_FOCUSED  CLITERAL(Color){76, 124, 154, 255}
 #define MENU_BASE_COLOR_PRESSED  CLITERAL(Color){50, 83, 103, 255}
 #define TITLES_BASE_COLOR  CLITERAL(Color){27, 58, 130, 255}
+#define TITLES_BASE_COLOR_DARKER  CLITERAL(Color){17, 38, 85, 255}
 
 // Circles
 #define PRIOR_COLOR  CLITERAL(Color){0, 102, 204, 210}
@@ -104,5 +106,11 @@ Point pixel2Bary(double x, double y, Vector2 TrianglePoints[3]);
  * Return: A 'Point' structure containing a barycentric coordinate.
  */
 Point bary2Pixel(double x, double y, Vector2 TrianglePoints[3]);
+
+/* Truncate a probability distribution to a given precision.
+   The truncation can increase or decrease the probability of the last element.
+   Returns a vector of strings containing the probability distribution.
+ */
+vector<string> getStrTruncatedDist(Distribution dist, int precision);
 
 #endif

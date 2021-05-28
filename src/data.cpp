@@ -255,7 +255,7 @@ void Data::updateHyper(Vector2 TrianglePoints[3]){
     mousePosition = pixel2Bary(mousePosition.x, mousePosition.y, TrianglePoints);
     
     bary2Dist(mousePosition, newPrior);
-    Distribution D(newPrior);            
+    Distribution D(newPrior);
     hyper.rebuildHyper(D);
     this->prior = vector<long double>({newPrior[0], newPrior[1], newPrior[2]});
 }

@@ -44,7 +44,7 @@ public:
 	void moveAmongTextBoxes();
 
 	/* Update TextBoxes of prior distribution .*/
-	void updatePrior(Distribution &prior, Circle &priorCircle);
+	void updatePrior(Distribution &prior_, Circle &priorCircle);
 
     void updatePriorRectangle(Circle &priorCircle);
 

@@ -49,6 +49,13 @@ public:
     Rectangle layoutRecsTextBoxOuter[MAX_CHANNEL_OUTPUTS];
     Rectangle layoutRecsLabelX[NUMBER_SECRETS];
     Rectangle layoutRecsTextBoxInners[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
+
+    //------------------------------------------------------------------------------------
+    // Methods
+    //------------------------------------------------------------------------------------
+
+    // Reset the number of posterior to 3 and fill with zeros
+    void resetPosteriors();
 };
 
 #endif
