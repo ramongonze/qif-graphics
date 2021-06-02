@@ -34,14 +34,14 @@ int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
                 
                 newPrior[i] = make_pair(numerator, denominator);
             }else{
-            	newPrior[i] = make_pair("$", priorStr[i]);
+            	newPrior[i] = make_pair("not fraction", priorStr[i]);
             }
         }
         
         // Update values
         this->prior = vector<long double>(NUMBER_SECRETS);
         for(int i = 0; i < NUMBER_SECRETS; i++){
-        	if(newPrior[i].first == "$"){
+        	if(newPrior[i].first == "not fraction"){
         		this->prior[i] = std::stold(newPrior[i].second);
         	}else{
         		this->prior[i] = std::stold(newPrior[i].first)/std::stold(newPrior[i].second);
@@ -78,7 +78,7 @@ int Data::checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CH
 
                     newChannel[i][j] = make_pair(numerator, denominator);
                 }else{
-                    newChannel[i][j] = make_pair("$", channelStr[i][j]);
+                    newChannel[i][j] = make_pair("not fraction", channelStr[i][j]);
                 }
             }
         }
@@ -87,7 +87,7 @@ int Data::checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CH
         this->channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(numOutputs));
         for(int i = 0; i < NUMBER_SECRETS; i++){
         	for(int j = 0; j < numOutputs; j++){
-        		if(newChannel[i][j].first == "$"){
+        		if(newChannel[i][j].first == "not fraction"){
         			this->channel[i][j] = std::stold(newChannel[i][j].second);
         		}else{
         			this->channel[i][j] = std::stold(newChannel[i][j].first)/std::stold(newChannel[i][j].second);

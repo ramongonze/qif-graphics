@@ -216,7 +216,7 @@ ifeq ($(BUILD_MODE),DEBUG)
     endif
 else
     ifeq ($(PLATFORM),PLATFORM_WEB)
-        CFLAGS += -Os
+        CFLAGS += -Os -fexceptions
     else
         CFLAGS += -s -O1
     endif
