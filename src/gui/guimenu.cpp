@@ -1,13 +1,20 @@
 #include "guimenu.h"
 
 GuiMenu::GuiMenu(){
+    
+}
+
+GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     // Data
+    this->windowWidth = windowWidth;
+    this->windowHeight = windowHeight;
     dropdownBoxFileActive = 0;
     dropdownFileEditMode = false;
     dropdownBoxHelpActive = 0;
     dropdownHelpEditMode = false;
     dropdownBoxExamplesActive = 0;
     dropdownExamplesEditMode = false;
+    windowGettingStartedActive = false;
 
     // Text
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
@@ -28,6 +35,7 @@ GuiMenu::GuiMenu(){
 #endif
     
     layoutRecsMenu = (Rectangle){0, 0, 1130, 25};
+    layoutRecsGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
 }
 
 int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs){

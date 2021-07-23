@@ -39,6 +39,9 @@ public:
     Rectangle layoutRecsLabel[NUMBER_SECRETS];
     Rectangle layoutRecsTextBox[NUMBER_SECRETS];
 
+    // Used to draw pi symbol
+    Font alternativeFont;
+
     //------------------------------------------------------------------------------------
     // Methods
     //------------------------------------------------------------------------------------

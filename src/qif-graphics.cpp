@@ -37,9 +37,10 @@ typedef struct WebLoopVariables{
 //----------------------------------------------------------------------------------
 void initStyle();
 void printError(int error, GuiVisualization &visualization);
-void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title);
-void UpdateDrawFrame(void* vars_);     // Update and Draw one frame
+void checkButtonsMouseCollision(Gui &gui);
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
 void calculatePosteriors(Gui &gui, Data &data);
+void updateDrawFrame(void* vars_);     // Update and Draw one frame
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
@@ -49,12 +50,12 @@ void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
 void drawGuiPosteriors(GuiPosteriors &posteriors);
 void drawGuiVisualization(Gui &gui, Data &data);
+void drawGettingStarted(Gui &gui);
 void drawCircles(Gui &gui, Data &data);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-void checkButtonsMouseCollision(Gui &gui);
 void buttonFile(Gui &gui, Data &data, bool *closeWindow);
 void buttonExamples(Gui &gui);
 void buttonHelp(Gui &gui);
@@ -76,14 +77,14 @@ int main(){
     vars.closeWindow = false;
 
 #if defined(PLATFORM_WEB)
-    emscripten_set_main_loop_arg(UpdateDrawFrame, &vars, 60, 1);
+    emscripten_set_main_loop_arg(updateDrawFrame, &vars, 120, 1);
 #else
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
 
     // Main game loop
     while(!vars.closeWindow){    // Detect window close button or ESC key
-        UpdateDrawFrame(&vars);
+        updateDrawFrame(&vars);
     }
 #endif
 
@@ -151,13 +152,71 @@ void printError(int error, GuiVisualization &visualization){
 	}
 }
 
-void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title){
-    DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
-    DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
-    DrawTextEx(GuiGetFont(), title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, GuiGetFont().baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+void checkButtonsMouseCollision(Gui &gui){
+    // Active the button the mouse is over it
+    if(gui.menu.dropdownFileEditMode || gui.menu.dropdownExamplesEditMode || gui.menu.dropdownHelpEditMode){
+        Vector2 mousePoint = GetMousePosition();
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_FILE])){
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = true;
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = false;
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = false;
+        }
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES])){
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = true;
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = false;
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = false;
+        }
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_HELP])){
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = true;
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = false;
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = false;
+        }
+    } 
 }
 
-void UpdateDrawFrame(void* vars_){
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font){
+    DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
+    DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
+    DrawTextEx(font, title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, font.baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+}
+
+void calculatePosteriors(Gui &gui, Data &data){
+    data.error = NO_ERROR;
+
+    // Check if prior and channel are ok
+    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText, gui.channel.numOutputs) == NO_ERROR){
+        // Check if typed numbers represent distributions
+        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
+        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
+
+        if(data.error == NO_ERROR){
+            Distribution newPrior(data.prior);
+            Channel newChannel(newPrior, data.channel);
+            data.hyper = Hyper(newChannel);
+            gui.updatePriorRectangle(data.priorCircle);
+            gui.updatePosteriors(data.hyper, data.innersCircles);
+        }else{
+            gui.posteriors.resetPosteriors();
+        }
+    }else{
+        data.error = INVALID_VALUE;
+        gui.posteriors.resetPosteriors();
+    }
+}
+
+void updateDrawFrame(void* vars_){
     WebLoopVariables* vars = (WebLoopVariables*) vars_;
     Gui* gui = &(vars->gui);
     Data* data = &(vars->data);
@@ -231,39 +290,18 @@ void UpdateDrawFrame(void* vars_){
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
         // Draw controls
+        if(gui->menu.windowGettingStartedActive) GuiLock();
         drawGuiPrior(*gui, *data);
         drawGuiChannel(*gui, *data);
         drawGuiPosteriors(gui->posteriors);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
+        if(gui->menu.windowGettingStartedActive) GuiUnlock();
+        drawGettingStarted(*gui);
         //----------------------------------------------------------------------------------
 
     EndDrawing();
     //----------------------------------------------------------------------------------
-}
-
-void calculatePosteriors(Gui &gui, Data &data){
-    data.error = NO_ERROR;
-
-    // Check if prior and channel are ok
-    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText, gui.channel.numOutputs) == NO_ERROR){
-        // Check if typed numbers represent distributions
-        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
-        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
-
-        if(data.error == NO_ERROR){
-            Distribution newPrior(data.prior);
-            Channel newChannel(newPrior, data.channel);
-            data.hyper = Hyper(newChannel);
-            gui.updatePriorRectangle(data.priorCircle);
-            gui.updatePosteriors(data.hyper, data.innersCircles);
-        }else{
-            gui.posteriors.resetPosteriors();
-        }
-    }else{
-        data.error = INVALID_VALUE;
-        gui.posteriors.resetPosteriors();
-    }
 }
 
 //------------------------------------------------------------------------------------
@@ -294,7 +332,8 @@ void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
-    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText);
+    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, GuiGetFont());
+    DrawTextEx(gui.prior.alternativeFont, "(\u03C0)" , (Vector2) {gui.prior.layoutRecsTitle.x+135, gui.prior.layoutRecsTitle.y}, gui.prior.alternativeFont.baseSize, 1.0, WHITE);
     DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
@@ -313,7 +352,7 @@ void drawGuiPrior(Gui &gui, Data &data){
 }
 
 void drawGuiChannel(Gui &gui, Data &data){
-    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText);
+    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, GuiGetFont());
     
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
     if(GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
@@ -361,7 +400,7 @@ void drawGuiChannel(Gui &gui, Data &data){
 }
 
 void drawGuiPosteriors(GuiPosteriors &posteriors){
-    drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText);
+    drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText, GuiGetFont());
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
@@ -389,7 +428,7 @@ void drawGuiPosteriors(GuiPosteriors &posteriors){
 }
 
 void drawGuiVisualization(Gui &gui, Data &data){
-    drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText);
+    drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText, GuiGetFont());
     if(GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
@@ -418,6 +457,17 @@ void drawGuiVisualization(Gui &gui, Data &data){
     }
 }
 
+void drawGettingStarted(Gui &gui){
+    if(gui.menu.windowGettingStartedActive){
+        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+        GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+        GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+        gui.menu.windowGettingStartedActive = !GuiWindowBox(gui.menu.layoutRecsGettingStarted, "Getting started");
+        initStyle();
+    }
+}
+
 void drawCircles(Gui &gui, Data &data){
 	// Prior
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
@@ -435,40 +485,6 @@ void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void checkButtonsMouseCollision(Gui &gui){
-    // Active the button the mouse is over it
-    if(gui.menu.dropdownFileEditMode || gui.menu.dropdownExamplesEditMode || gui.menu.dropdownHelpEditMode){
-        Vector2 mousePoint = GetMousePosition();
-
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_FILE])){
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = true;
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = false;
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = false;
-        }
-
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES])){
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = true;
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = false;
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = false;
-        }
-
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_HELP])){
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = true;
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = false;
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = false;
-        }
-    } 
-}
-
 void buttonFile(Gui &gui, Data &data, bool *closeWindow){
     switch(gui.menu.dropdownBoxFileActive){
         case BUTTON_FILE_OPTION_OPEN:
@@ -589,7 +605,7 @@ void buttonExamples(Gui &gui){
 void buttonHelp(Gui &gui){
     switch(gui.menu.dropdownBoxHelpActive){
         case BUTTON_HELP_OPTION_GETTING_STARTED:
-            // TODO
+            gui.menu.windowGettingStartedActive = true;
             break;
         case BUTTON_HELP_OPTION_ABOUT:
             // TODO

@@ -1,7 +1,7 @@
 #include "gui.h"
 
 Gui::Gui(){
-    menu = GuiMenu();
+    menu = GuiMenu(SCREEN_WIDTH, SCREEN_HEIGHT);
     prior = GuiPrior();
     channel = GuiChannel();
     posteriors = GuiPosteriors();

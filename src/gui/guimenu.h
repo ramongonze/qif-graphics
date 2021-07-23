@@ -41,18 +41,22 @@ private:
     /* data */
 public:
     GuiMenu();
+    GuiMenu(int windowWidth, int windowHeight);
 
     //------------------------------------------------------------------------------------
     // Attributes
     //------------------------------------------------------------------------------------
 
     // Data
+    int windowWidth;
+    int windowHeight;
     int dropdownBoxFileActive;
     int dropdownBoxHelpActive;
     int dropdownBoxExamplesActive;
     bool dropdownFileEditMode;
     bool dropdownHelpEditMode;
     bool dropdownExamplesEditMode;
+    bool windowGettingStartedActive;
 
     // Text
     char buttonFileText[CHAR_BUFFER_SIZE];
@@ -63,6 +67,7 @@ public:
     // Define controls rectangles
     Rectangle layoutRecsButtons[3];
     Rectangle layoutRecsMenu;
+    Rectangle layoutRecsGettingStarted;
 
     //------------------------------------------------------------------------------------
     // Methods
