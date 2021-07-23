@@ -54,8 +54,9 @@ void drawCircles(Gui &gui, Data &data);
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
+void checkButtonsMouseCollision(Gui &gui);
 void buttonFile(Gui &gui, Data &data, bool *closeWindow);
-void buttonExamples();
+void buttonExamples(Gui &gui);
 void buttonHelp(Gui &gui);
 void buttonRandomPrior(Gui &gui, Data &data);
 void buttonRandomChannel(Gui &gui, Data &data);
@@ -167,6 +168,12 @@ void UpdateDrawFrame(void* vars_){
     *closeWindow = WindowShouldClose();
     Vector2 mousePosition = GetMousePosition();
     
+    // Menu buttons
+    checkButtonsMouseCollision(*gui);
+    buttonFile(*gui, *data, closeWindow);
+    buttonExamples(*gui);
+    buttonHelp(*gui);
+
     // Check if channel spinner value was changed
     if(gui->channel.SpinnerChannelValue != gui->channel.numOutputs){
         gui->drawing = false;
@@ -264,28 +271,26 @@ void calculatePosteriors(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
     DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
-    
-    // Button File
-#if !defined(PLATFORM_WEB)
+
     GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxFileActive), gui.menu.dropdownFileEditMode)) gui.menu.dropdownFileEditMode = !gui.menu.dropdownFileEditMode;
-    initStyle();
-    buttonFile(gui, data, closeWindow);
+
+#if !defined(PLATFORM_WEB)
+    // Button File
+    if(!gui.menu.dropdownFileEditMode) gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;        // Reset selection
+    if(GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxFileActive), gui.menu.dropdownFileEditMode)) gui.menu.dropdownFileEditMode = !gui.menu.dropdownFileEditMode;
 #endif
 
     // Button Examples
-    if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], gui.menu.buttonExamplesText)) buttonExamples(); 
-
+    if(!gui.menu.dropdownExamplesEditMode) gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection
+    if(GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.dropdownBoxExamplesActive), gui.menu.dropdownExamplesEditMode)) gui.menu.dropdownExamplesEditMode = !gui.menu.dropdownExamplesEditMode;
+    
     // Button Help
-    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
-    GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
-    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    if (GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxHelpActive), gui.menu.dropdownHelpEditMode)) gui.menu.dropdownHelpEditMode = !gui.menu.dropdownHelpEditMode;
+    if(!gui.menu.dropdownHelpEditMode) gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;        // Reset selection
+    if(GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxHelpActive), gui.menu.dropdownHelpEditMode)) gui.menu.dropdownHelpEditMode = !gui.menu.dropdownHelpEditMode;
+
     initStyle();
-    buttonHelp(gui);
-    // if (GuiButton(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], gui.menu.buttonHelpText)) buttonHelp(); 
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
@@ -294,7 +299,7 @@ void drawGuiPrior(Gui &gui, Data &data){
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
-    if (GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
+    if(GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
@@ -303,7 +308,7 @@ void drawGuiPrior(Gui &gui, Data &data){
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
         GuiLabel(gui.prior.layoutRecsLabel[i], gui.prior.LabelPriorText[i].c_str());
-        if (GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], CHAR_BUFFER_SIZE, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
+        if(GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], CHAR_BUFFER_SIZE, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
     }
 }
 
@@ -311,7 +316,7 @@ void drawGuiChannel(Gui &gui, Data &data){
     drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText);
     
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
-    if (GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
+    if(GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
@@ -322,7 +327,7 @@ void drawGuiChannel(Gui &gui, Data &data){
     GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
     GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
     GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
-    if (GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue), 0, 100, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
+    if(GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue), 0, 100, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
     GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
     GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
     GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
@@ -385,7 +390,7 @@ void drawGuiPosteriors(GuiPosteriors &posteriors){
 
 void drawGuiVisualization(Gui &gui, Data &data){
     drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText);
-    if (GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
+    if(GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
@@ -430,6 +435,40 @@ void drawCircles(Gui &gui, Data &data){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
+void checkButtonsMouseCollision(Gui &gui){
+    // Active the button the mouse is over it
+    if(gui.menu.dropdownFileEditMode || gui.menu.dropdownExamplesEditMode || gui.menu.dropdownHelpEditMode){
+        Vector2 mousePoint = GetMousePosition();
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_FILE])){
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = true;
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = false;
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = false;
+        }
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES])){
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = true;
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = false;
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = false;
+        }
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_HELP])){
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = true;
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = false;
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = false;
+        }
+    } 
+}
+
 void buttonFile(Gui &gui, Data &data, bool *closeWindow){
     switch(gui.menu.dropdownBoxFileActive){
         case BUTTON_FILE_OPTION_OPEN:
@@ -505,8 +544,46 @@ void buttonFile(Gui &gui, Data &data, bool *closeWindow){
     gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
 }
 
-void buttonExamples(){
-    // TODO: Implement control logic
+void buttonExamples(Gui &gui){
+    switch(gui.menu.dropdownBoxExamplesActive){
+        char newChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+
+        case BUTTON_EXAMPLES_OPTION_CH_0:
+            if(gui.channel.SpinnerChannelValue != 3){
+                gui.channel.SpinnerChannelValue = 3;
+                gui.drawing = false;
+                gui.channel.updateChannelBySpinner();
+            }
+
+            // Set identity matrix
+            for(int i = 0; i < NUMBER_SECRETS; i++){
+                for(int j = 0; j < 3; j++){
+                    if(i == j) strcpy(newChannel[i][j], "1");
+                    else strcpy(newChannel[i][j], "0");
+                }
+            }
+
+            GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText, 3);
+            gui.drawing = false;
+            break;
+        case BUTTON_EXAMPLES_OPTION_CH_1:
+            if(gui.channel.SpinnerChannelValue != 1){
+                gui.channel.SpinnerChannelValue = 1;
+                gui.drawing = false;
+                gui.channel.updateChannelBySpinner();
+            }
+
+            // Set channel that leaks nothing
+            for(int i = 0; i < NUMBER_SECRETS; i++){
+                strcpy(newChannel[i][0], "1");
+            }
+
+            GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText, 1);
+            gui.drawing = false;
+            break;
+        default:
+            break;
+    }
 }
 
 void buttonHelp(Gui &gui){

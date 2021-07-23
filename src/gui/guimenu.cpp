@@ -6,10 +6,12 @@ GuiMenu::GuiMenu(){
     dropdownFileEditMode = false;
     dropdownBoxHelpActive = 0;
     dropdownHelpEditMode = false;
+    dropdownBoxExamplesActive = 0;
+    dropdownExamplesEditMode = false;
 
     // Text
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
-    strcpy(buttonExamplesText, "Examples");
+    strcpy(buttonExamplesText, "Examples;Load channel that leaks everything;Load channel that leaks nothing");
     strcpy(buttonHelpText, "Help;Getting Started;About");
     
     fileName = (char*) malloc(10*CHAR_BUFFER_SIZE*sizeof(char));

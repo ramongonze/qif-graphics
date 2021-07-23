@@ -28,6 +28,10 @@ using namespace std;
 #define BUTTON_FILE_OPTION_SAVEAS 3
 #define BUTTON_FILE_OPTION_EXIT 4
 
+#define BUTTON_EXAMPLES_OPTION_EXAMPLES 0
+#define BUTTON_EXAMPLES_OPTION_CH_0 1       // Channel that leaks everything
+#define BUTTON_EXAMPLES_OPTION_CH_1 2       // Channel that leaks nothing
+
 #define BUTTON_HELP_OPTION_HELP 0
 #define BUTTON_HELP_OPTION_GETTING_STARTED 1
 #define BUTTON_HELP_OPTION_ABOUT 2
@@ -45,8 +49,10 @@ public:
     // Data
     int dropdownBoxFileActive;
     int dropdownBoxHelpActive;
+    int dropdownBoxExamplesActive;
     bool dropdownFileEditMode;
     bool dropdownHelpEditMode;
+    bool dropdownExamplesEditMode;
 
     // Text
     char buttonFileText[CHAR_BUFFER_SIZE];
