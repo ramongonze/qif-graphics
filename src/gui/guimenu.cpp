@@ -1,7 +1,7 @@
 #include "guimenu.h"
 
 GuiMenu::GuiMenu(){
-    
+
 }
 
 GuiMenu::GuiMenu(int windowWidth, int windowHeight){
@@ -36,6 +36,15 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     
     layoutRecsMenu = (Rectangle){0, 0, 1130, 25};
     layoutRecsGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
+
+    // Getting started
+    int windowsStatusBarHeight = 22;
+    layoutRecsGettingStartedMenu = (Rectangle){(float)(layoutRecsGettingStarted.x+10), (float)(layoutRecsGettingStarted.y+10+windowsStatusBarHeight), (float)(layoutRecsGettingStarted.width*0.2), (float)(layoutRecsGettingStarted.height-windowsStatusBarHeight-20)};
+    layoutRecsGettingStartedPanel = (Rectangle){(float)(layoutRecsGettingStartedMenu.x+layoutRecsGettingStartedMenu.width+10), (float)(layoutRecsGettingStarted.y+10+windowsStatusBarHeight), (float)(layoutRecsGettingStarted.width*0.8-30), (float)(layoutRecsGettingStarted.height-windowsStatusBarHeight-20)};
+    
+    strcpy(gettingStartedMenuOptions, "Prior distribution;Channel;Hyper-distribution;Visualization;Refinement");
+    gettingStartedMenuScrollIndex = 0;
+    gettingStartedMenuActive = -1;
 }
 
 int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs){

@@ -493,11 +493,19 @@ void drawGettingStarted(Gui &gui){
         GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
         GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
         GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+        GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
         gui.menu.windowGettingStartedActive = !GuiWindowBox(gui.menu.layoutRecsGettingStarted, "Getting started");
-
-        
-
         initStyle();
+
+        // List of options
+        GuiSetStyle(LISTVIEW, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        GuiSetStyle(LISTVIEW, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+        GuiSetStyle(LISTVIEW, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+        gui.menu.gettingStartedMenuActive = GuiListView(gui.menu.layoutRecsGettingStartedMenu, gui.menu.gettingStartedMenuOptions, &gui.menu.gettingStartedMenuScrollIndex, gui.menu.gettingStartedMenuActive);
+
+        // Visualization panel
+        DrawRectangleRec(gui.menu.layoutRecsGettingStartedPanel, WHITE);
+
     }
 }
 

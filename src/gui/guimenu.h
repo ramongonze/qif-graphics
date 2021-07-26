@@ -68,6 +68,13 @@ public:
     Rectangle layoutRecsButtons[3];
     Rectangle layoutRecsMenu;
     Rectangle layoutRecsGettingStarted;
+    Rectangle layoutRecsGettingStartedMenu;
+    Rectangle layoutRecsGettingStartedPanel;
+
+    // Getting started widgets
+    char gettingStartedMenuOptions[CHAR_BUFFER_SIZE];
+    int gettingStartedMenuScrollIndex;
+    int gettingStartedMenuActive;    
 
     //------------------------------------------------------------------------------------
     // Methods
