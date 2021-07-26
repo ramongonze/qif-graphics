@@ -28,8 +28,6 @@ GuiVisualization::GuiVisualization(){
     trianglePoints[1] = (Vector2) {layoutRecsPanelVisualization.x + trianglePaddingX, layoutRecsPanelVisualization.y + layoutRecsPanelVisualization.height - trianglePaddingY};
     trianglePoints[2] = (Vector2) {layoutRecsPanelVisualization.x + layoutRecsPanelVisualization.width - trianglePaddingX, layoutRecsPanelVisualization.y + layoutRecsPanelVisualization.height - trianglePaddingY};
 
-    int symbols[13] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 73, 88, 960}; // 0 to 9; I; X; pi
-    alternativeFont = LoadFontEx("fonts/cmunss.ttf", 32, symbols, 13); // Used to get pi symbol
     strcpy(LabelPriorCircleText, "\u03C0"); // pi symbol &#x3c0;   \u3c0 
 
     for(int i = 0; i < 3; i++){

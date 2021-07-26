@@ -52,9 +52,6 @@ public:
 
     // Triangle vertex labels
     string LabelTriangleText[3];
-
-    // Used to draw pi symbol
-    Font alternativeFont;
 };
 
 #endif

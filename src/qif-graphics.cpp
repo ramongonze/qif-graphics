@@ -25,6 +25,8 @@
 typedef struct WebLoopVariables{
     Gui gui;
     Data data;
+    Font alternativeFont; // Used to draw symbols like pi and delta
+    Font alternativeFontSmall; // Same as alternativeFont but with size 13
     bool closeWindow;
 } WebLoopVariables;
 
@@ -36,6 +38,7 @@ typedef struct WebLoopVariables{
 // General Functions Declaration
 //----------------------------------------------------------------------------------
 void initStyle();
+void readAlternativeFont(Font* alternativeFont, Font* alternativeFontSmall);
 void printError(int error, GuiVisualization &visualization);
 void checkButtonsMouseCollision(Gui &gui);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
@@ -46,12 +49,12 @@ void updateDrawFrame(void* vars_);     // Update and Draw one frame
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow);
-void drawGuiPrior(Gui &gui, Data &data);
+void drawGuiPrior(Gui &gui, Data &data, Font alternativeFont);
 void drawGuiChannel(Gui &gui, Data &data);
-void drawGuiPosteriors(GuiPrior &prior, GuiPosteriors &posteriors);
-void drawGuiVisualization(Gui &gui, Data &data);
+void drawGuiPosteriors(Gui &gui, Font alternativeFont);
+void drawGuiVisualization(Gui &gui, Data &data, Font alternativeFont);
 void drawGettingStarted(Gui &gui);
-void drawCircles(Gui &gui, Data &data);
+void drawCircles(Gui &gui, Data &data, Font alternativeFont);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -75,6 +78,7 @@ int main(){
 
     WebLoopVariables vars;
     vars.closeWindow = false;
+    readAlternativeFont(&(vars.alternativeFont), &(vars.alternativeFontSmall));
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop_arg(updateDrawFrame, &vars, 120, 1);
@@ -134,6 +138,25 @@ void initStyle(){
     GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
     GuiSetStyle(SCROLLBAR, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
     GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
+}
+
+void readAlternativeFont(Font* alternativeFont, Font* alternativeFontSmall){
+    // Alternative font
+    int numbers[19] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 73, 88, 960, 40, 41, 91, 93, 948, 8250}; // 0 to 9; I; X; pi; (; ); [; ]; delta; ›
+    int symbols[71];
+
+    // Special symbols
+    for(int i = 0; i < 19; i++)
+        symbols[i] = numbers[i];
+    
+    // Common alphabet
+    for(int i = 0; i < 26; i++){
+        symbols[19+i] = 65+i;
+        symbols[19+26+i] = 97+i;
+    }
+    
+    *alternativeFont = LoadFontEx("fonts/cmunss.ttf", 22, symbols, 71); // Used to get pi symbol
+    *alternativeFontSmall = LoadFontEx("fonts/cmunss.ttf", 32, symbols, 71); // Used to get pi symbol
 }
 
 void printError(int error, GuiVisualization &visualization){
@@ -221,6 +244,8 @@ void updateDrawFrame(void* vars_){
     Gui* gui = &(vars->gui);
     Data* data = &(vars->data);
     bool* closeWindow = &(vars->closeWindow);
+    Font* alternativeFont = &(vars->alternativeFont);
+    Font* alternativeFontSmall = &(vars->alternativeFontSmall);
 
     // Update
     //----------------------------------------------------------------------------------
@@ -291,10 +316,10 @@ void updateDrawFrame(void* vars_){
         //----------------------------------------------------------------------------------
         // Draw controls
         if(gui->menu.windowGettingStartedActive) GuiLock();
-        drawGuiPrior(*gui, *data);
+        drawGuiPrior(*gui, *data, *alternativeFont);
         drawGuiChannel(*gui, *data);
-        drawGuiPosteriors(gui->prior, gui->posteriors);
-        drawGuiVisualization(*gui, *data);
+        drawGuiPosteriors(*gui, *alternativeFont);
+        drawGuiVisualization(*gui, *data, *alternativeFontSmall);
         drawGuiMenu(*gui, *data, closeWindow);
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
         drawGettingStarted(*gui);
@@ -331,9 +356,9 @@ void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
     initStyle();
 }
 
-void drawGuiPrior(Gui &gui, Data &data){
+void drawGuiPrior(Gui &gui, Data &data, Font alternativeFont){
     drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, GuiGetFont());
-    DrawTextEx(gui.prior.alternativeFont, "\u03C0" , (Vector2) {gui.prior.layoutRecsTitle.x+135, gui.prior.layoutRecsTitle.y}, gui.prior.alternativeFont.baseSize, 1.0, WHITE);
+    DrawTextEx(alternativeFont, "\u03C0" , (Vector2) {gui.prior.layoutRecsTitle.x+135, gui.prior.layoutRecsTitle.y}, alternativeFont.baseSize, 1.0, WHITE);
     DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
@@ -399,36 +424,40 @@ void drawGuiChannel(Gui &gui, Data &data){
     EndScissorMode();
 }
 
-void drawGuiPosteriors(GuiPrior &prior, GuiPosteriors &posteriors){
-    drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText, GuiGetFont());
-    DrawTextEx(prior.alternativeFont, "[\u03C0\u203AC]" , (Vector2) {posteriors.layoutRecsTitle.x+145, posteriors.layoutRecsTitle.y}, prior.alternativeFont.baseSize, 1.0, WHITE);
+void drawGuiPosteriors(Gui &gui, Font alternativeFont){
+    drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, GuiGetFont());
+    DrawTextEx(alternativeFont, "[\u03C0\u203AC]" , (Vector2) {gui.posteriors.layoutRecsTitle.x+145, gui.posteriors.layoutRecsTitle.y}, alternativeFont.baseSize, 1.0, WHITE);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
-        (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.layoutRecsScrollPanel.width - posteriors.ScrollPanelPosteriorsBoundsOffset.x, posteriors.layoutRecsScrollPanel.height - posteriors.ScrollPanelPosteriorsBoundsOffset.y },
-        (Rectangle){posteriors.layoutRecsScrollPanel.x, posteriors.layoutRecsScrollPanel.y, posteriors.ScrollPanelPosteriorsContent.x, posteriors.ScrollPanelPosteriorsContent.y},
-        &(posteriors.ScrollPanelPosteriorsScrollOffset)
+        (Rectangle){gui.posteriors.layoutRecsScrollPanel.x, gui.posteriors.layoutRecsScrollPanel.y, gui.posteriors.layoutRecsScrollPanel.width - gui.posteriors.ScrollPanelPosteriorsBoundsOffset.x, gui.posteriors.layoutRecsScrollPanel.height - gui.posteriors.ScrollPanelPosteriorsBoundsOffset.y },
+        (Rectangle){gui.posteriors.layoutRecsScrollPanel.x, gui.posteriors.layoutRecsScrollPanel.y, gui.posteriors.ScrollPanelPosteriorsContent.x, gui.posteriors.ScrollPanelPosteriorsContent.y},
+        &(gui.posteriors.ScrollPanelPosteriorsScrollOffset)
     );
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
-        GuiLabel((Rectangle){posteriors.layoutRecsLabelOuter.x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelOuter.y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelOuter.width, posteriors.layoutRecsLabelOuter.height}, posteriors.LabelOuterText);
+        GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelOuter.width, gui.posteriors.layoutRecsLabelOuter.height}, gui.posteriors.LabelOuterText);
 
-        for(int i = 0; i < posteriors.numPosteriors; i++){
-            GuiLabel((Rectangle){posteriors.layoutRecsLabelPosteriors[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelPosteriors[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelPosteriors[i].width, posteriors.layoutRecsLabelPosteriors[i].height}, posteriors.LabelPosteriorsText[i].c_str());
-            GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxOuter[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxOuter[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxOuter[i].width, posteriors.layoutRecsTextBoxOuter[i].height}, posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, posteriors.TextBoxOuterEditMode[i]);
+        for(int i = 0; i < gui.posteriors.numPosteriors; i++){
+            Font stdFont = GuiGetFont();
+            GuiSetFont(alternativeFont);
+            GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelPosteriors[i].width, gui.posteriors.layoutRecsLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[i].c_str());
+            GuiSetFont(stdFont);
+
+            GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxOuter[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxOuter[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxOuter[i].width, gui.posteriors.layoutRecsTextBoxOuter[i].height}, gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
         }
 
         for(int i = 0; i < NUMBER_SECRETS; i++){
-            GuiLabel((Rectangle){posteriors.layoutRecsLabelX[i].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsLabelX[i].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsLabelX[i].width, posteriors.layoutRecsLabelX[i].height}, posteriors.LabelPosteriorsXText[i].c_str());
-            for(int j = 0; j < posteriors.numPosteriors; j++){
-                GuiTextBox((Rectangle){posteriors.layoutRecsTextBoxInners[i][j].x + posteriors.ScrollPanelPosteriorsScrollOffset.x, posteriors.layoutRecsTextBoxInners[i][j].y + posteriors.ScrollPanelPosteriorsScrollOffset.y, posteriors.layoutRecsTextBoxInners[i][j].width, posteriors.layoutRecsTextBoxInners[i][j].height}, posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, posteriors.TextBoxInnersEditMode[i][j]);
+            GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelX[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelX[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelX[i].width, gui.posteriors.layoutRecsLabelX[i].height}, gui.posteriors.LabelPosteriorsXText[i].c_str());
+            for(int j = 0; j < gui.posteriors.numPosteriors; j++){
+                GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxInners[i][j].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxInners[i][j].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxInners[i][j].width, gui.posteriors.layoutRecsTextBoxInners[i][j].height}, gui.posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxInnersEditMode[i][j]);
             }
         }
     EndScissorMode();
 }
 
-void drawGuiVisualization(Gui &gui, Data &data){
+void drawGuiVisualization(Gui &gui, Data &data, Font alternativeFont){
     drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText, GuiGetFont());
     if(GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
     
@@ -450,11 +479,11 @@ void drawGuiVisualization(Gui &gui, Data &data){
         // Triangle
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
         for(int i = 0; i < 3; i++){
-            DrawTextEx(gui.visualization.alternativeFont, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
+            DrawTextEx(alternativeFont, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
         }
         
         // Circles
-        drawCircles(gui, data);
+        drawCircles(gui, data, alternativeFont);
     }
 }
 
@@ -472,17 +501,17 @@ void drawGettingStarted(Gui &gui){
     }
 }
 
-void drawCircles(Gui &gui, Data &data){
+void drawCircles(Gui &gui, Data &data, Font alternativeFont){
 	// Prior
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
     DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
-	DrawTextEx(gui.visualization.alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.visualization.alternativeFont.baseSize, 1.0, BLACK);
+	DrawTextEx(alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, alternativeFont.baseSize, 1.0, BLACK);
 
 	// Inners
 	for(int i = 0; i < data.hyper.num_post; i++){
         DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR);
         DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR_LINES);
-        DrawTextEx(gui.visualization.alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
+        DrawTextEx(alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
 	}
 }
 
@@ -507,6 +536,7 @@ void buttonFile(Gui &gui, Data &data, bool *closeWindow){
                 GuiPrior::copyPrior(newPrior, gui.prior.TextBoxPriorText);
                 GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText, newNumOutputs);
                 gui.drawing = false;
+                strcpy(gui.visualization.TextBoxStatusText, "Status");
             }
         #endif       
             break;

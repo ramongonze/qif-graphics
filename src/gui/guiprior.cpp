@@ -1,18 +1,6 @@
 #include "guiprior.h"
 
 GuiPrior::GuiPrior(){
-    int numbers[18] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 73, 88, 960, 40, 41, 8250, 91, 93}; // 0 to 9; I; X; pi; (, ), ›, [, ]
-    int symbols[70];
-    for(int i = 0; i < 18; i++)
-        symbols[i] = numbers[i];
-    
-    for(int i = 0; i < 26; i++){
-        symbols[18+i] = 65+i;
-        symbols[18+26+i] = 97+i;
-    }
-    
-    alternativeFont = LoadFontEx("fonts/cmunss.ttf", 22, symbols, 70); // Used to get pi symbol
-
     // Const text
     strcpy(panelPriorText, "Prior distribution"); // pi symbol &#x3c0;   \u3c0 
     strcpy(buttonRandomText, "Generate Random");

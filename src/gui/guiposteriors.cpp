@@ -12,7 +12,7 @@ GuiPosteriors::GuiPosteriors(){
         LabelPosteriorsXText[i] = "X" + to_string(i+1);
     }
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        LabelPosteriorsText[i] = "I" + to_string(i+1);
+        LabelPosteriorsText[i] = "\u03B4" + to_string(i+1);
     }
 
     // Define anchors
