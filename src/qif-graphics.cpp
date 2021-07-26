@@ -26,7 +26,7 @@ typedef struct WebLoopVariables{
     Gui gui;
     Data data;
     Font alternativeFont; // Used to draw symbols like pi and delta
-    Font alternativeFontSmall; // Same as alternativeFont but with size 13
+    Font alternativeFontBig; // Same as alternativeFont but with size 13
     bool closeWindow;
 } WebLoopVariables;
 
@@ -38,7 +38,7 @@ typedef struct WebLoopVariables{
 // General Functions Declaration
 //----------------------------------------------------------------------------------
 void initStyle();
-void readAlternativeFont(Font* alternativeFont, Font* alternativeFontSmall);
+void readAlternativeFont(Font* alternativeFont, Font* alternativeFontBig);
 void printError(int error, GuiVisualization &visualization);
 void checkButtonsMouseCollision(Gui &gui);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
@@ -78,7 +78,7 @@ int main(){
 
     WebLoopVariables vars;
     vars.closeWindow = false;
-    readAlternativeFont(&(vars.alternativeFont), &(vars.alternativeFontSmall));
+    readAlternativeFont(&(vars.alternativeFont), &(vars.alternativeFontBig));
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop_arg(updateDrawFrame, &vars, 120, 1);
@@ -140,7 +140,7 @@ void initStyle(){
     GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
 }
 
-void readAlternativeFont(Font* alternativeFont, Font* alternativeFontSmall){
+void readAlternativeFont(Font* alternativeFont, Font* alternativeFontBig){
     // Alternative font
     int numbers[19] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 73, 88, 960, 40, 41, 91, 93, 948, 8250}; // 0 to 9; I; X; pi; (; ); [; ]; delta; ›
     int symbols[71];
@@ -156,7 +156,7 @@ void readAlternativeFont(Font* alternativeFont, Font* alternativeFontSmall){
     }
     
     *alternativeFont = LoadFontEx("fonts/cmunss.ttf", 22, symbols, 71); // Used to get pi symbol
-    *alternativeFontSmall = LoadFontEx("fonts/cmunss.ttf", 32, symbols, 71); // Used to get pi symbol
+    *alternativeFontBig = LoadFontEx("fonts/cmunss.ttf", 32, symbols, 71); // Used to get pi symbol
 }
 
 void printError(int error, GuiVisualization &visualization){
@@ -245,7 +245,7 @@ void updateDrawFrame(void* vars_){
     Data* data = &(vars->data);
     bool* closeWindow = &(vars->closeWindow);
     Font* alternativeFont = &(vars->alternativeFont);
-    Font* alternativeFontSmall = &(vars->alternativeFontSmall);
+    Font* alternativeFontBig = &(vars->alternativeFontBig);
 
     // Update
     //----------------------------------------------------------------------------------
@@ -319,7 +319,7 @@ void updateDrawFrame(void* vars_){
         drawGuiPrior(*gui, *data, *alternativeFont);
         drawGuiChannel(*gui, *data);
         drawGuiPosteriors(*gui, *alternativeFont);
-        drawGuiVisualization(*gui, *data, *alternativeFontSmall);
+        drawGuiVisualization(*gui, *data, *alternativeFontBig);
         drawGuiMenu(*gui, *data, closeWindow);
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
         drawGettingStarted(*gui);
