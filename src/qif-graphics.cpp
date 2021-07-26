@@ -48,7 +48,7 @@ void updateDrawFrame(void* vars_);     // Update and Draw one frame
 void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow);
 void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
-void drawGuiPosteriors(GuiPosteriors &posteriors);
+void drawGuiPosteriors(GuiPrior &prior, GuiPosteriors &posteriors);
 void drawGuiVisualization(Gui &gui, Data &data);
 void drawGettingStarted(Gui &gui);
 void drawCircles(Gui &gui, Data &data);
@@ -293,7 +293,7 @@ void updateDrawFrame(void* vars_){
         if(gui->menu.windowGettingStartedActive) GuiLock();
         drawGuiPrior(*gui, *data);
         drawGuiChannel(*gui, *data);
-        drawGuiPosteriors(gui->posteriors);
+        drawGuiPosteriors(gui->prior, gui->posteriors);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
@@ -301,7 +301,7 @@ void updateDrawFrame(void* vars_){
         //----------------------------------------------------------------------------------
 
     EndDrawing();
-    //----------------------------------------------------------------------------------
+    //------------------------------------------------------'----------------------------
 }
 
 //------------------------------------------------------------------------------------
@@ -333,7 +333,7 @@ void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
 
 void drawGuiPrior(Gui &gui, Data &data){
     drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, GuiGetFont());
-    DrawTextEx(gui.prior.alternativeFont, "(\u03C0)" , (Vector2) {gui.prior.layoutRecsTitle.x+135, gui.prior.layoutRecsTitle.y}, gui.prior.alternativeFont.baseSize, 1.0, WHITE);
+    DrawTextEx(gui.prior.alternativeFont, "\u03C0" , (Vector2) {gui.prior.layoutRecsTitle.x+135, gui.prior.layoutRecsTitle.y}, gui.prior.alternativeFont.baseSize, 1.0, WHITE);
     DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
@@ -399,8 +399,9 @@ void drawGuiChannel(Gui &gui, Data &data){
     EndScissorMode();
 }
 
-void drawGuiPosteriors(GuiPosteriors &posteriors){
+void drawGuiPosteriors(GuiPrior &prior, GuiPosteriors &posteriors){
     drawContentPanel(posteriors.layoutRecsTitle, posteriors.layoutRecsContent, posteriors.GroupBoxPosteriorsText, GuiGetFont());
+    DrawTextEx(prior.alternativeFont, "[\u03C0\u203AC]" , (Vector2) {posteriors.layoutRecsTitle.x+145, posteriors.layoutRecsTitle.y}, prior.alternativeFont.baseSize, 1.0, WHITE);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
@@ -464,6 +465,9 @@ void drawGettingStarted(Gui &gui){
         GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
         GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
         gui.menu.windowGettingStartedActive = !GuiWindowBox(gui.menu.layoutRecsGettingStarted, "Getting started");
+
+        
+
         initStyle();
     }
 }

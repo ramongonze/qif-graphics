@@ -5,7 +5,7 @@ GuiChannel::GuiChannel(){
     numOutputs = 3;
 
     // Text
-    strcpy(panelChannelText, "Channel");
+    strcpy(panelChannelText, "Channel C");
     strcpy(LabelOutputsText, "Outputs");
     strcpy(buttonRandomText, "Generate Random");
     for(int i = 0; i < NUMBER_SECRETS; i++){
