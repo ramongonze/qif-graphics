@@ -2,7 +2,7 @@
 
 GuiPrior::GuiPrior(){
     // Const text
-    strcpy(panelPriorText, "Prior distribution"); // pi symbol &#x3c0;   \u3c0 
+    strcpy(panelPriorText, "Prior distribution \u03C0"); // pi symbol &#x3c0;   \u3c0 
     strcpy(buttonRandomText, "Generate Random");
     for(int i = 0; i < NUMBER_SECRETS; i++){
         LabelPriorText[i] = "X" + to_string(i+1);

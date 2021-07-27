@@ -45,6 +45,8 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     strcpy(gettingStartedMenuOptions, "Prior distribution;Channel;Hyper-distribution;Visualization;Refinement");
     gettingStartedMenuScrollIndex = 0;
     gettingStartedMenuActive = -1;
+
+    loadGSImages();
 }
 
 int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs){
@@ -184,4 +186,11 @@ void GuiMenu::saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char cha
         outfile.close();
     }
 #endif
+}
+
+void GuiMenu::loadGSImages(){
+    Image img = LoadImage("images/gs-prior.png");
+    ImageDrawTextEx(&img, GetFontDefault(), "", (Vector2){0,0}, (float)GetFontDefault().baseSize, 0.0f, BLACK);
+    gsImages[GS_IMAGE_PRIOR] = LoadTextureFromImage(img);  // Image converted to texture, uploaded to GPU memory (VRAM)
+    UnloadImage(img);
 }

@@ -7,6 +7,23 @@ Gui::Gui(){
     posteriors = GuiPosteriors();
     visualization = GuiVisualization();
     drawing = false;
+    readFonts();
+}
+
+void Gui::readFonts(){
+    int chars[259];
+    
+    // Ascii characters
+    for(int i = 0; i < 256; i++)
+        chars[i] = i;
+
+    // Special symbols
+    int specialSymbols[3] = {960, 948, 8250}; // pi, delta, ›
+    for(int i = 0; i < 3; i++)
+        chars[i+256] = specialSymbols[i];    
+
+    defaultFont = LoadFontEx("fonts/OpenSans-Regular.ttf", 20, chars, 259); // Used to get pi symbol
+    defaultFontBig = LoadFontEx("fonts/OpenSans-Regular.ttf", 32, chars, 259); // Used to get pi symbol
 }
 
 bool Gui::checkTextBoxPressed(){

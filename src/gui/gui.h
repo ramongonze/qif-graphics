@@ -35,6 +35,8 @@ public:
     // Methods
     //------------------------------------------------------------------------------------
 
+    void readFonts();
+
     /* Check if a textbox in prior or channel matrices was pressed.
 	 * Returns true if yes or false otherwise. */
     bool checkTextBoxPressed();
@@ -54,6 +56,10 @@ public:
 	 * 		hyper: Hyper-distribution;
 	 */
 	void updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
+
+    // Fonts
+    Font defaultFont;
+    Font defaultFontBig; // Same as defaultFont but with size 32
 };
 
 #endif

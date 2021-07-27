@@ -5,7 +5,7 @@ GuiPosteriors::GuiPosteriors(){
     numPosteriors = 3;
     
     // Const text
-    strcpy(GroupBoxPosteriorsText, "Hyper-distribution");
+    strcpy(GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AC]");
     strcpy(LabelOuterText, "Outer");
 
     for(int i = 0; i < NUMBER_SECRETS; i++){

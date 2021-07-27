@@ -25,8 +25,6 @@
 typedef struct WebLoopVariables{
     Gui gui;
     Data data;
-    Font alternativeFont; // Used to draw symbols like pi and delta
-    Font alternativeFontBig; // Same as alternativeFont but with size 13
     bool closeWindow;
 } WebLoopVariables;
 
@@ -37,24 +35,31 @@ typedef struct WebLoopVariables{
 //----------------------------------------------------------------------------------
 // General Functions Declaration
 //----------------------------------------------------------------------------------
+void updateDrawFrame(void* vars_);     // Update and Draw one frame
 void initStyle();
-void readAlternativeFont(Font* alternativeFont, Font* alternativeFontBig);
+void readFonts(Font* defaultFont, Font* defaultFontBig);
 void printError(int error, GuiVisualization &visualization);
 void checkButtonsMouseCollision(Gui &gui);
-void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
 void calculatePosteriors(Gui &gui, Data &data);
-void updateDrawFrame(void* vars_);     // Update and Draw one frame
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow);
-void drawGuiPrior(Gui &gui, Data &data, Font alternativeFont);
+void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
-void drawGuiPosteriors(Gui &gui, Font alternativeFont);
-void drawGuiVisualization(Gui &gui, Data &data, Font alternativeFont);
+void drawGuiPosteriors(Gui &gui);
+void drawGuiVisualization(Gui &gui, Data &data);
 void drawGettingStarted(Gui &gui);
-void drawCircles(Gui &gui, Data &data, Font alternativeFont);
+void drawCircles(Gui &gui, Data &data);
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
+
+// Getting started panel content
+void drawGSPrior(Gui &gui, Rectangle panel);
+void drawGSChannel(Gui &gui, Rectangle panel);
+void drawGSHyper(Gui &gui, Rectangle panel);
+void drawGSVisualization(Gui &gui, Rectangle panel);
+void drawGSRefinement(Gui &gui, Rectangle panel);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -73,12 +78,11 @@ int main(){
     // Initialization
     //---------------------------------------------------------------------------------------
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
-    GuiLoadStyle("src/gui/style-qif-graphics.rgs");
-    initStyle();
-
     WebLoopVariables vars;
     vars.closeWindow = false;
-    readAlternativeFont(&(vars.alternativeFont), &(vars.alternativeFontBig));
+    GuiSetFont(vars.gui.defaultFont); // Set default font
+
+    initStyle();
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop_arg(updateDrawFrame, &vars, 120, 1);
@@ -103,149 +107,11 @@ int main(){
 //------------------------------------------------------------------------------------
 // General Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void initStyle(){
-    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
-    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
-    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
-    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
-    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
-    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
-    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(WHITE));
-    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
-    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
-    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
-    GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
-    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
-    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
-    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-    GuiSetStyle(TEXTBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_LIGHT));
-    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 1);
-    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-    GuiSetStyle(VALUEBOX, BASE_COLOR_NORMAL, ColorToInt(WHITE));
-    GuiSetStyle(VALUEBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_DARK));
-    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
-    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
-    GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
-    GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
-    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
-    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
-    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
-    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    GuiSetStyle(DROPDOWNBOX, TEXT_INNER_PADDING, 5);
-    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
-    GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
-    GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
-    GuiSetStyle(SCROLLBAR, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
-    GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
-}
-
-void readAlternativeFont(Font* alternativeFont, Font* alternativeFontBig){
-    // Alternative font
-    int numbers[19] = {48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 73, 88, 960, 40, 41, 91, 93, 948, 8250}; // 0 to 9; I; X; pi; (; ); [; ]; delta; ›
-    int symbols[71];
-
-    // Special symbols
-    for(int i = 0; i < 19; i++)
-        symbols[i] = numbers[i];
-    
-    // Common alphabet
-    for(int i = 0; i < 26; i++){
-        symbols[19+i] = 65+i;
-        symbols[19+26+i] = 97+i;
-    }
-    
-    *alternativeFont = LoadFontEx("fonts/cmunss.ttf", 22, symbols, 71); // Used to get pi symbol
-    *alternativeFontBig = LoadFontEx("fonts/cmunss.ttf", 32, symbols, 71); // Used to get pi symbol
-}
-
-void printError(int error, GuiVisualization &visualization){
-	switch(error){
-		case INVALID_VALUE:
-			strcpy(visualization.TextBoxStatusText, "Some value in prior or channel is invalid!");
-			break;
-		case INVALID_PRIOR:
-			strcpy(visualization.TextBoxStatusText, "The prior distribution is invalid!");
-			break;
-		case INVALID_CHANNEL:
-			strcpy(visualization.TextBoxStatusText, "The channel is invalid!");
-			break;
-		case NO_ERROR:
-			strcpy(visualization.TextBoxStatusText, "Status");
-	}
-}
-
-void checkButtonsMouseCollision(Gui &gui){
-    // Active the button the mouse is over it
-    if(gui.menu.dropdownFileEditMode || gui.menu.dropdownExamplesEditMode || gui.menu.dropdownHelpEditMode){
-        Vector2 mousePoint = GetMousePosition();
-
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_FILE])){
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = true;
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = false;
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = false;
-        }
-
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES])){
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = true;
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = false;
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = false;
-        }
-
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_HELP])){
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = true;
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = false;
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = false;
-        }
-    } 
-}
-
-void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font){
-    DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
-    DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
-    DrawTextEx(font, title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, font.baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
-}
-
-void calculatePosteriors(Gui &gui, Data &data){
-    data.error = NO_ERROR;
-
-    // Check if prior and channel are ok
-    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText, gui.channel.numOutputs) == NO_ERROR){
-        // Check if typed numbers represent distributions
-        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
-        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
-
-        if(data.error == NO_ERROR){
-            Distribution newPrior(data.prior);
-            Channel newChannel(newPrior, data.channel);
-            data.hyper = Hyper(newChannel);
-            gui.updatePriorRectangle(data.priorCircle);
-            gui.updatePosteriors(data.hyper, data.innersCircles);
-        }else{
-            gui.posteriors.resetPosteriors();
-        }
-    }else{
-        data.error = INVALID_VALUE;
-        gui.posteriors.resetPosteriors();
-    }
-}
-
 void updateDrawFrame(void* vars_){
     WebLoopVariables* vars = (WebLoopVariables*) vars_;
     Gui* gui = &(vars->gui);
     Data* data = &(vars->data);
     bool* closeWindow = &(vars->closeWindow);
-    Font* alternativeFont = &(vars->alternativeFont);
-    Font* alternativeFontBig = &(vars->alternativeFontBig);
 
     // Update
     //----------------------------------------------------------------------------------
@@ -316,10 +182,10 @@ void updateDrawFrame(void* vars_){
         //----------------------------------------------------------------------------------
         // Draw controls
         if(gui->menu.windowGettingStartedActive) GuiLock();
-        drawGuiPrior(*gui, *data, *alternativeFont);
+        drawGuiPrior(*gui, *data);
         drawGuiChannel(*gui, *data);
-        drawGuiPosteriors(*gui, *alternativeFont);
-        drawGuiVisualization(*gui, *data, *alternativeFontBig);
+        drawGuiPosteriors(*gui);
+        drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
         drawGettingStarted(*gui);
@@ -327,6 +193,117 @@ void updateDrawFrame(void* vars_){
 
     EndDrawing();
     //------------------------------------------------------'----------------------------
+}
+
+void initStyle(){
+    GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
+    GuiSetStyle(DEFAULT, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(DEFAULT, BORDER_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
+    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, -4);
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 0);
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(TEXTBOX, BORDER_WIDTH, 1);
+    GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(VALUEBOX, BASE_COLOR_PRESSED, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+    GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_FOCUSED, ColorToInt(MENU_BASE_COLOR_FOCUSED));
+    GuiSetStyle(DROPDOWNBOX, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_PRESSED));
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    GuiSetStyle(DROPDOWNBOX, TEXT_INNER_PADDING, 5);
+    GuiSetStyle(LISTVIEW, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(SCROLLBAR, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_DARK));
+    GuiSetStyle(SCROLLBAR, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
+}
+
+void printError(int error, GuiVisualization &visualization){
+	switch(error){
+		case INVALID_VALUE:
+			strcpy(visualization.TextBoxStatusText, "Some value in prior or channel is invalid!");
+			break;
+		case INVALID_PRIOR:
+			strcpy(visualization.TextBoxStatusText, "The prior distribution is invalid!");
+			break;
+		case INVALID_CHANNEL:
+			strcpy(visualization.TextBoxStatusText, "The channel is invalid!");
+			break;
+		case NO_ERROR:
+			strcpy(visualization.TextBoxStatusText, "Status");
+	}
+}
+
+void checkButtonsMouseCollision(Gui &gui){
+    // Active the button the mouse is over it
+    if(gui.menu.dropdownFileEditMode || gui.menu.dropdownExamplesEditMode || gui.menu.dropdownHelpEditMode){
+        Vector2 mousePoint = GetMousePosition();
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_FILE])){
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = true;
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = false;
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = false;
+        }
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES])){
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = true;
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = false;
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = false;
+        }
+
+        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_HELP])){
+            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
+            gui.menu.dropdownHelpEditMode = true;
+            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+            gui.menu.dropdownFileEditMode = false;
+            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
+            gui.menu.dropdownExamplesEditMode = false;
+        }
+    } 
+}
+
+void calculatePosteriors(Gui &gui, Data &data){
+    data.error = NO_ERROR;
+
+    // Check if prior and channel are ok
+    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText, gui.channel.numOutputs) == NO_ERROR){
+        // Check if typed numbers represent distributions
+        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
+        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
+
+        if(data.error == NO_ERROR){
+            Distribution newPrior(data.prior);
+            Channel newChannel(newPrior, data.channel);
+            data.hyper = Hyper(newChannel);
+            gui.updatePriorRectangle(data.priorCircle);
+            gui.updatePosteriors(data.hyper, data.innersCircles);
+        }else{
+            gui.posteriors.resetPosteriors();
+        }
+    }else{
+        data.error = INVALID_VALUE;
+        gui.posteriors.resetPosteriors();
+    }
 }
 
 //------------------------------------------------------------------------------------
@@ -356,9 +333,8 @@ void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
     initStyle();
 }
 
-void drawGuiPrior(Gui &gui, Data &data, Font alternativeFont){
-    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, GuiGetFont());
-    DrawTextEx(alternativeFont, "\u03C0" , (Vector2) {gui.prior.layoutRecsTitle.x+135, gui.prior.layoutRecsTitle.y}, alternativeFont.baseSize, 1.0, WHITE);
+void drawGuiPrior(Gui &gui, Data &data){
+    drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, gui.defaultFont);
     DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
     DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
@@ -377,7 +353,7 @@ void drawGuiPrior(Gui &gui, Data &data, Font alternativeFont){
 }
 
 void drawGuiChannel(Gui &gui, Data &data){
-    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, GuiGetFont());
+    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, gui.defaultFont);
     
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
     if(GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
@@ -424,9 +400,8 @@ void drawGuiChannel(Gui &gui, Data &data){
     EndScissorMode();
 }
 
-void drawGuiPosteriors(Gui &gui, Font alternativeFont){
-    drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, GuiGetFont());
-    DrawTextEx(alternativeFont, "[\u03C0\u203AC]" , (Vector2) {gui.posteriors.layoutRecsTitle.x+145, gui.posteriors.layoutRecsTitle.y}, alternativeFont.baseSize, 1.0, WHITE);
+void drawGuiPosteriors(Gui &gui){
+    drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, gui.defaultFont);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
@@ -440,11 +415,7 @@ void drawGuiPosteriors(Gui &gui, Font alternativeFont){
         GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelOuter.width, gui.posteriors.layoutRecsLabelOuter.height}, gui.posteriors.LabelOuterText);
 
         for(int i = 0; i < gui.posteriors.numPosteriors; i++){
-            Font stdFont = GuiGetFont();
-            GuiSetFont(alternativeFont);
             GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelPosteriors[i].width, gui.posteriors.layoutRecsLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[i].c_str());
-            GuiSetFont(stdFont);
-
             GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxOuter[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxOuter[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxOuter[i].width, gui.posteriors.layoutRecsTextBoxOuter[i].height}, gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
         }
 
@@ -457,8 +428,8 @@ void drawGuiPosteriors(Gui &gui, Font alternativeFont){
     EndScissorMode();
 }
 
-void drawGuiVisualization(Gui &gui, Data &data, Font alternativeFont){
-    drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText, GuiGetFont());
+void drawGuiVisualization(Gui &gui, Data &data){
+    drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText, gui.defaultFont);
     if(GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
@@ -479,11 +450,11 @@ void drawGuiVisualization(Gui &gui, Data &data, Font alternativeFont){
         // Triangle
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
         for(int i = 0; i < 3; i++){
-            DrawTextEx(alternativeFont, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
+            DrawTextEx(gui.defaultFontBig, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
         }
         
         // Circles
-        drawCircles(gui, data, alternativeFont);
+        drawCircles(gui, data);
     }
 }
 
@@ -505,22 +476,59 @@ void drawGettingStarted(Gui &gui){
 
         // Visualization panel
         DrawRectangleRec(gui.menu.layoutRecsGettingStartedPanel, WHITE);
-
+        switch(gui.menu.gettingStartedMenuActive){
+            case 0:
+                drawGSPrior(gui, gui.menu.layoutRecsGettingStartedPanel);
+                break;
+        }
     }
 }
 
-void drawCircles(Gui &gui, Data &data, Font alternativeFont){
+void drawCircles(Gui &gui, Data &data){
 	// Prior
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
     DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
-	DrawTextEx(alternativeFont, gui.visualization.LabelPriorCircleText , (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, alternativeFont.baseSize, 1.0, BLACK);
+    DrawTextEx(gui.defaultFontBig, gui.visualization.LabelPriorCircleText, (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
 
 	// Inners
 	for(int i = 0; i < data.hyper.num_post; i++){
         DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR);
         DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR_LINES);
-        DrawTextEx(alternativeFont, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x, gui.visualization.layoutRecsLabelInnersCircles[i].y}, 26, 1.0, BLACK);
+        
+        if(data.hyper.outer.prob[i] < 0.1f)
+            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x-25, gui.visualization.layoutRecsLabelInnersCircles[i].y-25}, 26, 1.0, BLACK);
+        else
+            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x-5, gui.visualization.layoutRecsLabelInnersCircles[i].y-5}, 26, 1.0, BLACK);
 	}
+}
+
+void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font){
+    DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
+    DrawRectangleRec(layoutContent, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)));
+    DrawTextEx(font, title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, font.baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+}
+
+// Getting started panel content
+void drawGSPrior(Gui &gui, Rectangle panel){
+    // Description
+    DrawTextEx(gui.defaultFontBig, "Prior distribution on the set of secrets X = {X1,X2,X3}.", (Vector2){panel.x+10, panel.y+10}, gui.defaultFontBig.baseSize, 0, BLACK);
+    DrawTextureEx(gui.menu.gsImages[GS_IMAGE_PRIOR], (Vector2){panel.x+10, panel.y+70}, 0.0f, 0.45f, WHITE);
+}
+
+void drawGSChannel(Gui &gui, Rectangle panel){
+    
+}
+
+void drawGSHyper(Gui &gui, Rectangle panel){
+    
+}
+
+void drawGSVisualization(Gui &gui, Rectangle panel){
+    
+}
+
+void drawGSRefinement(Gui &gui, Rectangle panel){
+    
 }
 
 //------------------------------------------------------------------------------------
