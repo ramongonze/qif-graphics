@@ -83,7 +83,7 @@ public:
     int gettingStartedMenuActive;
 
     Texture2D gsImages[5];
-    char gsDescriptionTexts[5][CHAR_BUFFER_SIZE*2];
+    char gsDescriptionTexts[5][CHAR_BUFFER_SIZE*5];
     int imgPadding[5]; // Space between description and image
 
     //------------------------------------------------------------------------------------

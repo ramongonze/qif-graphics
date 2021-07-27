@@ -49,9 +49,11 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     // GS description texts
     strcpy(gsDescriptionTexts[GS_PRIOR], "Prior distribution on the set of secrets X = {X1,X2,X3}.");
     strcpy(gsDescriptionTexts[GS_CHANNEL], "A channel is a system that takes as input a secret Xi, whose possible values come from a finite set X, and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set Y.");
+    strcpy(gsDescriptionTexts[GS_HYPER], "If X is a finite set (of possible secret values), \u03C0 is the prior distribution on X, and C is a channel, a hyper-distribution [\u03C0\u203AC] resulted from C on \u03C0 is a distribution on distributions on X. Each output in an informational channel is a possible \"world\", and each possible world is a new distribution on the set of secrets. We call the possible worlds the inner distributions. Each possible world has a probability of occurring, and we call the distribution on the possible worlds as the outer distribution.");
 
     imgPadding[GS_PRIOR] = 50;
     imgPadding[GS_CHANNEL] = 110;
+    imgPadding[GS_HYPER] = 210;
 
     loadGSImages();
 }
@@ -196,12 +198,13 @@ void GuiMenu::saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char cha
 }
 
 void GuiMenu::loadGSImages(){
-    char imagesSrc[2][CHAR_BUFFER_SIZE] = {
+    char imagesSrc[3][CHAR_BUFFER_SIZE] = {
         "images/gs-prior.png",
-        "images/gs-channel.png"
+        "images/gs-channel.png",
+        "images/gs-hyper.png"
     };
 
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < 3; i++){
         Image img = LoadImage(imagesSrc[i]);
         ImageDrawTextEx(&img, GetFontDefault(), "", (Vector2){0,0}, (float)GetFontDefault().baseSize, 0.0f, BLACK);
         gsImages[i] = LoadTextureFromImage(img);  // Image converted to texture, uploaded to GPU memory (VRAM)
