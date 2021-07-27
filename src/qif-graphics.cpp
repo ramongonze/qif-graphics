@@ -53,13 +53,7 @@ void drawGuiVisualization(Gui &gui, Data &data);
 void drawGettingStarted(Gui &gui);
 void drawCircles(Gui &gui, Data &data);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
-
-// Getting started panel content
-void drawGSPrior(Gui &gui, Rectangle panel);
-void drawGSChannel(Gui &gui, Rectangle panel);
-void drawGSHyper(Gui &gui, Rectangle panel);
-void drawGSVisualization(Gui &gui, Rectangle panel);
-void drawGSRefinement(Gui &gui, Rectangle panel);
+void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -476,10 +470,8 @@ void drawGettingStarted(Gui &gui){
 
         // Visualization panel
         DrawRectangleRec(gui.menu.layoutRecsGettingStartedPanel, WHITE);
-        switch(gui.menu.gettingStartedMenuActive){
-            case 0:
-                drawGSPrior(gui, gui.menu.layoutRecsGettingStartedPanel);
-                break;
+        if(gui.menu.gettingStartedMenuActive > -1){
+            drawGSContent(gui, gui.menu.layoutRecsGettingStartedPanel, gui.menu.gettingStartedMenuActive, gui.menu.imgPadding[gui.menu.gettingStartedMenuActive]);
         }
     }
 }
@@ -508,27 +500,30 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
     DrawTextEx(font, title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, font.baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
 }
 
-// Getting started panel content
-void drawGSPrior(Gui &gui, Rectangle panel){
+void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
+    /* option: GS_PRIOR, GS_CHANNEL, GS_HYPER, GS_VISUALIZATION, GS_REFINEMENT
+       imgPadding: Space between description and image
+    */
+
     // Description
-    DrawTextEx(gui.defaultFontBig, "Prior distribution on the set of secrets X = {X1,X2,X3}.", (Vector2){panel.x+10, panel.y+10}, gui.defaultFontBig.baseSize, 0, BLACK);
-    DrawTextureEx(gui.menu.gsImages[GS_IMAGE_PRIOR], (Vector2){panel.x+10, panel.y+70}, 0.0f, 0.45f, WHITE);
-}
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_NORMAL, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_DISABLED, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(WHITE));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_DISABLED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, 0);
+    GuiTextBoxMulti(
+        (Rectangle){panel.x+10, panel.y+10, panel.width-20, panel.height-20},
+        gui.menu.gsDescriptionTexts[option],
+        gui.defaultFont.baseSize,
+        false
+    );
 
-void drawGSChannel(Gui &gui, Rectangle panel){
-    
-}
-
-void drawGSHyper(Gui &gui, Rectangle panel){
-    
-}
-
-void drawGSVisualization(Gui &gui, Rectangle panel){
-    
-}
-
-void drawGSRefinement(Gui &gui, Rectangle panel){
-    
+    // Image
+    DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10, panel.y+imgPadding}, 0.0f, 0.45f, WHITE);
 }
 
 //------------------------------------------------------------------------------------

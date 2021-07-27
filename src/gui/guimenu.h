@@ -36,11 +36,11 @@ using namespace std;
 #define BUTTON_HELP_OPTION_GETTING_STARTED 1
 #define BUTTON_HELP_OPTION_ABOUT 2
 
-#define GS_IMAGE_PRIOR 0
-#define GS_IMAGE_CHANNEL 1
-#define GS_IMAGE_HYPER 2
-#define GS_IMAGE_VISUALIZATION 3
-#define GS_IMAGE_REFINEMENT 4
+#define GS_PRIOR 0
+#define GS_CHANNEL 1
+#define GS_HYPER 2
+#define GS_VISUALIZATION 3
+#define GS_REFINEMENT 4
 
 class GuiMenu{
 private:
@@ -83,6 +83,8 @@ public:
     int gettingStartedMenuActive;
 
     Texture2D gsImages[5];
+    char gsDescriptionTexts[5][CHAR_BUFFER_SIZE*2];
+    int imgPadding[5]; // Space between description and image
 
     //------------------------------------------------------------------------------------
     // Methods

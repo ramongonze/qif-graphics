@@ -45,6 +45,13 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     strcpy(gettingStartedMenuOptions, "Prior distribution;Channel;Hyper-distribution;Visualization;Refinement");
     gettingStartedMenuScrollIndex = 0;
     gettingStartedMenuActive = -1;
+    
+    // GS description texts
+    strcpy(gsDescriptionTexts[GS_PRIOR], "Prior distribution on the set of secrets X = {X1,X2,X3}.");
+    strcpy(gsDescriptionTexts[GS_CHANNEL], "A channel is a system that takes as input a secret Xi, whose possible values come from a finite set X, and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set Y.");
+
+    imgPadding[GS_PRIOR] = 50;
+    imgPadding[GS_CHANNEL] = 110;
 
     loadGSImages();
 }
@@ -189,8 +196,15 @@ void GuiMenu::saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char cha
 }
 
 void GuiMenu::loadGSImages(){
-    Image img = LoadImage("images/gs-prior.png");
-    ImageDrawTextEx(&img, GetFontDefault(), "", (Vector2){0,0}, (float)GetFontDefault().baseSize, 0.0f, BLACK);
-    gsImages[GS_IMAGE_PRIOR] = LoadTextureFromImage(img);  // Image converted to texture, uploaded to GPU memory (VRAM)
-    UnloadImage(img);
+    char imagesSrc[2][CHAR_BUFFER_SIZE] = {
+        "images/gs-prior.png",
+        "images/gs-channel.png"
+    };
+
+    for(int i = 0; i < 2; i++){
+        Image img = LoadImage(imagesSrc[i]);
+        ImageDrawTextEx(&img, GetFontDefault(), "", (Vector2){0,0}, (float)GetFontDefault().baseSize, 0.0f, BLACK);
+        gsImages[i] = LoadTextureFromImage(img);  // Image converted to texture, uploaded to GPU memory (VRAM)
+        UnloadImage(img);
+    }
 }
