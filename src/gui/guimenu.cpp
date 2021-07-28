@@ -50,7 +50,7 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     strcpy(gsDescriptionTexts[GS_PRIOR], "Prior distribution on the set of secrets X = {X1,X2,X3}.");
     strcpy(gsDescriptionTexts[GS_CHANNEL], "A channel is a system that takes as input a secret Xi, whose possible values come from a finite set X, and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set Y.");
     strcpy(gsDescriptionTexts[GS_HYPER], "If X is a finite set (of possible secret values), \u03C0 is the prior distribution on X, and C is a channel, a hyper-distribution [\u03C0\u203AC] resulted from C on \u03C0 is a distribution on distributions on X. Each output in an informational channel is a possible \"world\", and each possible world is a new distribution on the set of secrets. We call the possible worlds the inner distributions. Each possible world has a probability of occurring, and we call the distribution on the possible worlds as the outer distribution.");
-    strcpy(gsDescriptionTexts[GS_HYPER], "");
+    strcpy(gsDescriptionTexts[GS_VISUALIZATION], "");
 
     imgPadding[GS_PRIOR] = 50;
     imgPadding[GS_CHANNEL] = 110;
