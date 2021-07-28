@@ -41,6 +41,7 @@ void readFonts(Font* defaultFont, Font* defaultFontBig);
 void printError(int error, GuiVisualization &visualization);
 void checkButtonsMouseCollision(Gui &gui);
 void calculatePosteriors(Gui &gui, Data &data);
+void checkhelpMessagesActive(Gui &gui, Vector2 mousePosition);
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
@@ -54,6 +55,7 @@ void drawGettingStarted(Gui &gui);
 void drawCircles(Gui &gui, Data &data);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
 void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding);
+void drawHelpMessage(Gui &gui, Rectangle rec, char message[CHAR_BUFFER_SIZE]);
 
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
@@ -165,6 +167,9 @@ void updateDrawFrame(void* vars_){
     // If prior and channel are ok, udpate and show posteriors
     calculatePosteriors(*gui, *data);
 
+    // Help messages
+    gui->checkMouseHover(mousePosition);
+
     //----------------------------------------------------------------------------------
 
     // Draw
@@ -181,6 +186,7 @@ void updateDrawFrame(void* vars_){
         drawGuiPosteriors(*gui);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
+        checkhelpMessagesActive(*gui, mousePosition);
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
         drawGettingStarted(*gui);
         //----------------------------------------------------------------------------------
@@ -298,6 +304,19 @@ void calculatePosteriors(Gui &gui, Data &data){
         data.error = INVALID_VALUE;
         gui.posteriors.resetPosteriors();
     }
+}
+
+void checkhelpMessagesActive(Gui &gui, Vector2 mousePosition){
+    if(gui.helpMessagesActive[HELP_MSG_BUTTON_PRIOR])
+        drawHelpMessage(gui, (Rectangle){mousePosition.x+10, mousePosition.y+10, 220, 60}, gui.helpMessages[HELP_MSG_BUTTON_PRIOR]);
+
+    if(gui.helpMessagesActive[HELP_MSG_BUTTON_CHANNEL])
+        drawHelpMessage(gui, (Rectangle){mousePosition.x+10, mousePosition.y+10, 300, 60}, gui.helpMessages[HELP_MSG_BUTTON_CHANNEL]);
+
+    if(gui.helpMessagesActive[HELP_MSG_BUTTON_DRAW])
+        drawHelpMessage(gui, (Rectangle){mousePosition.x+10, mousePosition.y+10, 300, 90}, gui.helpMessages[HELP_MSG_BUTTON_DRAW]);
+
+    initStyle();
 }
 
 //------------------------------------------------------------------------------------
@@ -529,6 +548,17 @@ void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
         DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+60, panel.y+imgPadding}, 0.0f, 0.39f, WHITE);
 
     initStyle();
+}
+
+void drawHelpMessage(Gui &gui, Rectangle rec, char message[CHAR_BUFFER_SIZE]){
+    GuiSetStyle(TEXTBOX, BORDER_COLOR_DISABLED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_COLOR_DISABLED, ColorToInt(BLACK));
+    GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, 5);
+    GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(BG_BASE_COLOR_LIGHT));
+    int oldState = GuiGetState();
+    GuiSetState(GUI_STATE_DISABLED);
+    GuiTextBoxMulti(rec, message, gui.defaultFont.baseSize, false);
+    GuiSetState(oldState);
 }
 
 //------------------------------------------------------------------------------------

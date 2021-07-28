@@ -12,6 +12,10 @@
 #define SCREEN_WIDTH 1110
 #define SCREEN_HEIGHT 795
 
+#define HELP_MSG_BUTTON_PRIOR 0
+#define HELP_MSG_BUTTON_CHANNEL 1
+#define HELP_MSG_BUTTON_DRAW 2
+
 class Gui{
 private:
     /* data */
@@ -30,6 +34,10 @@ public:
     
     // Flag that indicates wheter the triangle is being drawn.
     bool drawing;
+
+    // Flags used to show help messages
+    bool helpMessagesActive[3];
+    char helpMessages[3][CHAR_BUFFER_SIZE*2];
 
     //------------------------------------------------------------------------------------
     // Methods
@@ -60,6 +68,9 @@ public:
     // Fonts
     Font defaultFont;
     Font defaultFontBig; // Same as defaultFont but with size 32
+
+    // Check mouse position and manage help messages
+    void checkMouseHover(Vector2 mousePosition);
 };
 
 #endif

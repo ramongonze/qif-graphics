@@ -8,6 +8,13 @@ Gui::Gui(){
     visualization = GuiVisualization();
     drawing = false;
     readFonts();
+
+    for(int i = 0; i < 3; i++)
+        helpMessagesActive[i] = false;
+
+    strcpy(helpMessages[HELP_MSG_BUTTON_PRIOR], "Click to generate a random prior distribution");
+    strcpy(helpMessages[HELP_MSG_BUTTON_CHANNEL], "Click to generate a random channel with the current number of outputs");
+    strcpy(helpMessages[HELP_MSG_BUTTON_DRAW], "If prior and channel were set, click to draw the geometric representation of prior and hyper distributions");
 }
 
 void Gui::readFonts(){
@@ -177,3 +184,10 @@ void Gui::updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUT
         };
     } 
 }
+
+void Gui::checkMouseHover(Vector2 mousePosition){
+    helpMessagesActive[HELP_MSG_BUTTON_PRIOR] = CheckCollisionPointRec(mousePosition, prior.layoutRecsButtonRandom);
+    helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = CheckCollisionPointRec(mousePosition, channel.layoutRecsButtonRandom);
+    helpMessagesActive[HELP_MSG_BUTTON_DRAW] = CheckCollisionPointRec(mousePosition, visualization.layoutRecsButtonDraw);
+}
+
