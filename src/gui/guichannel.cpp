@@ -2,9 +2,15 @@
 
 GuiChannel::GuiChannel(){
     // Data
-    numOutputs = 3;
+    curChannel = CHANNEL_1;
+    for(int i = 0; i < NUMBER_CHANNELS; i++)
+        numOutputs[i] = 3;
 
     // Text
+    strcpy(LabelChannelTabs[CHANNEL_1], "Ch C");
+    strcpy(LabelChannelTabs[CHANNEL_2], "Ch R");
+    strcpy(LabelChannelTabs[CHANNEL_3], "Ch CR");
+
     strcpy(panelChannelText, "Channel C");
     strcpy(LabelOutputsText, "Outputs");
     strcpy(buttonRandomText, "Generate Random");
@@ -20,13 +26,19 @@ GuiChannel::GuiChannel(){
 
     // Define controls variables
     SpinnerChannelEditMode = false;
-    SpinnerChannelValue = numOutputs;
+    
+    for(int i = 0; i < NUMBER_CHANNELS; i++)
+        SpinnerChannelValue[i] = numOutputs[i];
+    
     ScrollPanelChannelScrollOffset = {0, 0};
     ScrollPanelChannelBoundsOffset = {0, 0};
-    for(int i = 0; i < NUMBER_SECRETS; i++){
-        for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
-            TextBoxChannelEditMode[i][j] = false;
-            strcpy(TextBoxChannelText[i][j], "0");
+    
+    for(int k = 0; k < NUMBER_CHANNELS; k++){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
+            for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
+                TextBoxChannelEditMode[i][j] = false;
+                strcpy(TextBoxChannelText[k][i][j], "0");
+            }
         }
     }
     
@@ -48,37 +60,46 @@ GuiChannel::GuiChannel(){
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
         layoutRecsLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
     }
+    
+    layoutRecsTabs[CHANNEL_1] = (Rectangle){layoutRecsTitle.x + 0, layoutRecsTitle.y, 56, 20};
+    layoutRecsTabs[CHANNEL_2] = (Rectangle){layoutRecsTitle.x + 57, layoutRecsTitle.y, 56, 20};
+    layoutRecsTabs[CHANNEL_3] = (Rectangle){layoutRecsTitle.x + 114, layoutRecsTitle.y, 56, 20};
 
     layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 140, layoutRecsTitle.y, 140, 20};
-    ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs-1].x + TEXTBOX_SIZE;
+    ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;
 }
 
-void GuiChannel::updateChannelBySpinner(){
-    if(SpinnerChannelValue <= 0){
-        SpinnerChannelValue = 1;
-    }else if(SpinnerChannelValue < numOutputs){
-        int diff = numOutputs - SpinnerChannelValue;
+void GuiChannel::updateChannelBySpinner(int channel){
+    if(SpinnerChannelValue[channel] <= 0){
+        SpinnerChannelValue[channel] = 1;
+    }else if(SpinnerChannelValue[channel] < numOutputs[channel]){
+        int diff = numOutputs[channel] - SpinnerChannelValue[channel];
         ScrollPanelChannelContent.x = ScrollPanelChannelContent.x - diff*TEXTBOX_SIZE;
     }else{
         for(int i = 0; i < NUMBER_SECRETS; i++){
-            for(int j = numOutputs; j < SpinnerChannelValue; j++){
+            for(int j = numOutputs[channel]; j < SpinnerChannelValue[channel]; j++){
                 TextBoxChannelEditMode[i][j] = false;
-                strcpy(TextBoxChannelText[i][j], "0");
+                strcpy(TextBoxChannelText[channel][i][j], "0");
             }
         }
 
-        for(int j = numOutputs; j < SpinnerChannelValue; j++){
+        for(int j = numOutputs[channel]; j < SpinnerChannelValue[channel]; j++){
             ScrollPanelChannelContent.x += TEXTBOX_SIZE;
         }
     }
 
-    numOutputs = SpinnerChannelValue;
+    numOutputs[channel] = SpinnerChannelValue[channel];
 }
 
-void GuiChannel::updateChannelTextBoxes(vector<vector<long double>> &channel){
+void GuiChannel::updateChannelByTab(int prevChannel, int curChannel){
+    int diff = abs(numOutputs[curChannel] - numOutputs[prevChannel]);
+    ScrollPanelChannelContent.x = ScrollPanelChannelContent.x + (numOutputs[curChannel] < numOutputs[prevChannel] ? -1 : 1)*diff*TEXTBOX_SIZE;
+}
+
+void GuiChannel::updateChannelTextBoxes(int curChannel, vector<vector<long double>> &channel){
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        for(int j = 0; j < numOutputs; j++){
-            sprintf(TextBoxChannelText[i][j], "%.3Lf", channel[i][j]);
+        for(int j = 0; j < numOutputs[curChannel]; j++){
+            sprintf(TextBoxChannelText[curChannel][i][j], "%.3Lf", channel[i][j]);
         }
     }
 }

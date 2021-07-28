@@ -39,7 +39,7 @@ bool Gui::checkTextBoxPressed(){
             return true;
 
     for(int i = 0; i < NUMBER_SECRETS; i++)
-        for(int j = 0; j < channel.numOutputs; j++)
+        for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
             if(channel.TextBoxChannelEditMode[i][j] == true)
                 return true;
 
@@ -78,7 +78,7 @@ void Gui::moveAmongTextBoxes(){
     }
 
     int nRows = NUMBER_SECRETS;
-    int nColumns = channel.numOutputs;
+    int nColumns = channel.numOutputs[channel.curChannel];
 
     // Channel
     for(int i = 0; i < nRows; i++){

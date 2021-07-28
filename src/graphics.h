@@ -23,6 +23,11 @@ using namespace std;
 #define NUMBER_SECRETS 3
 #define MAX_CHANNEL_OUTPUTS 100
 
+#define NUMBER_CHANNELS 3
+#define CHANNEL_1 0
+#define CHANNEL_2 1
+#define CHANNEL_3 2 // Channel 3 is the composition C1C2
+
 // Color scheme ------------------------------------------------------------------------------------
 // GUI
 #define BG_BASE_COLOR_LIGHT  CLITERAL(Color){210, 210, 210, 255}
