@@ -523,7 +523,10 @@ void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
     );
 
     // Image
-    DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10, panel.y+imgPadding}, 0.0f, 0.45f, WHITE);
+    if(option != GS_VISUALIZATION)
+        DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10, panel.y+imgPadding}, 0.0f, 0.45f, WHITE);
+    else
+        DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+60, panel.y+imgPadding}, 0.0f, 0.39f, WHITE);
 
     initStyle();
 }
