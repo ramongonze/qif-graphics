@@ -8,16 +8,16 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     // Data
     this->windowWidth = windowWidth;
     this->windowHeight = windowHeight;
-    dropdownBoxFileActive = 0;
-    dropdownFileEditMode = false;
-    dropdownBoxHelpActive = 0;
-    dropdownHelpEditMode = false;
-    dropdownBoxExamplesActive = 0;
-    dropdownExamplesEditMode = false;
+    for(int i = 0; i < 4; i++){
+        dropdownBoxActive[i] = 0;
+        dropdownEditMode[i] = false;
+    }
+    dropdownBoxActive[BUTTON_MODE] = BUTTON_MODE_OPTION_SINGLE;
     windowGettingStartedActive = false;
 
     // Text
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
+    strcpy(buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement");
     strcpy(buttonExamplesText, "Examples;Load channel that leaks everything;Load channel that leaks nothing");
     strcpy(buttonHelpText, "Help;Getting Started;About");
     
@@ -26,12 +26,14 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
 
     // Define controls rectangles
 #if !defined(PLATFORM_WEB)
-    layoutRecsButtons[REC_BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
-    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){50, 0, 80, 25};
-    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){130, 0, 50, 25};
+    layoutRecsButtons[BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
+    layoutRecsButtons[BUTTON_MODE] = (Rectangle){51, 0, 50, 25};
+    layoutRecsButtons[BUTTON_EXAMPLES] = (Rectangle){102, 0, 80, 25};
+    layoutRecsButtons[BUTTON_HELP] = (Rectangle){183, 0, 50, 25};
 #else
-    layoutRecsButtons[REC_BUTTON_EXAMPLES] = (Rectangle){0, 0, 80, 25};
-    layoutRecsButtons[REC_BUTTON_HELP] = (Rectangle){80, 0, 50, 25};
+    layoutRecsButtons[BUTTON_MODE] = (Rectangle){0, 0, 50, 25};
+    layoutRecsButtons[BUTTON_EXAMPLES] = (Rectangle){51, 0, 80, 25};
+    layoutRecsButtons[BUTTON_HELP] = (Rectangle){132, 0, 50, 25};
 #endif
     
     layoutRecsMenu = (Rectangle){0, 0, 1130, 25};

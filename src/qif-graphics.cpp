@@ -250,36 +250,34 @@ void printError(int error, GuiVisualization &visualization){
 
 void checkButtonsMouseCollision(Gui &gui){
     // Active the button the mouse is over it
-    if(gui.menu.dropdownFileEditMode || gui.menu.dropdownExamplesEditMode || gui.menu.dropdownHelpEditMode){
-        Vector2 mousePoint = GetMousePosition();
+    int i = -1;
+    Vector2 mousePoint = GetMousePosition();
 
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_FILE])){
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = true;
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = false;
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = false;
-        }
+#if !defined(PLATFORM_WEB)
+    if((gui.menu.dropdownEditMode[BUTTON_FILE] || gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES] || gui.menu.dropdownEditMode[BUTTON_HELP])
+        &&
+        (CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_FILE]) || CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_MODE]) ||
+         CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_EXAMPLES]) || CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_HELP]))){
+        i = 0; // File button is the first one
+    }
+#else
+    if((gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES] || gui.menu.dropdownEditMode[BUTTON_HELP])
+        &&
+        (CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_MODE]) || CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_EXAMPLES]) ||
+         CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_HELP]))){
+        i = 1; // Mode button is the first one
+    }
+#endif
+    if(i >= 0){
+        for(i = 0; i < 4; i++){
+            gui.menu.dropdownBoxActive[i] = 0;
+            if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[i]))
+                gui.menu.dropdownEditMode[i] = true;
+            else
+                gui.menu.dropdownEditMode[i] = false;
 
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES])){
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = true;
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = false;
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = false;
         }
-
-        if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[REC_BUTTON_HELP])){
-            gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;
-            gui.menu.dropdownHelpEditMode = true;
-            gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
-            gui.menu.dropdownFileEditMode = false;
-            gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;
-            gui.menu.dropdownExamplesEditMode = false;
-        }
-    } 
+    }
 }
 
 void calculatePosteriors(Gui &gui, Data &data){
@@ -331,17 +329,27 @@ void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
 
 #if !defined(PLATFORM_WEB)
     // Button File
-    if(!gui.menu.dropdownFileEditMode) gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;        // Reset selection
-    if(GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxFileActive), gui.menu.dropdownFileEditMode)) gui.menu.dropdownFileEditMode = !gui.menu.dropdownFileEditMode;
+    if(!gui.menu.dropdownEditMode[BUTTON_FILE]) gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;        // Reset selection
+    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxActive[BUTTON_FILE]), gui.menu.dropdownEditMode[BUTTON_FILE])) gui.menu.dropdownEditMode[BUTTON_FILE] = !gui.menu.dropdownEditMode[BUTTON_FILE];
 #endif
 
+    // Button Mode
+    // if(!gui.menu.dropdownEditMode[BUTTON_MODE]) gui.menu.dropdownBoxActive[BUTTON_MODE] = BUTTON_MODE_OPTION_MODE;        // Reset selection
+    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_MODE+1)
+        strcpy(gui.menu.buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement");
+    else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_MODE+2)
+        strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#112#Two channels;#000#Refinement");
+    else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_MODE+3)
+        strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#000#Two channels;#112#Refinement");
+    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_MODE], 160, gui.menu.buttonModeText, &(gui.menu.dropdownBoxActive[BUTTON_MODE]), gui.menu.dropdownEditMode[BUTTON_MODE])) gui.menu.dropdownEditMode[BUTTON_MODE] = !gui.menu.dropdownEditMode[BUTTON_MODE];
+
     // Button Examples
-    if(!gui.menu.dropdownExamplesEditMode) gui.menu.dropdownBoxExamplesActive = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection
-    if(GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.dropdownBoxExamplesActive), gui.menu.dropdownExamplesEditMode)) gui.menu.dropdownExamplesEditMode = !gui.menu.dropdownExamplesEditMode;
+    if(!gui.menu.dropdownEditMode[BUTTON_EXAMPLES]) gui.menu.dropdownBoxActive[BUTTON_EXAMPLES] = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection
+    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]), gui.menu.dropdownEditMode[BUTTON_EXAMPLES])) gui.menu.dropdownEditMode[BUTTON_EXAMPLES] = !gui.menu.dropdownEditMode[BUTTON_EXAMPLES];
     
     // Button Help
-    if(!gui.menu.dropdownHelpEditMode) gui.menu.dropdownBoxHelpActive = BUTTON_HELP_OPTION_HELP;        // Reset selection
-    if(GuiDropdownBox(gui.menu.layoutRecsButtons[REC_BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxHelpActive), gui.menu.dropdownHelpEditMode)) gui.menu.dropdownHelpEditMode = !gui.menu.dropdownHelpEditMode;
+    if(!gui.menu.dropdownEditMode[BUTTON_HELP]) gui.menu.dropdownBoxActive[BUTTON_HELP] = BUTTON_HELP_OPTION_HELP;        // Reset selection
+    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxActive[BUTTON_HELP]), gui.menu.dropdownEditMode[BUTTON_HELP])) gui.menu.dropdownEditMode[BUTTON_HELP] = !gui.menu.dropdownEditMode[BUTTON_HELP];
 
     initStyle();
 }
@@ -565,7 +573,7 @@ void drawHelpMessage(Gui &gui, Rectangle rec, char message[CHAR_BUFFER_SIZE]){
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data, bool *closeWindow){
-    switch(gui.menu.dropdownBoxFileActive){
+    switch(gui.menu.dropdownBoxActive[BUTTON_FILE]){
         case BUTTON_FILE_OPTION_OPEN:
         #if !defined(PLATFORM_WEB)
             char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
@@ -637,11 +645,11 @@ void buttonFile(Gui &gui, Data &data, bool *closeWindow){
             break;
     }
 
-    gui.menu.dropdownBoxFileActive = BUTTON_FILE_OPTION_FILE;
+    gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;
 }
 
 void buttonExamples(Gui &gui){
-    switch(gui.menu.dropdownBoxExamplesActive){
+    switch(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]){
         char newChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
         case BUTTON_EXAMPLES_OPTION_CH_0:
@@ -683,7 +691,7 @@ void buttonExamples(Gui &gui){
 }
 
 void buttonHelp(Gui &gui){
-    switch(gui.menu.dropdownBoxHelpActive){
+    switch(gui.menu.dropdownBoxActive[BUTTON_HELP]){
         case BUTTON_HELP_OPTION_GETTING_STARTED:
             gui.menu.windowGettingStartedActive = true;
             break;

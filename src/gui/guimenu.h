@@ -18,15 +18,21 @@ using namespace std;
 #define OPEN_WINDOW_WIDTH 800
 #define OPEN_WINDOW_HEIGHT 400
 
-#define REC_BUTTON_FILE 0
-#define REC_BUTTON_EXAMPLES 1
-#define REC_BUTTON_HELP 2
+#define BUTTON_FILE 0
+#define BUTTON_MODE 1
+#define BUTTON_EXAMPLES 2
+#define BUTTON_HELP 3
 
 #define BUTTON_FILE_OPTION_FILE 0
 #define BUTTON_FILE_OPTION_OPEN 1
 #define BUTTON_FILE_OPTION_SAVE 2
 #define BUTTON_FILE_OPTION_SAVEAS 3
 #define BUTTON_FILE_OPTION_EXIT 4
+
+#define BUTTON_MODE_OPTION_MODE 0
+#define BUTTON_MODE_OPTION_SINGLE 1
+#define BUTTON_MODE_OPTION_TWO 2
+#define BUTTON_MODE_OPTION_REF 3
 
 #define BUTTON_EXAMPLES_OPTION_EXAMPLES 0
 #define BUTTON_EXAMPLES_OPTION_CH_0 1       // Channel that leaks everything
@@ -56,22 +62,19 @@ public:
     // Data
     int windowWidth;
     int windowHeight;
-    int dropdownBoxFileActive;
-    int dropdownBoxHelpActive;
-    int dropdownBoxExamplesActive;
-    bool dropdownFileEditMode;
-    bool dropdownHelpEditMode;
-    bool dropdownExamplesEditMode;
+    int dropdownBoxActive[4];
+    bool dropdownEditMode[4];
     bool windowGettingStartedActive;
 
     // Text
     char buttonFileText[CHAR_BUFFER_SIZE];
+    char buttonModeText[CHAR_BUFFER_SIZE];
     char buttonExamplesText[CHAR_BUFFER_SIZE];
     char buttonHelpText[CHAR_BUFFER_SIZE];
     char* fileName;     // Used with file button to open/save files
 
     // Define controls rectangles
-    Rectangle layoutRecsButtons[3];
+    Rectangle layoutRecsButtons[4];
     Rectangle layoutRecsMenu;
     Rectangle layoutRecsGettingStarted;
     Rectangle layoutRecsGettingStartedMenu;

@@ -18,19 +18,19 @@ Gui::Gui(){
 }
 
 void Gui::readFonts(){
-    int chars[259];
+    int chars[260];
     
     // Ascii characters
     for(int i = 0; i < 256; i++)
         chars[i] = i;
 
     // Special symbols
-    int specialSymbols[3] = {960, 948, 8250}; // pi, delta, ›
-    for(int i = 0; i < 3; i++)
+    int specialSymbols[4] = {960, 948, 8250, 8226}; // pi, delta, ›, bullet
+    for(int i = 0; i < 4; i++)
         chars[i+256] = specialSymbols[i];    
 
-    defaultFont = LoadFontEx("fonts/OpenSans-Regular.ttf", 20, chars, 259); // Used to get pi symbol
-    defaultFontBig = LoadFontEx("fonts/OpenSans-Regular.ttf", 32, chars, 259); // Used to get pi symbol
+    defaultFont = LoadFontEx("fonts/OpenSans-Regular.ttf", 20, chars, 260); // Used to get pi symbol
+    defaultFontBig = LoadFontEx("fonts/OpenSans-Regular.ttf", 32, chars, 260); // Used to get pi symbol
 }
 
 bool Gui::checkTextBoxPressed(){
