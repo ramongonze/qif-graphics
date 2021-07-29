@@ -41,7 +41,7 @@ void readFonts(Font* defaultFont, Font* defaultFontBig);
 void printError(int error, GuiVisualization &visualization);
 void checkButtonsMouseCollision(Gui &gui);
 void calculatePosteriors(Gui &gui, Data &data);
-void checkhelpMessagesActive(Gui &gui, Vector2 mousePosition);
+void checkHelpMessagesActive(Gui &gui, Vector2 mousePosition);
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
@@ -191,7 +191,7 @@ void updateDrawFrame(void* vars_){
         drawGuiPosteriors(*gui);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
-        checkhelpMessagesActive(*gui, mousePosition);
+        checkHelpMessagesActive(*gui, mousePosition);
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
         drawGettingStarted(*gui);
         //----------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ void calculatePosteriors(Gui &gui, Data &data){
     }
 }
 
-void checkhelpMessagesActive(Gui &gui, Vector2 mousePosition){
+void checkHelpMessagesActive(Gui &gui, Vector2 mousePosition){
     if(gui.helpMessagesActive[HELP_MSG_BUTTON_PRIOR])
         drawHelpMessage(gui, (Rectangle){mousePosition.x+10, mousePosition.y+10, 220, 60}, gui.helpMessages[HELP_MSG_BUTTON_PRIOR]);
 
