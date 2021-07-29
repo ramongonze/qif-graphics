@@ -187,7 +187,7 @@ void Gui::updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUT
 
 void Gui::checkMouseHover(Vector2 mousePosition){
     helpMessagesActive[HELP_MSG_BUTTON_PRIOR] = CheckCollisionPointRec(mousePosition, prior.layoutRecsButtonRandom);
-    helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = CheckCollisionPointRec(mousePosition, channel.layoutRecsButtonRandom);
+    helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = (channel.curChannel != CHANNEL_3 && CheckCollisionPointRec(mousePosition, channel.layoutRecsButtonRandom));
     helpMessagesActive[HELP_MSG_BUTTON_DRAW] = CheckCollisionPointRec(mousePosition, visualization.layoutRecsButtonDraw);
 }
 

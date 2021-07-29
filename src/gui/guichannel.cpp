@@ -3,8 +3,10 @@
 GuiChannel::GuiChannel(){
     // Data
     curChannel = CHANNEL_1;
-    for(int i = 0; i < NUMBER_CHANNELS; i++)
+    for(int i = 0; i < NUMBER_CHANNELS; i++){
+        numSecrets[i] = 3;
         numOutputs[i] = 3;
+    }
 
     // Text
     strcpy(LabelChannelTabs[CHANNEL_1], "Ch C");
@@ -14,12 +16,11 @@ GuiChannel::GuiChannel(){
     strcpy(panelChannelText, "Channel C");
     strcpy(LabelOutputsText, "Outputs");
     strcpy(buttonRandomText, "Generate Random");
-    for(int i = 0; i < NUMBER_SECRETS; i++){
-        LabelChannelXText[i] = "X" + to_string(i+1);
-    }
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
+        LabelChannelXText[i] = "X" + to_string(i+1);
         LabelChannelYText[i] = "Y" + to_string(i+1);
-    }
+        LabelChannelZText[i] = "Z" + to_string(i+1);
+    }    
 
     // Define anchors
     AnchorChannel = {10, 185};
@@ -34,7 +35,7 @@ GuiChannel::GuiChannel(){
     ScrollPanelChannelBoundsOffset = {0, 0};
     
     for(int k = 0; k < NUMBER_CHANNELS; k++){
-        for(int i = 0; i < NUMBER_SECRETS; i++){
+        for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
             for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
                 TextBoxChannelEditMode[i][j] = false;
                 strcpy(TextBoxChannelText[k][i][j], "0");
@@ -50,7 +51,7 @@ GuiChannel::GuiChannel(){
     ScrollPanelChannelContent.y = layoutRecsScrollPanel.height - 20;
     layoutRecsLabelOutputs = (Rectangle){AnchorChannel.x + 175, AnchorChannel.y + 5, 78, 25};
 
-    for(int i = 0; i < NUMBER_SECRETS; i++){
+    for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
         layoutRecsLabelX[i] = (Rectangle){AnchorChannel.x + 40, AnchorChannel.y + 100 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
         for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
             layoutRecsTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + j*TEXTBOX_SIZE, AnchorChannel.y + 100 + i*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};
@@ -69,37 +70,69 @@ GuiChannel::GuiChannel(){
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;
 }
 
-void GuiChannel::updateChannelBySpinner(int channel){
+void GuiChannel::updateChannelBySpinner(int channel, int mode){
     if(SpinnerChannelValue[channel] <= 0){
         SpinnerChannelValue[channel] = 1;
     }else if(SpinnerChannelValue[channel] < numOutputs[channel]){
         int diff = numOutputs[channel] - SpinnerChannelValue[channel];
         ScrollPanelChannelContent.x = ScrollPanelChannelContent.x - diff*TEXTBOX_SIZE;
     }else{
-        for(int i = 0; i < NUMBER_SECRETS; i++){
+        for(int i = 0; i < numSecrets[channel]; i++){
             for(int j = numOutputs[channel]; j < SpinnerChannelValue[channel]; j++){
                 TextBoxChannelEditMode[i][j] = false;
                 strcpy(TextBoxChannelText[channel][i][j], "0");
             }
         }
 
-        for(int j = numOutputs[channel]; j < SpinnerChannelValue[channel]; j++){
-            ScrollPanelChannelContent.x += TEXTBOX_SIZE;
-        }
+        ScrollPanelChannelContent.x = ScrollPanelChannelContent.x + (SpinnerChannelValue[channel]-numOutputs[channel])*TEXTBOX_SIZE;
     }
 
     numOutputs[channel] = SpinnerChannelValue[channel];
+
+    if(mode == MODE_REF){
+        if(channel == CHANNEL_1){
+            if(numSecrets[CHANNEL_2] < numOutputs[CHANNEL_1]){
+                for(int j = 0; j < numOutputs[CHANNEL_2]; j++){
+                    for(int i = numSecrets[CHANNEL_2]; i < numOutputs[CHANNEL_1]; i++){
+                        TextBoxChannelEditMode[i][j] = false;
+                        strcpy(TextBoxChannelText[CHANNEL_2][i][j], "0");
+                    }
+                }
+            }
+            numSecrets[CHANNEL_2] = numOutputs[CHANNEL_1];
+        }else{
+            if(numOutputs[CHANNEL_3] < numOutputs[CHANNEL_2]){
+                for(int i = 0; i < numSecrets[CHANNEL_3]; i++){
+                    for(int j = numOutputs[CHANNEL_3]; j < numOutputs[CHANNEL_2]; j++){
+                        TextBoxChannelEditMode[i][j] = false;
+                        strcpy(TextBoxChannelText[CHANNEL_3][i][j], "0");
+                    }
+                }
+            }
+            SpinnerChannelValue[CHANNEL_3] = numOutputs[CHANNEL_2];
+            numOutputs[CHANNEL_3] = numOutputs[CHANNEL_2];
+        }
+    }
 }
 
-void GuiChannel::updateChannelByTab(int prevChannel, int curChannel){
-    int diff = abs(numOutputs[curChannel] - numOutputs[prevChannel]);
-    ScrollPanelChannelContent.x = ScrollPanelChannelContent.x + (numOutputs[curChannel] < numOutputs[prevChannel] ? -1 : 1)*diff*TEXTBOX_SIZE;
-}
-
-void GuiChannel::updateChannelTextBoxes(int curChannel, vector<vector<long double>> &channel){
-    for(int i = 0; i < NUMBER_SECRETS; i++){
+void GuiChannel::updateChannelTextBoxes(vector<vector<long double>> &channel){
+    for(int i = 0; i < numSecrets[curChannel]; i++){
         for(int j = 0; j < numOutputs[curChannel]; j++){
             sprintf(TextBoxChannelText[curChannel][i][j], "%.3Lf", channel[i][j]);
         }
     }
+}
+
+void GuiChannel::checkModeAndSizes(int mode){
+    if(mode == MODE_TWO){
+        numSecrets[CHANNEL_2] = 3;
+    }else if(mode == MODE_REF){
+        updateChannelBySpinner(CHANNEL_1, mode);
+        updateChannelBySpinner(CHANNEL_2, mode);
+    }
+}
+
+void GuiChannel::setScrollContent(){
+    ScrollPanelChannelContent.y = layoutRecsScrollPanel.height - 20 + (max(0,numSecrets[curChannel]-3))*TEXTBOX_SIZE; // Secrets
+    ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[curChannel]-1].x - 10 + TEXTBOX_SIZE; // Outputs
 }

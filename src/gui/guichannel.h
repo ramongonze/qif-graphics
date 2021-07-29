@@ -20,14 +20,16 @@ public:
     
     // Data
     int curChannel;
+    int numSecrets[NUMBER_CHANNELS];
     int numOutputs[NUMBER_CHANNELS];
 
     // Text
     char panelChannelText[CHAR_BUFFER_SIZE];
     char LabelOutputsText[CHAR_BUFFER_SIZE];
     char buttonRandomText[CHAR_BUFFER_SIZE];
-    string LabelChannelXText[NUMBER_SECRETS];
+    string LabelChannelXText[MAX_CHANNEL_OUTPUTS];
     string LabelChannelYText[MAX_CHANNEL_OUTPUTS];
+    string LabelChannelZText[MAX_CHANNEL_OUTPUTS];
     char LabelChannelTabs[NUMBER_CHANNELS][CHAR_BUFFER_SIZE];
 
     // Define anchors
@@ -39,8 +41,8 @@ public:
     Vector2 ScrollPanelChannelScrollOffset;
     Vector2 ScrollPanelChannelBoundsOffset;
     Vector2 ScrollPanelChannelContent;
-    bool TextBoxChannelEditMode[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
-    char TextBoxChannelText[NUMBER_CHANNELS][NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    bool TextBoxChannelEditMode[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
+    char TextBoxChannelText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
     // Define control rectangles
     Rectangle layoutRecsTitle;
@@ -49,12 +51,12 @@ public:
     Rectangle layoutRecsScrollPanel;
     Rectangle layoutRecsLabelOutputs;
     Rectangle layoutRecsButtonRandom;
-    Rectangle layoutRecsLabelX[NUMBER_SECRETS];
+    Rectangle layoutRecsLabelX[MAX_CHANNEL_OUTPUTS];
     Rectangle layoutRecsLabelY[MAX_CHANNEL_OUTPUTS];
     Rectangle layoutRecsTabs[NUMBER_CHANNELS];
     
     // Important: The matrix is indexed by columns x rows
-    Rectangle layoutRecsTextBoxChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
+    Rectangle layoutRecsTextBoxChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
 
     //------------------------------------------------------------------------------------
     // Methods
@@ -62,26 +64,27 @@ public:
 
     /* If the channel spinner was changed, update the TextBoxChannel matrices
         channel: {0,1,2} current channel.
+        mode: {MODE_SINGLE, MODE_TWO, MODE_REF}
     */
-    void updateChannelBySpinner(int channel);
+    void updateChannelBySpinner(int channel, int mode);
     
-    /* Update channel layouts if channel tab was changed.
-        prevChannel: Channel the tab was selected in the previous frame.
-        curChannel: Channel the tab is selected in the current frame.
-    */
-    void updateChannelByTab(int prevChannel, int curChannel);
-
-    // Update channel textboxes text when the random button is pressed
-    void updateChannelTextBoxes(int curChannel, vector<vector<long double>> &channel);
+    // Update channel textboxes text when the random button is pressed according to current active channel 
+    void updateChannelTextBoxes(vector<vector<long double>> &channel);
 
     // Copy the values of a channel matrix to another one
-    static void copyChannelText(char origin[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], char dest[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs){
-        for(int i = 0; i < NUMBER_SECRETS; i++){
+    static void copyChannelText(char origin[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], char dest[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numSecrets, int numOutputs){
+        for(int i = 0; i < numSecrets; i++){
             for(int j = 0; j < numOutputs; j++){
                 strcpy(dest[i][j], origin[i][j]);
             }
         }
     }
+
+    // Check if the current mode and channels sizes are compatible. If not, fix it.
+    void checkModeAndSizes(int mode);
+
+    // Set right scroll bounds for the current active channel
+    void setScrollContent();
 };
 
 #endif

@@ -127,7 +127,7 @@ int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char chan
 
         // If no exception was thrown update prior and channel vectors        
         GuiPrior::copyPrior(newPrior, prior);
-        GuiChannel::copyChannelText(newChannel, channel, numOutputs);
+        GuiChannel::copyChannelText(newChannel, channel, 3, numOutputs);
     }catch(const exception& e){
         cerr << "Invalid file. " << e.what() << '\n';        
         infile.close();

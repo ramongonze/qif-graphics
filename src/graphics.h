@@ -28,6 +28,11 @@ using namespace std;
 #define CHANNEL_2 1
 #define CHANNEL_3 2 // Channel 3 is the composition C1C2
 
+// It must be equal to BUTTON_MODE_OPTION_X defined in guimenu.h
+#define MODE_SINGLE 1
+#define MODE_TWO 2
+#define MODE_REF 3
+
 // Color scheme ------------------------------------------------------------------------------------
 // GUI
 #define BG_BASE_COLOR_LIGHT  CLITERAL(Color){210, 210, 210, 255}
