@@ -33,12 +33,16 @@ void Gui::readFonts(){
     defaultFontBig = LoadFontEx("fonts/OpenSans-Regular.ttf", 32, chars, 260); // Used to get pi symbol
 }
 
-bool Gui::checkTextBoxPressed(){
+
+bool Gui::checkPriorTextBoxPressed(){
     for(int i = 0; i < NUMBER_SECRETS; i++)
         if(prior.TextBoxPriorEditMode[i] == true)
             return true;
+    return false;
+}
 
-    for(int i = 0; i < NUMBER_SECRETS; i++)
+bool Gui::checkChannelTextBoxPressed(){
+    for(int i = 0; i < channel.numSecrets[channel.curChannel]; i++)
         for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
             if(channel.TextBoxChannelEditMode[i][j] == true)
                 return true;
@@ -46,8 +50,7 @@ bool Gui::checkTextBoxPressed(){
     return false;
 }
 
-void Gui::moveAmongTextBoxes(){
-    // Prior
+void Gui::moveAmongPriorTextBoxes(){
     for(int i = 0; i < NUMBER_SECRETS; i++){
         if(prior.TextBoxPriorEditMode[i] == true){
             if(IsKeyPressed(KEY_TAB)){
@@ -76,11 +79,12 @@ void Gui::moveAmongTextBoxes(){
             return;
         }
     }
+}
 
-    int nRows = NUMBER_SECRETS;
+void Gui::moveAmongChannelTextBoxes(){
+    int nRows = channel.numSecrets[channel.curChannel];
     int nColumns = channel.numOutputs[channel.curChannel];
 
-    // Channel
     for(int i = 0; i < nRows; i++){
         for(int j = 0; j < nColumns; j++){
             if(channel.TextBoxChannelEditMode[i][j] == true){
@@ -120,16 +124,14 @@ void Gui::moveAmongTextBoxes(){
     }
 }
 
-void Gui::updatePrior(Distribution &prior_, Circle &priorCircle){
+void Gui::updatePriorTextBoxes(Distribution &prior_){
     vector<string> truncPrior = getStrTruncatedDist(prior_, PROB_PRECISION);
     for(int i = 0; i < NUMBER_SECRETS; i++){
         strcpy(prior.TextBoxPriorText[i], truncPrior[i].c_str());
     }
-
-    updatePriorRectangle(priorCircle);
 }
 
-void Gui::updatePriorRectangle(Circle &priorCircle){
+void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
     visualization.layoutRecsLabelPriorCircle = (Rectangle) {
         (float) priorCircle.center.x - 8,
         (float) priorCircle.center.y - 15,
@@ -138,30 +140,26 @@ void Gui::updatePriorRectangle(Circle &priorCircle){
     };
 }
 
-void Gui::updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
-    // Match the number of columns in hyper and layout variables
-    if(hyper.num_post > posteriors.numPosteriors){
+void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
+    // If hyper is not ready, fill textboxes with zeros
+    if(!ready){
         for(int i = 0; i < NUMBER_SECRETS; i++){
-            for(int j = posteriors.numPosteriors; j < hyper.num_post; j++){
-                posteriors.TextBoxInnersEditMode[i][j] = false;
+            strcpy(posteriors.TextBoxOuterText[i], "0");    
+            for(int j = 0; j < NUMBER_SECRETS; j++){
+                strcpy(posteriors.TextBoxInnersText[j][i], "0");
             }
         }
-
-        for(int i = posteriors.numPosteriors; i < hyper.num_post; i++){
-            posteriors.TextBoxOuterEditMode[i] = false;
-        }
+        return;
     }
 
-    // Update gui items
-    posteriors.numPosteriors = hyper.num_post;
-    posteriors.ScrollPanelPosteriorsContent.x = posteriors.layoutRecsTextBoxInners[0][posteriors.numPosteriors-1].x + TEXTBOX_SIZE;
-
-    // Update values 
+    // Hyper is ready
+    // Outer
     vector<string> truncDist = getStrTruncatedDist(hyper.outer, PROB_PRECISION);
     for(int i = 0; i < hyper.num_post; i++){
         strcpy(posteriors.TextBoxOuterText[i], truncDist[i].c_str());
     }
 
+    // Inners
     for(int i = 0; i < hyper.num_post; i++){
         vector<long double> inner = vector<long double>(NUMBER_SECRETS);
         for(int j = 0; j < NUMBER_SECRETS; j++){
@@ -173,10 +171,12 @@ void Gui::updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUT
             strcpy(posteriors.TextBoxInnersText[j][i], truncDist[j].c_str());
         }
     }
+}
 
+void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
     // Update circle labels and rectangles
-    for(int i = 0; i < hyper.num_post; i++){
-        visualization.layoutRecsLabelInnersCircles[i] = (Rectangle){
+    for(int i = 0; i < posteriors.numPosteriors[channel]; i++){
+        visualization.layoutRecsLabelInnersCircles[channel][i] = (Rectangle){
             (float) innersCircles[i].center.x - 8,
             (float) innersCircles[i].center.y - 11,
             20,
@@ -190,4 +190,3 @@ void Gui::checkMouseHover(Vector2 mousePosition){
     helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = (channel.curChannel != CHANNEL_3 && CheckCollisionPointRec(mousePosition, channel.layoutRecsButtonRandom));
     helpMessagesActive[HELP_MSG_BUTTON_DRAW] = CheckCollisionPointRec(mousePosition, visualization.layoutRecsButtonDraw);
 }
-

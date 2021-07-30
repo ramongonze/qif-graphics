@@ -43,27 +43,38 @@ public:
     // Methods
     //------------------------------------------------------------------------------------
 
+    // Load all characters from custom font
     void readFonts();
 
-    /* Check if a textbox in prior or channel matrices was pressed.
+    /* Check wheter a textbox in prior was pressed.
 	 * Returns true if yes or false otherwise. */
-    bool checkTextBoxPressed();
+    bool checkPriorTextBoxPressed();
 
-    /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move
-	 * the pressed TextBox. */
-	void moveAmongTextBoxes();
+    /* Check wheter a textbox in the current channel was pressed.
+	 * Returns true if yes or false otherwise. */
+    bool checkChannelTextBoxPressed();
 
-	/* Update TextBoxes of prior distribution .*/
-	void updatePrior(Distribution &prior_, Circle &priorCircle);
+    /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move the pressed TextBox in prior. */
+    void moveAmongPriorTextBoxes();
 
-    void updatePriorRectangle(Circle &priorCircle);
+    /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move the pressed TextBox in the current channel. */
+    void moveAmongChannelTextBoxes();
+    
+    /* Update TextBoxes of prior distribution. */
+	void updatePriorTextBoxes(Distribution &prior_);
+
+    /* Update rectangle of prior circle label. */
+    void updateRectanglePriorCircleLabel(Circle &priorCircle);
 
     /* If a hyper-distributin has been built, update outer and inners TextBoxes;.
 	 * 
 	 * @Parameters:
-	 * 		hyper: Hyper-distribution;
+	 * 		channel: {CHANNEL_1, CHANNEL_2, CHANNEL_3}
 	 */
-	void updatePosteriors(Hyper &hyper, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
+	void updateHyperTextBoxes(Hyper &hyper, int channel, bool ready);
+
+    /* Update rectangles of inners circle labels. */
+    void updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
 
     // Fonts
     Font defaultFont;

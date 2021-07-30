@@ -1,11 +1,21 @@
 #include "data.h"
 
 Data::Data(){
-	hyperReady = false;
-    mouseClickedOnPrior = false;
+    // Flags
+    for(int i = 0; i < 8; i++){
+        compute[i] = false;
+        ready[i] = false;
+    }
+
+    for(int i = 0; i < NUMBER_CHANNELS; i++)
+        hyper[i] = Hyper();
+
     prior = vector<long double>(NUMBER_SECRETS, 0);
-    channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(MAX_CHANNEL_OUTPUTS, 0));
+    channel = vector<vector<vector<long double>>>(NUMBER_CHANNELS, vector<vector<long double>>(MAX_CHANNEL_OUTPUTS, vector<long double>(MAX_CHANNEL_OUTPUTS, 0)));
     error = NO_ERROR;
+    for(int i = 0; i < NUMBER_CHANNELS; i++)
+        hyperReady[i] = false;
+    mouseClickedOnPrior = false;
     fileSaved = true;
     
     // Calculates the number of frames the animation will have, considering the software is running in 60 FPS
@@ -50,22 +60,22 @@ int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
         
         return NO_ERROR;
     }catch(exception& e){
-        return INVALID_VALUE;
+        return INVALID_VALUE_PRIOR;
     }
 }
 
-int Data::checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs){
-    vector<vector<pair<string, string>>> newChannel(NUMBER_SECRETS, vector<pair<string, string>>(numOutputs));
-    vector<vector<string>> channelStr(NUMBER_SECRETS, vector<string>(numOutputs));
+int Data::checkChannelText(char channel_[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int channel, int numSecrets, int numOutputs){
+    vector<vector<pair<string, string>>> newChannel(numSecrets, vector<pair<string, string>>(numOutputs));
+    vector<vector<string>> channelStr(numSecrets, vector<string>(numOutputs));
 
-    for(int i = 0; i < NUMBER_SECRETS; i++){
+    for(int i = 0; i < numSecrets; i++){
     	for(int j = 0; j < numOutputs; j++){
     		channelStr[i][j] = string(channel_[i][j]);
     	}
     }
 
     try{
-        for(int i = 0; i < NUMBER_SECRETS; i++){
+        for(int i = 0; i < numSecrets; i++){
             for(int j = 0; j < numOutputs; j++){
                 size_t pos = channelStr[i][j].find('/');
                 if(pos != string::npos){ // If true, the user is typing a fraction
@@ -84,67 +94,66 @@ int Data::checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CH
         }
 
         // Update values. Columns and rows are inverted in channelStr.
-        this->channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(numOutputs));
-        for(int i = 0; i < NUMBER_SECRETS; i++){
+        this->channel[channel] = vector<vector<long double>>(numSecrets, vector<long double>(numOutputs));
+        for(int i = 0; i < numSecrets; i++){
         	for(int j = 0; j < numOutputs; j++){
         		if(newChannel[i][j].first == "not fraction"){
-        			this->channel[i][j] = std::stold(newChannel[i][j].second);
+        			this->channel[channel][i][j] = std::stold(newChannel[i][j].second);
         		}else{
-        			this->channel[i][j] = std::stold(newChannel[i][j].first)/std::stold(newChannel[i][j].second);
+        			this->channel[channel][i][j] = std::stold(newChannel[i][j].first)/std::stold(newChannel[i][j].second);
         		}
         	}
         }
 
         return NO_ERROR;
     }catch(exception& e){
-        return INVALID_VALUE;
+        if(channel == CHANNEL_1)
+            return INVALID_VALUE_CHANNEL_1;
+        return INVALID_VALUE_CHANNEL_2;
     }
 }
 
-void Data::buildCircles(Vector2 TrianglePoints[3]){
+void Data::buildPriorCircle(Vector2 TrianglePoints[3]){
+    Point p;
+    p = dist2Bary(priorObj);
+    p = bary2Pixel(p.x, p.y, TrianglePoints);    
+    priorCircle.center = Point(p.x, p.y);
+    priorCircle.radius = PRIOR_RADIUS;
+}
+	
+void Data::buildInnerCircles(Vector2 TrianglePoints[3], int channel, int mode){
     Point p;
 
-    if(animationRunning && animation == STEPS){
+    if(animationRunning && ((mode == MODE_SINGLE && animation == STEPS) || (mode != MODE_SINGLE && animation >= 2*STEPS))){
         // First draw of the animation
-
-        // Prior
-        p = dist2Bary(hyper.prior);
-        p = bary2Pixel(p.x, p.y, TrianglePoints);    
-        priorCircle.center = Point(p.x, p.y);
-        priorCircle.radius = PRIOR_RADIUS;
-
-        for(int i = 0; i < hyper.num_post; i++){
-            p = dist2Bary(hyper.inners[0][i], hyper.inners[1][i], hyper.inners[2][i]);
+        for(int i = 0; i < hyper[channel].num_post; i++){
+            p = dist2Bary(hyper[channel].inners[0][i], hyper[channel].inners[1][i], hyper[channel].inners[2][i]);
             p = bary2Pixel(p.x, p.y, TrianglePoints);
             // All inners starts in prior position
-            innersCircles[i].center = priorCircle.center;
-            innersCircles[i].radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
+            innersCircles[channel][i].center = priorCircle.center;
+            innersCircles[channel][i].radius = (int)sqrt(hyper[channel].outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
             
             long double deltaX = p.x - priorCircle.center.x;
             long double deltaY = p.y - priorCircle.center.y;
-            xJumpAnimation[i] = deltaX/STEPS;
-            yJumpAnimation[i] = deltaY/STEPS;
+            xJumpAnimation[channel][i] = deltaX/STEPS;
+            yJumpAnimation[channel][i] = deltaY/STEPS;
         }
         
         animation--;
     }else if(animationRunning && animation > 0){
-        for(int i = 0; i < hyper.num_post; i++){
-            innersCircles[i].center.x += xJumpAnimation[i];
-            innersCircles[i].center.y += yJumpAnimation[i];
+        // The animation is happening
+        for(int i = 0; i < hyper[channel].num_post; i++){
+            innersCircles[channel][i].center.x += xJumpAnimation[channel][i];
+            innersCircles[channel][i].center.y += yJumpAnimation[channel][i];
         }
         animation--;
     }else if((animationRunning && animation == 0) || animation == UPDATE_CIRCLES_BY_MOUSE){
-        // Prior
-        p = dist2Bary(hyper.prior);
-        p = bary2Pixel(p.x, p.y, TrianglePoints);    
-        priorCircle.center = Point(p.x, p.y);
-        priorCircle.radius = PRIOR_RADIUS;
-        
-        for(int i = 0; i < hyper.num_post; i++){
-            p = dist2Bary(hyper.inners[0][i], hyper.inners[1][i], hyper.inners[2][i]);
+        // The animation has finished or user moved the prior with the mouse
+        for(int i = 0; i < hyper[channel].num_post; i++){
+            p = dist2Bary(hyper[channel].inners[0][i], hyper[channel].inners[1][i], hyper[channel].inners[2][i]);
             p = bary2Pixel(p.x, p.y, TrianglePoints);
-            innersCircles[i].center = Point(p.x, p.y);
-            innersCircles[i].radius = (int)sqrt(hyper.outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
+            innersCircles[channel][i].center = Point(p.x, p.y);
+            innersCircles[channel][i].radius = (int)sqrt(hyper[channel].outer.prob[i] * PRIOR_RADIUS * PRIOR_RADIUS);
         }
         animationRunning = false;
     }
@@ -280,8 +289,7 @@ Point Data::adjustPrior(Vector2 TrianglePoints[3], Vector2 mouse){
     return p;
 }
 
-void Data::updateHyper(Vector2 TrianglePoints[3]){
-    
+void Data::updateHyper(Vector2 TrianglePoints[3], int mode){
     Point mousePosition;
     vector<long double> newPrior(NUMBER_SECRETS);
 
@@ -289,9 +297,16 @@ void Data::updateHyper(Vector2 TrianglePoints[3]){
     mousePosition = pixel2Bary(mousePosition.x, mousePosition.y, TrianglePoints);
     
     bary2Dist(mousePosition, newPrior);
-    Distribution D(newPrior);
-    hyper.rebuildHyper(D);
-    this->prior = vector<long double>({newPrior[0], newPrior[1], newPrior[2]});
+    priorObj = Distribution(newPrior);
+
+    hyper[CHANNEL_1].rebuildHyper(priorObj);
+
+    if(mode == MODE_TWO)
+        hyper[CHANNEL_2].rebuildHyper(priorObj);
+    else if(mode == MODE_REF)
+        hyper[CHANNEL_3].rebuildHyper(priorObj);
+
+    prior = vector<long double>({newPrior[0], newPrior[1], newPrior[2]});
 }
 
 void Data::newRandomPrior(){
@@ -308,24 +323,24 @@ void Data::newRandomPrior(){
     random_shuffle(prior.begin(), prior.end());
 }
 
-void Data::newRandomChannel(int num_out){
+void Data::newRandomChannel(int curChannel, int numSecrets, int numOutputs){
     srand(unsigned(time(0)));
-    vector<long double> prob(num_out);
-    this->channel = vector<vector<long double>>(NUMBER_SECRETS, vector<long double>(num_out, 0));
+    vector<long double> prob(numOutputs);
+    this->channel[curChannel] = vector<vector<long double>>(numSecrets, vector<long double>(numOutputs, 0));
 
-    for(int i = 0; i < NUMBER_SECRETS; i++){
+    for(int i = 0; i < numSecrets; i++){
         int threshold = 100, p;
-        for(int j = 0; j < num_out-1; j++){
+        for(int j = 0; j < numOutputs-1; j++){
             p = rand() % threshold;
             threshold -= p;
             prob[j] = p/100.0;
         }
-        prob[num_out-1] = threshold/100.0;
+        prob[numOutputs-1] = threshold/100.0;
 
         random_shuffle(prob.begin(), prob.end());
 
-        for(int j = 0; j < num_out; j++){
-            channel[i][j] = prob[j];
+        for(int j = 0; j < numOutputs; j++){
+            this->channel[curChannel][i][j] = prob[j];
         }
     }
 }

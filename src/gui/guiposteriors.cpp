@@ -2,7 +2,8 @@
 
 GuiPosteriors::GuiPosteriors(){
     // Data
-    numPosteriors = 3;
+    for(int i = 0; i < NUMBER_CHANNELS; i++)
+        numPosteriors[i] = 3;
     
     // Const text
     strcpy(GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AC]");
@@ -12,7 +13,9 @@ GuiPosteriors::GuiPosteriors(){
         LabelPosteriorsXText[i] = "X" + to_string(i+1);
     }
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        LabelPosteriorsText[i] = "\u03B4" + to_string(i+1);
+        LabelPosteriorsText[CHANNEL_1][i] = "\u03B4" + to_string(i+1);
+        LabelPosteriorsText[CHANNEL_2][i] = "\u03B4\'" + to_string(i+1);
+        LabelPosteriorsText[CHANNEL_3][i] = "\u03B4\'" + to_string(i+1);
     }
 
     // Define anchors
@@ -56,16 +59,20 @@ GuiPosteriors::GuiPosteriors(){
         }
     }
 
-    ScrollPanelPosteriorsContent.x = layoutRecsTextBoxInners[0][numPosteriors-1].x + TEXTBOX_SIZE;
+    ScrollPanelPosteriorsContent.x = layoutRecsTextBoxInners[0][2].x + TEXTBOX_SIZE;
 }
 
-void GuiPosteriors::resetPosteriors(){
-    numPosteriors = NUMBER_SECRETS;
+void GuiPosteriors::resetPosterior(int channel){
+    numPosteriors[channel] = NUMBER_SECRETS;
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
         strcpy(TextBoxOuterText[i], "0");
-        for(int j = 0; j < numPosteriors; j++){
+        for(int j = 0; j < numPosteriors[channel]; j++){
             strcpy(TextBoxInnersText[i][j], "0");
         }
     }
+}
+
+void GuiPosteriors::setScrollContent(int channel){
+    ScrollPanelPosteriorsContent.x = layoutRecsTextBoxInners[0][numPosteriors[channel]-1].x - 10 + TEXTBOX_SIZE;
 }

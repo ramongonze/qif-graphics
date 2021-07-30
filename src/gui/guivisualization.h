@@ -41,7 +41,7 @@ public:
     Rectangle layoutRecsTextBoxStatus;
     Rectangle layoutRecsPanelVisualization;
     Rectangle layoutRecsLabelPriorCircle;
-    Rectangle layoutRecsLabelInnersCircles[MAX_CHANNEL_OUTPUTS];
+    Rectangle layoutRecsLabelInnersCircles[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
     Rectangle layoutRecsLabelTriangle[3];
 
     /* Triangle vertices

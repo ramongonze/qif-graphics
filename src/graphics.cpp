@@ -80,6 +80,9 @@ vector<string> getStrTruncatedDist(Distribution dist, int precision){
 	vector<int> newDist(dist.num_el);
 	vector<string> newStrDist(dist.num_el);
 
+	if(dist.num_el == 0)
+		return newStrDist;
+
 	istringstream probs = istringstream(dist.toString(precision));
 	string prob;
 	int i = 0;
@@ -89,7 +92,7 @@ vector<string> getStrTruncatedDist(Distribution dist, int precision){
 		newStrDist[i] = prob;
 		i++;
 	}
-
+	
 	// Fix the probability distribution truncation increasing or decreasing the value of the last element
 	newDist[dist.num_el-1] += (1000 - sum);
 	if(newDist[dist.num_el-1] < 10){

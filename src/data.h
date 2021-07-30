@@ -14,6 +14,15 @@
 #define STEPS (ANIMATION_DURATION*FPS)
 #define UPDATE_CIRCLES_BY_MOUSE -1
 
+// Indexes to be used by attributes compute and ready
+#define FLAG_PRIOR 0
+#define FLAG_CHANNEL_1 1
+#define FLAG_CHANNEL_2 2
+#define FLAG_CHANNEL_3 3
+#define FLAG_HYPER_1 4
+#define FLAG_HYPER_2 5
+#define FLAG_HYPER_3 6
+
 class Data{
 public:
 	Data();
@@ -22,20 +31,29 @@ public:
     // Attributes
     //------------------------------------------------------------------------------------
 
-	Hyper hyper;				// Hyper-distribution
-	vector<vector<long double>> channel;			// Channel matrix
-	vector<long double> prior;	// Prior distribution
+	vector<long double> prior; // Prior distribution
+	Distribution priorObj;
+	vector<vector<vector<long double>>> channel; // Channel matrix
+	Channel channelObj[NUMBER_CHANNELS];
+	Hyper hyper[NUMBER_CHANNELS]; // Hyper-distributions
+
 	int error;		// Indicates if there is error with prior or channel
-	bool hyperReady;  // Flag that indicates wheter a hyper distribution has been built.
+	bool hyperReady[NUMBER_CHANNELS];  // Flag that indicates wheter a hyper distribution has been built.
 	bool mouseClickedOnPrior; // Flag that indicates wheter the mouse was clicked in the previous frame on the prior circle.
 	bool fileSaved; // Flag that indicates wheter the current prior/channel has been saved
 	int animation; // Animation control
 	bool animationRunning;
+	
+	// Flag for prior, channel and hypers to indicate if in that frame the object needs to be computed
+	bool compute[8];
+
+	// Flag to indicate if the prior, channel and hypers were checked and are ready to be drawn
+	bool ready[8];
 
 	Circle priorCircle;
-	Circle innersCircles[MAX_CHANNEL_OUTPUTS];
-	long double xJumpAnimation[MAX_CHANNEL_OUTPUTS]; 		// x axis jump per inner
-	long double yJumpAnimation[MAX_CHANNEL_OUTPUTS]; 		// y axis jump per inner
+	Circle innersCircles[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
+	long double xJumpAnimation[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS]; 		// x axis jump per inner
+	long double yJumpAnimation[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS]; 		// y axis jump per inner
 
 	//------------------------------------------------------------------------------------
     // Methods
@@ -49,11 +67,15 @@ public:
 	/* Check if the numbers or fractions were typed correctly in the channel.
 	 * If so, conver text to long double values and add them to this->channel.
 	 * Returns NO_ERROR or INVALID_VALUE */
-	int checkChannelText(char channel_[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs);
+	int checkChannelText(char channel_[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int channel, int numSecrets, int numOutputs);
 
-	/* Create circle points and radius.
-	 * It asssumes that the hyper distribution attribute has already been built. */
-	void buildCircles(Vector2 TrianglePoints[3]);
+	/* Calculate circle points and radius for prior. */
+	void buildPriorCircle(Vector2 TrianglePoints[3]);
+	
+	/* Calculate circle points and radius for inners of a given channel.
+	   It asssumes the hyper distribution has been already built and
+	   that buildPriorCircle has been already called. */
+	void buildInnerCircles(Vector2 TrianglePoints[3], int channel, int mode);
 
 	/* Given three points, returns 0 if the orientation is colinear, 1 if it is
 	 * clock wise or 2 if it is counterclock wise. */
@@ -73,7 +95,7 @@ public:
 	 *		TrianglePoints: From Layout object.
 	 *
      */
-	void updateHyper(Vector2 TrianglePoints[3]);
+	void updateHyper(Vector2 TrianglePoints[3], int mode);
 
 	/* Generates a new random prior and keeps it in attribute 'prior'. */
 	void newRandomPrior();
@@ -83,7 +105,7 @@ public:
 	 * @Parameters:
 	 *		num_out: Number of outputs in L->TextBoxesChannelText.
 	*/
-	void newRandomChannel(int num_out);
+	void newRandomChannel(int curChannel, int numSecrets, int numOutputs);
 };
 
 #endif

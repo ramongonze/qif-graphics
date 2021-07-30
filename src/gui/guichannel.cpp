@@ -70,6 +70,14 @@ GuiChannel::GuiChannel(){
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;
 }
 
+bool GuiChannel::checkChannelSpinner(int mode){
+    if(SpinnerChannelValue[curChannel] != numOutputs[curChannel]){
+        updateChannelBySpinner(curChannel, mode);
+        return true;
+    }
+    return false;
+}
+
 void GuiChannel::updateChannelBySpinner(int channel, int mode){
     if(SpinnerChannelValue[channel] <= 0){
         SpinnerChannelValue[channel] = 1;

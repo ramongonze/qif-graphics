@@ -26,6 +26,7 @@ typedef struct WebLoopVariables{
     Gui gui;
     Data data;
     bool closeWindow;
+    int mode;
 } WebLoopVariables;
 
 #if defined(PLATFORM_WEB)
@@ -38,21 +39,24 @@ typedef struct WebLoopVariables{
 void updateDrawFrame(void* vars_);     // Update and Draw one frame
 void initStyle();
 void readFonts(Font* defaultFont, Font* defaultFontBig);
-void printError(int error, GuiVisualization &visualization);
+void updateStatusBar(int error, GuiVisualization &visualization);
 void checkButtonsMouseCollision(Gui &gui);
-void calculatePosteriors(Gui &gui, Data &data);
 void checkHelpMessagesActive(Gui &gui, Vector2 mousePosition);
+void checkPriorFlags(Gui &gui, Data &data); // Check compute and ready prior flags
+void checkChannelsFlags(Gui &gui, Data &data); // Check compute and ready channels flags
+void checkHypersFlags(Gui &gui, Data &data); // Check compute and ready hypers flags
 
 //----------------------------------------------------------------------------------
 // Draw Functions Declaration
 //----------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow);
+void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow);
 void drawGuiPrior(Gui &gui, Data &data);
 void drawGuiChannel(Gui &gui, Data &data);
-void drawGuiPosteriors(Gui &gui);
+void drawGuiPosteriors(Gui &gui, Data &data);
 void drawGuiVisualization(Gui &gui, Data &data);
 void drawGettingStarted(Gui &gui);
-void drawCircles(Gui &gui, Data &data);
+void drawCirclePrior(Gui &gui, Data &data);
+void drawCirclesInners(Gui &gui, Data &data, int channel);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Font font);
 void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding);
 void drawHelpMessage(Gui &gui, Rectangle rec, char message[CHAR_BUFFER_SIZE]);
@@ -61,8 +65,9 @@ void drawTab(Gui &gui, int channel, bool active);        // If the tab is curren
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-void buttonFile(Gui &gui, Data &data, bool *closeWindow);
-void buttonExamples(Gui &gui);
+void buttonFile(Gui &gui, Data &data, bool* closeWindow);
+void buttonMode(Gui &gui, Data &data, int* prevMode, int curMode);
+void buttonExamples(Gui &gui, Data &data);
 void buttonHelp(Gui &gui);
 void buttonRandomPrior(Gui &gui, Data &data);
 void buttonsTabs(Gui &gui, int channel);
@@ -78,8 +83,9 @@ int main(){
     InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "QIF Graphics");
     WebLoopVariables vars;
     vars.closeWindow = false;
+    vars.mode = MODE_SINGLE;
+    vars.gui.posteriors.resetPosterior(CHANNEL_1);
     GuiSetFont(vars.gui.defaultFont); // Set default font
-
     initStyle();
 
 #if defined(PLATFORM_WEB)
@@ -110,71 +116,128 @@ void updateDrawFrame(void* vars_){
     Gui* gui = &(vars->gui);
     Data* data = &(vars->data);
     bool* closeWindow = &(vars->closeWindow);
+    int* mode = &(vars->mode);
 
     // Update
     //----------------------------------------------------------------------------------
     *closeWindow = WindowShouldClose();
     Vector2 mousePosition = GetMousePosition();
     
-    // Menu buttons
+    // Menu
+    //----------------------------------------------------------------------------------
     checkButtonsMouseCollision(*gui);
     buttonFile(*gui, *data, closeWindow);
-    buttonExamples(*gui);
+    buttonMode(*gui, *data, mode, gui->menu.dropdownBoxActive[BUTTON_MODE]);
+    buttonExamples(*gui, *data);
     buttonHelp(*gui);
+    //----------------------------------------------------------------------------------
 
-    // Check if channel spinner value was changed
-    if(gui->channel.SpinnerChannelValue[gui->channel.curChannel] != gui->channel.numOutputs[gui->channel.curChannel]){
-        gui->drawing = false;
-        data->fileSaved = false;
-        gui->channel.updateChannelBySpinner(gui->channel.curChannel, gui->menu.dropdownBoxActive[BUTTON_MODE]);
-    }
+    data->error = NO_ERROR;
 
-    gui->channel.checkModeAndSizes(gui->menu.dropdownBoxActive[BUTTON_MODE]);
-    gui->channel.setScrollContent();
-
+    // Prior
+    //----------------------------------------------------------------------------------
     // Check if a TextBox is being pressed
-    if(gui->checkTextBoxPressed()){
+    if(gui->checkPriorTextBoxPressed()){
         gui->drawing = false;
-        data->error = false;
         data->fileSaved = false;
-        printError(data->error, gui->visualization);
+        data->compute[FLAG_PRIOR] = true;
+        data->ready[FLAG_PRIOR] = false;
+        updateStatusBar(NO_ERROR, gui->visualization);
 
-        if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || 
-            IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
-            gui->moveAmongTextBoxes();
+        if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+            gui->moveAmongPriorTextBoxes();
+        }
+    }
+    
+    checkPriorFlags(*gui, *data);
+    //----------------------------------------------------------------------------------
+
+    // Channels
+    //----------------------------------------------------------------------------------
+    // Check if spinner of the current channel has been changed
+    if(gui->channel.checkChannelSpinner(*mode)){
+        gui->drawing = false;
+        data->fileSaved = false;
+        data->compute[gui->channel.curChannel+1] = true;
+        data->ready[gui->channel.curChannel+1] = false;
+        updateStatusBar(NO_ERROR, gui->visualization);
+    }
+    
+    // Check if a TextBox is being pressed
+    if(gui->checkChannelTextBoxPressed()){
+        gui->drawing = false;
+        data->fileSaved = false;
+        data->compute[gui->channel.curChannel+1] = true;
+        data->ready[gui->channel.curChannel+1] = false;
+        updateStatusBar(NO_ERROR, gui->visualization);
+
+        if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
+            gui->moveAmongChannelTextBoxes();
         }
     }
 
-    // Check if prior circle was moved
-    if(gui->drawing){
-        // Animation
-        if(data->animationRunning){
-            data->buildCircles(gui->visualization.trianglePoints);
-        }
+    checkChannelsFlags(*gui, *data);
+    gui->channel.checkModeAndSizes(*mode);
+    gui->channel.setScrollContent();
+    //----------------------------------------------------------------------------------
 
+    // Hypers
+    //----------------------------------------------------------------------------------
+    checkHypersFlags(*gui, *data);
+    gui->posteriors.setScrollContent(gui->channel.curChannel);
+    //----------------------------------------------------------------------------------
+
+    // Visualization
+    //----------------------------------------------------------------------------------
+    if(gui->drawing){
         // Moving prior with mouse
         if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && euclidianDistance(data->priorCircle.center, mousePosition) <= PRIOR_RADIUS){
             data->mouseClickedOnPrior = true;
         }
-
-        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data->mouseClickedOnPrior = false;
         
+        if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data->mouseClickedOnPrior = false;
+
         if(data->mouseClickedOnPrior){
             data->fileSaved = false;
-            data->updateHyper(gui->visualization.trianglePoints);
+            data->updateHyper(gui->visualization.trianglePoints, *mode);
+            for(int i = 0; i < NUMBER_CHANNELS; i++)
+                gui->posteriors.numPosteriors[i] = data->hyper[i].num_post;
             data->animation = UPDATE_CIRCLES_BY_MOUSE;
-            data->buildCircles(gui->visualization.trianglePoints);
-            gui->updatePrior(data->hyper.prior, data->priorCircle);
-            gui->updatePosteriors(data->hyper, data->innersCircles);
+            
+            data->buildPriorCircle(gui->visualization.trianglePoints);
+            gui->updateRectanglePriorCircleLabel(data->priorCircle);
+            gui->updatePriorTextBoxes(data->priorObj);
+
+            data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_1, *mode);
+            gui->updateRectangleInnersCircleLabel(CHANNEL_1, data->innersCircles[CHANNEL_1]);
+            if(*mode == MODE_TWO){
+                data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_2, *mode);
+                gui->updateRectangleInnersCircleLabel(CHANNEL_2, data->innersCircles[CHANNEL_2]);
+            }else if(*mode == MODE_REF){
+                data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_3, *mode);
+                gui->updateRectangleInnersCircleLabel(CHANNEL_3, data->innersCircles[CHANNEL_3]);
+            }
+        }
+
+        if(data->animationRunning){
+            // I assume the prior circle was already built    
+            data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_1, *mode);
+            gui->updateRectangleInnersCircleLabel(CHANNEL_1, data->innersCircles[CHANNEL_1]);
+            if(*mode == MODE_TWO){
+                data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_2, *mode);
+                gui->updateRectangleInnersCircleLabel(CHANNEL_2, data->innersCircles[CHANNEL_2]);
+            }else if(*mode == MODE_REF){
+                data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_3, *mode);
+                gui->updateRectangleInnersCircleLabel(CHANNEL_3, data->innersCircles[CHANNEL_3]);
+            }
         }
     }
-    
-    // If prior and channel are ok, udpate and show posteriors
-    calculatePosteriors(*gui, *data);
+    //----------------------------------------------------------------------------------
+
+    gui->updateHyperTextBoxes(data->hyper[gui->channel.curChannel], gui->channel.curChannel, data->ready[FLAG_HYPER_1+gui->channel.curChannel]);
 
     // Help messages
     gui->checkMouseHover(mousePosition);
-
     //----------------------------------------------------------------------------------
 
     // Draw
@@ -188,7 +251,7 @@ void updateDrawFrame(void* vars_){
         if(gui->menu.windowGettingStartedActive) GuiLock();
         drawGuiPrior(*gui, *data);
         drawGuiChannel(*gui, *data);
-        drawGuiPosteriors(*gui);
+        drawGuiPosteriors(*gui, *data);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
         checkHelpMessagesActive(*gui, mousePosition);
@@ -237,16 +300,25 @@ void initStyle(){
     GuiSetStyle(SPINNER, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_RIGHT);
 }
 
-void printError(int error, GuiVisualization &visualization){
+void updateStatusBar(int error, GuiVisualization &visualization){
 	switch(error){
-		case INVALID_VALUE:
-			strcpy(visualization.TextBoxStatusText, "Some value in prior or channel is invalid!");
+		case INVALID_VALUE_PRIOR:
+			strcpy(visualization.TextBoxStatusText, "Some value in prior is invalid!");
+			break;
+        case INVALID_VALUE_CHANNEL_1:
+			strcpy(visualization.TextBoxStatusText, "Some value in channel C is invalid!");
+			break;
+        case INVALID_VALUE_CHANNEL_2:
+			strcpy(visualization.TextBoxStatusText, "Some value in channel R is invalid!");
 			break;
 		case INVALID_PRIOR:
-			strcpy(visualization.TextBoxStatusText, "The prior distribution is invalid!");
+			strcpy(visualization.TextBoxStatusText, "Prior distribution is not valid!");
 			break;
-		case INVALID_CHANNEL:
-			strcpy(visualization.TextBoxStatusText, "The channel is invalid!");
+		case INVALID_CHANNEL_1:
+			strcpy(visualization.TextBoxStatusText, "Channel C is invalid!");
+			break;
+        case INVALID_CHANNEL_2:
+			strcpy(visualization.TextBoxStatusText, "Channel R is invalid!");
 			break;
 		case NO_ERROR:
 			strcpy(visualization.TextBoxStatusText, "Status");
@@ -286,30 +358,6 @@ void checkButtonsMouseCollision(Gui &gui){
     }
 }
 
-void calculatePosteriors(Gui &gui, Data &data){
-    data.error = NO_ERROR;
-
-    // Check if prior and channel are ok
-    if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR && data.checkChannelText(gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]) == NO_ERROR){
-        // Check if typed numbers represent distributions
-        if(Distribution::isDistribution(data.prior) == false) data.error = INVALID_PRIOR;
-        else if(Channel::isChannel(data.channel) == false) data.error = INVALID_CHANNEL;
-
-        if(data.error == NO_ERROR){
-            Distribution newPrior(data.prior);
-            Channel newChannel(newPrior, data.channel);
-            data.hyper = Hyper(newChannel);
-            gui.updatePriorRectangle(data.priorCircle);
-            gui.updatePosteriors(data.hyper, data.innersCircles);
-        }else{
-            gui.posteriors.resetPosteriors();
-        }
-    }else{
-        data.error = INVALID_VALUE;
-        gui.posteriors.resetPosteriors();
-    }
-}
-
 void checkHelpMessagesActive(Gui &gui, Vector2 mousePosition){
     if(gui.helpMessagesActive[HELP_MSG_BUTTON_PRIOR])
         drawHelpMessage(gui, (Rectangle){mousePosition.x+10, mousePosition.y+10, 220, 60}, gui.helpMessages[HELP_MSG_BUTTON_PRIOR]);
@@ -323,10 +371,94 @@ void checkHelpMessagesActive(Gui &gui, Vector2 mousePosition){
     initStyle();
 }
 
+void checkPriorFlags(Gui &gui, Data &data){
+    if(data.compute[FLAG_PRIOR]){
+        if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR){            
+            if(Distribution::isDistribution(data.prior)){
+                data.priorObj = Distribution(data.prior);
+                data.ready[FLAG_PRIOR] = true;
+            }else{
+                data.error = INVALID_PRIOR;
+                data.ready[FLAG_PRIOR] = false;
+                for(int i = 0; i < NUMBER_CHANNELS; i++)
+                    gui.posteriors.resetPosterior(i);
+            }
+        }else{
+            data.error = INVALID_VALUE_PRIOR;
+            data.ready[FLAG_PRIOR] = false;
+            for(int i = 0; i < NUMBER_CHANNELS; i++)
+                gui.posteriors.resetPosterior(i);
+        }
+        
+        data.compute[FLAG_PRIOR] = false;
+    }else if(!data.ready[FLAG_PRIOR]){
+        data.error = INVALID_PRIOR;
+    }
+}
+
+void checkChannelsFlags(Gui &gui, Data &data){
+    // If prior is not ready, there is no reason to compute channel
+    if(!data.ready[FLAG_PRIOR])
+        return;
+
+    for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
+        if(data.compute[FLAG_CHANNEL_1+channel]){
+            if(data.checkChannelText(gui.channel.TextBoxChannelText[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
+                if(Channel::isChannel(data.channel[channel])){
+                    data.channelObj[channel] = Channel(data.priorObj, data.channel[channel]);
+                    data.ready[FLAG_CHANNEL_1+channel] = true;
+                    data.compute[FLAG_HYPER_1+channel] = true; // Set hyper to be computed
+                }else{
+                    data.error = INVALID_CHANNEL_1 + channel;
+                    data.ready[FLAG_CHANNEL_1+channel] = false;
+                    data.ready[FLAG_HYPER_1+channel] = false;
+                    data.compute[FLAG_HYPER_1+channel] = false;
+                    gui.posteriors.resetPosterior(channel);
+                }
+            }else{
+                data.error = INVALID_VALUE_CHANNEL_1 + channel;
+                data.ready[FLAG_CHANNEL_1+channel] = false;
+                data.ready[FLAG_HYPER_1+channel] = false;
+                data.compute[FLAG_HYPER_1+channel] = false;
+                gui.posteriors.resetPosterior(channel);
+            }
+            data.compute[FLAG_CHANNEL_1+channel] = false;
+        }else{
+            int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+            if(channel == CHANNEL_1 && !data.ready[FLAG_CHANNEL_1]){
+                data.error = INVALID_CHANNEL_1;
+            }else if(channel == CHANNEL_2 && mode == MODE_TWO && !data.ready[FLAG_CHANNEL_2]){
+                data.error = INVALID_CHANNEL_2;
+            }else if(channel == CHANNEL_3 && mode == MODE_REF && !data.ready[FLAG_CHANNEL_3]){
+                data.error = INVALID_CHANNEL_3;
+            }
+        }
+    }
+}
+
+void checkHypersFlags(Gui &gui, Data &data){
+    // If prior is not ready, there is no reason to compute the hyper
+    if(!data.ready[FLAG_PRIOR])
+        return;
+
+    for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
+        // If channel is not ready, there is no reason to compute the hyper
+        if(!data.ready[FLAG_CHANNEL_1+channel])
+            return;
+
+        if(data.compute[FLAG_HYPER_1+channel]){
+            data.hyper[channel] = Hyper(data.channelObj[channel]);
+            gui.posteriors.numPosteriors[channel] = data.hyper[channel].num_post;
+            data.ready[FLAG_HYPER_1+channel] = true;
+            data.compute[FLAG_HYPER_1+channel] = false;
+        }
+    }
+}
+
 //------------------------------------------------------------------------------------
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void drawGuiMenu(Gui &gui, Data &data, bool *closeWindow){
+void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
     DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
 
     GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
@@ -455,7 +587,14 @@ void drawGuiChannel(Gui &gui, Data &data){
     EndScissorMode();
 }
 
-void drawGuiPosteriors(Gui &gui){
+void drawGuiPosteriors(Gui &gui, Data &data){
+    if(gui.channel.curChannel == CHANNEL_1)
+        strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AC]");
+    else if(gui.channel.curChannel == CHANNEL_2)
+        strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AR]");
+    else if(gui.channel.curChannel == CHANNEL_3)
+        strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203ACR]");
+    
     drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, gui.defaultFont);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
@@ -467,17 +606,19 @@ void drawGuiPosteriors(Gui &gui){
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
-        GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelOuter.width, gui.posteriors.layoutRecsLabelOuter.height}, gui.posteriors.LabelOuterText);
+        if(gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_REF || gui.channel.curChannel != CHANNEL_2){
+            GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelOuter.width, gui.posteriors.layoutRecsLabelOuter.height}, gui.posteriors.LabelOuterText);
 
-        for(int i = 0; i < gui.posteriors.numPosteriors; i++){
-            GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelPosteriors[i].width, gui.posteriors.layoutRecsLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[i].c_str());
-            GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxOuter[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxOuter[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxOuter[i].width, gui.posteriors.layoutRecsTextBoxOuter[i].height}, gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
-        }
+            for(int i = 0; i < gui.posteriors.numPosteriors[gui.channel.curChannel]; i++){
+                GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelPosteriors[i].width, gui.posteriors.layoutRecsLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[gui.channel.curChannel][i].c_str());
+                GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxOuter[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxOuter[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxOuter[i].width, gui.posteriors.layoutRecsTextBoxOuter[i].height}, gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
+            }
 
-        for(int i = 0; i < NUMBER_SECRETS; i++){
-            GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelX[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelX[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelX[i].width, gui.posteriors.layoutRecsLabelX[i].height}, gui.posteriors.LabelPosteriorsXText[i].c_str());
-            for(int j = 0; j < gui.posteriors.numPosteriors; j++){
-                GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxInners[i][j].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxInners[i][j].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxInners[i][j].width, gui.posteriors.layoutRecsTextBoxInners[i][j].height}, gui.posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxInnersEditMode[i][j]);
+            for(int i = 0; i < NUMBER_SECRETS; i++){
+                GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelX[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelX[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelX[i].width, gui.posteriors.layoutRecsLabelX[i].height}, gui.posteriors.LabelPosteriorsXText[i].c_str());
+                for(int j = 0; j < gui.posteriors.numPosteriors[gui.channel.curChannel]; j++){
+                    GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxInners[i][j].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxInners[i][j].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxInners[i][j].width, gui.posteriors.layoutRecsTextBoxInners[i][j].height}, gui.posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxInnersEditMode[i][j]);
+                }
             }
         }
     EndScissorMode();
@@ -504,12 +645,20 @@ void drawGuiVisualization(Gui &gui, Data &data){
     if(gui.drawing){
         // Triangle
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
-        for(int i = 0; i < 3; i++){
+        for(int i = 0; i < NUMBER_SECRETS; i++){
             DrawTextEx(gui.defaultFontBig, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
         }
         
+        int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+
         // Circles
-        drawCircles(gui, data);
+        drawCirclePrior(gui, data);
+        drawCirclesInners(gui, data, CHANNEL_1);
+
+        if(mode == MODE_TWO)
+            drawCirclesInners(gui, data, CHANNEL_2);
+        else if(mode == MODE_REF)
+            drawCirclesInners(gui, data, CHANNEL_3);
     }
 }
 
@@ -537,21 +686,31 @@ void drawGettingStarted(Gui &gui){
     }
 }
 
-void drawCircles(Gui &gui, Data &data){
-	// Prior
+void drawCirclePrior(Gui &gui, Data &data){
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
     DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
     DrawTextEx(gui.defaultFontBig, gui.visualization.LabelPriorCircleText, (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
+}
 
-	// Inners
-	for(int i = 0; i < data.hyper.num_post; i++){
-        DrawCircle(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR);
-        DrawCircleLines(data.innersCircles[i].center.x, data.innersCircles[i].center.y, data.innersCircles[i].radius, INNERS_COLOR_LINES);
+void drawCirclesInners(Gui &gui, Data &data, int channel){
+	for(int i = 0; i < data.hyper[channel].num_post; i++){
+        Color colorFill, colorLines;
+        if(channel == CHANNEL_1){
+            colorFill = INNERS_COLOR;
+            colorLines = INNERS_COLOR_LINES;
+        }else{
+            colorFill = INNERS2_COLOR;
+            colorLines = INNERS2_COLOR_LINES;
+        }
+
+        DrawCircle(data.innersCircles[channel][i].center.x, data.innersCircles[channel][i].center.y, data.innersCircles[channel][i].radius, colorFill);
+        DrawCircleLines(data.innersCircles[channel][i].center.x, data.innersCircles[channel][i].center.y, data.innersCircles[channel][i].radius, colorLines);
         
-        if(data.hyper.outer.prob[i] < 0.1f)
-            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x-25, gui.visualization.layoutRecsLabelInnersCircles[i].y-25}, 26, 1.0, BLACK);
+        // Decide to write label inside or outside the circle
+        if(data.hyper[channel].outer.prob[i] < 0.1f)
+            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-25, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
         else
-            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[i].x-5, gui.visualization.layoutRecsLabelInnersCircles[i].y-5}, 26, 1.0, BLACK);
+            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-5, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
 	}
 }
 
@@ -623,7 +782,7 @@ void drawTab(Gui &gui, int channel, bool active){
 //------------------------------------------------------------------------------------
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
-void buttonFile(Gui &gui, Data &data, bool *closeWindow){
+void buttonFile(Gui &gui, Data &data, bool* closeWindow){
     switch(gui.menu.dropdownBoxActive[BUTTON_FILE]){
         case BUTTON_FILE_OPTION_OPEN:
         #if !defined(PLATFORM_WEB)
@@ -699,7 +858,16 @@ void buttonFile(Gui &gui, Data &data, bool *closeWindow){
     gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;
 }
 
-void buttonExamples(Gui &gui){
+void buttonMode(Gui &gui, Data &data, int* prevMode, int curMode){
+    if(*prevMode != curMode){
+        gui.drawing = false;
+        updateStatusBar(NO_ERROR, gui.visualization);
+    }
+
+    *prevMode = curMode;
+}
+
+void buttonExamples(Gui &gui, Data &data){
     switch(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]){
         char newChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
@@ -719,6 +887,8 @@ void buttonExamples(Gui &gui){
             }
 
             GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numSecrets[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]);
+            data.compute[gui.channel.curChannel+1] = true;
+            data.ready[gui.channel.curChannel+1] = false;
             gui.drawing = false;
             break;
         case BUTTON_EXAMPLES_OPTION_CH_1:
@@ -734,6 +904,8 @@ void buttonExamples(Gui &gui){
             }
 
             GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numSecrets[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]);
+            data.compute[gui.channel.curChannel+1] = true;
+            data.ready[gui.channel.curChannel+1] = false;
             gui.drawing = false;
             break;
         default:
@@ -762,33 +934,87 @@ void buttonRandomPrior(Gui &gui, Data &data){
     data.newRandomPrior();
     gui.drawing = false;
     data.fileSaved = false;
+    data.compute[FLAG_PRIOR] = true;
+    data.ready[FLAG_PRIOR] = false;
     Distribution newPrior(data.prior);
-    gui.updatePrior(newPrior, data.priorCircle);
+    gui.updatePriorTextBoxes(newPrior);
 }
 
 void buttonsTabs(Gui &gui, int channel){
     gui.channel.curChannel = channel;
+    gui.drawing = false;
+    updateStatusBar(NO_ERROR, gui.visualization);
 }
 
 void buttonRandomChannel(Gui &gui, Data &data){
-    if(data.error == INVALID_CHANNEL){
+    if(data.error == INVALID_CHANNEL_1 || data.error == INVALID_CHANNEL_2){
         data.error = NO_ERROR;
         strcpy(gui.visualization.TextBoxStatusText, "Status");
     }
     
-    data.newRandomChannel(gui.channel.numOutputs[gui.channel.curChannel]);
+    data.newRandomChannel(gui.channel.curChannel, gui.channel.numSecrets[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]);
     gui.drawing = false;
     data.fileSaved = false;
-    gui.channel.updateChannelTextBoxes(data.channel);
+    gui.channel.updateChannelTextBoxes(data.channel[gui.channel.curChannel]);
+    data.compute[FLAG_CHANNEL_1+gui.channel.curChannel] = true;
+    data.ready[FLAG_CHANNEL_1+gui.channel.curChannel] = false;
 }
 
 void buttonDraw(Gui &gui, Data &data){
-    if(data.error == NO_ERROR){
+    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    if(mode == MODE_SINGLE){
+        if(!data.ready[FLAG_HYPER_1]){
+            updateStatusBar(data.error, gui.visualization);
+            return;
+        }
+
         gui.drawing = true;
         data.animationRunning = true;
         data.animation = STEPS;
-        data.buildCircles(gui.visualization.trianglePoints);
-    }else{
-        printError(data.error, gui.visualization);
-    }    
+
+        data.buildPriorCircle(gui.visualization.trianglePoints);
+        gui.updateRectanglePriorCircleLabel(data.priorCircle);
+        gui.updatePriorTextBoxes(data.priorObj);
+
+        data.buildInnerCircles(gui.visualization.trianglePoints, CHANNEL_1, mode);
+        gui.updateRectangleInnersCircleLabel(CHANNEL_1, data.innersCircles[CHANNEL_1]);
+    }else if(mode == MODE_TWO){
+        if(!data.ready[FLAG_HYPER_1] || !data.ready[FLAG_HYPER_2]){
+            updateStatusBar(data.error, gui.visualization);
+            return;
+        }
+
+        gui.drawing = true;
+        data.animationRunning = true;
+        data.animation = 2*STEPS+1;
+
+        data.buildPriorCircle(gui.visualization.trianglePoints);
+        gui.updateRectanglePriorCircleLabel(data.priorCircle);
+        gui.updatePriorTextBoxes(data.priorObj);
+
+        data.buildInnerCircles(gui.visualization.trianglePoints, CHANNEL_1, mode);
+        gui.updateRectangleInnersCircleLabel(CHANNEL_1, data.innersCircles[CHANNEL_1]);
+
+        data.buildInnerCircles(gui.visualization.trianglePoints, CHANNEL_2, mode);
+        gui.updateRectangleInnersCircleLabel(CHANNEL_2, data.innersCircles[CHANNEL_2]);
+    }else if(mode == MODE_REF){
+        if(!data.ready[FLAG_HYPER_1] || !data.ready[FLAG_HYPER_3]){
+            updateStatusBar(data.error, gui.visualization);
+            return;
+        }
+
+        gui.drawing = true;
+        data.animationRunning = true;
+        data.animation = 2*STEPS+1;
+
+        data.buildPriorCircle(gui.visualization.trianglePoints);
+        gui.updateRectanglePriorCircleLabel(data.priorCircle);
+        gui.updatePriorTextBoxes(data.priorObj);
+
+        data.buildInnerCircles(gui.visualization.trianglePoints, CHANNEL_1, mode);
+        gui.updateRectangleInnersCircleLabel(CHANNEL_1, data.innersCircles[CHANNEL_1]);
+
+        data.buildInnerCircles(gui.visualization.trianglePoints, CHANNEL_3, mode);
+        gui.updateRectangleInnersCircleLabel(CHANNEL_3, data.innersCircles[CHANNEL_3]);
+    }
 }

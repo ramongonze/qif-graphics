@@ -9,10 +9,15 @@ using namespace std;
 
 // Errors ------------------------------------------------------------------------------------
 #define NO_ERROR 0
-#define INVALID_CHANNEL 1
-#define INVALID_PRIOR 2 
-#define INVALID_VALUE 3 // i.e. "1/$2"
-#define INVALID_QIF_FILE 4
+#define INVALID_PRIOR 1
+#define INVALID_CHANNEL_1 2
+#define INVALID_CHANNEL_2 3
+#define INVALID_CHANNEL_3 4
+#define INVALID_VALUE_PRIOR 5 // i.e. "1/$2"
+#define INVALID_VALUE_CHANNEL_1 6 // i.e. "1/$2"
+#define INVALID_VALUE_CHANNEL_2 7 // i.e. "1/$2"
+#define INVALID_VALUE_CHANNEL_3 8 // i.e. "1/$2"
+#define INVALID_QIF_FILE 9
 
 // Settings ------------------------------------------------------------------------------------
 #define WINDOWS_WIDTH 750
@@ -48,6 +53,8 @@ using namespace std;
 #define PRIOR_COLOR_LINES  CLITERAL(Color){0, 102, 204, 240}
 #define INNERS_COLOR  CLITERAL(Color){40, 164, 40, 210}
 #define INNERS_COLOR_LINES  CLITERAL(Color){40, 164, 40, 240}
+#define INNERS2_COLOR  CLITERAL(Color){102, 102, 255, 210}
+#define INNERS2_COLOR_LINES  CLITERAL(Color){102, 102, 255, 240}
 
 // Prior probability distribution radius (in pixels) ----------------------------------------------/
 #define PRIOR_RADIUS 50

@@ -19,12 +19,12 @@ public:
     //------------------------------------------------------------------------------------
 
     // Data
-    int numPosteriors;
+    int numPosteriors[NUMBER_CHANNELS];
 
     // Const text
     char GroupBoxPosteriorsText[CHAR_BUFFER_SIZE];
     char LabelOuterText[CHAR_BUFFER_SIZE];
-    string LabelPosteriorsText[MAX_CHANNEL_OUTPUTS];
+    string LabelPosteriorsText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
     string LabelPosteriorsXText[NUMBER_SECRETS];
 
     // Define anchors
@@ -55,7 +55,10 @@ public:
     //------------------------------------------------------------------------------------
 
     // Reset the number of posterior to 3 and fill with zeros
-    void resetPosteriors();
+    void resetPosterior(int channel);
+
+    // Set right scroll bounds for a given channel
+    void setScrollContent(int channel);
 };
 
 #endif

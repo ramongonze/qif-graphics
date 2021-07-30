@@ -62,6 +62,18 @@ public:
     // Methods
     //------------------------------------------------------------------------------------
 
+    /* Check wheter the spinner of the current channel has been changed.
+       If yes, call updatedChannelBySpinner.
+       If no, does nothing.
+
+       @Parameters
+            mode: {MODE_SINGLE, MODE_TWO, MODE_REF}
+
+        @Returns
+            true if the spinner has been changed and false otherwise.       
+    */
+    bool checkChannelSpinner(int mode);
+
     /* If the channel spinner was changed, update the TextBoxChannel matrices
         channel: {0,1,2} current channel.
         mode: {MODE_SINGLE, MODE_TWO, MODE_REF}
