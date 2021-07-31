@@ -684,6 +684,15 @@ void drawGuiVisualization(Gui &gui, Data &data){
     GuiPanel(gui.visualization.layoutRecsPanelVisualization);
 
     if(gui.drawing){
+        // Checkboxes
+        GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        GuiSetStyle(LABEL, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+        GuiSetStyle(LABEL, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+        GuiSetStyle(CHECKBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        GuiSetStyle(CHECKBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+        GuiSetStyle(CHECKBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+        gui.showLabels = GuiCheckBox(gui.visualization.layoutRecsCheckboxShowLabels, gui.visualization.LabelCheckboxShowLabel, gui.showLabels);
+
         // Triangle
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
         for(int i = 0; i < NUMBER_SECRETS; i++){
@@ -730,7 +739,7 @@ void drawGettingStarted(Gui &gui){
 void drawCirclePrior(Gui &gui, Data &data){
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
     DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
-    DrawTextEx(gui.defaultFontBig, gui.visualization.LabelPriorCircleText, (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
+    if(gui.showLabels) DrawTextEx(gui.defaultFontBig, gui.visualization.LabelPriorCircleText, (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
 }
 
 void drawCirclesInners(Gui &gui, Data &data, int channel){
@@ -754,10 +763,12 @@ void drawCirclesInners(Gui &gui, Data &data, int channel){
         else
             threshold = 0.20f;
         
-        if(data.hyper[channel].outer.prob[i] < threshold)
-            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-25, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
-        else
-            DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-5, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
+        if(gui.showLabels){
+            if(data.hyper[channel].outer.prob[i] < threshold)
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-25, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
+            else
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-5, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
+        }
 	}
 }
 

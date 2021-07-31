@@ -36,11 +36,10 @@ public:
     Font defaultFont;
     Font defaultFontBig; // Same as defaultFont but with size 32
     
-    // Flag that indicates wheter the triangle is being drawn.
-    bool drawing;
+    bool drawing; // Flag that indicates wheter the triangle is being drawn.
+    bool helpMessagesActive[3]; // Flags used to show help messages
+    bool showLabels; // Flag used in visualization to show or not circles labels
 
-    // Flags used to show help messages
-    bool helpMessagesActive[3];
     char helpMessages[3][CHAR_BUFFER_SIZE*2];
 
     //------------------------------------------------------------------------------------

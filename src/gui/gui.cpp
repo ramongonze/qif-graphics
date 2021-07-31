@@ -7,6 +7,7 @@ Gui::Gui(){
     posteriors = GuiPosteriors();
     visualization = GuiVisualization();
     drawing = false;
+    showLabels = true;
     readFonts();
 
     for(int i = 0; i < 3; i++)
