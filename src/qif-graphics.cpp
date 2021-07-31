@@ -21,6 +21,7 @@
 #include <string>
 #include "gui/gui.h"
 #include "data.h"
+#include "chull.h"
 
 typedef struct WebLoopVariables{
     Gui gui;
@@ -250,11 +251,14 @@ void updateDrawFrame(void* vars_){
     gui->checkMouseHover(mousePosition);
     //----------------------------------------------------------------------------------
 
+    if(gui->drawing)
+        updateStatusBar(NO_ERROR, gui->visualization);
+
     // Draw
     //----------------------------------------------------------------------------------
     BeginDrawing();
         ClearBackground(BG_BASE_COLOR_DARK); 
-
+        
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
         // Draw controls
@@ -769,6 +773,44 @@ void drawCirclesInners(Gui &gui, Data &data, int channel){
                 DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-25, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
             else
                 DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-5, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
+        }
+
+        if(gui.showConvexHull){
+            // Find convex hull using inners circles
+            vector<pt> points = vector<pt>(gui.posteriors.numPosteriors[channel]);
+            for(int i = 0; i < gui.posteriors.numPosteriors[channel]; i++){
+                points[i].x = data.innersCircles[channel][i].center.x;
+                points[i].y = data.innersCircles[channel][i].center.y;
+            }
+
+            convexHull(points);
+            int n = (int) points.size();
+            for(int i = 0; i < n-1; i++){
+                if(channel == CHANNEL_1){
+                    DrawLine(points[i].x, points[i].y, points[i+1].x, points[i+1].y, INNERS_COLOR_LINES);
+                    DrawTriangle(
+                        (Vector2){(float)points[0].x, (float)points[0].y},
+                        (Vector2){(float)points[i].x, (float)points[i].y},
+                        (Vector2){(float)points[i+1].x, (float)points[i+1].y},
+                        CH_COLOR
+                    );
+                }else{
+                    DrawLine(points[i].x, points[i].y, points[i+1].x, points[i+1].y, INNERS2_COLOR_LINES);
+                    DrawTriangle(
+                        (Vector2){(float)points[0].x, (float)points[0].y},
+                        (Vector2){(float)points[i].x, (float)points[i].y},
+                        (Vector2){(float)points[i+1].x, (float)points[i+1].y},
+                        CH2_COLOR
+                    );
+                }
+
+            }
+
+            // Line from last point to the first
+            if(channel == CHANNEL_1)
+                DrawLine(points[n-1].x, points[n-1].y, points[0].x, points[0].y, INNERS_COLOR_LINES);
+            else
+                DrawLine(points[n-1].x, points[n-1].y, points[0].x, points[0].y, INNERS2_COLOR_LINES);
         }
 	}
 }
