@@ -21,7 +21,7 @@ void convexHull(vector<pt>& a) {
     vector<pt> up, down;
     up.push_back(p1);
     down.push_back(p1);
-    for (int i = 1; i < (int)a.size(); i++) {
+    for (unsigned long int i = 1; i < a.size(); i++) {
         if (i == a.size() - 1 || cw(p1, a[i], p2)) {
             while (up.size() >= 2 && !cw(up[up.size()-2], up[up.size()-1], a[i]))
                 up.pop_back();
@@ -35,8 +35,8 @@ void convexHull(vector<pt>& a) {
     }
 
     a.clear();
-    for (int i = 0; i < (int)up.size(); i++)
+    for (unsigned long int i = 0; i < up.size(); i++)
         a.push_back(up[i]);
-    for (int i = down.size() - 2; i > 0; i--)
+    for (unsigned long int i = down.size() - 2; i > 0; i--)
         a.push_back(down[i]);
 }
