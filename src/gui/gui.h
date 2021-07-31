@@ -31,6 +31,10 @@ public:
     GuiChannel channel;
     GuiPosteriors posteriors;
     GuiVisualization visualization;
+
+    // Fonts
+    Font defaultFont;
+    Font defaultFontBig; // Same as defaultFont but with size 32
     
     // Flag that indicates wheter the triangle is being drawn.
     bool drawing;
@@ -74,10 +78,6 @@ public:
 
     /* Update rectangles of inners circle labels. */
     void updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
-
-    // Fonts
-    Font defaultFont;
-    Font defaultFontBig; // Same as defaultFont but with size 32
 
     // Check mouse position and manage help messages
     void checkMouseHover(Vector2 mousePosition);

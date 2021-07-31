@@ -33,7 +33,7 @@ GuiChannel::GuiChannel(){
     
     ScrollPanelChannelScrollOffset = {0, 0};
     ScrollPanelChannelBoundsOffset = {0, 0};
-    
+
     for(int k = 0; k < NUMBER_CHANNELS; k++){
         for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
             for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
