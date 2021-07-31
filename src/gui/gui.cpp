@@ -8,6 +8,7 @@ Gui::Gui(){
     visualization = GuiVisualization();
     drawing = false;
     showLabels = true;
+    showConvexHull = false;
     readFonts();
 
     for(int i = 0; i < 3; i++)

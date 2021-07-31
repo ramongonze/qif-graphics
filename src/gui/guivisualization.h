@@ -44,6 +44,7 @@ public:
     Rectangle layoutRecsLabelInnersCircles[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
     Rectangle layoutRecsLabelTriangle[3];
     Rectangle layoutRecsCheckboxShowLabels;
+    Rectangle layoutRecsCheckboxShowConvexHull;
 
     /* Triangle vertices
      *       v0
@@ -54,6 +55,7 @@ public:
     // Triangle vertex labels
     string LabelTriangleText[3];
     char LabelCheckboxShowLabel[CHAR_BUFFER_SIZE];
+    char LabelCheckboxShowConvexHull[CHAR_BUFFER_SIZE];
 };
 
 #endif

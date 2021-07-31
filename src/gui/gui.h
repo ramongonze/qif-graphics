@@ -39,6 +39,7 @@ public:
     bool drawing; // Flag that indicates wheter the triangle is being drawn.
     bool helpMessagesActive[3]; // Flags used to show help messages
     bool showLabels; // Flag used in visualization to show or not circles labels
+    bool showConvexHull; // Flag used in visualization to show or convex hull of inners
 
     char helpMessages[3][CHAR_BUFFER_SIZE*2];
 

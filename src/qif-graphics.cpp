@@ -692,6 +692,7 @@ void drawGuiVisualization(Gui &gui, Data &data){
         GuiSetStyle(CHECKBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(CHECKBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
         gui.showLabels = GuiCheckBox(gui.visualization.layoutRecsCheckboxShowLabels, gui.visualization.LabelCheckboxShowLabel, gui.showLabels);
+        gui.showConvexHull = GuiCheckBox(gui.visualization.layoutRecsCheckboxShowConvexHull, gui.visualization.LabelCheckboxShowConvexHull, gui.showConvexHull);
 
         // Triangle
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);

@@ -19,6 +19,7 @@ GuiVisualization::GuiVisualization(){
     layoutRecsTextBoxStatus = (Rectangle){AnchorVisualization.x + 105, AnchorVisualization.y + 35, 615, 32};
     layoutRecsPanelVisualization = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 82, 710, 658};
     layoutRecsCheckboxShowLabels = (Rectangle){layoutRecsPanelVisualization.x + 10, layoutRecsPanelVisualization.y + 10, 20, 20};
+    layoutRecsCheckboxShowConvexHull = (Rectangle){layoutRecsCheckboxShowLabels.x, layoutRecsCheckboxShowLabels.y + 30, 20, 20};
 
     float trianglePaddingX = 40;        // PanelVisualization padding in x axis
     float triangleSide = layoutRecsPanelVisualization.width - 2*trianglePaddingX;
@@ -31,6 +32,7 @@ GuiVisualization::GuiVisualization(){
 
     strcpy(LabelPriorCircleText, "\u03C0"); // pi symbol &#x3c0;   \u3c0 
     strcpy(LabelCheckboxShowLabel, "Show labels");
+    strcpy(LabelCheckboxShowConvexHull, "Show convex hull");
 
     for(int i = 0; i < 3; i++){
         LabelTriangleText[i] = "X" + to_string(i+1);
