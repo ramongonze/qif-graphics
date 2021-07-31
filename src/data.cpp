@@ -12,6 +12,8 @@ Data::Data(){
 
     prior = vector<long double>(NUMBER_SECRETS, 0);
     channel = vector<vector<vector<long double>>>(NUMBER_CHANNELS, vector<vector<long double>>(MAX_CHANNEL_OUTPUTS, vector<long double>(MAX_CHANNEL_OUTPUTS, 0)));
+    
+    validCharacters = string("0123456789./");
     error = NO_ERROR;
     for(int i = 0; i < NUMBER_CHANNELS; i++)
         hyperReady[i] = false;
@@ -25,18 +27,22 @@ Data::Data(){
 
 int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
     vector<pair<string, string>> newPrior(NUMBER_SECRETS);
-    vector<string> priorStr(NUMBER_SECRETS);
-
-    for(int i = 0; i < NUMBER_SECRETS; i++){
-    	priorStr[i] = string(prior_[i]);
-    }
+    string value;
 
     try{
         for(int i = 0; i < NUMBER_SECRETS; i++){
-            size_t pos = priorStr[i].find('/');
+            value = string(prior_[i]);
+            // Check if user has typed an invalid character
+            for(long unsigned int j = 0; j < value.size(); j++){
+                if(validCharacters.find(value[j]) == std::string::npos){
+                    return INVALID_VALUE_PRIOR;
+                }
+            }
+
+            size_t pos = value.find('/');
             if(pos != string::npos){ // If true, the user is typing a fraction
-                string numerator = priorStr[i].substr(0, pos);
-                string denominator = priorStr[i].substr(pos+1, priorStr[i].size()-pos-1);
+                string numerator = value.substr(0, pos);
+                string denominator = value.substr(pos+1, value.size()-pos-1);
                 
                 // Remove blank spaces
                 numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
@@ -44,7 +50,7 @@ int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
                 
                 newPrior[i] = make_pair(numerator, denominator);
             }else{
-            	newPrior[i] = make_pair("not fraction", priorStr[i]);
+            	newPrior[i] = make_pair("not fraction", value);
             }
         }
         
@@ -58,6 +64,9 @@ int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
         	}
         }
         
+        if(Distribution::isDistribution(this->prior))
+            priorObj = Distribution(this->prior);
+
         return NO_ERROR;
     }catch(exception& e){
         return INVALID_VALUE_PRIOR;
@@ -66,21 +75,23 @@ int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
 
 int Data::checkChannelText(char channel_[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int channel, int numSecrets, int numOutputs){
     vector<vector<pair<string, string>>> newChannel(numSecrets, vector<pair<string, string>>(numOutputs));
-    vector<vector<string>> channelStr(numSecrets, vector<string>(numOutputs));
-
-    for(int i = 0; i < numSecrets; i++){
-    	for(int j = 0; j < numOutputs; j++){
-    		channelStr[i][j] = string(channel_[i][j]);
-    	}
-    }
+    string value;
 
     try{
         for(int i = 0; i < numSecrets; i++){
             for(int j = 0; j < numOutputs; j++){
-                size_t pos = channelStr[i][j].find('/');
+                value = string(channel_[i][j]);
+                // Check if user has typed an invalid character
+                for(long unsigned int k = 0; k < value.size(); k++){
+                    if(validCharacters.find(value[k]) == std::string::npos){
+                        return INVALID_VALUE_CHANNEL_1+channel;
+                    }
+                }
+
+                size_t pos = value.find('/');
                 if(pos != string::npos){ // If true, the user is typing a fraction
-                    string numerator = channelStr[i][j].substr(0, pos);
-                    string denominator = channelStr[i][j].substr(pos+1, channelStr[i][j].size()-pos-1);
+                    string numerator = value.substr(0, pos);
+                    string denominator = value.substr(pos+1, value.size()-pos-1);
                     
                     // Remove blank spaces
                     numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
@@ -88,7 +99,7 @@ int Data::checkChannelText(char channel_[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUT
 
                     newChannel[i][j] = make_pair(numerator, denominator);
                 }else{
-                    newChannel[i][j] = make_pair("not fraction", channelStr[i][j]);
+                    newChannel[i][j] = make_pair("not fraction", value);
                 }
             }
         }
@@ -319,14 +330,15 @@ void Data::newRandomPrior(){
         prior[i] = p/100.0;
     }
     prior[2] = threshold/100.0;
-
+    
     random_shuffle(prior.begin(), prior.end());
+    priorObj = Distribution(prior);
 }
 
 void Data::newRandomChannel(int curChannel, int numSecrets, int numOutputs){
     srand(unsigned(time(0)));
     vector<long double> prob(numOutputs);
-    this->channel[curChannel] = vector<vector<long double>>(numSecrets, vector<long double>(numOutputs, 0));
+    channel[curChannel] = vector<vector<long double>>(numSecrets, vector<long double>(numOutputs, 0));
 
     for(int i = 0; i < numSecrets; i++){
         int threshold = 100, p;
@@ -340,7 +352,24 @@ void Data::newRandomChannel(int curChannel, int numSecrets, int numOutputs){
         random_shuffle(prob.begin(), prob.end());
 
         for(int j = 0; j < numOutputs; j++){
-            this->channel[curChannel][i][j] = prob[j];
+            channel[curChannel][i][j] = prob[j];
         }
     }
+
+    if(ready[FLAG_PRIOR] && numSecrets == NUMBER_SECRETS){
+        channelObj[curChannel] = Channel(priorObj, channel[curChannel]);
+    }else{
+        fakePrior = Distribution(numSecrets, "uniform");
+        channelObj[curChannel] = Channel(fakePrior, channel[curChannel]);
+    }
+}
+
+void Data::resetAllExceptComputeChannel1(){
+    for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
+        ready[FLAG_CHANNEL_1+channel] = false;
+        compute[FLAG_CHANNEL_1+channel] = false;
+        ready[FLAG_HYPER_1+channel] = false;
+        compute[FLAG_HYPER_1+channel] = false;
+    }
+    compute[FLAG_CHANNEL_1] = true;
 }

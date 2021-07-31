@@ -57,7 +57,7 @@ using namespace std;
 #define INNERS2_COLOR_LINES  CLITERAL(Color){102, 102, 255, 240}
 
 // Prior probability distribution radius (in pixels) ----------------------------------------------/
-#define PRIOR_RADIUS 50
+#define PRIOR_RADIUS 40
 
 class Point{
 	public:
@@ -129,5 +129,14 @@ Point bary2Pixel(double x, double y, Vector2 TrianglePoints[3]);
    Returns a vector of strings containing the probability distribution.
  */
 vector<string> getStrTruncatedDist(Distribution dist, int precision);
+
+/* Given two channels C and R, multiply their matrices and create the channel CR. 
+ * Parameters:
+ * 		C: Channel 1
+ * 		R: Channel 2
+ * 	
+ * Returns: CR, the composition of channels C and R.
+*/
+Channel composeChannels(Channel &C, Channel &R);
 
 #endif

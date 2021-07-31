@@ -32,11 +32,13 @@ public:
     //------------------------------------------------------------------------------------
 
 	vector<long double> prior; // Prior distribution
+	Distribution fakePrior; // Used to create channel object for CHANNEL_2 in MODE_REF
 	Distribution priorObj;
 	vector<vector<vector<long double>>> channel; // Channel matrix
 	Channel channelObj[NUMBER_CHANNELS];
 	Hyper hyper[NUMBER_CHANNELS]; // Hyper-distributions
 
+	string validCharacters;	// Used to check user input in textboxes
 	int error;		// Indicates if there is error with prior or channel
 	bool hyperReady[NUMBER_CHANNELS];  // Flag that indicates wheter a hyper distribution has been built.
 	bool mouseClickedOnPrior; // Flag that indicates wheter the mouse was clicked in the previous frame on the prior circle.
@@ -106,6 +108,9 @@ public:
 	 *		num_out: Number of outputs in L->TextBoxesChannelText.
 	*/
 	void newRandomChannel(int curChannel, int numSecrets, int numOutputs);
+
+	/* Set ready and compute off all channels and hypers to false except compute channel 1. */
+	void resetAllExceptComputeChannel1();
 };
 
 #endif

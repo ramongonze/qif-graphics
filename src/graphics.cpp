@@ -106,3 +106,23 @@ vector<string> getStrTruncatedDist(Distribution dist, int precision){
 	}
 	return newStrDist;
 }
+
+Channel composeChannels(Channel &C, Channel &R){
+	// Verify if channels are compatible
+	if(C.num_out != R.prior.num_el){
+		printf("Channels are not compatible to be composed!");
+		exit(0);
+	}
+
+	vector<vector<long double>> matrix = vector<vector<long double>>(C.prior.num_el, vector<long double>(R.num_out, 0));
+	for(int i = 0; i < C.prior.num_el; i++){
+		for(int j = 0; j < R.num_out; j++){
+			for(int k = 0; k < C.num_out; k++){
+				matrix[i][j] += (C.matrix[i][k] * R.matrix[k][j]);
+			}
+		}
+	}
+	Channel CR = Channel(C.prior, matrix);
+
+	return CR;
+}

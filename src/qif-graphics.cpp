@@ -150,6 +150,7 @@ void updateDrawFrame(void* vars_){
     }
     
     checkPriorFlags(*gui, *data);
+    
     //----------------------------------------------------------------------------------
 
     // Channels
@@ -158,8 +159,12 @@ void updateDrawFrame(void* vars_){
     if(gui->channel.checkChannelSpinner(*mode)){
         gui->drawing = false;
         data->fileSaved = false;
-        data->compute[gui->channel.curChannel+1] = true;
-        data->ready[gui->channel.curChannel+1] = false;
+        if(*mode == MODE_REF){
+            data->resetAllExceptComputeChannel1();
+        }else{
+            data->compute[FLAG_CHANNEL_1+gui->channel.curChannel] = true;
+            data->ready[FLAG_CHANNEL_1+gui->channel.curChannel] = false;
+        }
         updateStatusBar(NO_ERROR, gui->visualization);
     }
     
@@ -167,8 +172,13 @@ void updateDrawFrame(void* vars_){
     if(gui->checkChannelTextBoxPressed()){
         gui->drawing = false;
         data->fileSaved = false;
-        data->compute[gui->channel.curChannel+1] = true;
-        data->ready[gui->channel.curChannel+1] = false;
+        if(*mode == MODE_REF){
+            data->resetAllExceptComputeChannel1();
+        }else{
+            data->compute[FLAG_CHANNEL_1+gui->channel.curChannel] = true;
+            data->ready[FLAG_CHANNEL_1+gui->channel.curChannel] = false;
+        }
+
         updateStatusBar(NO_ERROR, gui->visualization);
 
         if(IsKeyPressed(KEY_TAB) || IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_LEFT) || IsKeyPressed(KEY_RIGHT)){
@@ -233,7 +243,7 @@ void updateDrawFrame(void* vars_){
         }
     }
     //----------------------------------------------------------------------------------
-
+    
     gui->updateHyperTextBoxes(data->hyper[gui->channel.curChannel], gui->channel.curChannel, data->ready[FLAG_HYPER_1+gui->channel.curChannel]);
 
     // Help messages
@@ -303,22 +313,22 @@ void initStyle(){
 void updateStatusBar(int error, GuiVisualization &visualization){
 	switch(error){
 		case INVALID_VALUE_PRIOR:
-			strcpy(visualization.TextBoxStatusText, "Some value in prior is invalid!");
+			strcpy(visualization.TextBoxStatusText, "Some character in prior distribution is not valid");
 			break;
         case INVALID_VALUE_CHANNEL_1:
-			strcpy(visualization.TextBoxStatusText, "Some value in channel C is invalid!");
+			strcpy(visualization.TextBoxStatusText, "Some character in channel C is not valid");
 			break;
         case INVALID_VALUE_CHANNEL_2:
-			strcpy(visualization.TextBoxStatusText, "Some value in channel R is invalid!");
+			strcpy(visualization.TextBoxStatusText, "Some character in channel R is not valid");
 			break;
 		case INVALID_PRIOR:
-			strcpy(visualization.TextBoxStatusText, "Prior distribution is not valid!");
+			strcpy(visualization.TextBoxStatusText, "The values in prior distribution do not make up a probability distribution");
 			break;
 		case INVALID_CHANNEL_1:
-			strcpy(visualization.TextBoxStatusText, "Channel C is invalid!");
+			strcpy(visualization.TextBoxStatusText, "Some row in channel C is not a probability distribution");
 			break;
         case INVALID_CHANNEL_2:
-			strcpy(visualization.TextBoxStatusText, "Channel R is invalid!");
+			strcpy(visualization.TextBoxStatusText, "Some row in channel R is not a probability distribution");
 			break;
 		case NO_ERROR:
 			strcpy(visualization.TextBoxStatusText, "Status");
@@ -373,24 +383,32 @@ void checkHelpMessagesActive(Gui &gui, Vector2 mousePosition){
 
 void checkPriorFlags(Gui &gui, Data &data){
     if(data.compute[FLAG_PRIOR]){
-        if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR){            
+        if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR){
             if(Distribution::isDistribution(data.prior)){
                 data.priorObj = Distribution(data.prior);
                 data.ready[FLAG_PRIOR] = true;
             }else{
                 data.error = INVALID_PRIOR;
                 data.ready[FLAG_PRIOR] = false;
-                for(int i = 0; i < NUMBER_CHANNELS; i++)
-                    gui.posteriors.resetPosterior(i);
             }
         }else{
             data.error = INVALID_VALUE_PRIOR;
             data.ready[FLAG_PRIOR] = false;
-            for(int i = 0; i < NUMBER_CHANNELS; i++)
-                gui.posteriors.resetPosterior(i);
         }
         
         data.compute[FLAG_PRIOR] = false;
+
+        if(data.error == INVALID_PRIOR || data.error == INVALID_VALUE_PRIOR){
+            for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
+                data.ready[FLAG_HYPER_1+channel] = false;
+                gui.posteriors.resetPosterior(channel);
+                
+                if(data.ready[FLAG_CHANNEL_1+channel]){
+                    data.ready[FLAG_CHANNEL_1+channel] = false;
+                    data.compute[FLAG_CHANNEL_1+channel] = true;
+                }
+            }
+        }
     }else if(!data.ready[FLAG_PRIOR]){
         data.error = INVALID_PRIOR;
     }
@@ -400,37 +418,50 @@ void checkChannelsFlags(Gui &gui, Data &data){
     // If prior is not ready, there is no reason to compute channel
     if(!data.ready[FLAG_PRIOR])
         return;
-
+    
     for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
         if(data.compute[FLAG_CHANNEL_1+channel]){
-            if(data.checkChannelText(gui.channel.TextBoxChannelText[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
+            if(channel == CHANNEL_3){
+                // Multiply channels C and R
+                data.channelObj[CHANNEL_3] = composeChannels(data.channelObj[CHANNEL_1], data.channelObj[CHANNEL_2]);
+                data.channel[CHANNEL_3] = data.channelObj[CHANNEL_3].matrix;
+                gui.updateChannelTextBoxes(data.channelObj[CHANNEL_3], CHANNEL_3);
+                data.ready[FLAG_CHANNEL_3] = true;
+                data.compute[FLAG_HYPER_3] = true; // Set hyper to be computed
+            }else if(data.checkChannelText(gui.channel.TextBoxChannelText[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
                 if(Channel::isChannel(data.channel[channel])){
-                    data.channelObj[channel] = Channel(data.priorObj, data.channel[channel]);
+                    if(channel == CHANNEL_2 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
+                        data.fakePrior = Distribution(gui.channel.numSecrets[CHANNEL_2], "uniform");
+                        data.channelObj[CHANNEL_2] = Channel(data.fakePrior, data.channel[CHANNEL_2]);
+                        if(data.ready[FLAG_CHANNEL_1])
+                            data.compute[FLAG_CHANNEL_3] = true;
+                    }else{
+                        data.channelObj[channel] = Channel(data.priorObj, data.channel[channel]);
+                        data.compute[FLAG_HYPER_1+channel] = true; // Set hyper to be computed
+                        if(channel == CHANNEL_1 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF)
+                            data.compute[FLAG_CHANNEL_2] = true;
+                    }
                     data.ready[FLAG_CHANNEL_1+channel] = true;
-                    data.compute[FLAG_HYPER_1+channel] = true; // Set hyper to be computed
                 }else{
-                    data.error = INVALID_CHANNEL_1 + channel;
-                    data.ready[FLAG_CHANNEL_1+channel] = false;
-                    data.ready[FLAG_HYPER_1+channel] = false;
-                    data.compute[FLAG_HYPER_1+channel] = false;
-                    gui.posteriors.resetPosterior(channel);
+                    data.error = INVALID_CHANNEL_1 + channel;   
                 }
             }else{
                 data.error = INVALID_VALUE_CHANNEL_1 + channel;
+            }
+
+            data.compute[FLAG_CHANNEL_1+channel] = false;
+
+            if(data.error == INVALID_CHANNEL_1+channel || data.error == INVALID_VALUE_CHANNEL_1+channel){
                 data.ready[FLAG_CHANNEL_1+channel] = false;
                 data.ready[FLAG_HYPER_1+channel] = false;
                 data.compute[FLAG_HYPER_1+channel] = false;
                 gui.posteriors.resetPosterior(channel);
             }
-            data.compute[FLAG_CHANNEL_1+channel] = false;
         }else{
-            int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
             if(channel == CHANNEL_1 && !data.ready[FLAG_CHANNEL_1]){
                 data.error = INVALID_CHANNEL_1;
-            }else if(channel == CHANNEL_2 && mode == MODE_TWO && !data.ready[FLAG_CHANNEL_2]){
+            }else if(channel == CHANNEL_2 && data.ready[FLAG_CHANNEL_1] && !data.ready[FLAG_CHANNEL_2] && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE){
                 data.error = INVALID_CHANNEL_2;
-            }else if(channel == CHANNEL_3 && mode == MODE_REF && !data.ready[FLAG_CHANNEL_3]){
-                data.error = INVALID_CHANNEL_3;
             }
         }
     }
@@ -443,14 +474,19 @@ void checkHypersFlags(Gui &gui, Data &data){
 
     for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
         // If channel is not ready, there is no reason to compute the hyper
-        if(!data.ready[FLAG_CHANNEL_1+channel])
-            return;
+        if(!data.ready[FLAG_CHANNEL_1+channel]){
+            data.ready[FLAG_HYPER_1+channel] = false;
+            continue;
+        }
 
         if(data.compute[FLAG_HYPER_1+channel]){
             data.hyper[channel] = Hyper(data.channelObj[channel]);
             gui.posteriors.numPosteriors[channel] = data.hyper[channel].num_post;
             data.ready[FLAG_HYPER_1+channel] = true;
             data.compute[FLAG_HYPER_1+channel] = false;
+            
+            if(gui.channel.curChannel == channel)
+                gui.updateHyperTextBoxes(data.hyper[channel], channel, data.ready[FLAG_HYPER_1+channel]);
         }
     }
 }
@@ -514,14 +550,15 @@ void drawGuiPrior(Gui &gui, Data &data){
 }
 
 void drawGuiChannel(Gui &gui, Data &data){
-    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_SINGLE){
+    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    if(mode == MODE_SINGLE){
         strcpy(gui.channel.panelChannelText, "Channel C");
         drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, gui.defaultFont);
     }else{
         strcpy(gui.channel.panelChannelText, "");
         drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, gui.defaultFont);
         
-        for(int i = 0; i < NUMBER_CHANNELS - (gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_TWO ? 1 : 0); i++)
+        for(int i = 0; i < NUMBER_CHANNELS - (mode == MODE_TWO ? 1 : 0); i++)
             drawTab(gui, i, gui.channel.curChannel == i);
     }
 
@@ -562,7 +599,7 @@ void drawGuiChannel(Gui &gui, Data &data){
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
         GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
         for(int i = 0; i < gui.channel.numSecrets[gui.channel.curChannel]; i++){
-            if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_SINGLE || gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_TWO || gui.channel.curChannel == CHANNEL_1 || gui.channel.curChannel == CHANNEL_3){
+            if(mode == MODE_SINGLE || mode == MODE_TWO || gui.channel.curChannel == CHANNEL_1 || gui.channel.curChannel == CHANNEL_3){
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
             }else{
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelYText[i].c_str());
@@ -575,25 +612,29 @@ void drawGuiChannel(Gui &gui, Data &data){
             }
         }
 
-        if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_SINGLE || gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_TWO || gui.channel.curChannel == CHANNEL_1){
+        if(mode == MODE_SINGLE || mode == MODE_TWO || gui.channel.curChannel == CHANNEL_1){
             for(int i = 0; i < gui.channel.numOutputs[gui.channel.curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
         }else{
             for(int i = 0; i < gui.channel.numOutputs[gui.channel.curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
         }
-
-
     EndScissorMode();
 }
 
 void drawGuiPosteriors(Gui &gui, Data &data){
-    if(gui.channel.curChannel == CHANNEL_1)
+    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    if(gui.channel.curChannel == CHANNEL_1){
         strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AC]");
-    else if(gui.channel.curChannel == CHANNEL_2)
-        strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AR]");
-    else if(gui.channel.curChannel == CHANNEL_3)
+    }else if(gui.channel.curChannel == CHANNEL_2){
+        if(mode == MODE_REF){
+            strcpy(gui.posteriors.GroupBoxPosteriorsText, "");
+        }else{
+            strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AR]");
+        }
+    }else if(gui.channel.curChannel == CHANNEL_3){
         strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203ACR]");
+    }
     
     drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, gui.defaultFont);
 
@@ -606,7 +647,7 @@ void drawGuiPosteriors(Gui &gui, Data &data){
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
-        if(gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_REF || gui.channel.curChannel != CHANNEL_2){
+        if(mode != MODE_REF || gui.channel.curChannel != CHANNEL_2){
             GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelOuter.width, gui.posteriors.layoutRecsLabelOuter.height}, gui.posteriors.LabelOuterText);
 
             for(int i = 0; i < gui.posteriors.numPosteriors[gui.channel.curChannel]; i++){
@@ -707,7 +748,13 @@ void drawCirclesInners(Gui &gui, Data &data, int channel){
         DrawCircleLines(data.innersCircles[channel][i].center.x, data.innersCircles[channel][i].center.y, data.innersCircles[channel][i].radius, colorLines);
         
         // Decide to write label inside or outside the circle
-        if(data.hyper[channel].outer.prob[i] < 0.1f)
+        float threshold;
+        if(channel == CHANNEL_1)
+            threshold = 0.13f;
+        else
+            threshold = 0.20f;
+        
+        if(data.hyper[channel].outer.prob[i] < threshold)
             DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-25, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
         else
             DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-5, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
@@ -860,8 +907,20 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
 
 void buttonMode(Gui &gui, Data &data, int* prevMode, int curMode){
     if(*prevMode != curMode){
+        gui.channel.checkModeAndSizes(curMode);
+
+        // Note: Channel 1 doesn't need to be changed in any mode
         gui.drawing = false;
         updateStatusBar(NO_ERROR, gui.visualization);
+
+        // Set prior to be computed
+        data.ready[FLAG_PRIOR] = false;
+        data.compute[FLAG_PRIOR] = true;
+
+        data.resetAllExceptComputeChannel1();
+
+        if(curMode == MODE_TWO)
+            data.compute[FLAG_CHANNEL_2] = true;
     }
 
     *prevMode = curMode;
@@ -927,37 +986,42 @@ void buttonHelp(Gui &gui){
 }
 
 void buttonRandomPrior(Gui &gui, Data &data){
-    if(data.error == INVALID_PRIOR){
-        data.error = NO_ERROR;
-        strcpy(gui.visualization.TextBoxStatusText, "Status");
-    }
     data.newRandomPrior();
     gui.drawing = false;
     data.fileSaved = false;
-    data.compute[FLAG_PRIOR] = true;
-    data.ready[FLAG_PRIOR] = false;
-    Distribution newPrior(data.prior);
-    gui.updatePriorTextBoxes(newPrior);
+    data.compute[FLAG_PRIOR] = false;
+    data.ready[FLAG_PRIOR] = true;
+    gui.updatePriorTextBoxes(data.priorObj);
+    
+    // Mark all channels (expect 3) to be recomputed and consequently, their corresponding hyper
+    for(int channel = 0; channel < NUMBER_CHANNELS-1; channel++){
+        data.ready[FLAG_HYPER_1+channel] = false;
+        data.compute[FLAG_HYPER_1+channel] = false;
+        data.ready[FLAG_CHANNEL_1+channel] = false;
+        data.compute[FLAG_CHANNEL_1+channel] = true;
+    }
 }
 
 void buttonsTabs(Gui &gui, int channel){
     gui.channel.curChannel = channel;
-    gui.drawing = false;
     updateStatusBar(NO_ERROR, gui.visualization);
 }
 
 void buttonRandomChannel(Gui &gui, Data &data){
-    if(data.error == INVALID_CHANNEL_1 || data.error == INVALID_CHANNEL_2){
-        data.error = NO_ERROR;
-        strcpy(gui.visualization.TextBoxStatusText, "Status");
-    }
+    if(data.error == INVALID_CHANNEL_1 || data.error == INVALID_CHANNEL_2)
+        updateStatusBar(NO_ERROR, gui.visualization);
     
     data.newRandomChannel(gui.channel.curChannel, gui.channel.numSecrets[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]);
     gui.drawing = false;
     data.fileSaved = false;
     gui.channel.updateChannelTextBoxes(data.channel[gui.channel.curChannel]);
-    data.compute[FLAG_CHANNEL_1+gui.channel.curChannel] = true;
-    data.ready[FLAG_CHANNEL_1+gui.channel.curChannel] = false;
+
+    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
+        data.resetAllExceptComputeChannel1();
+    }else{
+        data.compute[FLAG_CHANNEL_1+gui.channel.curChannel] = true;
+        data.ready[FLAG_CHANNEL_1+gui.channel.curChannel] = false;
+    }
 }
 
 void buttonDraw(Gui &gui, Data &data){

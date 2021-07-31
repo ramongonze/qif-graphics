@@ -33,7 +33,6 @@ void Gui::readFonts(){
     defaultFontBig = LoadFontEx("fonts/OpenSans-Regular.ttf", 32, chars, 260); // Used to get pi symbol
 }
 
-
 bool Gui::checkPriorTextBoxPressed(){
     for(int i = 0; i < NUMBER_SECRETS; i++)
         if(prior.TextBoxPriorEditMode[i] == true)
@@ -126,18 +125,23 @@ void Gui::moveAmongChannelTextBoxes(){
 
 void Gui::updatePriorTextBoxes(Distribution &prior_){
     vector<string> truncPrior = getStrTruncatedDist(prior_, PROB_PRECISION);
-    for(int i = 0; i < NUMBER_SECRETS; i++){
+    for(int i = 0; i < prior_.num_el; i++){
         strcpy(prior.TextBoxPriorText[i], truncPrior[i].c_str());
     }
 }
 
-void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
-    visualization.layoutRecsLabelPriorCircle = (Rectangle) {
-        (float) priorCircle.center.x - 8,
-        (float) priorCircle.center.y - 15,
-        30,
-        30
-    };
+void Gui::updateChannelTextBoxes(Channel &channel_, int channelIdx){
+    for(int i = 0; i < channel_.prior.num_el; i++){
+        vector<long double> row = vector<long double>(channel_.num_out);
+        for(int j = 0; j < channel_.num_out; j++){
+            row[j] = channel_.matrix[i][j];
+        }
+        Distribution rowDist = Distribution(row);
+        vector<string> truncDist = getStrTruncatedDist(rowDist, PROB_PRECISION);
+        for(int j = 0; j < channel_.num_out; j++){
+            strcpy(channel.TextBoxChannelText[channelIdx][i][j], truncDist[j].c_str());
+        }
+    }
 }
 
 void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
@@ -171,6 +175,15 @@ void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
             strcpy(posteriors.TextBoxInnersText[j][i], truncDist[j].c_str());
         }
     }
+}
+
+void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
+    visualization.layoutRecsLabelPriorCircle = (Rectangle) {
+        (float) priorCircle.center.x - 8,
+        (float) priorCircle.center.y - 15,
+        30,
+        30
+    };
 }
 
 void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){

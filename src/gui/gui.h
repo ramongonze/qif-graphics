@@ -63,15 +63,14 @@ public:
     /* Update TextBoxes of prior distribution. */
 	void updatePriorTextBoxes(Distribution &prior_);
 
+    /* If Update channel textboxes for a given channel. */
+	void updateChannelTextBoxes(Channel &channel_, int channelIdx);
+    
+    /* If a hyper-distributin has been built, update outer and inners TextBoxes;. */
+	void updateHyperTextBoxes(Hyper &hyper, int channel, bool ready);
+
     /* Update rectangle of prior circle label. */
     void updateRectanglePriorCircleLabel(Circle &priorCircle);
-
-    /* If a hyper-distributin has been built, update outer and inners TextBoxes;.
-	 * 
-	 * @Parameters:
-	 * 		channel: {CHANNEL_1, CHANNEL_2, CHANNEL_3}
-	 */
-	void updateHyperTextBoxes(Hyper &hyper, int channel, bool ready);
 
     /* Update rectangles of inners circle labels. */
     void updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
