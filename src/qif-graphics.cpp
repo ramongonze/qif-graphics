@@ -981,49 +981,43 @@ void buttonMode(Gui &gui, Data &data, int* prevMode, int curMode){
 }
 
 void buttonExamples(Gui &gui, Data &data){
-    switch(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]){
-        char newChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    int example = gui.menu.dropdownBoxActive[BUTTON_EXAMPLES];
+    
+    // If none of the options were seleted, skip.
+    if(example != BUTTON_EXAMPLES_OPTION_CH_0 && example != BUTTON_EXAMPLES_OPTION_CH_1)
+        return;
 
-        case BUTTON_EXAMPLES_OPTION_CH_0:
-            if(gui.channel.numOutputs[gui.channel.curChannel] != gui.channel.numSecrets[gui.channel.curChannel]){
-                gui.channel.SpinnerChannelValue[gui.channel.curChannel] = gui.channel.numSecrets[gui.channel.curChannel];
-                gui.drawing = false;
-                gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.dropdownBoxActive[BUTTON_MODE]);
+    char newChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    int curChannel = gui.channel.curChannel;
+
+    gui.channel.SpinnerChannelValue[curChannel] = (example == BUTTON_EXAMPLES_OPTION_CH_0) ? gui.channel.numSecrets[curChannel] : 1;    
+    gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.dropdownBoxActive[BUTTON_MODE]);
+
+    if(example == BUTTON_EXAMPLES_OPTION_CH_0){
+        // Set identity matrix
+        for(int i = 0; i < gui.channel.numSecrets[curChannel]; i++){
+            for(int j = 0; j < gui.channel.numOutputs[curChannel]; j++){
+                if(i == j) strcpy(newChannel[i][j], "1");
+                else strcpy(newChannel[i][j], "0");
             }
-
-            // Set identity matrix
-            for(int i = 0; i < gui.channel.numSecrets[gui.channel.curChannel]; i++){
-                for(int j = 0; j < gui.channel.numOutputs[gui.channel.curChannel]; j++){
-                    if(i == j) strcpy(newChannel[i][j], "1");
-                    else strcpy(newChannel[i][j], "0");
-                }
-            }
-
-            GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numSecrets[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]);
-            data.compute[gui.channel.curChannel+1] = true;
-            data.ready[gui.channel.curChannel+1] = false;
-            gui.drawing = false;
-            break;
-        case BUTTON_EXAMPLES_OPTION_CH_1:
-            if(gui.channel.numOutputs[gui.channel.curChannel] != 1){
-                gui.channel.SpinnerChannelValue[gui.channel.curChannel] = 1;
-                gui.drawing = false;
-                gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.dropdownBoxActive[BUTTON_MODE]);
-            }
-
-            // Set channel that leaks nothing
-            for(int i = 0; i < gui.channel.numSecrets[gui.channel.curChannel]; i++){
-                strcpy(newChannel[i][0], "1");
-            }
-
-            GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numSecrets[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]);
-            data.compute[gui.channel.curChannel+1] = true;
-            data.ready[gui.channel.curChannel+1] = false;
-            gui.drawing = false;
-            break;
-        default:
-            break;
+        }
     }
+
+    if(example == BUTTON_EXAMPLES_OPTION_CH_1){
+        // Set channel that leaks nothing
+        for(int i = 0; i < gui.channel.numSecrets[curChannel]; i++){
+            strcpy(newChannel[i][0], "1");
+        }
+    }
+
+    GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[curChannel], gui.channel.numSecrets[curChannel], gui.channel.numOutputs[curChannel]);
+    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
+        data.resetAllExceptComputeChannel1();
+    }else{
+        data.compute[FLAG_CHANNEL_1+curChannel] = true;
+        data.ready[FLAG_CHANNEL_1+curChannel] = false;
+    }
+    gui.drawing = false;
 }
 
 void buttonHelp(Gui &gui){
