@@ -67,7 +67,7 @@ void drawTab(Gui &gui, int channel, bool active);        // If the tab is curren
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data, bool* closeWindow);
-void buttonMode(Gui &gui, Data &data, int* prevMode, int curMode);
+void buttonMode(Gui &gui, Data &data, int* prevMode);
 void buttonExamples(Gui &gui, Data &data);
 void buttonHelp(Gui &gui);
 void buttonRandomPrior(Gui &gui, Data &data);
@@ -128,7 +128,7 @@ void updateDrawFrame(void* vars_){
     //----------------------------------------------------------------------------------
     checkButtonsMouseCollision(*gui);
     buttonFile(*gui, *data, closeWindow);
-    buttonMode(*gui, *data, mode, gui->menu.dropdownBoxActive[BUTTON_MODE]);
+    buttonMode(*gui, *data, mode);
     buttonExamples(*gui, *data);
     buttonHelp(*gui);
     //----------------------------------------------------------------------------------
@@ -248,6 +248,7 @@ void updateDrawFrame(void* vars_){
     gui->updateHyperTextBoxes(data->hyper[gui->channel.curChannel], gui->channel.curChannel, data->ready[FLAG_HYPER_1+gui->channel.curChannel]);
 
     // Help messages
+    //----------------------------------------------------------------------------------
     gui->checkMouseHover(mousePosition);
     //----------------------------------------------------------------------------------
 
@@ -361,13 +362,13 @@ void checkButtonsMouseCollision(Gui &gui){
 #endif
     if(i >= 0){
         for(; i < 4; i++){
-            if(i != BUTTON_MODE){
+            if(i != BUTTON_MODE)
                 gui.menu.dropdownBoxActive[i] = 0;
-                if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[i]))
-                    gui.menu.dropdownEditMode[i] = true;
-                else
-                    gui.menu.dropdownEditMode[i] = false;
-            }
+                
+            if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[i]))
+                gui.menu.dropdownEditMode[i] = true;
+            else
+                gui.menu.dropdownEditMode[i] = false;
         }
     }
 }
@@ -959,7 +960,9 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
     gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;
 }
 
-void buttonMode(Gui &gui, Data &data, int* prevMode, int curMode){
+void buttonMode(Gui &gui, Data &data, int* prevMode){
+    int curMode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+
     if(*prevMode != curMode){
         gui.channel.checkModeAndSizes(curMode);
 
