@@ -49,14 +49,14 @@ using namespace std;
 #define TITLES_BASE_COLOR_DARKER  CLITERAL(Color){17, 38, 85, 255}
 
 // Circles
-#define PRIOR_COLOR  CLITERAL(Color){0, 102, 255, 210}
-#define PRIOR_COLOR_LINES  CLITERAL(Color){0, 102, 255, 240}
-#define INNERS_COLOR  CLITERAL(Color){128, 0, 0, 210}
-#define INNERS_COLOR_LINES  CLITERAL(Color){128, 0, 0, 240}
-#define INNERS2_COLOR  CLITERAL(Color){0, 153, 51, 210}
-#define INNERS2_COLOR_LINES  CLITERAL(Color){0, 153, 51, 240}
-#define CH_COLOR  CLITERAL(Color){128, 0, 0, 20}
-#define CH2_COLOR  CLITERAL(Color){0, 153, 51, 20}
+#define PRIOR_COLOR  CLITERAL(Color){0, 128, 0, 210}
+#define PRIOR_COLOR_LINES  CLITERAL(Color){0, 128, 0, 240}
+#define INNERS_COLOR  CLITERAL(Color){179, 0, 0, 210}
+#define INNERS_COLOR_LINES  CLITERAL(Color){179, 0, 0, 240}
+#define INNERS2_COLOR  CLITERAL(Color){0, 102, 255, 210}
+#define INNERS2_COLOR_LINES  CLITERAL(Color){0, 102, 255, 240}
+#define CH_COLOR  CLITERAL(Color){179, 0, 0, 20}
+#define CH2_COLOR  CLITERAL(Color){0, 102, 255, 20}
 
 // Prior probability distribution radius (in pixels) ----------------------------------------------/
 #define PRIOR_RADIUS 40
