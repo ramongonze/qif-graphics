@@ -41,6 +41,7 @@ using namespace std;
 // Color scheme ------------------------------------------------------------------------------------
 // GUI
 #define BG_BASE_COLOR_LIGHT  CLITERAL(Color){210, 210, 210, 255}
+#define BG_BASE_COLOR_LIGHT2  CLITERAL(Color){235, 235, 235, 255}
 #define BG_BASE_COLOR_DARK  CLITERAL(Color){179, 179, 179, 255}
 #define MENU_BASE_COLOR_NORMAL  CLITERAL(Color){25, 41, 51, 255}
 #define MENU_BASE_COLOR_FOCUSED  CLITERAL(Color){76, 124, 154, 255}
