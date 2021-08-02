@@ -71,7 +71,7 @@ GuiChannel::GuiChannel(){
 }
 
 bool GuiChannel::checkChannelSpinner(int mode){
-    if(SpinnerChannelValue[curChannel] != numOutputs[curChannel]){
+    if(SpinnerChannelValue[curChannel] != numOutputs[curChannel] && !SpinnerChannelEditMode){
         updateChannelBySpinner(curChannel, mode);
         return true;
     }
@@ -81,6 +81,8 @@ bool GuiChannel::checkChannelSpinner(int mode){
 void GuiChannel::updateChannelBySpinner(int channel, int mode){
     if(SpinnerChannelValue[channel] <= 0){
         SpinnerChannelValue[channel] = 1;
+    }else if(SpinnerChannelValue[channel] > 50){
+        SpinnerChannelValue[channel] = 50;
     }else if(SpinnerChannelValue[channel] < numOutputs[channel]){
         int diff = numOutputs[channel] - SpinnerChannelValue[channel];
         ScrollPanelChannelContent.x = ScrollPanelChannelContent.x - diff*TEXTBOX_SIZE;
