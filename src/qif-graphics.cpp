@@ -119,6 +119,7 @@ void updateDrawFrame(void* vars_){
     bool* closeWindow = &(vars->closeWindow);
     int* mode = &(vars->mode);
 
+    //----------------------------------------------------------------------------------
     // Update
     //----------------------------------------------------------------------------------
     *closeWindow = WindowShouldClose();
@@ -151,7 +152,6 @@ void updateDrawFrame(void* vars_){
     }
     
     checkPriorFlags(*gui, *data);
-    
     //----------------------------------------------------------------------------------
 
     // Channels
@@ -255,14 +255,12 @@ void updateDrawFrame(void* vars_){
     if(gui->drawing)
         updateStatusBar(NO_ERROR, gui->visualization);
 
+    //----------------------------------------------------------------------------------
     // Draw
     //----------------------------------------------------------------------------------
     BeginDrawing();
         ClearBackground(BG_BASE_COLOR_DARK); 
-        
-        // raygui: controls drawing
-        //----------------------------------------------------------------------------------
-        // Draw controls
+
         if(gui->menu.windowGettingStartedActive) GuiLock();
         drawGuiPrior(*gui, *data);
         drawGuiChannel(*gui, *data);
@@ -272,7 +270,6 @@ void updateDrawFrame(void* vars_){
         checkHelpMessagesActive(*gui, mousePosition);
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
         drawGettingStarted(*gui);
-        //----------------------------------------------------------------------------------
 
     EndDrawing();
     //-----------------------------------------------------------------------------------
@@ -423,6 +420,8 @@ void checkChannelsFlags(Gui &gui, Data &data){
     // If prior is not ready, there is no reason to compute channel
     if(!data.ready[FLAG_PRIOR])
         return;
+
+    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
     
     for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
         if(data.compute[FLAG_CHANNEL_1+channel]){
@@ -461,6 +460,15 @@ void checkChannelsFlags(Gui &gui, Data &data){
                 data.ready[FLAG_HYPER_1+channel] = false;
                 data.compute[FLAG_HYPER_1+channel] = false;
                 gui.posteriors.resetPosterior(channel);
+
+                if(mode == MODE_REF){
+                    data.ready[FLAG_CHANNEL_3] = false;
+                    data.compute[FLAG_CHANNEL_3] = false;
+                    data.ready[FLAG_HYPER_3] = false;
+                    data.compute[FLAG_HYPER_3] = false;
+                    gui.posteriors.resetPosterior(CHANNEL_3);
+                    gui.channel.resetChannel(CHANNEL_3);
+                }
             }
         }else{
             if(channel == CHANNEL_1 && !data.ready[FLAG_CHANNEL_1]){

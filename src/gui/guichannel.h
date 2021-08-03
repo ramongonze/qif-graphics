@@ -97,6 +97,9 @@ public:
 
     // Set right scroll bounds for the current active channel
     void setScrollContent();
+
+    // Set all values for the given channel to zero
+    void resetChannel(int channel);
 };
 
 #endif

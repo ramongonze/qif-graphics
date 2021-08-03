@@ -146,3 +146,9 @@ void GuiChannel::setScrollContent(){
     ScrollPanelChannelContent.y = layoutRecsScrollPanel.height - 20 + (max(0,numSecrets[curChannel]-3))*TEXTBOX_SIZE; // Secrets
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[curChannel]-1].x - 10 + TEXTBOX_SIZE; // Outputs
 }
+
+void GuiChannel::resetChannel(int channel){
+    for(int i = 0; i < numSecrets[channel]; i++)
+        for(int j = 0; j < numOutputs[channel]; j++)
+            strcpy(TextBoxChannelText[channel][i][j], "0");
+}
