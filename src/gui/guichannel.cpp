@@ -44,8 +44,8 @@ GuiChannel::GuiChannel(){
     }
     
     // Define control rectangles
-    layoutRecsTitle = (Rectangle){AnchorChannel.x, AnchorChannel.y, 350, 25};
-    layoutRecsContent = (Rectangle){layoutRecsTitle.x, layoutRecsTitle.y + 20, 350, 265};
+    layoutRecsTitle = (Rectangle){AnchorChannel.x, AnchorChannel.y, 350, 20};
+    layoutRecsContent = (Rectangle){AnchorChannel.x, AnchorChannel.y + 20, 350, 265};
     layoutRecsSpinner = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 30, 90, 25};
     layoutRecsScrollPanel = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};
     ScrollPanelChannelContent.y = layoutRecsScrollPanel.height - 20;
@@ -62,9 +62,9 @@ GuiChannel::GuiChannel(){
         layoutRecsLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
     }
     
-    layoutRecsTabs[CHANNEL_1] = (Rectangle){layoutRecsTitle.x + 0, layoutRecsTitle.y, 56, 20};
-    layoutRecsTabs[CHANNEL_2] = (Rectangle){layoutRecsTitle.x + 57, layoutRecsTitle.y, 56, 20};
-    layoutRecsTabs[CHANNEL_3] = (Rectangle){layoutRecsTitle.x + 114, layoutRecsTitle.y, 56, 20};
+    layoutRecsTabs[CHANNEL_1] = (Rectangle){AnchorChannel.x + 0, AnchorChannel.y, 56, 20};
+    layoutRecsTabs[CHANNEL_2] = (Rectangle){AnchorChannel.x + 57, AnchorChannel.y, 56, 20};
+    layoutRecsTabs[CHANNEL_3] = (Rectangle){AnchorChannel.x + 114, AnchorChannel.y, 56, 20};
 
     layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 140, layoutRecsTitle.y, 140, 20};
     ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;

@@ -18,7 +18,7 @@ GuiPrior::GuiPrior(){
     }
 
     // Define controls rectangles
-    layoutRecsTitle = (Rectangle){AnchorPrior.x, AnchorPrior.y, 350, 25};
+    layoutRecsTitle = (Rectangle){AnchorPrior.x, AnchorPrior.y, 350, 20};
     layoutRecsContent = (Rectangle){AnchorPrior.x, AnchorPrior.y + 20, 350, 120};
     layoutRecsPanel = (Rectangle){AnchorPrior.x + 10, AnchorPrior.y + 30, layoutRecsContent.width - 20, layoutRecsContent.height - 20};
 

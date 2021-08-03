@@ -40,24 +40,32 @@ using namespace std;
 
 // Color scheme ------------------------------------------------------------------------------------
 // GUI
-#define BG_BASE_COLOR_LIGHT  CLITERAL(Color){210, 210, 210, 255}
-#define BG_BASE_COLOR_LIGHT2  CLITERAL(Color){235, 235, 235, 255}
-#define BG_BASE_COLOR_DARK  CLITERAL(Color){179, 179, 179, 255}
-#define MENU_BASE_COLOR_NORMAL  CLITERAL(Color){25, 41, 51, 255}
-#define MENU_BASE_COLOR_FOCUSED  CLITERAL(Color){76, 124, 154, 255}
-#define MENU_BASE_COLOR_PRESSED  CLITERAL(Color){50, 83, 103, 255}
-#define TITLES_BASE_COLOR  CLITERAL(Color){27, 58, 130, 255}
-#define TITLES_BASE_COLOR_DARKER  CLITERAL(Color){17, 38, 85, 255}
+#define BG_BASE_COLOR_LIGHT CLITERAL(Color){210, 210, 210, 255}
+#define BG_BASE_COLOR_LIGHT2 CLITERAL(Color){235, 235, 235, 255}
+#define BG_BASE_COLOR_DARK CLITERAL(Color){179, 179, 179, 255}
+#define MENU_BASE_COLOR_NORMAL CLITERAL(Color){25, 41, 51, 255}
+#define MENU_BASE_COLOR_FOCUSED CLITERAL(Color){76, 124, 154, 255}
+#define MENU_BASE_COLOR_PRESSED CLITERAL(Color){50, 83, 103, 255}
+#define TITLES_BASE_COLOR CLITERAL(Color){27, 58, 130, 255}
+#define TITLES_BASE_COLOR_DARKER CLITERAL(Color){17, 38, 85, 255}
 
 // Circles
-#define PRIOR_COLOR  CLITERAL(Color){0, 128, 0, 210}
-#define PRIOR_COLOR_LINES  CLITERAL(Color){0, 128, 0, 240}
-#define INNERS_COLOR  CLITERAL(Color){179, 0, 0, 210}
-#define INNERS_COLOR_LINES  CLITERAL(Color){179, 0, 0, 240}
-#define INNERS2_COLOR  CLITERAL(Color){0, 102, 255, 210}
-#define INNERS2_COLOR_LINES  CLITERAL(Color){0, 102, 255, 240}
-#define CH_COLOR  CLITERAL(Color){179, 0, 0, 20}
-#define CH2_COLOR  CLITERAL(Color){0, 102, 255, 20}
+#define PRIOR_COLOR CLITERAL(Color){41, 41, 255, 210}
+#define PRIOR_COLOR_L1 CLITERAL(Color){61, 61, 255, 210}
+#define PRIOR_COLOR_LINES CLITERAL(Color){20, 20, 255, 240}
+
+#define INNERS1_COLOR CLITERAL(Color){204, 0, 0, 210}
+#define INNERS1_COLOR_LINES CLITERAL(Color){204, 0, 0, 240}
+#define INNERS1_COLOR_L1 CLITERAL(Color){204, 30, 30, 210}
+#define INNERS1_COLOR_D1 CLITERAL(Color){153, 0, 0, 210} // Darker 1
+
+#define INNERS2_COLOR CLITERAL(Color){0, 102, 0, 210}
+#define INNERS2_COLOR_LINES CLITERAL(Color){0, 102, 0, 240}
+#define INNERS2_COLOR_L1 CLITERAL(Color){0, 122, 0, 230}
+#define INNERS2_COLOR_D1 CLITERAL(Color){0, 51, 0, 210} // Darker 1
+
+#define CH1_COLOR CLITERAL(Color){204, 0, 0, 20}	// Convex hull color
+#define CH2_COLOR CLITERAL(Color){0, 102, 0, 20}	// Convex hull color
 
 // Prior probability distribution radius (in pixels) ----------------------------------------------/
 #define PRIOR_RADIUS 40
