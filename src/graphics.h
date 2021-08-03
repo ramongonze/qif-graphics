@@ -51,17 +51,19 @@ using namespace std;
 
 // Circles
 #define PRIOR_COLOR CLITERAL(Color){41, 41, 255, 180}
-#define PRIOR_COLOR_L1 CLITERAL(Color){61, 61, 255, 180}
+#define PRIOR_COLOR_L1 CLITERAL(Color){61, 61, 255, 150}
 #define PRIOR_COLOR_LINES CLITERAL(Color){20, 20, 255, 240}
 
 #define INNERS1_COLOR CLITERAL(Color){204, 0, 0, 180}
 #define INNERS1_COLOR_LINES CLITERAL(Color){204, 0, 0, 240}
-#define INNERS1_COLOR_L1 CLITERAL(Color){204, 30, 30, 180}
-#define INNERS1_COLOR_D1 CLITERAL(Color){153, 0, 0, 180} // Darker 1
+#define INNERS1_COLOR_L1 CLITERAL(Color){204, 50, 50, 180}
+#define INNERS1_COLOR_D1 CLITERAL(Color){204, 0, 0, 180} // Darker 1
+#define INNERS1_COLOR_D2 CLITERAL(Color){153, 0, 0, 180} // Darker 1
 
 #define INNERS2_COLOR CLITERAL(Color){0, 102, 0, 180}
 #define INNERS2_COLOR_LINES CLITERAL(Color){0, 102, 0, 240}
-#define INNERS2_COLOR_L1 CLITERAL(Color){0, 122, 0, 230}
+#define INNERS2_COLOR_L1 CLITERAL(Color){0, 142, 0, 160}
+#define INNERS2_COLOR_L2 CLITERAL(Color){45, 142, 45, 160}
 #define INNERS2_COLOR_D1 CLITERAL(Color){0, 51, 0, 180} // Darker 1
 
 #define CH1_COLOR CLITERAL(Color){204, 0, 0, 20}	// Convex hull color

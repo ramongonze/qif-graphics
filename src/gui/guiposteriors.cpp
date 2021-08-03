@@ -38,7 +38,7 @@ GuiPosteriors::GuiPosteriors(){
     }
 
     // Define controls rectangles
-    layoutRecsTitle = (Rectangle){AnchorPosterior.x, AnchorPosterior.y, 350, 25};
+    layoutRecsTitle = (Rectangle){AnchorPosterior.x, AnchorPosterior.y, 350, 20};
     layoutRecsContent = (Rectangle){AnchorPosterior.x, AnchorPosterior.y + 20, 350, 285};
     layoutRecsScrollPanel = (Rectangle){AnchorPosterior.x + 10, AnchorPosterior.y + 30, 330, 265};
     ScrollPanelPosteriorsContent.y = layoutRecsScrollPanel.height - 20;

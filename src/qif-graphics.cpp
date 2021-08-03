@@ -560,6 +560,8 @@ void drawGuiPrior(Gui &gui, Data &data){
 
 void drawGuiChannel(Gui &gui, Data &data){
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    int curChannel = gui.channel.curChannel;
+    
     if(mode == MODE_SINGLE){
         strcpy(gui.channel.panelChannelText, "Channel C");
         gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x, gui.channel.AnchorChannel.y, 350, 20};
@@ -567,42 +569,33 @@ void drawGuiChannel(Gui &gui, Data &data){
     }else{
         strcpy(gui.channel.panelChannelText, "");
         if(mode == MODE_TWO){
-            gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x+56, gui.channel.AnchorChannel.y, 350-56, 20};
+            gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x+112, gui.channel.AnchorChannel.y, 350-112, 20};
             strcpy(gui.channel.LabelChannelTabs[CHANNEL_2], "Ch D");
         }else if(mode == MODE_REF){
-            gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x+112, gui.channel.AnchorChannel.y, 350-112, 20};
+            gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x+168, gui.channel.AnchorChannel.y, 350-168, 20};
             strcpy(gui.channel.LabelChannelTabs[CHANNEL_2], "Ch R");
         }
-
-        if(gui.drawing){
-            if(gui.channel.curChannel == CHANNEL_1){
-                drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, INNERS1_COLOR, gui.defaultFont);
-            }else if(gui.channel.curChannel == CHANNEL_2){
-                if(mode == MODE_TWO)
-                    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, INNERS2_COLOR, gui.defaultFont);
-                else
-                    drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
-            }else if(gui.channel.curChannel == CHANNEL_3){
-                drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, INNERS2_COLOR, gui.defaultFont);
-            }
-
-        }else{
-            drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
-        }
         
+        Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
+        if(gui.drawing){
+            if(curChannel == CHANNEL_1) contentColor = INNERS1_COLOR_D1;
+            else if(curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode == MODE_TWO)) contentColor = INNERS2_COLOR;
+        }
+        drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
+
         for(int i = 0; i < NUMBER_CHANNELS - (mode == MODE_TWO ? 1 : 0); i++)
-            drawTab(gui, i, gui.channel.curChannel == i);
+            drawTab(gui, i, curChannel == i);
 
         initStyle();
     }
 
-    if(gui.channel.curChannel != CHANNEL_3){
+    if(curChannel != CHANNEL_3){
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
         if(GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     }
 
-    if(gui.channel.curChannel != CHANNEL_3){
+    if(curChannel != CHANNEL_3){
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
@@ -612,8 +605,8 @@ void drawGuiChannel(Gui &gui, Data &data){
         GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
         GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
 
-        if(gui.drawing && (gui.channel.curChannel == CHANNEL_3 || (gui.channel.curChannel == CHANNEL_1 && (mode == MODE_TWO || mode == MODE_REF)) ||
-           (mode == MODE_TWO && gui.channel.curChannel == CHANNEL_2))){
+        if(gui.drawing && (curChannel == CHANNEL_3 || (curChannel == CHANNEL_1 && (mode == MODE_TWO || mode == MODE_REF)) ||
+           (mode == MODE_TWO && curChannel == CHANNEL_2))){
             GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
             GuiSetStyle(LABEL, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
             GuiSetStyle(LABEL, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
@@ -622,7 +615,7 @@ void drawGuiChannel(Gui &gui, Data &data){
             GuiSetStyle(VALUEBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
            }
 
-        if(GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue[gui.channel.curChannel]), 0, 50, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
+        if(GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue[curChannel]), 0, 50, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
         GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
         GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
@@ -643,25 +636,25 @@ void drawGuiChannel(Gui &gui, Data &data){
 
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
         GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
-        for(int i = 0; i < gui.channel.numSecrets[gui.channel.curChannel]; i++){
-            if(mode == MODE_SINGLE || mode == MODE_TWO || gui.channel.curChannel == CHANNEL_1 || gui.channel.curChannel == CHANNEL_3){
+        for(int i = 0; i < gui.channel.numSecrets[curChannel]; i++){
+            if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1 || curChannel == CHANNEL_3){
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
             }else{
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelYText[i].c_str());
             }
 
-            for(int j = 0; j < gui.channel.numOutputs[gui.channel.curChannel]; j++){
-                if(gui.channel.curChannel == CHANNEL_3) GuiLock();
-                if(GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[gui.channel.curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
-                if(gui.channel.curChannel == CHANNEL_3) GuiUnlock();
+            for(int j = 0; j < gui.channel.numOutputs[curChannel]; j++){
+                if(curChannel == CHANNEL_3) GuiLock();
+                if(GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
+                if(curChannel == CHANNEL_3) GuiUnlock();
             }
         }
 
-        if(mode == MODE_SINGLE || mode == MODE_TWO || gui.channel.curChannel == CHANNEL_1){
-            for(int i = 0; i < gui.channel.numOutputs[gui.channel.curChannel]; i++)
+        if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1){
+            for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
         }else{
-            for(int i = 0; i < gui.channel.numOutputs[gui.channel.curChannel]; i++)
+            for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
         }
     EndScissorMode();
@@ -669,19 +662,26 @@ void drawGuiChannel(Gui &gui, Data &data){
 
 void drawGuiPosteriors(Gui &gui, Data &data){
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
-    if(gui.channel.curChannel == CHANNEL_1){
+    int curChannel = gui.channel.curChannel;
+
+    if(curChannel == CHANNEL_1){
         strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AC]");
-    }else if(gui.channel.curChannel == CHANNEL_2){
+    }else if(curChannel == CHANNEL_2){
         if(mode == MODE_REF){
             strcpy(gui.posteriors.GroupBoxPosteriorsText, "");
         }else{
             strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AD]");
         }
-    }else if(gui.channel.curChannel == CHANNEL_3){
+    }else if(curChannel == CHANNEL_3){
         strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203ACR]");
     }
     
-    drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
+    Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
+    if(gui.drawing){
+        if(curChannel == CHANNEL_1) contentColor = INNERS1_COLOR_D1;
+        else if(curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode == MODE_TWO)) contentColor = INNERS2_COLOR;
+    }
+    drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, contentColor, gui.defaultFont);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
@@ -692,17 +692,17 @@ void drawGuiPosteriors(Gui &gui, Data &data){
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
-        if(mode != MODE_REF || gui.channel.curChannel != CHANNEL_2){
+        if(mode != MODE_REF || curChannel != CHANNEL_2){
             GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelOuter.width, gui.posteriors.layoutRecsLabelOuter.height}, gui.posteriors.LabelOuterText);
 
-            for(int i = 0; i < gui.posteriors.numPosteriors[gui.channel.curChannel]; i++){
-                GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelPosteriors[i].width, gui.posteriors.layoutRecsLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[gui.channel.curChannel][i].c_str());
+            for(int i = 0; i < gui.posteriors.numPosteriors[curChannel]; i++){
+                GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelPosteriors[i].width, gui.posteriors.layoutRecsLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[curChannel][i].c_str());
                 GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxOuter[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxOuter[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxOuter[i].width, gui.posteriors.layoutRecsTextBoxOuter[i].height}, gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
             }
 
             for(int i = 0; i < NUMBER_SECRETS; i++){
                 GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelX[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelX[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelX[i].width, gui.posteriors.layoutRecsLabelX[i].height}, gui.posteriors.LabelPosteriorsXText[i].c_str());
-                for(int j = 0; j < gui.posteriors.numPosteriors[gui.channel.curChannel]; j++){
+                for(int j = 0; j < gui.posteriors.numPosteriors[curChannel]; j++){
                     GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxInners[i][j].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxInners[i][j].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxInners[i][j].width, gui.posteriors.layoutRecsTextBoxInners[i][j].height}, gui.posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxInnersEditMode[i][j]);
                 }
             }
@@ -924,18 +924,18 @@ void drawTab(Gui &gui, int channel, bool active){
         // Button color
         if(channel == CHANNEL_1){
             GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(INNERS1_COLOR_L1));
-            GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(INNERS1_COLOR_D1));
+            GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(INNERS1_COLOR_D2));
             GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(INNERS1_COLOR_L1));
         }else if(channel == CHANNEL_3){
-            GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(INNERS2_COLOR));
+            GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(INNERS2_COLOR_L2));
             GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(INNERS2_COLOR_D1));
-            GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(INNERS2_COLOR));
+            GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(INNERS2_COLOR_L2));
         }
 
         if(channel == CHANNEL_2 && mode == MODE_TWO){
-            GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(INNERS2_COLOR_L1));
+            GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(INNERS2_COLOR_L2));
             GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(INNERS2_COLOR_D1));
-            GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(INNERS2_COLOR_L1));
+            GuiSetStyle(BUTTON, BASE_COLOR_PRESSED, ColorToInt(INNERS2_COLOR_L2));
         }else if(channel == CHANNEL_2 && mode == MODE_REF){
             GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(BG_BASE_COLOR_LIGHT));
             GuiSetStyle(BUTTON, BASE_COLOR_FOCUSED, ColorToInt(BG_BASE_COLOR_DARK));
