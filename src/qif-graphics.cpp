@@ -544,7 +544,8 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
 }
 
 void drawGuiPrior(Gui &gui, Data &data){
-    if(gui.drawing && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE)
+    // if(gui.drawing && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE)
+    if(gui.drawing)
         drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, PRIOR_COLOR_L1, gui.defaultFont);
     else
         drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
@@ -569,11 +570,14 @@ void drawGuiPrior(Gui &gui, Data &data){
 void drawGuiChannel(Gui &gui, Data &data){
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
     int curChannel = gui.channel.curChannel;
-    
+    Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
+
     if(mode == MODE_SINGLE){
         strcpy(gui.channel.panelChannelText, "Channel C");
         gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x, gui.channel.AnchorChannel.y, 350, 20};
-        drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
+
+        if(gui.drawing) contentColor = INNERS1_COLOR_D1;
+        drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
     }else{
         strcpy(gui.channel.panelChannelText, "");
         if(mode == MODE_TWO){
@@ -584,7 +588,6 @@ void drawGuiChannel(Gui &gui, Data &data){
             strcpy(gui.channel.LabelChannelTabs[CHANNEL_2], "Ch R");
         }
         
-        Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
         if(gui.drawing){
             if(curChannel == CHANNEL_1) contentColor = INNERS1_COLOR_D1;
             else if(curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode == MODE_TWO)) contentColor = INNERS2_COLOR;
@@ -613,15 +616,14 @@ void drawGuiChannel(Gui &gui, Data &data){
         GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
         GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
 
-        if(gui.drawing && (curChannel == CHANNEL_3 || (curChannel == CHANNEL_1 && (mode == MODE_TWO || mode == MODE_REF)) ||
-           (mode == MODE_TWO && curChannel == CHANNEL_2))){
+        if(gui.drawing && (curChannel == CHANNEL_1|| (curChannel == CHANNEL_3) || (mode == MODE_TWO && curChannel == CHANNEL_2))){
             GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
             GuiSetStyle(LABEL, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
             GuiSetStyle(LABEL, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
             GuiSetStyle(VALUEBOX, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
             GuiSetStyle(VALUEBOX, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
             GuiSetStyle(VALUEBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-           }
+        }
 
         if(GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue[curChannel]), 0, 50, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
         GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
