@@ -92,8 +92,17 @@ public:
     //------------------------------------------------------------------------------------
     // Methods
     //------------------------------------------------------------------------------------
-    int readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs);        // Parameters are output
+    
+    // Parameters are output
+    int readQIFFile(
+        char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE],
+        char channel[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE],
+        int numSecrets[NUMBER_CHANNELS],
+        int numOutputs[NUMBER_CHANNELS]
+    );
+
     void saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs, bool createNewFile);
+
     void loadGSImages();
 };
 

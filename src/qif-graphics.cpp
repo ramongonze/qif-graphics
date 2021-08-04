@@ -129,7 +129,7 @@ void updateDrawFrame(void* vars_){
     //----------------------------------------------------------------------------------
     checkButtonsMouseCollision(*gui);
     buttonFile(*gui, *data, closeWindow);
-    buttonMode(*gui, *data, mode);
+    buttonMode(*gui, *data, mode); // It must be called after buttonFile function
     buttonExamples(*gui, *data);
     buttonHelp(*gui);
     //----------------------------------------------------------------------------------
@@ -971,78 +971,77 @@ void drawTab(Gui &gui, int channel, bool active){
 // Controls Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data, bool* closeWindow){
-    switch(gui.menu.dropdownBoxActive[BUTTON_FILE]){
-        case BUTTON_FILE_OPTION_OPEN:
-        #if !defined(PLATFORM_WEB)
-            char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
-            char newChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
-            int newNumOutputs;
+#if !defined(PLATFORM_WEB)
+    int option = gui.menu.dropdownBoxActive[BUTTON_FILE];
 
-            if(gui.menu.readQIFFile(newPrior, newChannel, &newNumOutputs) == NO_ERROR){
-                // If the current number of outputs is different from the file's, update it
-                if(gui.channel.SpinnerChannelValue[gui.channel.curChannel] != newNumOutputs){
-                    gui.channel.SpinnerChannelValue[gui.channel.curChannel] = newNumOutputs;
-                    gui.drawing = false;
-                    gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.dropdownBoxActive[BUTTON_MODE]);
+    if(option == BUTTON_FILE_OPTION_OPEN){
+        gui.drawing = false;
+        int retRead = gui.menu.readQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText, gui.channel.numSecrets, gui.channel.numOutputs);
+
+        if(retRead == INVALID_QIF_FILE){
+            // Open a dialog error
+            system("zenity --error --no-wrap --text=\"Invalid QIF graphics file\"");
+        }else{
+            // Update channels spinners
+            gui.channel.SpinnerChannelValue[CHANNEL_1] = gui.channel.numOutputs[CHANNEL_1];
+            gui.channel.SpinnerChannelValue[CHANNEL_2] = gui.channel.numOutputs[CHANNEL_2];
+            
+            // Reset prior
+            data.ready[FLAG_PRIOR] = false;
+            data.compute[FLAG_PRIOR] = true;
+
+            // Reset channels
+            data.resetAllExceptComputeChannel1();
+
+            for(int channel = 0; channel < NUMBER_CHANNELS; channel++)
+                gui.posteriors.resetPosterior(FLAG_CHANNEL_1+channel);
+
+            // Update current mode
+            gui.channel.checkModeAndSizes(retRead);
+            gui.menu.dropdownBoxActive[BUTTON_MODE] = retRead;
+
+            if(retRead == MODE_TWO) data.compute[FLAG_CHANNEL_2] = true;
+
+            updateStatusBar(NO_ERROR, gui.visualization);
+        }
+    }else if(option == BUTTON_FILE_OPTION_SAVE){
+        gui.menu.saveQIFFile(
+            gui.prior.TextBoxPriorText,
+            gui.channel.TextBoxChannelText[gui.channel.curChannel],
+            gui.channel.numOutputs[gui.channel.curChannel],
+            strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+        );
+        if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
+    }else if(option == BUTTON_FILE_OPTION_SAVEAS){
+        gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel], true);
+        if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;
+    }else if(option == BUTTON_FILE_OPTION_EXIT){
+        if(data.fileSaved){
+            *closeWindow = true;
+        }else{
+            int ret;
+            FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
+            ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
+
+            if(ret == 0){
+                // Yes
+                gui.menu.saveQIFFile(
+                    gui.prior.TextBoxPriorText,
+                    gui.channel.TextBoxChannelText[gui.channel.curChannel],
+                    gui.channel.numOutputs[gui.channel.curChannel],
+                    strcmp(gui.menu.fileName, "\0") == 0 ? true : false
+                );
+                if(strcmp(gui.menu.fileName, "\0")){
+                    data.fileSaved = true;
+                    *closeWindow = true;  
                 }
-                GuiPrior::copyPrior(newPrior, gui.prior.TextBoxPriorText);
-                GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numSecrets[gui.channel.curChannel], newNumOutputs);
-                gui.drawing = false;
-                strcpy(gui.visualization.TextBoxStatusText, "Status");
-            }
-        #endif       
-            break;
-        case BUTTON_FILE_OPTION_SAVE:
-        #if !defined(PLATFORM_WEB)
-            gui.menu.saveQIFFile(
-                gui.prior.TextBoxPriorText,
-                gui.channel.TextBoxChannelText[gui.channel.curChannel],
-                gui.channel.numOutputs[gui.channel.curChannel],
-                strcmp(gui.menu.fileName, "\0") == 0 ? true : false
-            );
-            if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
-        #endif
-            break;
-        case BUTTON_FILE_OPTION_SAVEAS:
-        #if !defined(PLATFORM_WEB)
-            gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel], true);
-            if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;
-        #endif
-            break;
-        case BUTTON_FILE_OPTION_EXIT:
-        #if !defined(PLATFORM_WEB)
-            if(data.fileSaved){
-                *closeWindow = true;
             }else{
-            #if !defined(PLATFORM_WEB)
-                int ret;
-                FILE *file = popen("zenity --no-wrap --title=\"QIF Graphics\" --question --text=\"Do you want to save changes you made?\"", "r");
-                ret = WEXITSTATUS(pclose(file));        // Get the user input Yes=0 or No=1
-
-                if(ret == 0){
-                    // Yes
-                    gui.menu.saveQIFFile(
-                        gui.prior.TextBoxPriorText,
-                        gui.channel.TextBoxChannelText[gui.channel.curChannel],
-                        gui.channel.numOutputs[gui.channel.curChannel],
-                        strcmp(gui.menu.fileName, "\0") == 0 ? true : false
-                    );
-                    if(strcmp(gui.menu.fileName, "\0")){
-                        data.fileSaved = true;
-                        *closeWindow = true;  
-                    }
-                }else{
-                    // No
-                    *closeWindow = true;
-                }
-            #endif
+                // No
+                *closeWindow = true;
             }
-        #endif
-            break;
-        default:
-            break;
+        }
     }
-
+#endif
     gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;
 }
 
@@ -1130,12 +1129,28 @@ void buttonRandomPrior(Gui &gui, Data &data){
     data.ready[FLAG_PRIOR] = true;
     gui.updatePriorTextBoxes(data.priorObj);
     
-    // Mark all channels (expect 3) to be recomputed and consequently, their corresponding hyper
-    for(int channel = 0; channel < NUMBER_CHANNELS-1; channel++){
-        data.ready[FLAG_HYPER_1+channel] = false;
-        data.compute[FLAG_HYPER_1+channel] = false;
-        data.ready[FLAG_CHANNEL_1+channel] = false;
-        data.compute[FLAG_CHANNEL_1+channel] = true;
+    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    
+    // Reset channel 1 and set it to be computed
+    data.ready[FLAG_CHANNEL_1] = false;
+    data.compute[FLAG_CHANNEL_1] = true;
+    data.ready[FLAG_HYPER_1] = false;
+    data.compute[FLAG_HYPER_1] = false;
+
+    if(mode == MODE_TWO || mode == MODE_REF){
+        // Reset channel 2 and set it to be computed
+        data.ready[FLAG_CHANNEL_2] = false;
+        data.compute[FLAG_CHANNEL_2] = true;
+        data.ready[FLAG_HYPER_2] = false;
+        data.compute[FLAG_HYPER_2] = false;
+    }
+
+    if(mode == MODE_REF){
+        // Reset channel 3
+        data.ready[FLAG_CHANNEL_3] = false;
+        data.compute[FLAG_CHANNEL_3] = false;
+        data.ready[FLAG_HYPER_3] = false;
+        data.compute[FLAG_HYPER_3] = false;
     }
 }
 

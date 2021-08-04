@@ -62,22 +62,59 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     loadGSImages();
 }
 
-int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int* newNumOutputs){
-    /* File format:
+int GuiMenu::readQIFFile(
+    char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE],
+    char channel[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE],
+    int numSecrets[NUMBER_CHANNELS],
+    int numOutputs[NUMBER_CHANNELS]
+    ){
+
+    /* File formats:
+    
+    Mode single channel:
     -----BEGIN OF FILE-----
-    prior
+    mode 1
+    prior 3
     p1 p2 p3
-    channel
-    m
+    channel1 3 m
     p11 p12 ... p1m
     p21 p22 ... p2m
-    p31 pn2 ... pnm
+    p31 p32 ... p3m
     -----END OF FILE-----
 
-    where n is the number of secrets (consequently the # elements in prior and # rows in channel),
-    m is the number of outputs in the channel (# of columns) and every two numbers are separated
-    by a white space.
-    Parameter newNumOutputs returns the number of outputs read from file
+    Mode two channels:
+    -----BEGIN OF FILE-----
+    mode 2
+    prior 3
+    p1 p2 p3
+    channel1 3 m
+    p11 p12 ... p1m
+    p21 p22 ... p2m
+    p31 p32 ... p3m
+    channel2 3 m'
+    p11 p12 ... p1m'
+    p21 p22 ... p2m'
+    p31 p32 ... p3m'
+    -----END OF FILE-----
+
+    Mode refinement:
+    -----BEGIN OF FILE-----
+    mode 3
+    prior 3
+    p1 p2 p3
+    channel1 3 m
+    p11 p12 ... p1m
+    p21 p22 ... p2m
+    p31 p32 ... p3m
+    channel2 m m'
+    p11 p12 ... p1m'
+    p21 p22 ... p2m'
+    ...
+    pm1 pm2 ... pmm'
+    -----END OF FILE-----
+
+    If there is an error with file, returns the error flag.
+    If there is no error, return the mode flag contained in file.
     */
 
 #if !defined(PLATFORM_WEB)
@@ -91,51 +128,90 @@ int GuiMenu::readQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char chan
     strcpy(fileName, newFileName.c_str());
 
     ifstream infile;
-    int numOutputs;
-    string buffer, probBuffer;
+    string buffer;
+    int mode, bufferInt;
+    int newNumberSecrets[NUMBER_CHANNELS];
+    int newNumberOutputs[NUMBER_CHANNELS];
     char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
-    char newChannel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    char newChannels[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
     try{
         infile.open(fileName); 
         
-        // Prior
-        getline(infile, buffer);
-        if(buffer != "prior") throw exception();
-        
-        for(int i = 0; i < NUMBER_SECRETS; i++){
-            infile >> probBuffer;
-            strcpy(newPrior[i], probBuffer.c_str());
-        }
-        
-        // Channel
-        getline(infile, buffer);        // Skip \n
-        getline(infile, buffer);
-        if(buffer != "channel") throw exception();
+        // Find mode
+        infile >> buffer;
+        if(buffer != "mode") throw exception();
+        infile >> mode;
+        if(mode != MODE_SINGLE && mode != MODE_TWO && mode != MODE_REF) throw exception();
 
-        infile >> numOutputs;
-        *newNumOutputs = numOutputs;      // Return the number of outputs read from file
-    
-        getline(infile, buffer);        // Skip \n
-        for(int i = 0; i < NUMBER_SECRETS; i++){
-            for(int j = 0; j < numOutputs; j++){
-                infile >> probBuffer;
-                strcpy(newChannel[i][j], probBuffer.c_str());
-            }
-            getline(infile, buffer);        // Skip \n
+        // Prior
+        infile >> buffer;
+        if(buffer != "prior") throw exception();
+        infile >> bufferInt;
+        if(bufferInt != NUMBER_SECRETS) throw exception();
+
+        for(int i = 0; i < bufferInt; i++){
+            infile >> buffer;
+            strcpy(newPrior[i], buffer.c_str());
         }
+
+        // Channel 1
+        infile >> buffer;
+        if(buffer != "channel1") throw exception();
+        infile >> newNumberSecrets[CHANNEL_1];
+        if(newNumberSecrets[CHANNEL_1] != NUMBER_SECRETS) throw exception();
+        infile >> newNumberOutputs[CHANNEL_1];
+        if(newNumberOutputs[CHANNEL_1] < 0 || newNumberOutputs[CHANNEL_1] > 50) throw exception();
+
+        for(int i = 0; i < newNumberSecrets[CHANNEL_1]; i++){
+            for(int j = 0; j < newNumberOutputs[CHANNEL_1]; j++){
+                infile >> buffer;
+                strcpy(newChannels[CHANNEL_1][i][j], buffer.c_str());
+            }
+        }
+
+        // Channel 2
+        if(mode == MODE_TWO || mode == MODE_REF){
+            infile >> buffer;
+            if(buffer != "channel2") throw exception();
+            infile >> newNumberSecrets[CHANNEL_2];
+            if(mode == MODE_TWO && newNumberSecrets[CHANNEL_2] != NUMBER_SECRETS) throw exception();
+            if(mode == MODE_REF && newNumberSecrets[CHANNEL_2] != newNumberOutputs[CHANNEL_1]) throw exception();
+            infile >> newNumberOutputs[CHANNEL_2];
+            if(newNumberOutputs[CHANNEL_2] < 0 || newNumberOutputs[CHANNEL_2] > 50) throw exception();
+
+            for(int i = 0; i < newNumberSecrets[CHANNEL_2]; i++){
+                for(int j = 0; j < newNumberOutputs[CHANNEL_2]; j++){
+                    infile >> buffer;
+                    strcpy(newChannels[CHANNEL_2][i][j], buffer.c_str());
+                }
+            }
+        }
+
+        // If no exception was thrown until here, there was no error with the file
         infile.close();
 
-        // If no exception was thrown update prior and channel vectors        
+        // Copy prior values
         GuiPrior::copyPrior(newPrior, prior);
-        GuiChannel::copyChannelText(newChannel, channel, 3, numOutputs);
+
+        // Copy channel 1 values
+        numSecrets[CHANNEL_1] = newNumberSecrets[CHANNEL_1];
+        numOutputs[CHANNEL_1] = newNumberOutputs[CHANNEL_1];
+        GuiChannel::copyChannelText(newChannels[CHANNEL_1], channel[CHANNEL_1], numSecrets[CHANNEL_1], numOutputs[CHANNEL_1]);
+
+        // Copy channel 2 values
+        if(mode == MODE_TWO || mode == MODE_REF){
+            numSecrets[CHANNEL_2] = newNumberSecrets[CHANNEL_2];
+            numOutputs[CHANNEL_2] = newNumberOutputs[CHANNEL_2];
+            GuiChannel::copyChannelText(newChannels[CHANNEL_2], channel[CHANNEL_2], numSecrets[CHANNEL_2], numOutputs[CHANNEL_2]);
+        }
+        
+        return mode;
     }catch(const exception& e){
-        cerr << "Invalid file. " << e.what() << '\n';        
         infile.close();
         return INVALID_QIF_FILE;
     }
-    return NO_ERROR;
 #else
-    return NO_ERROR;
+    return MODE_SINGLE;
 #endif
 }
 
