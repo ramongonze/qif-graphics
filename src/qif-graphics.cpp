@@ -776,6 +776,7 @@ void drawGettingStarted(Gui &gui){
         GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
         GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
         GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
+        GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(BLACK));
         gui.menu.windowGettingStartedActive = !GuiWindowBox(gui.menu.recGettingStarted, "Getting started");
         initStyle();
 
