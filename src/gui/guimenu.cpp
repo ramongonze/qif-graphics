@@ -26,23 +26,23 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
 
     // Define controls rectangles
 #if !defined(PLATFORM_WEB)
-    layoutRecsButtons[BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
-    layoutRecsButtons[BUTTON_MODE] = (Rectangle){51, 0, 50, 25};
-    layoutRecsButtons[BUTTON_EXAMPLES] = (Rectangle){102, 0, 80, 25};
-    layoutRecsButtons[BUTTON_HELP] = (Rectangle){183, 0, 50, 25};
+    recButtons[BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
+    recButtons[BUTTON_MODE] = (Rectangle){51, 0, 50, 25};
+    recButtons[BUTTON_EXAMPLES] = (Rectangle){102, 0, 80, 25};
+    recButtons[BUTTON_HELP] = (Rectangle){183, 0, 50, 25};
 #else
-    layoutRecsButtons[BUTTON_MODE] = (Rectangle){0, 0, 50, 25};
-    layoutRecsButtons[BUTTON_EXAMPLES] = (Rectangle){51, 0, 80, 25};
-    layoutRecsButtons[BUTTON_HELP] = (Rectangle){132, 0, 50, 25};
+    recButtons[BUTTON_MODE] = (Rectangle){0, 0, 50, 25};
+    recButtons[BUTTON_EXAMPLES] = (Rectangle){51, 0, 80, 25};
+    recButtons[BUTTON_HELP] = (Rectangle){132, 0, 50, 25};
 #endif
     
-    layoutRecsMenu = (Rectangle){0, 0, 1130, 25};
-    layoutRecsGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
+    recMenu = (Rectangle){0, 0, 1130, 25};
+    recGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
 
     // Getting started
     int windowsStatusBarHeight = 22;
-    layoutRecsGettingStartedMenu = (Rectangle){(float)(layoutRecsGettingStarted.x+10), (float)(layoutRecsGettingStarted.y+10+windowsStatusBarHeight), (float)(layoutRecsGettingStarted.width*0.2), (float)(layoutRecsGettingStarted.height-windowsStatusBarHeight-20)};
-    layoutRecsGettingStartedPanel = (Rectangle){(float)(layoutRecsGettingStartedMenu.x+layoutRecsGettingStartedMenu.width+10), (float)(layoutRecsGettingStarted.y+10+windowsStatusBarHeight), (float)(layoutRecsGettingStarted.width*0.8-30), (float)(layoutRecsGettingStarted.height-windowsStatusBarHeight-20)};
+    recGettingStartedMenu = (Rectangle){(float)(recGettingStarted.x+10), (float)(recGettingStarted.y+10+windowsStatusBarHeight), (float)(recGettingStarted.width*0.2), (float)(recGettingStarted.height-windowsStatusBarHeight-20)};
+    recGettingStartedPanel = (Rectangle){(float)(recGettingStartedMenu.x+recGettingStartedMenu.width+10), (float)(recGettingStarted.y+10+windowsStatusBarHeight), (float)(recGettingStarted.width*0.8-30), (float)(recGettingStarted.height-windowsStatusBarHeight-20)};
     
     strcpy(gettingStartedMenuOptions, "Prior distribution;Channel;Hyper-distribution;Visualization;Refinement");
     gettingStartedMenuScrollIndex = 0;
@@ -71,47 +71,21 @@ int GuiMenu::readQIFFile(
 
     /* File formats:
     
-    Mode single channel:
-    -----BEGIN OF FILE-----
-    mode 1
-    prior 3
-    p1 p2 p3
-    channel1 3 m
-    p11 p12 ... p1m
-    p21 p22 ... p2m
-    p31 p32 ... p3m
-    -----END OF FILE-----
-
-    Mode two channels:
-    -----BEGIN OF FILE-----
-    mode 2
-    prior 3
-    p1 p2 p3
-    channel1 3 m
-    p11 p12 ... p1m
-    p21 p22 ... p2m
-    p31 p32 ... p3m
-    channel2 3 m'
-    p11 p12 ... p1m'
-    p21 p22 ... p2m'
-    p31 p32 ... p3m'
-    -----END OF FILE-----
-
-    Mode refinement:
-    -----BEGIN OF FILE-----
-    mode 3
-    prior 3
-    p1 p2 p3
-    channel1 3 m
-    p11 p12 ... p1m
-    p21 p22 ... p2m
-    p31 p32 ... p3m
-    channel2 m m'
-    p11 p12 ... p1m'
-    p21 p22 ... p2m'
-    ...
-    pm1 pm2 ... pmm'
-    -----END OF FILE-----
+    Mode single channel:     |  Mode two channels:       |  Mode refinement:
+    -----BEGIN OF FILE-----  |  -----BEGIN OF FILE-----  |  -----BEGIN OF FILE-----
+    mode 1                   |  mode 2                   |  mode 3
+    prior 3                  |  prior 3                  |  prior 3
+    p1 p2 p3                 |  p1 p2 p3                 |  p1 p2 p3
+    channel1 3 m             |  channel1 3 m             |  channel1 3 m
+    p11 p12 ... p1m          |  p11 p12 ... p1m          |  p11 p12 ... p1m
+    p21 p22 ... p2m          |  p21 p22 ... p2m          |  p21 p22 ... p2m
+    p31 p32 ... p3m          |  p31 p32 ... p3m          |  p31 p32 ... p3m
+    -----END OF FILE-----    |  channel2 3 m'            |  channel2 m m'
+                             |  p11 p12 ... p1m'         |  p11 p12 ... p1m'
+                             |  p21 p22 ... p2m'         |  p21 p22 ... p2m'
+                             |  p31 p32 ... p3m'         |  ...
+                             |  -----END OF FILE-----    |  pm1 pm2 ... pmm'
+                             |                           |  -----END OF FILE-----
 
     If there is an error with file, returns the error flag.
     If there is no error, return the mode flag contained in file.
@@ -215,21 +189,32 @@ int GuiMenu::readQIFFile(
 #endif
 }
 
-void GuiMenu::saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs, bool createNewFile){
-    /* File format:
-    -----BEGIN OF FILE-----
-    prior
-    p1 p2 p3
-    channel
-    m
-    p11 p12 ... p1m
-    p21 p22 ... p2m
-    p31 pn2 ... pnm
-    -----END OF FILE-----
+void GuiMenu::saveQIFFile(
+    char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE],
+    char channel[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE],
+    int numSecrets[NUMBER_CHANNELS],
+    int numOutputs[NUMBER_CHANNELS],
+    int mode,
+    bool createNewFile
+    ){
+    /* File formats:
+    
+    Mode single channel:     |  Mode two channels:       |  Mode refinement:
+    -----BEGIN OF FILE-----  |  -----BEGIN OF FILE-----  |  -----BEGIN OF FILE-----
+    mode 1                   |  mode 2                   |  mode 3
+    prior 3                  |  prior 3                  |  prior 3
+    p1 p2 p3                 |  p1 p2 p3                 |  p1 p2 p3
+    channel1 3 m             |  channel1 3 m             |  channel1 3 m
+    p11 p12 ... p1m          |  p11 p12 ... p1m          |  p11 p12 ... p1m
+    p21 p22 ... p2m          |  p21 p22 ... p2m          |  p21 p22 ... p2m
+    p31 p32 ... p3m          |  p31 p32 ... p3m          |  p31 p32 ... p3m
+    -----END OF FILE-----    |  channel2 3 m'            |  channel2 m m'
+                             |  p11 p12 ... p1m'         |  p11 p12 ... p1m'
+                             |  p21 p22 ... p2m'         |  p21 p22 ... p2m'
+                             |  p31 p32 ... p3m'         |  ...
+                             |  -----END OF FILE-----    |  pm1 pm2 ... pmm'
+                             |                           |  -----END OF FILE-----
 
-    where n is the number of secrets (consequently the # elements in prior and # rows in channel),
-    m is the number of outputs in the channel (# of columns) and every two numbers are separated
-    by a white space.
     */
 
 #if !defined(PLATFORM_WEB)
@@ -257,16 +242,31 @@ void GuiMenu::saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char cha
     }
 
     if(strcmp(fileName, "\0")){
+        // Channel 1
         string output = "";
-        output = output + "prior\n" + prior[0] + " " + prior[1] + " " + prior[2] + "\n";
-        output = output + "channel\n" + to_string(numOutputs) + "\n";
-        for(int i = 0; i < NUMBER_SECRETS; i++){
+        output = output + "mode " + to_string(mode) + "\n";
+        output = output + "prior 3\n" + prior[0] + " " + prior[1] + " " + prior[2] + "\n";
+        output = output + "channel1 " + to_string(numSecrets[CHANNEL_1]) + " " + to_string(numOutputs[CHANNEL_1]) + "\n";
+        for(int i = 0; i < numSecrets[CHANNEL_1]; i++){
             int j = 0;
-            while(j < numOutputs-1){
-                output = output + channel[i][j] + " ";
+            while(j < numOutputs[CHANNEL_1]-1){
+                output = output + channel[CHANNEL_1][i][j] + " ";
                 j++;
             }
-            output = output + channel[i][j] + "\n";
+            output = output + channel[CHANNEL_1][i][j] + "\n";
+        }
+
+        if(mode == MODE_TWO || mode == MODE_REF){
+            // Channel 2
+            output = output + "channel2 " + to_string(numSecrets[CHANNEL_2]) + " " + to_string(numOutputs[CHANNEL_2]) + "\n";
+            for(int i = 0; i < numSecrets[CHANNEL_2]; i++){
+                int j = 0;
+                while(j < numOutputs[CHANNEL_2]-1){
+                    output = output + channel[CHANNEL_2][i][j] + " ";
+                    j++;
+                }
+                output = output + channel[CHANNEL_2][i][j] + "\n";
+            }
         }
 
         ofstream outfile;

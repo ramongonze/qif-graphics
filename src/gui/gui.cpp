@@ -38,7 +38,7 @@ void Gui::readFonts(){
 bool Gui::checkPriorTextBoxPressed(){
     // If user clicked on a textbox, clear its text
     for(int i = 0; i < NUMBER_SECRETS; i++)
-        if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), prior.layoutRecsTextBox[i]))
+        if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), prior.recTextBox[i]))
             strcpy(prior.TextBoxPriorText[i], "");
 
     for(int i = 0; i < NUMBER_SECRETS; i++)
@@ -53,7 +53,7 @@ bool Gui::checkChannelTextBoxPressed(){
     if(channel.curChannel != CHANNEL_3){
         for(int i = 0; i < channel.numSecrets[channel.curChannel]; i++)
             for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
-                if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), channel.layoutRecsTextBoxChannel[i][j]))
+                if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), channel.recTextBoxChannel[i][j]))
                     strcpy(channel.TextBoxChannelText[channel.curChannel][i][j], "");
     }
 
@@ -194,7 +194,7 @@ void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
 }
 
 void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
-    visualization.layoutRecsLabelPriorCircle = (Rectangle) {
+    visualization.recLabelPriorCircle = (Rectangle) {
         (float) priorCircle.center.x - 8,
         (float) priorCircle.center.y - 15,
         30,
@@ -205,7 +205,7 @@ void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
 void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
     // Update circle labels and rectangles
     for(int i = 0; i < posteriors.numPosteriors[channel]; i++){
-        visualization.layoutRecsLabelInnersCircles[channel][i] = (Rectangle){
+        visualization.recLabelInnersCircles[channel][i] = (Rectangle){
             (float) innersCircles[i].center.x - 8,
             (float) innersCircles[i].center.y - 11,
             20,
@@ -215,7 +215,7 @@ void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX
 }
 
 void Gui::checkMouseHover(Vector2 mousePosition){
-    helpMessagesActive[HELP_MSG_BUTTON_PRIOR] = CheckCollisionPointRec(mousePosition, prior.layoutRecsButtonRandom);
-    helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = (channel.curChannel != CHANNEL_3 && CheckCollisionPointRec(mousePosition, channel.layoutRecsButtonRandom));
-    helpMessagesActive[HELP_MSG_BUTTON_DRAW] = CheckCollisionPointRec(mousePosition, visualization.layoutRecsButtonDraw);
+    helpMessagesActive[HELP_MSG_BUTTON_PRIOR] = CheckCollisionPointRec(mousePosition, prior.recButtonRandom);
+    helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = (channel.curChannel != CHANNEL_3 && CheckCollisionPointRec(mousePosition, channel.recButtonRandom));
+    helpMessagesActive[HELP_MSG_BUTTON_DRAW] = CheckCollisionPointRec(mousePosition, visualization.recButtonDraw);
 }

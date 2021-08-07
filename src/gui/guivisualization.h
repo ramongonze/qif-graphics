@@ -35,16 +35,16 @@ public:
     char TextBoxStatusText[CHAR_BUFFER_SIZE];
 
     // Define controls rectangles
-    Rectangle layoutRecsTitle;
-    Rectangle layoutRecsContent;
-    Rectangle layoutRecsButtonDraw;
-    Rectangle layoutRecsTextBoxStatus;
-    Rectangle layoutRecsPanelVisualization;
-    Rectangle layoutRecsLabelPriorCircle;
-    Rectangle layoutRecsLabelInnersCircles[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
-    Rectangle layoutRecsLabelTriangle[3];
-    Rectangle layoutRecsCheckboxShowLabels;
-    Rectangle layoutRecsCheckboxShowConvexHull;
+    Rectangle recTitle;
+    Rectangle recContent;
+    Rectangle recButtonDraw;
+    Rectangle recTextBoxStatus;
+    Rectangle recPanelVisualization;
+    Rectangle recLabelPriorCircle;
+    Rectangle recLabelInnersCircles[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
+    Rectangle recLabelTriangle[3];
+    Rectangle recCheckboxShowLabels;
+    Rectangle recCheckboxShowConvexHull;
 
     /* Triangle vertices
      *       v0

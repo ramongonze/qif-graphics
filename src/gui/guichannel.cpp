@@ -44,30 +44,30 @@ GuiChannel::GuiChannel(){
     }
     
     // Define control rectangles
-    layoutRecsTitle = (Rectangle){AnchorChannel.x, AnchorChannel.y, 350, 20};
-    layoutRecsContent = (Rectangle){AnchorChannel.x, AnchorChannel.y + 20, 350, 265};
-    layoutRecsSpinner = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 30, 90, 25};
-    layoutRecsScrollPanel = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};
-    ScrollPanelChannelContent.y = layoutRecsScrollPanel.height - 20;
-    layoutRecsLabelOutputs = (Rectangle){AnchorChannel.x + 175, AnchorChannel.y + 5, 78, 25};
+    recTitle = (Rectangle){AnchorChannel.x, AnchorChannel.y, 350, 20};
+    recContent = (Rectangle){AnchorChannel.x, AnchorChannel.y + 20, 350, 265};
+    recSpinner = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 30, 90, 25};
+    recScrollPanel = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};
+    ScrollPanelChannelContent.y = recScrollPanel.height - 20;
+    recLabelOutputs = (Rectangle){AnchorChannel.x + 175, AnchorChannel.y + 5, 78, 25};
 
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        layoutRecsLabelX[i] = (Rectangle){AnchorChannel.x + 40, AnchorChannel.y + 100 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
+        recLabelX[i] = (Rectangle){AnchorChannel.x + 40, AnchorChannel.y + 100 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
         for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
-            layoutRecsTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + j*TEXTBOX_SIZE, AnchorChannel.y + 100 + i*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};
+            recTextBoxChannel[i][j] = (Rectangle){AnchorChannel.x + 65 + j*TEXTBOX_SIZE, AnchorChannel.y + 100 + i*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};
         }
     }
 
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        layoutRecsLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
+        recLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
     }
     
-    layoutRecsTabs[CHANNEL_1] = (Rectangle){AnchorChannel.x + 0, AnchorChannel.y, 56, 20};
-    layoutRecsTabs[CHANNEL_2] = (Rectangle){AnchorChannel.x + 57, AnchorChannel.y, 56, 20};
-    layoutRecsTabs[CHANNEL_3] = (Rectangle){AnchorChannel.x + 114, AnchorChannel.y, 56, 20};
+    recTabs[CHANNEL_1] = (Rectangle){AnchorChannel.x + 0, AnchorChannel.y, 56, 20};
+    recTabs[CHANNEL_2] = (Rectangle){AnchorChannel.x + 57, AnchorChannel.y, 56, 20};
+    recTabs[CHANNEL_3] = (Rectangle){AnchorChannel.x + 114, AnchorChannel.y, 56, 20};
 
-    layoutRecsButtonRandom = (Rectangle){layoutRecsTitle.x + layoutRecsTitle.width - 140, layoutRecsTitle.y, 140, 20};
-    ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;
+    recButtonRandom = (Rectangle){recTitle.x + recTitle.width - 140, recTitle.y, 140, 20};
+    ScrollPanelChannelContent.x = recTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;
 }
 
 bool GuiChannel::checkChannelSpinner(int mode){
@@ -143,8 +143,8 @@ void GuiChannel::checkModeAndSizes(int mode){
 }
 
 void GuiChannel::setScrollContent(){
-    ScrollPanelChannelContent.y = layoutRecsScrollPanel.height - 20 + (max(0,numSecrets[curChannel]-3))*TEXTBOX_SIZE; // Secrets
-    ScrollPanelChannelContent.x = layoutRecsTextBoxChannel[0][numOutputs[curChannel]-1].x - 10 + TEXTBOX_SIZE; // Outputs
+    ScrollPanelChannelContent.y = recScrollPanel.height - 20 + (max(0,numSecrets[curChannel]-3))*TEXTBOX_SIZE; // Secrets
+    ScrollPanelChannelContent.x = recTextBoxChannel[0][numOutputs[curChannel]-1].x - 10 + TEXTBOX_SIZE; // Outputs
 }
 
 void GuiChannel::resetChannel(int channel){

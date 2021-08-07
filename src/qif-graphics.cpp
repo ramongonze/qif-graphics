@@ -345,15 +345,15 @@ void checkButtonsMouseCollision(Gui &gui){
 #if !defined(PLATFORM_WEB)
     if((gui.menu.dropdownEditMode[BUTTON_FILE] || gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES] || gui.menu.dropdownEditMode[BUTTON_HELP])
         &&
-        (CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_FILE]) || CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_MODE]) ||
-         CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_EXAMPLES]) || CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_HELP]))){
+        (CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_FILE]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_MODE]) ||
+         CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_EXAMPLES]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_HELP]))){
         i = 0; // File button is the first one
     }
 #else
     if((gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES] || gui.menu.dropdownEditMode[BUTTON_HELP])
         &&
-        (CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_MODE]) || CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_EXAMPLES]) ||
-         CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[BUTTON_HELP]))){
+        (CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_MODE]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_EXAMPLES]) ||
+         CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_HELP]))){
         i = 1; // Mode button is the first one
     }
 #endif
@@ -362,7 +362,7 @@ void checkButtonsMouseCollision(Gui &gui){
             if(i != BUTTON_MODE)
                 gui.menu.dropdownBoxActive[i] = 0;
                 
-            if(CheckCollisionPointRec(mousePoint, gui.menu.layoutRecsButtons[i]))
+            if(CheckCollisionPointRec(mousePoint, gui.menu.recButtons[i]))
                 gui.menu.dropdownEditMode[i] = true;
             else
                 gui.menu.dropdownEditMode[i] = false;
@@ -508,7 +508,7 @@ void checkHypersFlags(Gui &gui, Data &data){
 // Draw Functions Definitions (local)
 //------------------------------------------------------------------------------------
 void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
-    DrawRectangleRec(gui.menu.layoutRecsMenu, MENU_BASE_COLOR_NORMAL);
+    DrawRectangleRec(gui.menu.recMenu, MENU_BASE_COLOR_NORMAL);
 
     GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
@@ -517,7 +517,7 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
 #if !defined(PLATFORM_WEB)
     // Button File
     if(!gui.menu.dropdownEditMode[BUTTON_FILE]) gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;        // Reset selection
-    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxActive[BUTTON_FILE]), gui.menu.dropdownEditMode[BUTTON_FILE])) gui.menu.dropdownEditMode[BUTTON_FILE] = !gui.menu.dropdownEditMode[BUTTON_FILE];
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxActive[BUTTON_FILE]), gui.menu.dropdownEditMode[BUTTON_FILE])) gui.menu.dropdownEditMode[BUTTON_FILE] = !gui.menu.dropdownEditMode[BUTTON_FILE];
 #endif
 
     // Button Mode
@@ -530,15 +530,15 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
     }else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_REF){
         strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#000#Two channels;#112#Refinement");
     }
-    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_MODE], 160, gui.menu.buttonModeText, &(gui.menu.dropdownBoxActive[BUTTON_MODE]), gui.menu.dropdownEditMode[BUTTON_MODE])) gui.menu.dropdownEditMode[BUTTON_MODE] = !gui.menu.dropdownEditMode[BUTTON_MODE];
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_MODE], 160, gui.menu.buttonModeText, &(gui.menu.dropdownBoxActive[BUTTON_MODE]), gui.menu.dropdownEditMode[BUTTON_MODE])) gui.menu.dropdownEditMode[BUTTON_MODE] = !gui.menu.dropdownEditMode[BUTTON_MODE];
 
     // Button Examples
     if(!gui.menu.dropdownEditMode[BUTTON_EXAMPLES]) gui.menu.dropdownBoxActive[BUTTON_EXAMPLES] = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection
-    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]), gui.menu.dropdownEditMode[BUTTON_EXAMPLES])) gui.menu.dropdownEditMode[BUTTON_EXAMPLES] = !gui.menu.dropdownEditMode[BUTTON_EXAMPLES];
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]), gui.menu.dropdownEditMode[BUTTON_EXAMPLES])) gui.menu.dropdownEditMode[BUTTON_EXAMPLES] = !gui.menu.dropdownEditMode[BUTTON_EXAMPLES];
     
     // Button Help
     if(!gui.menu.dropdownEditMode[BUTTON_HELP]) gui.menu.dropdownBoxActive[BUTTON_HELP] = BUTTON_HELP_OPTION_HELP;        // Reset selection
-    if(GuiDropdownBox(gui.menu.layoutRecsButtons[BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxActive[BUTTON_HELP]), gui.menu.dropdownEditMode[BUTTON_HELP])) gui.menu.dropdownEditMode[BUTTON_HELP] = !gui.menu.dropdownEditMode[BUTTON_HELP];
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxActive[BUTTON_HELP]), gui.menu.dropdownEditMode[BUTTON_HELP])) gui.menu.dropdownEditMode[BUTTON_HELP] = !gui.menu.dropdownEditMode[BUTTON_HELP];
 
     initStyle();
 }
@@ -546,15 +546,15 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
 void drawGuiPrior(Gui &gui, Data &data){
     // if(gui.drawing && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE)
     if(gui.drawing)
-        drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, PRIOR_COLOR_L1, gui.defaultFont);
+        drawContentPanel(gui.prior.recTitle, gui.prior.recContent, gui.prior.panelPriorText, PRIOR_COLOR_L1, gui.defaultFont);
     else
-        drawContentPanel(gui.prior.layoutRecsTitle, gui.prior.layoutRecsContent, gui.prior.panelPriorText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
+        drawContentPanel(gui.prior.recTitle, gui.prior.recContent, gui.prior.panelPriorText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
 
-    DrawRectangleRec(gui.prior.layoutRecsPanel, WHITE);
-    DrawRectangleLinesEx(gui.prior.layoutRecsPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
+    DrawRectangleRec(gui.prior.recPanel, WHITE);
+    DrawRectangleLinesEx(gui.prior.recPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
-    if(GuiButton(gui.prior.layoutRecsButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
+    if(GuiButton(gui.prior.recButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
@@ -562,8 +562,8 @@ void drawGuiPrior(Gui &gui, Data &data){
     GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        GuiLabel(gui.prior.layoutRecsLabel[i], gui.prior.LabelPriorText[i].c_str());
-        if(GuiTextBox(gui.prior.layoutRecsTextBox[i], gui.prior.TextBoxPriorText[i], CHAR_BUFFER_SIZE, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
+        GuiLabel(gui.prior.recLabel[i], gui.prior.LabelPriorText[i].c_str());
+        if(GuiTextBox(gui.prior.recTextBox[i], gui.prior.TextBoxPriorText[i], CHAR_BUFFER_SIZE, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
     }
 }
 
@@ -574,17 +574,17 @@ void drawGuiChannel(Gui &gui, Data &data){
 
     if(mode == MODE_SINGLE){
         strcpy(gui.channel.panelChannelText, "Channel C");
-        gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x, gui.channel.AnchorChannel.y, 350, 20};
+        gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x, gui.channel.AnchorChannel.y, 350, 20};
 
         if(gui.drawing) contentColor = INNERS1_COLOR_D1;
-        drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
+        drawContentPanel(gui.channel.recTitle, gui.channel.recContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
     }else{
         strcpy(gui.channel.panelChannelText, "");
         if(mode == MODE_TWO){
-            gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x+112, gui.channel.AnchorChannel.y, 350-112, 20};
+            gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x+112, gui.channel.AnchorChannel.y, 350-112, 20};
             strcpy(gui.channel.LabelChannelTabs[CHANNEL_2], "Ch D");
         }else if(mode == MODE_REF){
-            gui.channel.layoutRecsTitle = (Rectangle){gui.channel.AnchorChannel.x+168, gui.channel.AnchorChannel.y, 350-168, 20};
+            gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x+168, gui.channel.AnchorChannel.y, 350-168, 20};
             strcpy(gui.channel.LabelChannelTabs[CHANNEL_2], "Ch R");
         }
         
@@ -592,7 +592,7 @@ void drawGuiChannel(Gui &gui, Data &data){
             if(curChannel == CHANNEL_1) contentColor = INNERS1_COLOR_D1;
             else if(curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode == MODE_TWO)) contentColor = INNERS2_COLOR;
         }
-        drawContentPanel(gui.channel.layoutRecsTitle, gui.channel.layoutRecsContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
+        drawContentPanel(gui.channel.recTitle, gui.channel.recContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
 
         for(int i = 0; i < NUMBER_CHANNELS - (mode == MODE_TWO ? 1 : 0); i++)
             drawTab(gui, i, curChannel == i);
@@ -602,7 +602,7 @@ void drawGuiChannel(Gui &gui, Data &data){
 
     if(curChannel != CHANNEL_3){
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
-        if(GuiButton(gui.channel.layoutRecsButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
+        if(GuiButton(gui.channel.recButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     }
 
@@ -625,7 +625,7 @@ void drawGuiChannel(Gui &gui, Data &data){
             GuiSetStyle(VALUEBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
         }
 
-        if(GuiSpinner(gui.channel.layoutRecsSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue[curChannel]), 0, 50, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
+        if(GuiSpinner(gui.channel.recSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue[curChannel]), 0, 50, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
         GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
         GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
@@ -638,34 +638,34 @@ void drawGuiChannel(Gui &gui, Data &data){
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollChannel = GuiScrollPanel(
-        (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.layoutRecsScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.layoutRecsScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
-        (Rectangle){gui.channel.layoutRecsScrollPanel.x, gui.channel.layoutRecsScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
+        (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.recScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.recScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
+        (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
         &(gui.channel.ScrollPanelChannelScrollOffset)
     );
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
-        GuiLabel((Rectangle){gui.channel.layoutRecsLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelOutputs.width, gui.channel.layoutRecsLabelOutputs.height}, gui.channel.LabelOutputsText);
+        GuiLabel((Rectangle){gui.channel.recLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelOutputs.width, gui.channel.recLabelOutputs.height}, gui.channel.LabelOutputsText);
         for(int i = 0; i < gui.channel.numSecrets[curChannel]; i++){
             if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1 || curChannel == CHANNEL_3){
-                GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelX[i].width, gui.channel.recLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
             }else{
-                GuiLabel((Rectangle){gui.channel.layoutRecsLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelX[i].width, gui.channel.layoutRecsLabelX[i].height}, gui.channel.LabelChannelYText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelX[i].width, gui.channel.recLabelX[i].height}, gui.channel.LabelChannelYText[i].c_str());
             }
 
             for(int j = 0; j < gui.channel.numOutputs[curChannel]; j++){
                 if(curChannel == CHANNEL_3) GuiLock();
-                if(GuiTextBox((Rectangle){gui.channel.layoutRecsTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsTextBoxChannel[i][j].width, gui.channel.layoutRecsTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
+                if(GuiTextBox((Rectangle){gui.channel.recTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recTextBoxChannel[i][j].width, gui.channel.recTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
                 if(curChannel == CHANNEL_3) GuiUnlock();
             }
         }
 
         if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
-                GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
         }else{
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
-                GuiLabel((Rectangle){gui.channel.layoutRecsLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.layoutRecsLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.layoutRecsLabelY[i].width, gui.channel.layoutRecsLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
         }
     EndScissorMode();
 }
@@ -691,29 +691,29 @@ void drawGuiPosteriors(Gui &gui, Data &data){
         if(curChannel == CHANNEL_1) contentColor = INNERS1_COLOR_D1;
         else if(curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode == MODE_TWO)) contentColor = INNERS2_COLOR;
     }
-    drawContentPanel(gui.posteriors.layoutRecsTitle, gui.posteriors.layoutRecsContent, gui.posteriors.GroupBoxPosteriorsText, contentColor, gui.defaultFont);
+    drawContentPanel(gui.posteriors.recTitle, gui.posteriors.recContent, gui.posteriors.GroupBoxPosteriorsText, contentColor, gui.defaultFont);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
-        (Rectangle){gui.posteriors.layoutRecsScrollPanel.x, gui.posteriors.layoutRecsScrollPanel.y, gui.posteriors.layoutRecsScrollPanel.width - gui.posteriors.ScrollPanelPosteriorsBoundsOffset.x, gui.posteriors.layoutRecsScrollPanel.height - gui.posteriors.ScrollPanelPosteriorsBoundsOffset.y },
-        (Rectangle){gui.posteriors.layoutRecsScrollPanel.x, gui.posteriors.layoutRecsScrollPanel.y, gui.posteriors.ScrollPanelPosteriorsContent.x, gui.posteriors.ScrollPanelPosteriorsContent.y},
+        (Rectangle){gui.posteriors.recScrollPanel.x, gui.posteriors.recScrollPanel.y, gui.posteriors.recScrollPanel.width - gui.posteriors.ScrollPanelPosteriorsBoundsOffset.x, gui.posteriors.recScrollPanel.height - gui.posteriors.ScrollPanelPosteriorsBoundsOffset.y },
+        (Rectangle){gui.posteriors.recScrollPanel.x, gui.posteriors.recScrollPanel.y, gui.posteriors.ScrollPanelPosteriorsContent.x, gui.posteriors.ScrollPanelPosteriorsContent.y},
         &(gui.posteriors.ScrollPanelPosteriorsScrollOffset)
     );
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
         if(mode != MODE_REF || curChannel != CHANNEL_2){
-            GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelOuter.width, gui.posteriors.layoutRecsLabelOuter.height}, gui.posteriors.LabelOuterText);
+            GuiLabel((Rectangle){gui.posteriors.recLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.recLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.recLabelOuter.width, gui.posteriors.recLabelOuter.height}, gui.posteriors.LabelOuterText);
 
             for(int i = 0; i < gui.posteriors.numPosteriors[curChannel]; i++){
-                GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelPosteriors[i].width, gui.posteriors.layoutRecsLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[curChannel][i].c_str());
-                GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxOuter[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxOuter[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxOuter[i].width, gui.posteriors.layoutRecsTextBoxOuter[i].height}, gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
+                GuiLabel((Rectangle){gui.posteriors.recLabelPosteriors[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.recLabelPosteriors[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.recLabelPosteriors[i].width, gui.posteriors.recLabelPosteriors[i].height}, gui.posteriors.LabelPosteriorsText[curChannel][i].c_str());
+                GuiTextBox((Rectangle){gui.posteriors.recTextBoxOuter[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.recTextBoxOuter[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.recTextBoxOuter[i].width, gui.posteriors.recTextBoxOuter[i].height}, gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
             }
 
             for(int i = 0; i < NUMBER_SECRETS; i++){
-                GuiLabel((Rectangle){gui.posteriors.layoutRecsLabelX[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsLabelX[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsLabelX[i].width, gui.posteriors.layoutRecsLabelX[i].height}, gui.posteriors.LabelPosteriorsXText[i].c_str());
+                GuiLabel((Rectangle){gui.posteriors.recLabelX[i].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.recLabelX[i].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.recLabelX[i].width, gui.posteriors.recLabelX[i].height}, gui.posteriors.LabelPosteriorsXText[i].c_str());
                 for(int j = 0; j < gui.posteriors.numPosteriors[curChannel]; j++){
-                    GuiTextBox((Rectangle){gui.posteriors.layoutRecsTextBoxInners[i][j].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.layoutRecsTextBoxInners[i][j].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.layoutRecsTextBoxInners[i][j].width, gui.posteriors.layoutRecsTextBoxInners[i][j].height}, gui.posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxInnersEditMode[i][j]);
+                    GuiTextBox((Rectangle){gui.posteriors.recTextBoxInners[i][j].x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.recTextBoxInners[i][j].y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.recTextBoxInners[i][j].width, gui.posteriors.recTextBoxInners[i][j].height}, gui.posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxInnersEditMode[i][j]);
                 }
             }
         }
@@ -721,22 +721,22 @@ void drawGuiPosteriors(Gui &gui, Data &data){
 }
 
 void drawGuiVisualization(Gui &gui, Data &data){
-    drawContentPanel(gui.visualization.layoutRecsTitle, gui.visualization.layoutRecsContent, gui.visualization.GroupBoxVisualizationText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
-    if(GuiButton(gui.visualization.layoutRecsButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
+    drawContentPanel(gui.visualization.recTitle, gui.visualization.recContent, gui.visualization.GroupBoxVisualizationText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
+    if(GuiButton(gui.visualization.recButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, WHITE);
-    DrawRectangleRec(gui.visualization.layoutRecsTextBoxStatus, WHITE);
+    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.recTextBoxStatus, WHITE);
+    DrawRectangleRec(gui.visualization.recTextBoxStatus, WHITE);
     
     if(strcmp(gui.visualization.TextBoxStatusText, "Status")) GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RED));
-    GuiTextBox(gui.visualization.layoutRecsTextBoxStatus, gui.visualization.TextBoxStatusText, CHAR_BUFFER_SIZE, gui.visualization.TextBoxStatusEditMode);
+    GuiTextBox(gui.visualization.recTextBoxStatus, gui.visualization.TextBoxStatusText, CHAR_BUFFER_SIZE, gui.visualization.TextBoxStatusEditMode);
     GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
     
-    GuiPanel(gui.visualization.layoutRecsPanelVisualization);
+    GuiPanel(gui.visualization.recPanelVisualization);
 
     if(gui.drawing){
         // Checkboxes
@@ -746,14 +746,14 @@ void drawGuiVisualization(Gui &gui, Data &data){
         GuiSetStyle(CHECKBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(CHECKBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(CHECKBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-        gui.showLabels = GuiCheckBox(gui.visualization.layoutRecsCheckboxShowLabels, gui.visualization.LabelCheckboxShowLabel, gui.showLabels);
-        gui.showConvexHull = GuiCheckBox(gui.visualization.layoutRecsCheckboxShowConvexHull, gui.visualization.LabelCheckboxShowConvexHull, gui.showConvexHull);
+        gui.showLabels = GuiCheckBox(gui.visualization.recCheckboxShowLabels, gui.visualization.LabelCheckboxShowLabel, gui.showLabels);
+        gui.showConvexHull = GuiCheckBox(gui.visualization.recCheckboxShowConvexHull, gui.visualization.LabelCheckboxShowConvexHull, gui.showConvexHull);
 
         // Triangle
         DrawTriangle(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BG_BASE_COLOR_LIGHT2);
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
         for(int i = 0; i < NUMBER_SECRETS; i++){
-            DrawTextEx(gui.defaultFontBig, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.layoutRecsLabelTriangle[i].x, gui.visualization.layoutRecsLabelTriangle[i].y}, 32, 0, BLACK);
+            DrawTextEx(gui.defaultFontBig, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.recLabelTriangle[i].x, gui.visualization.recLabelTriangle[i].y}, 32, 0, BLACK);
         }
         
         int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
@@ -776,19 +776,19 @@ void drawGettingStarted(Gui &gui){
         GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
         GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
         GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
-        gui.menu.windowGettingStartedActive = !GuiWindowBox(gui.menu.layoutRecsGettingStarted, "Getting started");
+        gui.menu.windowGettingStartedActive = !GuiWindowBox(gui.menu.recGettingStarted, "Getting started");
         initStyle();
 
         // List of options
         GuiSetStyle(LISTVIEW, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(LISTVIEW, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(LISTVIEW, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-        gui.menu.gettingStartedMenuActive = GuiListView(gui.menu.layoutRecsGettingStartedMenu, gui.menu.gettingStartedMenuOptions, &gui.menu.gettingStartedMenuScrollIndex, gui.menu.gettingStartedMenuActive);
+        gui.menu.gettingStartedMenuActive = GuiListView(gui.menu.recGettingStartedMenu, gui.menu.gettingStartedMenuOptions, &gui.menu.gettingStartedMenuScrollIndex, gui.menu.gettingStartedMenuActive);
 
         // Visualization panel
-        DrawRectangleRec(gui.menu.layoutRecsGettingStartedPanel, WHITE);
+        DrawRectangleRec(gui.menu.recGettingStartedPanel, WHITE);
         if(gui.menu.gettingStartedMenuActive > -1){
-            drawGSContent(gui, gui.menu.layoutRecsGettingStartedPanel, gui.menu.gettingStartedMenuActive, gui.menu.imgPadding[gui.menu.gettingStartedMenuActive]);
+            drawGSContent(gui, gui.menu.recGettingStartedPanel, gui.menu.gettingStartedMenuActive, gui.menu.imgPadding[gui.menu.gettingStartedMenuActive]);
         }
     }
 }
@@ -796,7 +796,7 @@ void drawGettingStarted(Gui &gui){
 void drawCirclePrior(Gui &gui, Data &data){
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
     DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
-    if(gui.showLabels) DrawTextEx(gui.defaultFontBig, gui.visualization.LabelPriorCircleText, (Vector2) {gui.visualization.layoutRecsLabelPriorCircle.x, gui.visualization.layoutRecsLabelPriorCircle.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
+    if(gui.showLabels) DrawTextEx(gui.defaultFontBig, gui.visualization.LabelPriorCircleText, (Vector2) {gui.visualization.recLabelPriorCircle.x, gui.visualization.recLabelPriorCircle.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
 }
 
 void drawCirclesInners(Gui &gui, Data &data, int channel){
@@ -822,9 +822,9 @@ void drawCirclesInners(Gui &gui, Data &data, int channel){
         
         if(gui.showLabels){
             if(data.hyper[channel].outer.prob[i] < threshold)
-                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-25, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-25, gui.visualization.recLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
             else
-                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.layoutRecsLabelInnersCircles[channel][i].x-5, gui.visualization.layoutRecsLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-5, gui.visualization.recLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
         }
 
         if(gui.showConvexHull){
@@ -959,7 +959,7 @@ void drawTab(Gui &gui, int channel, bool active){
     
     if(active) GuiSetState(GUI_STATE_PRESSED);
 
-    if(GuiButton(gui.channel.layoutRecsTabs[channel], gui.channel.LabelChannelTabs[channel])) buttonsTabs(gui, channel);
+    if(GuiButton(gui.channel.recTabs[channel], gui.channel.LabelChannelTabs[channel])) buttonsTabs(gui, channel);
     GuiSetState(oldState);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
@@ -1007,13 +1007,22 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
     }else if(option == BUTTON_FILE_OPTION_SAVE){
         gui.menu.saveQIFFile(
             gui.prior.TextBoxPriorText,
-            gui.channel.TextBoxChannelText[gui.channel.curChannel],
-            gui.channel.numOutputs[gui.channel.curChannel],
+            gui.channel.TextBoxChannelText,
+            gui.channel.numSecrets,
+            gui.channel.numOutputs,
+            gui.menu.dropdownBoxActive[BUTTON_MODE],
             strcmp(gui.menu.fileName, "\0") == 0 ? true : false
         );
         if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
     }else if(option == BUTTON_FILE_OPTION_SAVEAS){
-        gui.menu.saveQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel], true);
+        gui.menu.saveQIFFile(
+            gui.prior.TextBoxPriorText,
+            gui.channel.TextBoxChannelText,
+            gui.channel.numSecrets,
+            gui.channel.numOutputs,
+            gui.menu.dropdownBoxActive[BUTTON_MODE],
+            true
+        );
         if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;
     }else if(option == BUTTON_FILE_OPTION_EXIT){
         if(data.fileSaved){
@@ -1027,8 +1036,10 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
                 // Yes
                 gui.menu.saveQIFFile(
                     gui.prior.TextBoxPriorText,
-                    gui.channel.TextBoxChannelText[gui.channel.curChannel],
-                    gui.channel.numOutputs[gui.channel.curChannel],
+                    gui.channel.TextBoxChannelText,
+                    gui.channel.numSecrets,
+                    gui.channel.numOutputs,
+                    gui.menu.dropdownBoxActive[BUTTON_MODE],
                     strcmp(gui.menu.fileName, "\0") == 0 ? true : false
                 );
                 if(strcmp(gui.menu.fileName, "\0")){

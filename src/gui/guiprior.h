@@ -32,12 +32,12 @@ public:
     char TextBoxPriorText[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
 
     // Define controls rectangles
-    Rectangle layoutRecsPanel;
-    Rectangle layoutRecsTitle;
-    Rectangle layoutRecsContent;
-    Rectangle layoutRecsButtonRandom;
-    Rectangle layoutRecsLabel[NUMBER_SECRETS];
-    Rectangle layoutRecsTextBox[NUMBER_SECRETS];
+    Rectangle recPanel;
+    Rectangle recTitle;
+    Rectangle recContent;
+    Rectangle recButtonRandom;
+    Rectangle recLabel[NUMBER_SECRETS];
+    Rectangle recTextBox[NUMBER_SECRETS];
 
     //------------------------------------------------------------------------------------
     // Methods

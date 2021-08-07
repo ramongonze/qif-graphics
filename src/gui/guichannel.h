@@ -45,18 +45,18 @@ public:
     char TextBoxChannelText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
     // Define control rectangles
-    Rectangle layoutRecsTitle;
-    Rectangle layoutRecsContent;
-    Rectangle layoutRecsSpinner;
-    Rectangle layoutRecsScrollPanel;
-    Rectangle layoutRecsLabelOutputs;
-    Rectangle layoutRecsButtonRandom;
-    Rectangle layoutRecsLabelX[MAX_CHANNEL_OUTPUTS];
-    Rectangle layoutRecsLabelY[MAX_CHANNEL_OUTPUTS];
-    Rectangle layoutRecsTabs[NUMBER_CHANNELS];
+    Rectangle recTitle;
+    Rectangle recContent;
+    Rectangle recSpinner;
+    Rectangle recScrollPanel;
+    Rectangle recLabelOutputs;
+    Rectangle recButtonRandom;
+    Rectangle recLabelX[MAX_CHANNEL_OUTPUTS];
+    Rectangle recLabelY[MAX_CHANNEL_OUTPUTS];
+    Rectangle recTabs[NUMBER_CHANNELS];
     
     // Important: The matrix is indexed by columns x rows
-    Rectangle layoutRecsTextBoxChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
+    Rectangle recTextBoxChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
 
     //------------------------------------------------------------------------------------
     // Methods

@@ -74,11 +74,11 @@ public:
     char* fileName;     // Used with file button to open/save files
 
     // Define controls rectangles
-    Rectangle layoutRecsButtons[4];
-    Rectangle layoutRecsMenu;
-    Rectangle layoutRecsGettingStarted;
-    Rectangle layoutRecsGettingStartedMenu;
-    Rectangle layoutRecsGettingStartedPanel;
+    Rectangle recButtons[4];
+    Rectangle recMenu;
+    Rectangle recGettingStarted;
+    Rectangle recGettingStartedMenu;
+    Rectangle recGettingStartedPanel;
 
     // Getting started widgets
     char gettingStartedMenuOptions[CHAR_BUFFER_SIZE];
@@ -101,7 +101,13 @@ public:
         int numOutputs[NUMBER_CHANNELS]
     );
 
-    void saveQIFFile(char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE], char channel[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int numOutputs, bool createNewFile);
+    void saveQIFFile(
+        char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE],
+        char channel[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE],
+        int numSecrets[NUMBER_CHANNELS],
+        int numOutputs[NUMBER_CHANNELS],
+        int mode,
+        bool createNewFile);
 
     void loadGSImages();
 };

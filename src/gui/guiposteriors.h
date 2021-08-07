@@ -41,14 +41,14 @@ public:
     char TextBoxInnersText[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
     // Define controls rectangles
-    Rectangle layoutRecsTitle;
-    Rectangle layoutRecsContent;
-    Rectangle layoutRecsScrollPanel;
-    Rectangle layoutRecsLabelOuter;
-    Rectangle layoutRecsLabelPosteriors[MAX_CHANNEL_OUTPUTS];
-    Rectangle layoutRecsTextBoxOuter[MAX_CHANNEL_OUTPUTS];
-    Rectangle layoutRecsLabelX[NUMBER_SECRETS];
-    Rectangle layoutRecsTextBoxInners[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
+    Rectangle recTitle;
+    Rectangle recContent;
+    Rectangle recScrollPanel;
+    Rectangle recLabelOuter;
+    Rectangle recLabelPosteriors[MAX_CHANNEL_OUTPUTS];
+    Rectangle recTextBoxOuter[MAX_CHANNEL_OUTPUTS];
+    Rectangle recLabelX[NUMBER_SECRETS];
+    Rectangle recTextBoxInners[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
 
     //------------------------------------------------------------------------------------
     // Methods
