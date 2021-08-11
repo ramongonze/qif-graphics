@@ -38,9 +38,9 @@ public:
     // Define controls variables
     bool SpinnerChannelEditMode;
     int SpinnerChannelValue[NUMBER_CHANNELS];
-    Vector2 ScrollPanelChannelScrollOffset;
-    Vector2 ScrollPanelChannelBoundsOffset;
-    Vector2 ScrollPanelChannelContent;
+    Vector2 ScrollPanelScrollOffset;
+    Vector2 ScrollPanelBoundsOffset;
+    Vector2 ScrollPanelContent;
     bool TextBoxChannelEditMode[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
     char TextBoxChannelText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 

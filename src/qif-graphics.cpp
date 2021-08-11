@@ -637,35 +637,35 @@ void drawGuiChannel(Gui &gui, Data &data){
     }
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
-    Rectangle viewScrollChannel = GuiScrollPanel(
-        (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.recScrollPanel.width - gui.channel.ScrollPanelChannelBoundsOffset.x, gui.channel.recScrollPanel.height - gui.channel.ScrollPanelChannelBoundsOffset.y },
-        (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.ScrollPanelChannelContent.x, gui.channel.ScrollPanelChannelContent.y},
-        &(gui.channel.ScrollPanelChannelScrollOffset)
+    Rectangle viewScroll = GuiScrollPanel(
+        (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.recScrollPanel.width - gui.channel.ScrollPanelBoundsOffset.x, gui.channel.recScrollPanel.height - gui.channel.ScrollPanelBoundsOffset.y },
+        (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.ScrollPanelContent.x, gui.channel.ScrollPanelContent.y},
+        &(gui.channel.ScrollPanelScrollOffset)
     );
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
-    BeginScissorMode(viewScrollChannel.x, viewScrollChannel.y, viewScrollChannel.width, viewScrollChannel.height);
-        GuiLabel((Rectangle){gui.channel.recLabelOutputs.x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelOutputs.y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelOutputs.width, gui.channel.recLabelOutputs.height}, gui.channel.LabelOutputsText);
+    BeginScissorMode(viewScroll.x, viewScroll.y, viewScroll.width, viewScroll.height);
+        GuiLabel((Rectangle){gui.channel.recLabelOutputs.x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelOutputs.y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelOutputs.width, gui.channel.recLabelOutputs.height}, gui.channel.LabelOutputsText);
         for(int i = 0; i < gui.channel.numSecrets[curChannel]; i++){
             if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1 || curChannel == CHANNEL_3){
-                GuiLabel((Rectangle){gui.channel.recLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelX[i].width, gui.channel.recLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelX[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelX[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelX[i].width, gui.channel.recLabelX[i].height}, gui.channel.LabelChannelXText[i].c_str());
             }else{
-                GuiLabel((Rectangle){gui.channel.recLabelX[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelX[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelX[i].width, gui.channel.recLabelX[i].height}, gui.channel.LabelChannelYText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelX[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelX[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelX[i].width, gui.channel.recLabelX[i].height}, gui.channel.LabelChannelYText[i].c_str());
             }
 
             for(int j = 0; j < gui.channel.numOutputs[curChannel]; j++){
                 if(curChannel == CHANNEL_3) GuiLock();
-                if(GuiTextBox((Rectangle){gui.channel.recTextBoxChannel[i][j].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recTextBoxChannel[i][j].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recTextBoxChannel[i][j].width, gui.channel.recTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
+                if(GuiTextBox((Rectangle){gui.channel.recTextBoxChannel[i][j].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recTextBoxChannel[i][j].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recTextBoxChannel[i][j].width, gui.channel.recTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
                 if(curChannel == CHANNEL_3) GuiUnlock();
             }
         }
 
         if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
-                GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
         }else{
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
-                GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelChannelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelChannelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
+                GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
         }
     EndScissorMode();
 }
@@ -784,12 +784,12 @@ void drawGettingStarted(Gui &gui){
         GuiSetStyle(LISTVIEW, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(LISTVIEW, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(LISTVIEW, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-        gui.menu.gettingStartedMenuActive = GuiListView(gui.menu.recGettingStartedMenu, gui.menu.gettingStartedMenuOptions, &gui.menu.gettingStartedMenuScrollIndex, gui.menu.gettingStartedMenuActive);
+        gui.menu.gsMenuActive = GuiListView(gui.menu.recGettingStartedMenu, gui.menu.gsMenuOptions, &gui.menu.gsMenuScrollIndex, gui.menu.gsMenuActive);
 
         // Visualization panel
         DrawRectangleRec(gui.menu.recGettingStartedPanel, WHITE);
-        if(gui.menu.gettingStartedMenuActive > -1){
-            drawGSContent(gui, gui.menu.recGettingStartedPanel, gui.menu.gettingStartedMenuActive, gui.menu.imgPadding[gui.menu.gettingStartedMenuActive]);
+        if(gui.menu.gsMenuActive > -1){
+            drawGSContent(gui, gui.menu.recGettingStartedPanel, gui.menu.gsMenuActive, gui.menu.imgPadding[gui.menu.gsMenuActive]);
         }
     }
 }
@@ -889,18 +889,29 @@ void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
     GuiSetStyle(TEXTBOX, TEXT_COLOR_DISABLED, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, 0);
-    GuiTextBoxMulti(
-        (Rectangle){panel.x+10, panel.y+10, panel.width-20, panel.height-20},
-        gui.menu.gsDescriptionTexts[option],
-        gui.defaultFont.baseSize,
-        false
+    
+    gui.menu.ScrollPanelContent.y = gui.menu.recGettingStarted.height + gui.menu.gsOptionYOffset[option];
+
+    Rectangle viewScroll = GuiScrollPanel(
+        (Rectangle){gui.menu.recScrollPanel.x, gui.menu.recScrollPanel.y, gui.menu.recScrollPanel.width - gui.menu.ScrollPanelBoundsOffset.x, gui.menu.recScrollPanel.height - gui.menu.ScrollPanelBoundsOffset.y },
+        (Rectangle){gui.menu.recScrollPanel.x, gui.menu.recScrollPanel.y, gui.menu.ScrollPanelContent.x, gui.menu.ScrollPanelContent.y},
+        &(gui.menu.ScrollPanelScrollOffset)
     );
+    
+    BeginScissorMode(viewScroll.x, viewScroll.y, viewScroll.width, viewScroll.height);
+        GuiTextBoxMulti(
+            (Rectangle){panel.x+10+gui.menu.ScrollPanelScrollOffset.x, panel.y+10+gui.menu.ScrollPanelScrollOffset.y, panel.width-30, (float)gui.menu.gsContentHeight[option]},
+            gui.menu.gsDescriptionTexts[option],
+            gui.defaultFont.baseSize,
+            false
+        );
+    EndScissorMode();
 
     // Image
-    if(option != GS_VISUALIZATION)
-        DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10, panel.y+imgPadding}, 0.0f, 0.45f, WHITE);
-    else
-        DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+60, panel.y+imgPadding}, 0.0f, 0.39f, WHITE);
+    // if(option != GS_VISUALIZATION)
+    //     DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10, panel.y+imgPadding}, 0.0f, 0.45f, WHITE);
+    // else
+    //     DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+60, panel.y+imgPadding}, 0.0f, 0.39f, WHITE);
 
     initStyle();
 }

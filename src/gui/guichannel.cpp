@@ -31,8 +31,8 @@ GuiChannel::GuiChannel(){
     for(int i = 0; i < NUMBER_CHANNELS; i++)
         SpinnerChannelValue[i] = numOutputs[i];
     
-    ScrollPanelChannelScrollOffset = {0, 0};
-    ScrollPanelChannelBoundsOffset = {0, 0};
+    ScrollPanelScrollOffset = {0, 0};
+    ScrollPanelBoundsOffset = {0, 0};
 
     for(int k = 0; k < NUMBER_CHANNELS; k++){
         for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
@@ -48,7 +48,7 @@ GuiChannel::GuiChannel(){
     recContent = (Rectangle){AnchorChannel.x, AnchorChannel.y + 20, 350, 265};
     recSpinner = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 30, 90, 25};
     recScrollPanel = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};
-    ScrollPanelChannelContent.y = recScrollPanel.height - 20;
+    ScrollPanelContent.y = recScrollPanel.height - 20;
     recLabelOutputs = (Rectangle){AnchorChannel.x + 175, AnchorChannel.y + 5, 78, 25};
 
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
@@ -67,7 +67,7 @@ GuiChannel::GuiChannel(){
     recTabs[CHANNEL_3] = (Rectangle){AnchorChannel.x + 114, AnchorChannel.y, 56, 20};
 
     recButtonRandom = (Rectangle){recTitle.x + recTitle.width - 140, recTitle.y, 140, 20};
-    ScrollPanelChannelContent.x = recTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;
+    ScrollPanelContent.x = recTextBoxChannel[0][numOutputs[CHANNEL_1]-1].x + TEXTBOX_SIZE;
 }
 
 bool GuiChannel::checkChannelSpinner(int mode){
@@ -85,7 +85,7 @@ void GuiChannel::updateChannelBySpinner(int channel, int mode){
         SpinnerChannelValue[channel] = 50;
     }else if(SpinnerChannelValue[channel] < numOutputs[channel]){
         int diff = numOutputs[channel] - SpinnerChannelValue[channel];
-        ScrollPanelChannelContent.x = ScrollPanelChannelContent.x - diff*TEXTBOX_SIZE;
+        ScrollPanelContent.x = ScrollPanelContent.x - diff*TEXTBOX_SIZE;
     }else{
         for(int i = 0; i < numSecrets[channel]; i++){
             for(int j = numOutputs[channel]; j < SpinnerChannelValue[channel]; j++){
@@ -94,7 +94,7 @@ void GuiChannel::updateChannelBySpinner(int channel, int mode){
             }
         }
 
-        ScrollPanelChannelContent.x = ScrollPanelChannelContent.x + (SpinnerChannelValue[channel]-numOutputs[channel])*TEXTBOX_SIZE;
+        ScrollPanelContent.x = ScrollPanelContent.x + (SpinnerChannelValue[channel]-numOutputs[channel])*TEXTBOX_SIZE;
     }
 
     numOutputs[channel] = SpinnerChannelValue[channel];
@@ -143,8 +143,8 @@ void GuiChannel::checkModeAndSizes(int mode){
 }
 
 void GuiChannel::setScrollContent(){
-    ScrollPanelChannelContent.y = recScrollPanel.height - 20 + (max(0,numSecrets[curChannel]-3))*TEXTBOX_SIZE; // Secrets
-    ScrollPanelChannelContent.x = recTextBoxChannel[0][numOutputs[curChannel]-1].x - 10 + TEXTBOX_SIZE; // Outputs
+    ScrollPanelContent.y = recScrollPanel.height - 20 + (max(0,numSecrets[curChannel]-3))*TEXTBOX_SIZE; // Secrets
+    ScrollPanelContent.x = recTextBoxChannel[0][numOutputs[curChannel]-1].x - 10 + TEXTBOX_SIZE; // Outputs
 }
 
 void GuiChannel::resetChannel(int channel){

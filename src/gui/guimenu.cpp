@@ -40,26 +40,42 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     recGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
 
     // Getting started
+    ScrollPanelScrollOffset = {0, 0};
+    ScrollPanelBoundsOffset = {0, 0};
+
     int windowsStatusBarHeight = 22;
     recGettingStartedMenu = (Rectangle){(float)(recGettingStarted.x+10), (float)(recGettingStarted.y+10+windowsStatusBarHeight), (float)(recGettingStarted.width*0.2), (float)(recGettingStarted.height-windowsStatusBarHeight-20)};
     recGettingStartedPanel = (Rectangle){(float)(recGettingStartedMenu.x+recGettingStartedMenu.width+10), (float)(recGettingStarted.y+10+windowsStatusBarHeight), (float)(recGettingStarted.width*0.8-30), (float)(recGettingStarted.height-windowsStatusBarHeight-20)};
-    
-    strcpy(gettingStartedMenuOptions, "Prior distribution;Channel;Hyper-distribution;Visualization;Refinement");
-    gettingStartedMenuScrollIndex = 0;
-    gettingStartedMenuActive = -1;
+    recScrollPanel = recGettingStartedPanel;
+    ScrollPanelContent.y = recGettingStarted.height + gsOptionYOffset[GS_OPTION_QIF]; // Default value is GS_OPTION_QIF
+    ScrollPanelContent.x = recScrollPanel.width - 20; 
+
+    gsOptionYOffset[GS_OPTION_QIF] = 200;
+    gsContentHeight[GS_OPTION_QIF] = recGettingStartedPanel.height + 300;
+    for(int option = GS_OPTION_PRIOR; option <= GS_OPTION_MODE_REF; option++){
+        gsOptionYOffset[option] = -60;
+        gsContentHeight[option] = recGettingStartedPanel.height;
+    }
+
+    strcpy(gsMenuOptions, "QIF Graphics;Prior distribution;Channels;Hyper-distribution;Mode single channel;Mode two channels;Mode refinement");
+    gsMenuScrollIndex = 0;
+    gsMenuActive = GS_OPTION_QIF;
     
     // GS description texts
-    strcpy(gsDescriptionTexts[GS_PRIOR], "Prior distribution on the set of secrets X = {X1,X2,X3}.");
-    strcpy(gsDescriptionTexts[GS_CHANNEL], "A channel is a system that takes as input a secret Xi, whose possible values come from a finite set X, and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set Y.");
-    strcpy(gsDescriptionTexts[GS_HYPER], "If X is a finite set (of possible secret values), \u03C0 is the prior distribution on X, and C is a channel, a hyper-distribution [\u03C0\u203AC] resulted from C on \u03C0 is a distribution on distributions on X. Each output in an informational channel is a possible \"world\", and each possible world is a new distribution on the set of secrets. We call the possible worlds the inner distributions. Each possible world has a probability of occurring, and we call the distribution on the possible worlds as the outer distribution.");
-    strcpy(gsDescriptionTexts[GS_VISUALIZATION], "");
+    strcpy(gsDescriptionTexts[GS_OPTION_QIF], "QIF Graphics is a graphical tool for visualizing information leakage caused by channels on a set of secrets using Quantitative Information Flow (QIF). The tool has 3 modes of usage:\n\n- Mode sinngle channel: Given a prior distribution on the set of secrets and a channel that maps these secrets to outputs, the tool draws in baricentric coordinates the prior and hyper distributions.\n\n- Mode two channels: Given a prior distribution on the set of secrets and two channels that maps these secrets to different set of outputs, the tool draws in baricentirc coordinates the prior distribution and the hypers from both channels, and their leakage can be compared geometrically.\n\n- Mode refinement: Given a prior distribution on the set of secrets, a channel C that maps these secrets to a set of outputs and a channel R that post-processes the outputs of C, the tool builds a channel CR that refines C and it also draw in baricentric coordinates the prior distribution and the hypers from C and CR, in the way that is possible to see what refinement means geometrically.\n\nThe tool also has the option to show the convex hull of hyper-distributions, which indicates the refinement region.\n\nMore information about QIF and the geometric interpretation of prior, channels and hyper-distributions can be found on\n\nAlvim M.S; Chatzikokolakis K; McIver A; Morgan C; Palamidessi C; Smith G.S. The Science of Quantitative Information Flow. Springer, 1 edition, 2019.");
+    strcpy(gsDescriptionTexts[GS_OPTION_PRIOR], "Prior distribution on the set of secrets X = {X1,X2,X3}.");
+    strcpy(gsDescriptionTexts[GS_OPTION_CHANNELS], "A channel is a system that takes as input a secret Xi, whose possible values come from a finite set X, and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set Y.");
+    strcpy(gsDescriptionTexts[GS_OPTION_HYPER], "If X is a finite set (of possible secret values), \u03C0 is the prior distribution on X, and C is a channel, a hyper-distribution [\u03C0\u203AC] resulted from C on \u03C0 is a distribution on distributions on X. Each output in an informational channel is a possible \"world\", and each possible world is a new distribution on the set of secrets. We call the possible worlds the inner distributions. Each possible world has a probability of occurring, and we call the distribution on the possible worlds as the outer distribution.");
+    strcpy(gsDescriptionTexts[GS_OPTION_MODE_SINGLE], "");
+    strcpy(gsDescriptionTexts[GS_OPTION_MODE_TWO], "");
+    strcpy(gsDescriptionTexts[GS_OPTION_MODE_REF], "");
 
-    imgPadding[GS_PRIOR] = 50;
-    imgPadding[GS_CHANNEL] = 110;
-    imgPadding[GS_HYPER] = 210;
-    imgPadding[GS_VISUALIZATION] = 10;
+    // imgPadding[GS_PRIOR] = 50;
+    // imgPadding[GS_CHANNEL] = 110;
+    // imgPadding[GS_HYPER] = 210;
+    // imgPadding[GS_VISUALIZATION] = 10;
 
-    loadGSImages();
+    // loadGSImages();
 }
 
 int GuiMenu::readQIFFile(

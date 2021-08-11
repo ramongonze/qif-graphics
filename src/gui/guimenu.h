@@ -42,11 +42,13 @@ using namespace std;
 #define BUTTON_HELP_OPTION_GETTING_STARTED 1
 #define BUTTON_HELP_OPTION_ABOUT 2
 
-#define GS_PRIOR 0
-#define GS_CHANNEL 1
-#define GS_HYPER 2
-#define GS_VISUALIZATION 3
-#define GS_REFINEMENT 4
+#define GS_OPTION_QIF 0
+#define GS_OPTION_PRIOR 1
+#define GS_OPTION_CHANNELS 2
+#define GS_OPTION_HYPER 3
+#define GS_OPTION_MODE_SINGLE 4
+#define GS_OPTION_MODE_TWO 5
+#define GS_OPTION_MODE_REF 6
 
 class GuiMenu{
 private:
@@ -79,15 +81,22 @@ public:
     Rectangle recGettingStarted;
     Rectangle recGettingStartedMenu;
     Rectangle recGettingStartedPanel;
-
+    
     // Getting started widgets
-    char gettingStartedMenuOptions[CHAR_BUFFER_SIZE];
-    int gettingStartedMenuScrollIndex;
-    int gettingStartedMenuActive;
+    Rectangle recScrollPanel;
+    Vector2 ScrollPanelScrollOffset;
+    Vector2 ScrollPanelBoundsOffset;
+    Vector2 ScrollPanelContent;
+    int gsOptionYOffset[7]; // Used to define Scroll Panel bounds
+    int gsContentHeight[7]; // Used to set Panel Multibox height
 
-    Texture2D gsImages[5];
-    char gsDescriptionTexts[5][CHAR_BUFFER_SIZE*5];
-    int imgPadding[5]; // Space between description and image
+    char gsMenuOptions[CHAR_BUFFER_SIZE];
+    int gsMenuScrollIndex;
+    int gsMenuActive;
+
+    Texture2D gsImages[7];
+    char gsDescriptionTexts[7][CHAR_BUFFER_SIZE*20];
+    int imgPadding[7]; // Space between description and image
 
     //------------------------------------------------------------------------------------
     // Methods
