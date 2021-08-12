@@ -19,6 +19,7 @@ GuiChannel::GuiChannel(){
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
         LabelChannelXText[i] = "X" + to_string(i+1);
         LabelChannelYText[i] = "Y" + to_string(i+1);
+        LabelChannelYPText[i] = "Y'" + to_string(i+1);
         LabelChannelZText[i] = "Z" + to_string(i+1);
     }    
 
@@ -59,7 +60,7 @@ GuiChannel::GuiChannel(){
     }
 
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        recLabelY[i] = (Rectangle){AnchorChannel.x + 75 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
+        recLabelY[i] = (Rectangle){AnchorChannel.x + 80 + i*TEXTBOX_SIZE, AnchorChannel.y + 80, 20, 20};
     }
     
     recTabs[CHANNEL_1] = (Rectangle){AnchorChannel.x + 0, AnchorChannel.y, 56, 20};

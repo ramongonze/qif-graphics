@@ -50,32 +50,105 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     ScrollPanelContent.y = recGettingStarted.height + gsOptionYOffset[GS_OPTION_QIF]; // Default value is GS_OPTION_QIF
     ScrollPanelContent.x = recScrollPanel.width - 20; 
 
-    gsOptionYOffset[GS_OPTION_QIF] = 200;
-    gsContentHeight[GS_OPTION_QIF] = recGettingStartedPanel.height + 300;
-    for(int option = GS_OPTION_PRIOR; option <= GS_OPTION_MODE_REF; option++){
+    gsOptionYOffset[GS_OPTION_QIF] = 300;
+    gsContentHeight[GS_OPTION_QIF] = recGettingStartedPanel.height + 400;
+    for(int option = GS_OPTION_PRIOR; option <= GS_OPTION_HYPER; option++){
         gsOptionYOffset[option] = -60;
         gsContentHeight[option] = recGettingStartedPanel.height;
     }
+
+    for(int option = GS_OPTION_MODE_SINGLE; option <= GS_OPTION_MODE_TWO; option++){
+        gsOptionYOffset[option] = 470;
+        gsContentHeight[option] = recGettingStartedPanel.height + 570;
+    }
+    gsOptionYOffset[GS_OPTION_MODE_REF] =520;
+    gsContentHeight[GS_OPTION_MODE_REF] = recGettingStartedPanel.height + 620;
 
     strcpy(gsMenuOptions, "QIF Graphics;Prior distribution;Channels;Hyper-distribution;Mode single channel;Mode two channels;Mode refinement");
     gsMenuScrollIndex = 0;
     gsMenuActive = GS_OPTION_QIF;
     
     // GS description texts
-    strcpy(gsDescriptionTexts[GS_OPTION_QIF], "QIF Graphics is a graphical tool for visualizing information leakage caused by channels on a set of secrets using Quantitative Information Flow (QIF). The tool has 3 modes of usage:\n\n- Mode sinngle channel: Given a prior distribution on the set of secrets and a channel that maps these secrets to outputs, the tool draws in baricentric coordinates the prior and hyper distributions.\n\n- Mode two channels: Given a prior distribution on the set of secrets and two channels that maps these secrets to different set of outputs, the tool draws in baricentirc coordinates the prior distribution and the hypers from both channels, and their leakage can be compared geometrically.\n\n- Mode refinement: Given a prior distribution on the set of secrets, a channel C that maps these secrets to a set of outputs and a channel R that post-processes the outputs of C, the tool builds a channel CR that refines C and it also draw in baricentric coordinates the prior distribution and the hypers from C and CR, in the way that is possible to see what refinement means geometrically.\n\nThe tool also has the option to show the convex hull of hyper-distributions, which indicates the refinement region.\n\nMore information about QIF and the geometric interpretation of prior, channels and hyper-distributions can be found on\n\nAlvim M.S; Chatzikokolakis K; McIver A; Morgan C; Palamidessi C; Smith G.S. The Science of Quantitative Information Flow. Springer, 1 edition, 2019.");
+    string s = "";
+    s = string("QIF Graphics is a graphical tool that can be used to see geometrically the information leakage caused by channels wrt. to a set of secrets ")+
+        string("using Quantitative Information Flow (QIF). Prior and hyper-distributions can be seen geometrically as circles such that the sum of the mass of inners ")+
+        string("circles correspond to the mass of prior circle and considering the space of probability distributions over the set of three secrets, the prior ")+
+        string("corresponds to the center of mass of all inners.")+
+        string("\nThe tool has 3 modes of usage that can be selected in the menu bar:")+
+        string("\n\n- Single channel: Given a prior distribution on the set of secrets and a channel that maps these secrets ")+
+        string("to outputs, the tool draws in baricentric coordinates the prior and hyper distributions.")+
+        string("\n\n- Two channels: Given a prior distribution on the set of secrets and two channels that maps each one to a set of ")+
+        string("outputs, the tool draws in baricentirc coordinates the prior distribution and the inners from both channels.")+
+        string("\n\n- Mode refinement: Given a prior distribution on the set of secrets, a channel C that maps these secrets ")+
+        string("to a set of outputs and a channel R that post-processes the outputs of C, the tool builds a channel CR that ")+
+        string("refines C and it also draw in baricentric coordinates the prior distribution and the hypers from C and CR, ")+
+        string("in the way that is possible to see what refinement means geometrically.")+
+        string("\n\nThe tool also has the option to show the convex hull of hyper-distributions, which indicates the refinement region.")+
+        string("\n\nMore information about QIF and the geometric interpretation of prior, channels and hyper-distributions can be ")+
+        string("found on\n\nAlvim M.S; Chatzikokolakis K; McIver A; Morgan C; Palamidessi C; Smith G.S. The Science of Quantitative ")+
+        string("Information Flow. Springer, 1 edition, 2019.");
+    strcpy(gsDescriptionTexts[GS_OPTION_QIF], s.c_str());
     strcpy(gsDescriptionTexts[GS_OPTION_PRIOR], "Prior distribution on the set of secrets X = {X1,X2,X3}.");
-    strcpy(gsDescriptionTexts[GS_OPTION_CHANNELS], "A channel is a system that takes as input a secret Xi, whose possible values come from a finite set X, and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set Y.");
-    strcpy(gsDescriptionTexts[GS_OPTION_HYPER], "If X is a finite set (of possible secret values), \u03C0 is the prior distribution on X, and C is a channel, a hyper-distribution [\u03C0\u203AC] resulted from C on \u03C0 is a distribution on distributions on X. Each output in an informational channel is a possible \"world\", and each possible world is a new distribution on the set of secrets. We call the possible worlds the inner distributions. Each possible world has a probability of occurring, and we call the distribution on the possible worlds as the outer distribution.");
-    strcpy(gsDescriptionTexts[GS_OPTION_MODE_SINGLE], "");
-    strcpy(gsDescriptionTexts[GS_OPTION_MODE_TWO], "");
-    strcpy(gsDescriptionTexts[GS_OPTION_MODE_REF], "");
 
-    // imgPadding[GS_PRIOR] = 50;
-    // imgPadding[GS_CHANNEL] = 110;
-    // imgPadding[GS_HYPER] = 210;
-    // imgPadding[GS_VISUALIZATION] = 10;
+    s = string("A channel is a system that takes as input a secret Xi, whose possible values come from a finite set of secrets X, ")+
+        string("and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set of outputs Y.");
+    strcpy(gsDescriptionTexts[GS_OPTION_CHANNELS], s.c_str());
 
-    // loadGSImages();
+    s = string("If X is a finite set (of possible secret values), \u03C0 is the prior distribution on X, and C is a channel, ")+
+        string("a hyper-distribution [\u03C0\u203AC] resulted from \u03C0 on C is a distribution on distributions on X. Each ")+
+        string("inner distribution \u03B4 is a possible \"world\", and each possible world is a new distribution on the ")+
+        string("set of secrets. We call the possible worlds the inner distributions. Each possible world has a probability of ")+
+        string("occurring, and we call the distribution on the possible worlds as the outer distribution.");
+    strcpy(gsDescriptionTexts[GS_OPTION_HYPER], s.c_str());
+    
+    s = string("The single channel mode allows to define a prior distribution on the set of secrets X = {X1,X2,X3} and a channel C that maps X ")+
+        string("to a set of outputs Y. The channel must have at least 1 output and at most 50. Each row in the channel must be a probability distribution.")+
+        string("\n\nAll probabilities in both prior and channel can be written as fractions or as decimal numbers.")+
+        string("\n\nAfter setting prior and channel, the hyper-distribution will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
+        string("representation of prior and inner distributions will be generated. It is possible, using the mouse pointer, to move the prior distribution ")+
+        string("circle around the hyperplane of probability distributions (the triangle). Also it is possible to mark the checkbox \"Show convex hull\" ")+
+        string("to see the convex hull of inner distributions.");
+    strcpy(gsDescriptionTexts[GS_OPTION_MODE_SINGLE], s.c_str());
+    
+    s = string("The two channels mode allows to define a prior distribution on the set of secrets X = {X1,X2,X3} and two channels C and D that maps X ")+
+        string("to a set of outputs Y and Y'. The channels must have at least 1 output and at most 50. Each row in the channels must be a probability distribution.")+
+        string("\n\nAll probabilities in both prior and channel can be written as fractions or as decimal numbers.")+
+        string("\n\nAfter setting prior and channels, the hyper-distributions will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
+        string("representation of prior and inner distributions will be generated. It is possible, using the mouse pointer, to move the prior distribution ")+
+        string("circle around the hyperplane of probability distributions (the triangle). Also it is possible to mark the checkbox \"Show convex hull\" ")+
+        string("to see the convex hull of inner distributions.");
+    strcpy(gsDescriptionTexts[GS_OPTION_MODE_TWO], s.c_str());
+
+    s = string("The refinement mode allows to define a prior distribution on the set of secrets X = {X1,X2,X3}, a channel C that maps X to a set of outputs Y and ")+
+        string("a channel R that maps outputs of C (the set Y) to a new set o outputs Z. The channel R can be viewd as a post-processing of outputs of C. ")+
+        string("The channels must have at least 1 output and at most 50. Each row in the channels must be a probability distribution.")+
+        string("\n\nAll probabilities in both prior and channel can be written as fractions or as decimal numbers.")+
+        string("\n\nAfter setting prior and channels, the tool will generate a new channel \"CR\" that refines channel C. Then the hyper-distributions wrt. to channels ")+
+        string("C and CR will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
+        string("representation of prior and inner distributions will be generated. It is possible, using the mouse pointer, to move the prior distribution ")+
+        string("circle around the hyperplane of probability distributions (the triangle). Also it is possible to mark the checkbox \"Show convex hull\" ")+
+        string("to see the convex hull of inner distributions.");
+    strcpy(gsDescriptionTexts[GS_OPTION_MODE_REF], s.c_str());
+
+    // GS images
+
+    strcpy(imagesSrc[GS_OPTION_QIF], "");
+    strcpy(imagesSrc[GS_OPTION_PRIOR], "images/gs-prior.png");
+    strcpy(imagesSrc[GS_OPTION_CHANNELS], "images/gs-channel.png");
+    strcpy(imagesSrc[GS_OPTION_HYPER], "images/gs-hyper.png");
+    strcpy(imagesSrc[GS_OPTION_MODE_SINGLE], "images/gs-single.png");
+    strcpy(imagesSrc[GS_OPTION_MODE_TWO], "images/gs-two.png");
+    strcpy(imagesSrc[GS_OPTION_MODE_REF], "images/gs-ref.png");
+
+    imgPadding[GS_OPTION_QIF] = 0;
+    imgPadding[GS_OPTION_PRIOR] = 50;
+    imgPadding[GS_OPTION_CHANNELS] = 110;
+    imgPadding[GS_OPTION_HYPER] = 210;
+    imgPadding[GS_OPTION_MODE_SINGLE] = 450;
+    imgPadding[GS_OPTION_MODE_TWO] = 450;
+    imgPadding[GS_OPTION_MODE_REF] = 500;
+
+    loadGSImages();
 }
 
 int GuiMenu::readQIFFile(
@@ -294,14 +367,10 @@ void GuiMenu::saveQIFFile(
 }
 
 void GuiMenu::loadGSImages(){
-    char imagesSrc[4][CHAR_BUFFER_SIZE] = {
-        "images/gs-prior.png",
-        "images/gs-channel.png",
-        "images/gs-hyper.png",
-        "images/gs-visualization.png"
-    };
+    for(int i = 0; i < 7; i++){
+        if(!strcmp(imagesSrc[i], ""))
+            continue;
 
-    for(int i = 0; i < 4; i++){
         Image img = LoadImage(imagesSrc[i]);
         ImageDrawTextEx(&img, GetFontDefault(), "", (Vector2){0,0}, (float)GetFontDefault().baseSize, 0.0f, BLACK);
         gsImages[i] = LoadTextureFromImage(img);  // Image converted to texture, uploaded to GPU memory (VRAM)

@@ -29,6 +29,7 @@ public:
     char buttonRandomText[CHAR_BUFFER_SIZE];
     string LabelChannelXText[MAX_CHANNEL_OUTPUTS];
     string LabelChannelYText[MAX_CHANNEL_OUTPUTS];
+    string LabelChannelYPText[MAX_CHANNEL_OUTPUTS];
     string LabelChannelZText[MAX_CHANNEL_OUTPUTS];
     char LabelChannelTabs[NUMBER_CHANNELS][CHAR_BUFFER_SIZE];
 

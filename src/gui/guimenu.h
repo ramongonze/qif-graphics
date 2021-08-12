@@ -97,6 +97,7 @@ public:
     Texture2D gsImages[7];
     char gsDescriptionTexts[7][CHAR_BUFFER_SIZE*20];
     int imgPadding[7]; // Space between description and image
+    char imagesSrc[7][CHAR_BUFFER_SIZE];
 
     //------------------------------------------------------------------------------------
     // Methods

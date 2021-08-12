@@ -660,9 +660,12 @@ void drawGuiChannel(Gui &gui, Data &data){
             }
         }
 
-        if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1){
+        if(curChannel == CHANNEL_1 || curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode != MODE_TWO)){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
+        }else if(curChannel == CHANNEL_2 && mode == MODE_TWO){
+            for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
+                GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelYPText[i].c_str());
         }else{
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
@@ -905,13 +908,13 @@ void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
             gui.defaultFont.baseSize,
             false
         );
+        
+        // Image
+        if(strcmp(gui.menu.imagesSrc[option], "")){
+            DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10+gui.menu.ScrollPanelScrollOffset.x, panel.y+imgPadding+gui.menu.ScrollPanelScrollOffset.y}, 0.0f, 0.43f, WHITE);
+        }
     EndScissorMode();
 
-    // Image
-    // if(option != GS_VISUALIZATION)
-    //     DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10, panel.y+imgPadding}, 0.0f, 0.45f, WHITE);
-    // else
-    //     DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+60, panel.y+imgPadding}, 0.0f, 0.39f, WHITE);
 
     initStyle();
 }
