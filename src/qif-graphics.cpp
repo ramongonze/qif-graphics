@@ -663,13 +663,13 @@ void drawGuiChannel(Gui &gui, Data &data){
             }
         }
 
-        if(curChannel == CHANNEL_1 || curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode != MODE_TWO)){
+        if(curChannel == CHANNEL_1 || curChannel == CHANNEL_3){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelYText[i].c_str());
         }else if(curChannel == CHANNEL_2 && mode == MODE_TWO){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelYPText[i].c_str());
-        }else{
+        }else if(curChannel == CHANNEL_2 && mode == MODE_REF){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
                 GuiLabel((Rectangle){gui.channel.recLabelY[i].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelY[i].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelY[i].width, gui.channel.recLabelY[i].height}, gui.channel.LabelChannelZText[i].c_str());
         }
