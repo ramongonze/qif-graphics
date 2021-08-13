@@ -125,6 +125,9 @@ void updateDrawFrame(void* vars_){
     *closeWindow = WindowShouldClose();
     Vector2 mousePosition = GetMousePosition();
     
+    // If getting started window is active, nothing can be changed until the window closes
+    if(!gui->menu.windowGettingStartedActive){
+
     // Menu
     //----------------------------------------------------------------------------------
     checkButtonsMouseCollision(*gui);
@@ -253,6 +256,8 @@ void updateDrawFrame(void* vars_){
 
     if(gui->drawing)
         updateStatusBar(NO_ERROR, gui->visualization);
+
+    } // end of if(!gui->menu.windowGettingStartedActive)
 
     //----------------------------------------------------------------------------------
     // Draw

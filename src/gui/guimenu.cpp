@@ -58,8 +58,8 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     }
 
     for(int option = GS_OPTION_MODE_SINGLE; option <= GS_OPTION_MODE_TWO; option++){
-        gsOptionYOffset[option] = 470;
-        gsContentHeight[option] = recGettingStartedPanel.height + 570;
+        gsOptionYOffset[option] = 460;
+        gsContentHeight[option] = recGettingStartedPanel.height + 560;
     }
     gsOptionYOffset[GS_OPTION_MODE_REF] =520;
     gsContentHeight[GS_OPTION_MODE_REF] = recGettingStartedPanel.height + 620;
@@ -81,49 +81,56 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
         string("outputs, the tool draws in baricentirc coordinates the prior distribution and the inners from both channels.")+
         string("\n\n- Mode refinement: Given a prior distribution on the set of secrets, a channel C that maps these secrets ")+
         string("to a set of outputs and a channel R that post-processes the outputs of C, the tool builds a channel CR that ")+
-        string("refines C and it also draw in baricentric coordinates the prior distribution and the hypers from C and CR, ")+
+        string("refines C and it also draws in baricentric coordinates the prior distribution and the hypers from C and CR, ")+
         string("in the way that is possible to see what refinement means geometrically.")+
         string("\n\nThe tool also has the option to show the convex hull of hyper-distributions, which indicates the refinement region.")+
         string("\n\nMore information about QIF and the geometric interpretation of prior, channels and hyper-distributions can be ")+
         string("found on\n\nAlvim M.S; Chatzikokolakis K; McIver A; Morgan C; Palamidessi C; Smith G.S. The Science of Quantitative ")+
         string("Information Flow. Springer, 1 edition, 2019.");
     strcpy(gsDescriptionTexts[GS_OPTION_QIF], s.c_str());
-    strcpy(gsDescriptionTexts[GS_OPTION_PRIOR], "Prior distribution on the set of secrets X = {X1,X2,X3}.");
+
+    s = string("Prior distribution on the set of secrets X = {X1,X2,X3}. The box under the label Xi must be filled with a value that represents the ")+
+        string("prior probability of the secret being Xi.")+
+        string("\n\nAll probabilities can be written as fractions or as decimal numbers.");
+    strcpy(gsDescriptionTexts[GS_OPTION_PRIOR], s.c_str());
 
     s = string("A channel is a system that takes as input a secret Xi, whose possible values come from a finite set of secrets X, ")+
-        string("and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set of outputs Y.");
+        string("and whose only observable behavior is to produce an output Yi, whose possible values come from a finite set of outputs Y.")+
+        string("\nThe box on row i and column j represents the conditional probability p(Yj|Xi) of the channel output Yj given that the secret is Xi.")+
+        string("\n\nAll probabilities can be written as fractions or as decimal numbers.");
     strcpy(gsDescriptionTexts[GS_OPTION_CHANNELS], s.c_str());
 
     s = string("If X is a finite set (of possible secret values), \u03C0 is the prior distribution on X, and C is a channel, ")+
-        string("a hyper-distribution [\u03C0\u203AC] resulted from \u03C0 on C is a distribution on distributions on X. Each ")+
-        string("inner distribution \u03B4 is a possible \"world\", and each possible world is a new distribution on the ")+
+        string("a hyper-distribution [\u03C0\u203AC] is a distribution on distributions on X. Each ")+
+        string("inner distribution \u03B4i is a possible \"world\", and each possible world is a new distribution on the ")+
         string("set of secrets. We call the possible worlds the inner distributions. Each possible world has a probability of ")+
         string("occurring, and we call the distribution on the possible worlds as the outer distribution.");
     strcpy(gsDescriptionTexts[GS_OPTION_HYPER], s.c_str());
     
-    s = string("The single channel mode allows to define a prior distribution on the set of secrets X = {X1,X2,X3} and a channel C that maps X ")+
+    s = string("The single channel mode allows to define a prior distribution \u03C0 on the set of secrets X = {X1,X2,X3} and a channel C that maps X ")+
         string("to a set of outputs Y. The channel must have at least 1 output and at most 50. Each row in the channel must be a probability distribution.")+
         string("\n\nAll probabilities in both prior and channel can be written as fractions or as decimal numbers.")+
-        string("\n\nAfter setting prior and channel, the hyper-distribution will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
+        string("\n\nAfter setting the prior \u03C0 and channel C, the hyper-distribution will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
         string("representation of prior and inner distributions will be generated. It is possible, using the mouse pointer, to move the prior distribution ")+
         string("circle around the hyperplane of probability distributions (the triangle). Also it is possible to mark the checkbox \"Show convex hull\" ")+
         string("to see the convex hull of inner distributions.");
     strcpy(gsDescriptionTexts[GS_OPTION_MODE_SINGLE], s.c_str());
     
-    s = string("The two channels mode allows to define a prior distribution on the set of secrets X = {X1,X2,X3} and two channels C and D that maps X ")+
-        string("to a set of outputs Y and Y'. The channels must have at least 1 output and at most 50. Each row in the channels must be a probability distribution.")+
+    s = string("The two channels mode allows to define a prior distribution \u03C0 on the set of secrets X = {X1,X2,X3} and two channels C and D that maps X ")+
+        string("to sets of outputs Y and Y'. The channels must have at least 1 output and at most 50. Each row in the channels must be a probability distribution.")+
         string("\n\nAll probabilities in both prior and channel can be written as fractions or as decimal numbers.")+
-        string("\n\nAfter setting prior and channels, the hyper-distributions will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
+        string("\n\nAfter setting the prior \u03C0 and channels C and D, the hyper-distributions will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
         string("representation of prior and inner distributions will be generated. It is possible, using the mouse pointer, to move the prior distribution ")+
         string("circle around the hyperplane of probability distributions (the triangle). Also it is possible to mark the checkbox \"Show convex hull\" ")+
         string("to see the convex hull of inner distributions.");
     strcpy(gsDescriptionTexts[GS_OPTION_MODE_TWO], s.c_str());
 
-    s = string("The refinement mode allows to define a prior distribution on the set of secrets X = {X1,X2,X3}, a channel C that maps X to a set of outputs Y and ")+
+    s = string("The refinement mode allows to define a prior distribution \u03C0 on the set of secrets X = {X1,X2,X3}, a channel C that maps X to a set of outputs Y and ")+
         string("a channel R that maps outputs of C (the set Y) to a new set o outputs Z. The channel R can be viewd as a post-processing of outputs of C. ")+
         string("The channels must have at least 1 output and at most 50. Each row in the channels must be a probability distribution.")+
         string("\n\nAll probabilities in both prior and channel can be written as fractions or as decimal numbers.")+
-        string("\n\nAfter setting prior and channels, the tool will generate a new channel \"CR\" that refines channel C. Then the hyper-distributions wrt. to channels ")+
+        string("\n\nAfter setting the prior \u03C0 and channels C and R, the tool will generate a new channel \"CR\" that is a composition of C and R.")+
+        string("We have the property that CR refines the channel C. Then the hyper-distributions wrt. to channels ")+
         string("C and CR will be generated automatically, and clicking on the button \"Draw\", the geometric ")+
         string("representation of prior and inner distributions will be generated. It is possible, using the mouse pointer, to move the prior distribution ")+
         string("circle around the hyperplane of probability distributions (the triangle). Also it is possible to mark the checkbox \"Show convex hull\" ")+
@@ -141,12 +148,12 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     strcpy(imagesSrc[GS_OPTION_MODE_REF], "images/gs-ref.png");
 
     imgPadding[GS_OPTION_QIF] = 0;
-    imgPadding[GS_OPTION_PRIOR] = 50;
-    imgPadding[GS_OPTION_CHANNELS] = 110;
+    imgPadding[GS_OPTION_PRIOR] = 150;
+    imgPadding[GS_OPTION_CHANNELS] = 250;
     imgPadding[GS_OPTION_HYPER] = 210;
     imgPadding[GS_OPTION_MODE_SINGLE] = 450;
     imgPadding[GS_OPTION_MODE_TWO] = 450;
-    imgPadding[GS_OPTION_MODE_REF] = 500;
+    imgPadding[GS_OPTION_MODE_REF] = 530;
 
     loadGSImages();
 }
