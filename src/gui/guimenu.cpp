@@ -8,7 +8,7 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     // Data
     this->windowWidth = windowWidth;
     this->windowHeight = windowHeight;
-    for(int i = 0; i < 4; i++){
+    for(int i = 0; i < 3; i++){
         dropdownBoxActive[i] = 0;
         dropdownEditMode[i] = false;
     }
@@ -19,7 +19,7 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
     strcpy(buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement");
     strcpy(buttonExamplesText, "Examples;Load channel that leaks everything;Load channel that leaks nothing");
-    strcpy(buttonHelpText, "Help;Getting Started;About");
+    strcpy(buttonGuideText, "Guide");
     
     fileName = (char*) malloc(10*CHAR_BUFFER_SIZE*sizeof(char));
     strcpy(fileName, "\0");
@@ -29,11 +29,11 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     recButtons[BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
     recButtons[BUTTON_MODE] = (Rectangle){51, 0, 50, 25};
     recButtons[BUTTON_EXAMPLES] = (Rectangle){102, 0, 80, 25};
-    recButtons[BUTTON_HELP] = (Rectangle){183, 0, 50, 25};
+    recButtons[BUTTON_GUIDE] = (Rectangle){183, 0, 60, 25};
 #else
     recButtons[BUTTON_MODE] = (Rectangle){0, 0, 50, 25};
     recButtons[BUTTON_EXAMPLES] = (Rectangle){51, 0, 80, 25};
-    recButtons[BUTTON_HELP] = (Rectangle){132, 0, 50, 25};
+    recButtons[BUTTON_GUIDE] = (Rectangle){132, 0, 60, 25};
 #endif
     
     recMenu = (Rectangle){0, 0, 1130, 25};

@@ -69,7 +69,7 @@ void drawTab(Gui &gui, int channel, bool active);        // If the tab is curren
 void buttonFile(Gui &gui, Data &data, bool* closeWindow);
 void buttonMode(Gui &gui, Data &data, int* prevMode);
 void buttonExamples(Gui &gui, Data &data);
-void buttonHelp(Gui &gui);
+void buttonGuide(Gui &gui);
 void buttonRandomPrior(Gui &gui, Data &data);
 void buttonsTabs(Gui &gui, int channel);
 void buttonRandomChannel(Gui &gui, Data &data);
@@ -131,7 +131,6 @@ void updateDrawFrame(void* vars_){
     buttonFile(*gui, *data, closeWindow);
     buttonMode(*gui, *data, mode); // It must be called after buttonFile function
     buttonExamples(*gui, *data);
-    buttonHelp(*gui);
     //----------------------------------------------------------------------------------
 
     data->error = NO_ERROR;
@@ -343,22 +342,22 @@ void checkButtonsMouseCollision(Gui &gui){
     Vector2 mousePoint = GetMousePosition();
 
 #if !defined(PLATFORM_WEB)
-    if((gui.menu.dropdownEditMode[BUTTON_FILE] || gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES] || gui.menu.dropdownEditMode[BUTTON_HELP])
+    if((gui.menu.dropdownEditMode[BUTTON_FILE] || gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES])
         &&
         (CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_FILE]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_MODE]) ||
-         CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_EXAMPLES]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_HELP]))){
+         CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_EXAMPLES]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_GUIDE]))){
         i = 0; // File button is the first one
     }
 #else
-    if((gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES] || gui.menu.dropdownEditMode[BUTTON_HELP])
+    if((gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES])
         &&
         (CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_MODE]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_EXAMPLES]) ||
-         CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_HELP]))){
+         CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_GUIDE]))){
         i = 1; // Mode button is the first one
     }
 #endif
     if(i >= 0){
-        for(; i < 4; i++){
+        for(; i < 3; i++){
             if(i != BUTTON_MODE)
                 gui.menu.dropdownBoxActive[i] = 0;
                 
@@ -536,9 +535,8 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
     if(!gui.menu.dropdownEditMode[BUTTON_EXAMPLES]) gui.menu.dropdownBoxActive[BUTTON_EXAMPLES] = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection
     if(GuiDropdownBox(gui.menu.recButtons[BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]), gui.menu.dropdownEditMode[BUTTON_EXAMPLES])) gui.menu.dropdownEditMode[BUTTON_EXAMPLES] = !gui.menu.dropdownEditMode[BUTTON_EXAMPLES];
     
-    // Button Help
-    if(!gui.menu.dropdownEditMode[BUTTON_HELP]) gui.menu.dropdownBoxActive[BUTTON_HELP] = BUTTON_HELP_OPTION_HELP;        // Reset selection
-    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_HELP], 170, gui.menu.buttonHelpText, &(gui.menu.dropdownBoxActive[BUTTON_HELP]), gui.menu.dropdownEditMode[BUTTON_HELP])) gui.menu.dropdownEditMode[BUTTON_HELP] = !gui.menu.dropdownEditMode[BUTTON_HELP];
+    // Button Guide
+    if(GuiButton(gui.menu.recButtons[BUTTON_GUIDE], gui.menu.buttonGuideText)) buttonGuide(gui);
 
     initStyle();
 }
@@ -1134,17 +1132,8 @@ void buttonExamples(Gui &gui, Data &data){
     gui.drawing = false;
 }
 
-void buttonHelp(Gui &gui){
-    switch(gui.menu.dropdownBoxActive[BUTTON_HELP]){
-        case BUTTON_HELP_OPTION_GETTING_STARTED:
-            gui.menu.windowGettingStartedActive = true;
-            break;
-        case BUTTON_HELP_OPTION_ABOUT:
-            // TODO
-            break;
-        default:
-            break;
-    }
+void buttonGuide(Gui &gui){
+    gui.menu.windowGettingStartedActive = true;
 }
 
 void buttonRandomPrior(Gui &gui, Data &data){

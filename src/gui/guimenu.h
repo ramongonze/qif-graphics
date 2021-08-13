@@ -21,7 +21,7 @@ using namespace std;
 #define BUTTON_FILE 0
 #define BUTTON_MODE 1
 #define BUTTON_EXAMPLES 2
-#define BUTTON_HELP 3
+#define BUTTON_GUIDE 3
 
 #define BUTTON_FILE_OPTION_FILE 0
 #define BUTTON_FILE_OPTION_OPEN 1
@@ -37,10 +37,6 @@ using namespace std;
 #define BUTTON_EXAMPLES_OPTION_EXAMPLES 0
 #define BUTTON_EXAMPLES_OPTION_CH_0 1       // Channel that leaks everything
 #define BUTTON_EXAMPLES_OPTION_CH_1 2       // Channel that leaks nothing
-
-#define BUTTON_HELP_OPTION_HELP 0
-#define BUTTON_HELP_OPTION_GETTING_STARTED 1
-#define BUTTON_HELP_OPTION_ABOUT 2
 
 #define GS_OPTION_QIF 0
 #define GS_OPTION_PRIOR 1
@@ -64,15 +60,15 @@ public:
     // Data
     int windowWidth;
     int windowHeight;
-    int dropdownBoxActive[4];
-    bool dropdownEditMode[4];
+    int dropdownBoxActive[3];
+    bool dropdownEditMode[3];
     bool windowGettingStartedActive;
 
     // Text
     char buttonFileText[CHAR_BUFFER_SIZE];
     char buttonModeText[CHAR_BUFFER_SIZE];
     char buttonExamplesText[CHAR_BUFFER_SIZE];
-    char buttonHelpText[CHAR_BUFFER_SIZE];
+    char buttonGuideText[CHAR_BUFFER_SIZE];
     char* fileName;     // Used with file button to open/save files
 
     // Define controls rectangles
