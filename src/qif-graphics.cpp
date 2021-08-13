@@ -709,6 +709,7 @@ void drawGuiPosteriors(Gui &gui, Data &data){
 
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
         if(mode != MODE_REF || curChannel != CHANNEL_2){
+            GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
             GuiLabel((Rectangle){gui.posteriors.recLabelOuter.x + gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.recLabelOuter.y + gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, gui.posteriors.recLabelOuter.width, gui.posteriors.recLabelOuter.height}, gui.posteriors.LabelOuterText);
 
             for(int i = 0; i < gui.posteriors.numPosteriors[curChannel]; i++){
@@ -1104,8 +1105,13 @@ void buttonExamples(Gui &gui, Data &data){
     if(example != BUTTON_EXAMPLES_OPTION_CH_0 && example != BUTTON_EXAMPLES_OPTION_CH_1)
         return;
 
-    char newChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
     int curChannel = gui.channel.curChannel;
+
+    // If some option was selected when the current channel is CR, skip.
+    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF && curChannel == CHANNEL_3)
+        return;
+
+    char newChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
     gui.channel.SpinnerChannelValue[curChannel] = (example == BUTTON_EXAMPLES_OPTION_CH_0) ? gui.channel.numSecrets[curChannel] : 1;    
     gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.dropdownBoxActive[BUTTON_MODE]);
