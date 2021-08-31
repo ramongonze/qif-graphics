@@ -11,13 +11,14 @@ using namespace std;
 #define NO_ERROR 0
 #define INVALID_PRIOR 1
 #define INVALID_CHANNEL_1 2
-#define INVALID_CHANNEL_2 3
-#define INVALID_CHANNEL_3 4
-#define INVALID_VALUE_PRIOR 5 // i.e. "1/$2"
-#define INVALID_VALUE_CHANNEL_1 6 // i.e. "1/$2"
-#define INVALID_VALUE_CHANNEL_2 7 // i.e. "1/$2"
-#define INVALID_VALUE_CHANNEL_3 8 // i.e. "1/$2"
-#define INVALID_QIF_FILE 9
+#define INVALID_CHANNEL_2_D 3
+#define INVALID_CHANNEL_2_R 4
+#define INVALID_CHANNEL_3 5
+#define INVALID_VALUE_PRIOR 6 // i.e. "1/$2"
+#define INVALID_VALUE_CHANNEL_1 7 // i.e. "1/$2"
+#define INVALID_VALUE_CHANNEL_2 8 // i.e. "1/$2"
+#define INVALID_VALUE_CHANNEL_3 9 // i.e. "1/$2"
+#define INVALID_QIF_FILE 10
 
 // Settings ------------------------------------------------------------------------------------
 #define WINDOWS_WIDTH 750

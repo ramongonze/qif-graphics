@@ -337,7 +337,10 @@ void updateStatusBar(int error, GuiVisualization &visualization){
 		case INVALID_CHANNEL_1:
 			strcpy(visualization.TextBoxStatusText, "Some row in channel C is not a probability distribution");
 			break;
-        case INVALID_CHANNEL_2:
+        case INVALID_CHANNEL_2_D:
+			strcpy(visualization.TextBoxStatusText, "Some row in channel D is not a probability distribution");
+            break;
+        case INVALID_CHANNEL_2_R:
 			strcpy(visualization.TextBoxStatusText, "Some row in channel R is not a probability distribution");
 			break;
 		case NO_ERROR:
@@ -482,7 +485,8 @@ void checkChannelsFlags(Gui &gui, Data &data){
             if(channel == CHANNEL_1 && !data.ready[FLAG_CHANNEL_1]){
                 data.error = INVALID_CHANNEL_1;
             }else if(channel == CHANNEL_2 && data.ready[FLAG_CHANNEL_1] && !data.ready[FLAG_CHANNEL_2] && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE){
-                data.error = INVALID_CHANNEL_2;
+                if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_TWO) data.error = INVALID_CHANNEL_2_D;
+                else data.error = INVALID_CHANNEL_2_R;                
             }
         }
     }
@@ -1192,7 +1196,7 @@ void buttonsTabs(Gui &gui, int channel){
 }
 
 void buttonRandomChannel(Gui &gui, Data &data){
-    if(data.error == INVALID_CHANNEL_1 || data.error == INVALID_CHANNEL_2)
+    if(data.error == INVALID_CHANNEL_1 || data.error == INVALID_CHANNEL_2_D || data.error == INVALID_CHANNEL_2_R)
         updateStatusBar(NO_ERROR, gui.visualization);
     
     data.newRandomChannel(gui.channel.curChannel, gui.channel.numSecrets[gui.channel.curChannel], gui.channel.numOutputs[gui.channel.curChannel]);
