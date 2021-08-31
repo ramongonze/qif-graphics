@@ -36,31 +36,26 @@ void Gui::readFonts(){
 }
 
 bool Gui::checkPriorTextBoxPressed(){
-    // If user clicked on a textbox, clear its text
     for(int i = 0; i < NUMBER_SECRETS; i++)
-        if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), prior.recTextBox[i]))
+        if(prior.TextBoxPriorEditMode[i] == true){
+            // If user clicked on a textbox, clear its text
             strcpy(prior.TextBoxPriorText[i], "");
-
-    for(int i = 0; i < NUMBER_SECRETS; i++)
-        if(prior.TextBoxPriorEditMode[i] == true)
             return true;
+        }
 
     return false;
 }
 
 bool Gui::checkChannelTextBoxPressed(){
-    // If user clicked on a textbox, clear its text
-    if(channel.curChannel != CHANNEL_3){
-        for(int i = 0; i < channel.numSecrets[channel.curChannel]; i++)
-            for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
-                if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), channel.recTextBoxChannel[i][j]))
-                    strcpy(channel.TextBoxChannelText[channel.curChannel][i][j], "");
-    }
-
     for(int i = 0; i < channel.numSecrets[channel.curChannel]; i++)
         for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
-            if(channel.TextBoxChannelEditMode[i][j] == true)
+            if(channel.TextBoxChannelEditMode[i][j] == true){
+                // If user clicked on a textbox, clear its text
+                if(channel.curChannel != CHANNEL_3){
+                    strcpy(channel.TextBoxChannelText[channel.curChannel][i][j], "");
+                }
                 return true;
+            }
 
     return false;
 }
