@@ -37,11 +37,8 @@ void Gui::readFonts(){
 
 bool Gui::checkPriorTextBoxPressed(){
     for(int i = 0; i < NUMBER_SECRETS; i++)
-        if(prior.TextBoxPriorEditMode[i] == true){
-            // If user clicked on a textbox, clear its text
-            strcpy(prior.TextBoxPriorText[i], "");
+        if(prior.TextBoxPriorEditMode[i] == true)
             return true;
-        }
 
     return false;
 }
@@ -49,13 +46,8 @@ bool Gui::checkPriorTextBoxPressed(){
 bool Gui::checkChannelTextBoxPressed(){
     for(int i = 0; i < channel.numSecrets[channel.curChannel]; i++)
         for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
-            if(channel.TextBoxChannelEditMode[i][j] == true){
-                // If user clicked on a textbox, clear its text
-                if(channel.curChannel != CHANNEL_3){
-                    strcpy(channel.TextBoxChannelText[channel.curChannel][i][j], "");
-                }
+            if(channel.TextBoxChannelEditMode[i][j] == true)
                 return true;
-            }
 
     return false;
 }
