@@ -27,8 +27,7 @@ void drawAxisArrows(Vector3 origin, int slices, Camera3D camera);
 void draw3DLabels(Vector3 origin, int slices, Camera3D camera);
 void drawCircleInTriangle(Distribution& dist, Color color, float radius);
 void drawVg(Distribution& dist, Color color, float radius);
-// void drawTent(Hyper& hyper);
-void drawTent(Gain& gain, Vector3 origin);
+void drawTent(Hyper& hyper);
 Vector3 distTo3D(Gain& gain, Vector3 origin);
 void fixCameraPos(Camera* camera); // Back it to be in the bounds
 
@@ -124,24 +123,23 @@ int main(void)
                 DrawTriangle3D((Vector3){0,0,10}, (Vector3){5,0,0}, (Vector3){10,0,10}, BG_BASE_COLOR_LIGHT);
                 DrawTriangle3D((Vector3){10,0,10}, (Vector3){5,0,0}, (Vector3){0,0,10}, BG_BASE_COLOR_LIGHT);
                 
-                // DrawLine3D((Vector3){0,0,10}, (Vector3){5,0,0}, BLACK);
-                // DrawLine3D((Vector3){5,0,0}, (Vector3){10,0,10}, BLACK);
-                // DrawLine3D((Vector3){0,0,10}, (Vector3){10,0,10}, BLACK);
+                DrawLine3D((Vector3){0,0,10}, (Vector3){5,0,0}, BLACK);
+                DrawLine3D((Vector3){5,0,0}, (Vector3){10,0,10}, BLACK);
+                DrawLine3D((Vector3){0,0,10}, (Vector3){10,0,10}, BLACK);
 
-                // g-vulnerability                
-                drawTent(gain, origin);
+                // Prior 
+                drawCircleInTriangle(prior, PRIOR_COLOR, 1);    // Circle
 
-                // // Prior 
-                // drawCircleInTriangle(prior, PRIOR_COLOR, 1);    // Circle
+                // Inners
+                for(int i = 0; i < hyper.num_post; i++){
+                    std::vector<long double> v({hyper.inners[0][i],hyper.inners[1][i], hyper.inners[2][i]});
+                    Distribution dist(v);
+                    float radius = sqrt(hyper.outer.prob[i]);
 
-                // // Inners
-                // for(int i = 0; i < hyper.num_post; i++){
-                //     std::vector<long double> v({hyper.inners[0][i],hyper.inners[1][i], hyper.inners[2][i]});
-                //     Distribution dist(v);
-                //     float radius = sqrt(hyper.outer.prob[i]);
+                    drawCircleInTriangle(dist, INNERS1_COLOR, radius);
+                }
 
-                //     drawCircleInTriangle(dist, INNERS1_COLOR, radius);
-                // }
+                drawTent(hyper);
 
             EndMode3D();
 
@@ -246,35 +244,13 @@ void draw3DLabels(Vector3 origin, int slices, Camera3D camera){
 void drawCircleInTriangle(Distribution& dist, Color color, float radius){
     Point p = dist2Bary(dist);
     DrawCircle3D((Vector3){p.x*10, 0, (1-p.y)*10}, radius, (Vector3){1,0,0}, 90, color);
+    DrawCylinder((Vector3){p.x*10, 0, (1-p.y)*10}, radius, radius, 0.01, 60, color);
 }
 
 void drawVg(Distribution& dist, Color color, float radius){
     long double vulnerability = bayesVulnerability(dist);    // Vulnerability
     Point p = dist2Bary(dist);
     DrawSphere((Vector3){p.x*10, vulnerability*10, (1-p.y)*10}, radius, color);
-}
-
-void drawTent(Gain& gain, Vector3 origin){
-    vector<long double> prob(3);
-    Vector3 point;
-    int all = 0; 
-    Vector3 points[6000];
-    vector<long double> dist = {1.0f/3, 1.0f/3, 1.0f/3};
-    Distribution prior(dist);
-    gain.prior = prior;
-
-    // For all probability distributions on {X1,X2,X3} for the precision of 2
-    for(long double x1 = 0; x1 <= 1; x1+=0.003){
-        prob[0] = x1;
-        for(long double x2 = 0; (x1+x2)<=1.0; x2+=0.003){
-            prob[1] = x2;
-            prob[2] = 1 - x2 - x1;
-            gain.prior = Distribution(prob);
-            point = distTo3D(gain, origin);
-            all++;
-            DrawPoint3D(point, INNERS1_COLOR_L1);
-        }
-    }
 }
 
 Vector3 distTo3D(Gain& gain, Vector3 origin){
@@ -293,30 +269,29 @@ void fixCameraPos(Camera* camera){
     if(camera->position.z > 35) camera->position.z = 35;
 }
 
-// void drawTent(Hyper& hyper){
-//     // Prior
-//     Point p = dist2Bary(hyper.prior);
-//     long double vulnerability = bayesVulnerability(hyper.prior);    // Vulnerability
-//     Vector3 priorPoint = {p.x*10, vulnerability*10, (1-p.y)*10};    
+void drawTent(Hyper& hyper){
+    // Prior
+    Point p = dist2Bary(hyper.prior);
+    long double vulnerability = bayesVulnerability(hyper.prior);    // Vulnerability
+    Vector3 priorPoint = {p.x*10, vulnerability*10, (1-p.y)*10};    
 
-//     vector<Vector3> innersPoints(hyper.num_post);
-//     for(int i = 0; i < hyper.num_post; i++){
-//         std::vector<long double> v({hyper.inners[0][i],hyper.inners[1][i], hyper.inners[2][i]});
-//         Distribution dist = Distribution(v);
-//         p = dist2Bary(dist);
-//         vulnerability = bayesVulnerability(dist);    // Vulnerability
-//         innersPoints[i] = (Vector3){(float)p.x*10, (float)vulnerability*10, (1-p.y)*10};
-//     }
+    vector<Vector3> innersPoints(hyper.num_post);
+    for(int i = 0; i < hyper.num_post; i++){
+        std::vector<long double> v({hyper.inners[0][i],hyper.inners[1][i], hyper.inners[2][i]});
+        Distribution dist = Distribution(v);
+        p = dist2Bary(dist);
+        vulnerability = bayesVulnerability(dist);    // Vulnerability
+        innersPoints[i] = (Vector3){(float)p.x*10, (float)vulnerability*10, (1-p.y)*10};
+    }
 
-//     for(int i = 0; i < hyper.num_post-1; i++){
-//         DrawTriangle3D(priorPoint, innersPoints[i], innersPoints[i+1], INNERS1_COLOR_L1);
-//         DrawTriangle3D(priorPoint, innersPoints[i+1], innersPoints[i], INNERS1_COLOR_L1);
-//         DrawLine3D(priorPoint, innersPoints[i], INNERS1_COLOR_D2);
-//         DrawLine3D(priorPoint, innersPoints[i+1], INNERS1_COLOR_D2);
-//         DrawLine3D(innersPoints[i], innersPoints[i+1], INNERS1_COLOR_D2);
-//     }
-//     DrawTriangle3D(priorPoint, innersPoints[hyper.num_post-1], innersPoints[0], INNERS1_COLOR_L1);
-//     DrawTriangle3D(priorPoint, innersPoints[0], innersPoints[hyper.num_post-1], INNERS1_COLOR_L1);
-//     DrawLine3D(innersPoints[hyper.num_post-1], priorPoint, INNERS1_COLOR_D2);
-// }
-
+    for(int i = 0; i < hyper.num_post-1; i++){
+        DrawTriangle3D(priorPoint, innersPoints[i], innersPoints[i+1], INNERS1_COLOR_L1);
+        DrawTriangle3D(priorPoint, innersPoints[i+1], innersPoints[i], INNERS1_COLOR_L1);
+        DrawLine3D(priorPoint, innersPoints[i], INNERS1_COLOR_D2);
+        DrawLine3D(priorPoint, innersPoints[i+1], INNERS1_COLOR_D2);
+        DrawLine3D(innersPoints[i], innersPoints[i+1], INNERS1_COLOR_D2);
+    }
+    DrawTriangle3D(priorPoint, innersPoints[hyper.num_post-1], innersPoints[0], INNERS1_COLOR_L1);
+    DrawTriangle3D(priorPoint, innersPoints[0], innersPoints[hyper.num_post-1], INNERS1_COLOR_L1);
+    DrawLine3D(innersPoints[hyper.num_post-1], priorPoint, INNERS1_COLOR_D2);
+}
