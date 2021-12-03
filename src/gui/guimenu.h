@@ -33,6 +33,7 @@ using namespace std;
 #define BUTTON_MODE_OPTION_SINGLE 1
 #define BUTTON_MODE_OPTION_TWO 2
 #define BUTTON_MODE_OPTION_REF 3
+#define BUTTON_MODE_OPTION_DP 4
 
 #define BUTTON_EXAMPLES_OPTION_EXAMPLES 0
 #define BUTTON_EXAMPLES_OPTION_CH_0 1       // Channel that leaks everything
@@ -60,8 +61,8 @@ public:
     // Data
     int windowWidth;
     int windowHeight;
-    int dropdownBoxActive[3];
-    bool dropdownEditMode[3];
+    int dropdownBoxActive[4];
+    bool dropdownEditMode[4];
     bool windowGettingStartedActive;
 
     // Text

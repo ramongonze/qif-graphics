@@ -535,14 +535,16 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
     // Button Mode
     if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_SINGLE){
         gui.channel.curChannel = CHANNEL_1;
-        strcpy(gui.menu.buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement");
+        strcpy(gui.menu.buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement;#000#Differential privacy");
     }else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_TWO){
         if(gui.channel.curChannel == CHANNEL_3) gui.channel.curChannel = CHANNEL_2;
-        strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#112#Two channels;#000#Refinement");
+        strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#112#Two channels;#000#Refinement;#000#Differential privacy");
     }else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_REF){
-        strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#000#Two channels;#112#Refinement");
+        strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#000#Two channels;#112#Refinement;#000#Differential privacy");
+    }else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_DP){
+        strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#000#Two channels;#000#Refinement;#112#Differential privacy");
     }
-    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_MODE], 160, gui.menu.buttonModeText, &(gui.menu.dropdownBoxActive[BUTTON_MODE]), gui.menu.dropdownEditMode[BUTTON_MODE])) gui.menu.dropdownEditMode[BUTTON_MODE] = !gui.menu.dropdownEditMode[BUTTON_MODE];
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_MODE], 170, gui.menu.buttonModeText, &(gui.menu.dropdownBoxActive[BUTTON_MODE]), gui.menu.dropdownEditMode[BUTTON_MODE])) gui.menu.dropdownEditMode[BUTTON_MODE] = !gui.menu.dropdownEditMode[BUTTON_MODE];
 
     // Button Examples
     if(!gui.menu.dropdownEditMode[BUTTON_EXAMPLES]) gui.menu.dropdownBoxActive[BUTTON_EXAMPLES] = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection

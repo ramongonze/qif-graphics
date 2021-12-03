@@ -8,7 +8,7 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     // Data
     this->windowWidth = windowWidth;
     this->windowHeight = windowHeight;
-    for(int i = 0; i < 3; i++){
+    for(int i = 0; i < 4; i++){
         dropdownBoxActive[i] = 0;
         dropdownEditMode[i] = false;
     }
@@ -17,7 +17,7 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
 
     // Text
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
-    strcpy(buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement");
+    strcpy(buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement;#000#Differential privacy");
     strcpy(buttonExamplesText, "Examples;Load channel that leaks everything;Load channel that leaks nothing");
     strcpy(buttonGuideText, "Guide");
     
