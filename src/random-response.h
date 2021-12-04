@@ -12,9 +12,12 @@ namespace RR
     class random_response
     {
         public:
+            // Class random_response constructor.
             random_response(int size = 3, long double epsilon = log(2), long double delta = 0);
+
+            // Channel updater.
             std::vector<std::vector<long double>> get_channel(int size, long double epsilon, long double delta);
-        
+
         private:
             // Secret domain size.
             int size;
@@ -23,9 +26,8 @@ namespace RR
             long double epsilon;
             long double delta;
 
-            // Channel probability values.
-            long double truthful;
-            long double other;
+            // Create channel.
+            void create_channel(std::vector<std::vector<long double>> &channel, int size, long double epsilon, long double delta);
 
             // Check channel and differential privacy parameters.
             void check_parameters(int size, long double epsilon, long double delta);
