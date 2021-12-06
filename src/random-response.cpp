@@ -5,27 +5,9 @@ using namespace RR;
 // Class random_response constructor.
 random_response::random_response(int size, long double epsilon, long double delta)
 {
-    std::vector<std::vector<long double>> channel(size, std::vector<long double>(size));
+    std::vector<std::vector<long double>> channel(size, std::vector<long double>(size, 0));
 
-    long double other = 1 / (exp(epsilon) + delta + size - 1);
-    long double truthful = (exp(epsilon) + delta) * other;
-    
-    // Create channel for given parameters.
-    int i = 0, j = 0;
-    for (i = 0; i < size; i++)
-    {
-        for (j = 0; j < size; j++)
-        {
-            if (i == j)
-            {
-                channel[i][j] = truthful;
-            }
-            else
-            {
-                channel[i][j] = other;
-            }
-        }
-    }
+    create_channel(channel, size, epsilon, delta);
 
     try
     {
@@ -49,8 +31,32 @@ std::vector<std::vector<long double>> random_response::get_channel(int size, lon
         std::cerr << err << std::endl;
     }
 
-    std::vector<std::vector<long double>> channel(size, std::vector<long double>(size));
-    
+    std::vector<std::vector<long double>> channel(size, std::vector<long double>(size, 0));
+
+    create_channel(channel, size, epsilon, delta);
+
+    try
+    {
+        random_response::check_channel(channel, size, epsilon, delta);
+    }
+    catch (const char* err)
+    {
+        std::cerr << err << std::endl;
+    }
+
+    return channel;
+}
+
+// Secret domain size.
+int size;
+
+// Differential privacy parameters.
+long double epsilon;
+long double delta;
+
+// Create channel.
+void random_response::create_channel(std::vector<std::vector<long double>> &channel, int size, long double epsilon, long double delta)
+{
     long double other = 1 / (exp(epsilon) + delta + size - 1);
     long double truthful = (exp(epsilon) + delta) * other;
 
@@ -70,29 +76,7 @@ std::vector<std::vector<long double>> random_response::get_channel(int size, lon
             }
         }
     }
-
-    try
-    {
-        random_response::check_channel(channel, size, epsilon, delta);
-    }
-    catch (const char* err)
-    {
-        std::cerr << err << std::endl;
-    }
-
-    return channel;
 }
-    
-// Secret domain size.
-int size;
-
-// Differential privacy parameters.
-long double epsilon;
-long double delta;
-
-// Channel probability values.
-long double truthful;
-long double other;
 
 // Check channel and differential privacy parameters.
 void random_response::check_parameters(int size, long double epsilon, long double delta)
