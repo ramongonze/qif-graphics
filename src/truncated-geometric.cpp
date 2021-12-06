@@ -47,12 +47,6 @@ std::vector<std::vector<long double>> truncated_geometric::get_channel(int size,
     return channel;
 }
 
-// Secret domain size.
-int size;
-
-// Differential privacy parameters.
-long double alpha;
-
 // Create channel.
 void truncated_geometric::create_channel(std::vector<std::vector<long double>> &channel, int size, long double alpha)
 {

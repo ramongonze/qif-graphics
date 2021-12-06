@@ -47,13 +47,6 @@ std::vector<std::vector<long double>> random_response::get_channel(int size, lon
     return channel;
 }
 
-// Secret domain size.
-int size;
-
-// Differential privacy parameters.
-long double epsilon;
-long double delta;
-
 // Create channel.
 void random_response::create_channel(std::vector<std::vector<long double>> &channel, int size, long double epsilon, long double delta)
 {
