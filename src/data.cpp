@@ -12,7 +12,10 @@ Data::Data(){
 
     prior = vector<long double>(NUMBER_SECRETS, 0);
     channel = vector<vector<vector<long double>>>(NUMBER_CHANNELS, vector<vector<long double>>(MAX_CHANNEL_OUTPUTS, vector<long double>(MAX_CHANNEL_OUTPUTS, 0)));
-    
+
+    epsilon = log(2);
+    delta = 0.2;
+
     validCharacters = string("0123456789./");
     error = NO_ERROR;
     for(int i = 0; i < NUMBER_CHANNELS; i++)
@@ -25,45 +28,55 @@ Data::Data(){
     animationRunning = false;
 }
 
-int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
-    vector<pair<string, string>> newPrior(NUMBER_SECRETS);
+long double Data::checkProbText(char valueStr[CHAR_BUFFER_SIZE]){
     string value;
+    pair<string, string> newValue;
 
     try{
-        for(int i = 0; i < NUMBER_SECRETS; i++){
-            value = string(prior_[i]);
-            // Check if user has typed an invalid character
-            for(long unsigned int j = 0; j < value.size(); j++){
-                if(validCharacters.find(value[j]) == std::string::npos){
-                    return INVALID_VALUE_PRIOR;
-                }
-            }
+        value = string(valueStr);
+        
+        // Check whether the string is empty or not
+        if(value == string(""))
+            return INVALID_PROBABILITY;
 
-            size_t pos = value.find('/');
-            if(pos != string::npos){ // If true, the user is typing a fraction
-                string numerator = value.substr(0, pos);
-                string denominator = value.substr(pos+1, value.size()-pos-1);
-                
-                // Remove blank spaces
-                numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
-                denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
-                
-                newPrior[i] = make_pair(numerator, denominator);
-            }else{
-            	newPrior[i] = make_pair("not fraction", value);
-            }
+        for(long unsigned int i = 0; i < value.size(); i++)
+            if(validCharacters.find(value[i]) == std::string::npos)
+                return INVALID_PROBABILITY;
+            
+        size_t pos = value.find('/');
+        if(pos != string::npos){ // If true, the user is typing a fraction
+            string numerator = value.substr(0, pos);
+            string denominator = value.substr(pos+1, value.size()-pos-1);
+            
+            // Remove blank spaces
+            numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
+            denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
+            
+            newValue = make_pair(numerator, denominator);
+        }else{
+            newValue = make_pair("not fraction", value);
         }
-        
-        // Update values
-        this->prior = vector<long double>(NUMBER_SECRETS);
+
+        if(newValue.first == "not fraction")
+            return std::stold(newValue.second);
+        else
+            return std::stold(newValue.first)/std::stold(newValue.second);        
+    }catch(exception& e){
+        return INVALID_PROBABILITY;
+    }
+}
+
+int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
+    long double value;
+    
+    try{
         for(int i = 0; i < NUMBER_SECRETS; i++){
-        	if(newPrior[i].first == "not fraction"){
-        		this->prior[i] = std::stold(newPrior[i].second);
-        	}else{
-        		this->prior[i] = std::stold(newPrior[i].first)/std::stold(newPrior[i].second);
-        	}
+            value = checkProbText(prior_[i]);
+            if(value == INVALID_PROBABILITY)
+                return INVALID_PRIOR;
+            this->prior[i] = value;
         }
-        
+
         if(Distribution::isDistribution(this->prior))
             priorObj = Distribution(this->prior);
 
@@ -74,54 +87,45 @@ int Data::checkPriorText(char prior_[NUMBER_SECRETS][CHAR_BUFFER_SIZE]){
 }
 
 int Data::checkChannelText(char channel_[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int channel, int numSecrets, int numOutputs){
-    vector<vector<pair<string, string>>> newChannel(numSecrets, vector<pair<string, string>>(numOutputs));
-    string value;
+    long double value;
 
     try{
         for(int i = 0; i < numSecrets; i++){
             for(int j = 0; j < numOutputs; j++){
-                value = string(channel_[i][j]);
-                // Check if user has typed an invalid character
-                for(long unsigned int k = 0; k < value.size(); k++){
-                    if(validCharacters.find(value[k]) == std::string::npos){
-                        return INVALID_VALUE_CHANNEL_1+channel;
-                    }
-                }
-
-                size_t pos = value.find('/');
-                if(pos != string::npos){ // If true, the user is typing a fraction
-                    string numerator = value.substr(0, pos);
-                    string denominator = value.substr(pos+1, value.size()-pos-1);
-                    
-                    // Remove blank spaces
-                    numerator.erase(remove(numerator.begin(), numerator.end(), ' '), numerator.end());
-                    denominator.erase(remove(denominator.begin(), denominator.end(), ' '), denominator.end());
-
-                    newChannel[i][j] = make_pair(numerator, denominator);
-                }else{
-                    newChannel[i][j] = make_pair("not fraction", value);
-                }
+                value = checkProbText(channel_[i][j]);
+                if(value == INVALID_PROBABILITY)
+                    return INVALID_VALUE_CHANNEL_1+channel;
+                this->channel[channel][i][j] = value;
             }
         }
-
-        // Update values. Columns and rows are inverted in channelStr.
-        this->channel[channel] = vector<vector<long double>>(numSecrets, vector<long double>(numOutputs));
-        for(int i = 0; i < numSecrets; i++){
-        	for(int j = 0; j < numOutputs; j++){
-        		if(newChannel[i][j].first == "not fraction"){
-        			this->channel[channel][i][j] = std::stold(newChannel[i][j].second);
-        		}else{
-        			this->channel[channel][i][j] = std::stold(newChannel[i][j].first)/std::stold(newChannel[i][j].second);
-        		}
-        	}
-        }
-
         return NO_ERROR;
     }catch(exception& e){
-        if(channel == CHANNEL_1)
-            return INVALID_VALUE_CHANNEL_1;
-        return INVALID_VALUE_CHANNEL_2;
+        return INVALID_VALUE_CHANNEL_1+channel;
     }
+}
+
+int Data::checkEpsilonDeltaText(char epsilon_[CHAR_BUFFER_SIZE], char delta_[CHAR_BUFFER_SIZE]){
+    long double value;
+    
+    try{
+        value = checkProbText(epsilon_);
+        if(value == INVALID_PROBABILITY)
+            return INVALID_EPSILON;
+        this->epsilon = value; // Update epsilon value
+    }catch(exception& e){
+        return INVALID_EPSILON;
+    }
+
+    try{
+        value = checkProbText(delta_);
+        if(value == INVALID_PROBABILITY)
+            return INVALID_DELTA;
+        this->delta = value; // Update delta value
+    }catch(exception& e){
+        return INVALID_DELTA;
+    }
+
+    return NO_ERROR;
 }
 
 void Data::buildPriorCircle(Vector2 TrianglePoints[3]){

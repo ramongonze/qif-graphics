@@ -50,13 +50,17 @@ public:
     // Load all characters from custom font
     void readFonts();
 
-    /* Check wheter a textbox in prior was pressed.
+    /* Check whether a textbox in prior was pressed.
 	 * Returns true if yes or false otherwise. */
     bool checkPriorTextBoxPressed();
 
     /* Check wheter a textbox in the current channel was pressed.
 	 * Returns true if yes or false otherwise. */
     bool checkChannelTextBoxPressed();
+
+    /* Chechk whether delta or epsilon textbox (of MODE_DP) was pressed.
+     * Returns true if yes or false otherwise. */
+    bool checkEpsilonDeltaTextBoxPressed();
 
     /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move the pressed TextBox in prior. */
     void moveAmongPriorTextBoxes();

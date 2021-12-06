@@ -19,6 +19,9 @@ using namespace std;
 #define INVALID_VALUE_CHANNEL_2 8 // i.e. "1/$2"
 #define INVALID_VALUE_CHANNEL_3 9 // i.e. "1/$2"
 #define INVALID_QIF_FILE 10
+#define INVALID_EPSILON 11
+#define INVALID_DELTA 12
+#define INVALID_PROBABILITY -1
 
 // Settings ------------------------------------------------------------------------------------
 #define WINDOWS_WIDTH 750
@@ -38,6 +41,7 @@ using namespace std;
 #define MODE_SINGLE 1
 #define MODE_TWO 2
 #define MODE_REF 3
+#define MODE_DP 4
 
 // Color scheme ------------------------------------------------------------------------------------
 // GUI

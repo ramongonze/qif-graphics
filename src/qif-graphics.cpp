@@ -22,6 +22,7 @@
 #include "gui/gui.h"
 #include "data.h"
 #include "chull.h"
+#include "random-response.h"
 
 typedef struct WebLoopVariables{
     Gui gui;
@@ -175,8 +176,14 @@ void updateDrawFrame(void* vars_){
         updateStatusBar(NO_ERROR, gui->visualization);
     }
     
-    // Check if a TextBox is being pressed
-    if(gui->checkChannelTextBoxPressed()){
+    if(*mode == MODE_DP){
+        if(gui->checkEpsilonDeltaTextBoxPressed()){
+            data->fileSaved = false;
+            data->compute[FLAG_CHANNEL_1] = true;
+            data->ready[FLAG_CHANNEL_1] = false;
+            updateStatusBar(NO_ERROR, gui->visualization);
+        }
+    }else if(gui->checkChannelTextBoxPressed()){ // Check if a channel text box is being pressed
         gui->drawing = false;
         data->fileSaved = false;
         if(*mode == MODE_REF){
@@ -434,62 +441,78 @@ void checkChannelsFlags(Gui &gui, Data &data){
 
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
     
-    for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
-        if(data.compute[FLAG_CHANNEL_1+channel]){
-            if(channel == CHANNEL_3){
-                // Multiply channels C and R
-                data.channelObj[CHANNEL_3] = composeChannels(data.channelObj[CHANNEL_1], data.channelObj[CHANNEL_2]);
-                data.channel[CHANNEL_3] = data.channelObj[CHANNEL_3].matrix;
-                gui.updateChannelTextBoxes(data.channelObj[CHANNEL_3], CHANNEL_3);
-                data.ready[FLAG_CHANNEL_3] = true;
-                data.compute[FLAG_HYPER_3] = true; // Set hyper to be computed
-            }else if(data.checkChannelText(gui.channel.TextBoxChannelText[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
-                if(Channel::isChannel(data.channel[channel])){
-                    if(channel == CHANNEL_2 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
-                        data.fakePrior = Distribution(gui.channel.numSecrets[CHANNEL_2], "uniform");
-                        data.channelObj[CHANNEL_2] = Channel(data.fakePrior, data.channel[CHANNEL_2]);
-                        if(data.ready[FLAG_CHANNEL_1])
-                            data.compute[FLAG_CHANNEL_3] = true;
+    if(mode == MODE_DP){
+        if(data.compute[FLAG_CHANNEL_1]){
+            if(data.checkEpsilonDeltaText(gui.channel.TextBoxEpsilonValue, gui.channel.TextBoxDeltaValue) == NO_ERROR){
+                RR::random_response rr;
+                data.channel[CHANNEL_1] = rr.get_channel(3, log(data.epsilon), data.delta);
+                data.channelObj[CHANNEL_1] = Channel(data.priorObj, data.channel[CHANNEL_1]);
+                gui.updateChannelTextBoxes(data.channelObj[CHANNEL_1], CHANNEL_1);
+                data.ready[FLAG_CHANNEL_1] = true;
+                data.compute[FLAG_HYPER_1] = true;
+            }else{
+                gui.posteriors.resetPosterior(CHANNEL_1);
+            }
+            data.compute[FLAG_CHANNEL_1] = false;
+        }
+    }else{
+        for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
+            if(data.compute[FLAG_CHANNEL_1+channel]){
+                if(channel == CHANNEL_3){
+                    // Multiply channels C and R
+                    data.channelObj[CHANNEL_3] = composeChannels(data.channelObj[CHANNEL_1], data.channelObj[CHANNEL_2]);
+                    data.channel[CHANNEL_3] = data.channelObj[CHANNEL_3].matrix;
+                    gui.updateChannelTextBoxes(data.channelObj[CHANNEL_3], CHANNEL_3);
+                    data.ready[FLAG_CHANNEL_3] = true;
+                    data.compute[FLAG_HYPER_3] = true; // Set hyper to be computed
+                }else if(data.checkChannelText(gui.channel.TextBoxChannelText[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
+                    if(Channel::isChannel(data.channel[channel])){
+                        if(channel == CHANNEL_2 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
+                            data.fakePrior = Distribution(gui.channel.numSecrets[CHANNEL_2], "uniform");
+                            data.channelObj[CHANNEL_2] = Channel(data.fakePrior, data.channel[CHANNEL_2]);
+                            if(data.ready[FLAG_CHANNEL_1])
+                                data.compute[FLAG_CHANNEL_3] = true;
+                        }else{
+                            data.channelObj[channel] = Channel(data.priorObj, data.channel[channel]);
+                            data.compute[FLAG_HYPER_1+channel] = true; // Set hyper to be computed
+                            if(channel == CHANNEL_1 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF)
+                                data.compute[FLAG_CHANNEL_2] = true;
+                        }
+                        data.ready[FLAG_CHANNEL_1+channel] = true;
                     }else{
-                        data.channelObj[channel] = Channel(data.priorObj, data.channel[channel]);
-                        data.compute[FLAG_HYPER_1+channel] = true; // Set hyper to be computed
-                        if(channel == CHANNEL_1 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF)
-                            data.compute[FLAG_CHANNEL_2] = true;
+                        data.error = INVALID_CHANNEL_1 + channel;   
                     }
-                    data.ready[FLAG_CHANNEL_1+channel] = true;
                 }else{
-                    data.error = INVALID_CHANNEL_1 + channel;   
+                    data.error = INVALID_VALUE_CHANNEL_1 + channel;
+                }
+
+                data.compute[FLAG_CHANNEL_1+channel] = false;
+
+                if(data.error == INVALID_CHANNEL_1+channel || data.error == INVALID_VALUE_CHANNEL_1+channel){
+                    data.ready[FLAG_CHANNEL_1+channel] = false;
+                    data.ready[FLAG_HYPER_1+channel] = false;
+                    data.compute[FLAG_HYPER_1+channel] = false;
+                    gui.posteriors.resetPosterior(channel);
+
+                    if(mode == MODE_REF){
+                        data.ready[FLAG_CHANNEL_3] = false;
+                        data.compute[FLAG_CHANNEL_3] = false;
+                        data.ready[FLAG_HYPER_3] = false;
+                        data.compute[FLAG_HYPER_3] = false;
+                        gui.posteriors.resetPosterior(CHANNEL_3);
+                        gui.channel.resetChannel(CHANNEL_3);
+                    }
                 }
             }else{
-                data.error = INVALID_VALUE_CHANNEL_1 + channel;
-            }
-
-            data.compute[FLAG_CHANNEL_1+channel] = false;
-
-            if(data.error == INVALID_CHANNEL_1+channel || data.error == INVALID_VALUE_CHANNEL_1+channel){
-                data.ready[FLAG_CHANNEL_1+channel] = false;
-                data.ready[FLAG_HYPER_1+channel] = false;
-                data.compute[FLAG_HYPER_1+channel] = false;
-                gui.posteriors.resetPosterior(channel);
-
-                if(mode == MODE_REF){
-                    data.ready[FLAG_CHANNEL_3] = false;
-                    data.compute[FLAG_CHANNEL_3] = false;
-                    data.ready[FLAG_HYPER_3] = false;
-                    data.compute[FLAG_HYPER_3] = false;
-                    gui.posteriors.resetPosterior(CHANNEL_3);
-                    gui.channel.resetChannel(CHANNEL_3);
+                if(channel == CHANNEL_1 && !data.ready[FLAG_CHANNEL_1]){
+                    data.error = INVALID_CHANNEL_1;
+                }else if(channel == CHANNEL_2 && data.ready[FLAG_CHANNEL_1] && !data.ready[FLAG_CHANNEL_2] && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE){
+                    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_TWO) data.error = INVALID_CHANNEL_2_D;
+                    else data.error = INVALID_CHANNEL_2_R;                
                 }
             }
-        }else{
-            if(channel == CHANNEL_1 && !data.ready[FLAG_CHANNEL_1]){
-                data.error = INVALID_CHANNEL_1;
-            }else if(channel == CHANNEL_2 && data.ready[FLAG_CHANNEL_1] && !data.ready[FLAG_CHANNEL_2] && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE){
-                if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_TWO) data.error = INVALID_CHANNEL_2_D;
-                else data.error = INVALID_CHANNEL_2_R;                
-            }
         }
-    }
+    }    
 }
 
 void checkHypersFlags(Gui &gui, Data &data){
@@ -497,21 +520,33 @@ void checkHypersFlags(Gui &gui, Data &data){
     if(!data.ready[FLAG_PRIOR])
         return;
 
-    for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
-        // If channel is not ready, there is no reason to compute the hyper
-        if(!data.ready[FLAG_CHANNEL_1+channel]){
-            data.ready[FLAG_HYPER_1+channel] = false;
-            continue;
-        }
+    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
 
-        if(data.compute[FLAG_HYPER_1+channel]){
-            data.hyper[channel] = Hyper(data.channelObj[channel]);
-            gui.posteriors.numPosteriors[channel] = data.hyper[channel].num_post;
-            data.ready[FLAG_HYPER_1+channel] = true;
-            data.compute[FLAG_HYPER_1+channel] = false;
-            
-            if(gui.channel.curChannel == channel)
-                gui.updateHyperTextBoxes(data.hyper[channel], channel, data.ready[FLAG_HYPER_1+channel]);
+    if(mode == MODE_DP){
+        if(data.ready[FLAG_CHANNEL_1] && data.compute[FLAG_HYPER_1]){
+            data.hyper[CHANNEL_1] = Hyper(data.channelObj[CHANNEL_1]);
+            gui.posteriors.numPosteriors[CHANNEL_1] = data.hyper[CHANNEL_1].num_post;
+            data.compute[FLAG_HYPER_1] = false;
+            data.ready[FLAG_HYPER_1] = true;
+            gui.updateHyperTextBoxes(data.hyper[CHANNEL_1], CHANNEL_1, data.ready[FLAG_HYPER_1]);
+        }
+    }else{
+        for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
+            // If channel is not ready, there is no reason to compute the hyper
+            if(!data.ready[FLAG_CHANNEL_1+channel]){
+                data.ready[FLAG_HYPER_1+channel] = false;
+                continue;
+            }
+
+            if(data.compute[FLAG_HYPER_1+channel]){
+                data.hyper[channel] = Hyper(data.channelObj[channel]);
+                gui.posteriors.numPosteriors[channel] = data.hyper[channel].num_post;
+                data.ready[FLAG_HYPER_1+channel] = true;
+                data.compute[FLAG_HYPER_1+channel] = false;
+                
+                if(gui.channel.curChannel == channel)
+                    gui.updateHyperTextBoxes(data.hyper[channel], channel, data.ready[FLAG_HYPER_1+channel]);
+            }
         }
     }
 }
@@ -542,6 +577,7 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
     }else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_REF){
         strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#000#Two channels;#112#Refinement;#000#Differential privacy");
     }else if(gui.menu.dropdownBoxActive[BUTTON_MODE] == BUTTON_MODE_OPTION_DP){
+        gui.channel.curChannel = CHANNEL_1;
         strcpy(gui.menu.buttonModeText, "Mode;#000#Single channel;#000#Two channels;#000#Refinement;#112#Differential privacy");
     }
     if(GuiDropdownBox(gui.menu.recButtons[BUTTON_MODE], 170, gui.menu.buttonModeText, &(gui.menu.dropdownBoxActive[BUTTON_MODE]), gui.menu.dropdownEditMode[BUTTON_MODE])) gui.menu.dropdownEditMode[BUTTON_MODE] = !gui.menu.dropdownEditMode[BUTTON_MODE];
@@ -584,8 +620,8 @@ void drawGuiChannel(Gui &gui, Data &data){
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
     int curChannel = gui.channel.curChannel;
     Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
-
-    if(mode == MODE_SINGLE){
+    
+    if(mode == MODE_SINGLE || mode == MODE_DP){
         strcpy(gui.channel.panelChannelText, "Channel C");
         gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x, gui.channel.AnchorChannel.y, 350, 20};
 
@@ -613,13 +649,13 @@ void drawGuiChannel(Gui &gui, Data &data){
         initStyle();
     }
 
-    if(curChannel != CHANNEL_3){
+    if(mode != MODE_DP && curChannel != CHANNEL_3){
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
         if(GuiButton(gui.channel.recButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     }
 
-    if(curChannel != CHANNEL_3){
+    if(mode != MODE_DP && curChannel != CHANNEL_3){
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
@@ -629,7 +665,7 @@ void drawGuiChannel(Gui &gui, Data &data){
         GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
         GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
 
-        if(gui.drawing && (curChannel == CHANNEL_1|| (curChannel == CHANNEL_3) || (mode == MODE_TWO && curChannel == CHANNEL_2))){
+        if(gui.drawing && (curChannel == CHANNEL_1 || (curChannel == CHANNEL_3) || (mode == MODE_TWO && curChannel == CHANNEL_2))){
             GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
             GuiSetStyle(LABEL, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
             GuiSetStyle(LABEL, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
@@ -649,6 +685,33 @@ void drawGuiChannel(Gui &gui, Data &data){
         GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
     }
 
+    if(mode == MODE_DP){
+        GuiLabel(gui.channel.recTextBoxEpsilon, gui.channel.LabelEpsilonText);
+        GuiLabel(gui.channel.recTextBoxDelta, gui.channel.LabelDeltaText);
+        
+        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+        GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+        GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+        GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+        GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+        GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
+        GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+
+        if(GuiTextBox((Rectangle){gui.channel.recTextBoxEpsilon.x + 80, gui.channel.recTextBoxEpsilon.y, gui.channel.recTextBoxEpsilon.width, gui.channel.recTextBoxEpsilon.height}, gui.channel.TextBoxEpsilonValue, gui.defaultFont.baseSize, gui.channel.TextBoxEpsilonEditMode)) gui.channel.TextBoxEpsilonEditMode = !gui.channel.TextBoxEpsilonEditMode;
+        
+        if(GuiTextBox((Rectangle){gui.channel.recTextBoxDelta.x + 80, gui.channel.recTextBoxDelta.y, gui.channel.recTextBoxDelta.width, gui.channel.recTextBoxDelta.height}, gui.channel.TextBoxDeltaValue, gui.defaultFont.baseSize, gui.channel.TextBoxDeltaEditMode)) gui.channel.TextBoxDeltaEditMode = !gui.channel.TextBoxDeltaEditMode;
+
+        GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+        GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+        GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+        GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+        GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+        GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+    }
+
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScroll = GuiScrollPanel(
         (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.recScrollPanel.width - gui.channel.ScrollPanelBoundsOffset.x, gui.channel.recScrollPanel.height - gui.channel.ScrollPanelBoundsOffset.y },
@@ -658,7 +721,9 @@ void drawGuiChannel(Gui &gui, Data &data){
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScroll.x, viewScroll.y, viewScroll.width, viewScroll.height);
-        GuiLabel((Rectangle){gui.channel.recLabelOutputs.x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelOutputs.y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelOutputs.width, gui.channel.recLabelOutputs.height}, gui.channel.LabelOutputsText);
+        if(mode != MODE_DP)
+            GuiLabel((Rectangle){gui.channel.recLabelOutputs.x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recLabelOutputs.y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recLabelOutputs.width, gui.channel.recLabelOutputs.height}, gui.channel.LabelOutputsText);
+
         // Secrets
         for(int i = 0; i < gui.channel.numSecrets[curChannel]; i++){
             if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1 || curChannel == CHANNEL_3){
@@ -668,9 +733,9 @@ void drawGuiChannel(Gui &gui, Data &data){
             }
 
             for(int j = 0; j < gui.channel.numOutputs[curChannel]; j++){
-                if(curChannel == CHANNEL_3) GuiLock();
+                if(curChannel == CHANNEL_3 || mode == MODE_DP) GuiLock();
                 if(GuiTextBox((Rectangle){gui.channel.recTextBoxChannel[i][j].x + gui.channel.ScrollPanelScrollOffset.x, gui.channel.recTextBoxChannel[i][j].y + gui.channel.ScrollPanelScrollOffset.y, gui.channel.recTextBoxChannel[i][j].width, gui.channel.recTextBoxChannel[i][j].height}, gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
-                if(curChannel == CHANNEL_3) GuiUnlock();
+                if(curChannel == CHANNEL_3 || mode == MODE_DP) GuiUnlock();
             }
         }
 

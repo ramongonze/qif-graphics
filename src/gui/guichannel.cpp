@@ -15,6 +15,8 @@ GuiChannel::GuiChannel(){
 
     strcpy(panelChannelText, "Channel C");
     strcpy(LabelOutputsText, "Outputs");
+    strcpy(LabelEpsilonText, "Epsilon:");
+    strcpy(LabelDeltaText, "Delta:");
     strcpy(buttonRandomText, "Generate Random");
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
         LabelChannelXText[i] = "X" + to_string(i+1);
@@ -28,10 +30,15 @@ GuiChannel::GuiChannel(){
 
     // Define controls variables
     SpinnerChannelEditMode = false;
+    TextBoxEpsilonEditMode = false;
+    TextBoxDeltaEditMode = false;
     
     for(int i = 0; i < NUMBER_CHANNELS; i++)
         SpinnerChannelValue[i] = numOutputs[i];
     
+    strcpy(TextBoxEpsilonValue, "2");
+    strcpy(TextBoxDeltaValue, "0.2");
+
     ScrollPanelScrollOffset = {0, 0};
     ScrollPanelBoundsOffset = {0, 0};
 
@@ -48,6 +55,10 @@ GuiChannel::GuiChannel(){
     recTitle = (Rectangle){AnchorChannel.x, AnchorChannel.y, 350, 20};
     recContent = (Rectangle){AnchorChannel.x, AnchorChannel.y + 20, 350, 265};
     recSpinner = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 30, 90, 25};
+
+    recTextBoxEpsilon = (Rectangle){AnchorChannel.x - 5, AnchorChannel.y + 30, 90, 25};
+    recTextBoxDelta = (Rectangle){AnchorChannel.x + 170, AnchorChannel.y + 30, 90, 25};
+
     recScrollPanel = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};
     ScrollPanelContent.y = recScrollPanel.height - 20;
     recLabelOutputs = (Rectangle){AnchorChannel.x + 175, AnchorChannel.y + 5, 78, 25};
@@ -140,6 +151,8 @@ void GuiChannel::checkModeAndSizes(int mode){
     }else if(mode == MODE_REF){
         updateChannelBySpinner(CHANNEL_1, mode);
         updateChannelBySpinner(CHANNEL_2, mode);
+    }else if(mode == MODE_DP){
+        numSecrets[CHANNEL_1] = 3;
     }
 }
 

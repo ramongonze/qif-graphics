@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <string.h>
+#include <cmath>
 #include "../../libs/raylib/src/raylib.h"
 #include "../graphics.h"
 using namespace std;
@@ -26,6 +27,8 @@ public:
     // Text
     char panelChannelText[CHAR_BUFFER_SIZE];
     char LabelOutputsText[CHAR_BUFFER_SIZE];
+    char LabelEpsilonText[CHAR_BUFFER_SIZE];
+    char LabelDeltaText[CHAR_BUFFER_SIZE];
     char buttonRandomText[CHAR_BUFFER_SIZE];
     string LabelChannelXText[MAX_CHANNEL_OUTPUTS];
     string LabelChannelYText[MAX_CHANNEL_OUTPUTS];
@@ -42,6 +45,10 @@ public:
     Vector2 ScrollPanelScrollOffset;
     Vector2 ScrollPanelBoundsOffset;
     Vector2 ScrollPanelContent;
+    bool TextBoxEpsilonEditMode;
+    char TextBoxEpsilonValue[CHAR_BUFFER_SIZE];
+    bool TextBoxDeltaEditMode;
+    char TextBoxDeltaValue[CHAR_BUFFER_SIZE];
     bool TextBoxChannelEditMode[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
     char TextBoxChannelText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
@@ -49,6 +56,8 @@ public:
     Rectangle recTitle;
     Rectangle recContent;
     Rectangle recSpinner;
+    Rectangle recTextBoxEpsilon;
+    Rectangle recTextBoxDelta;
     Rectangle recScrollPanel;
     Rectangle recLabelOutputs;
     Rectangle recButtonRandom;

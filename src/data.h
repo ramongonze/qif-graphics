@@ -37,7 +37,9 @@ public:
 	vector<vector<vector<long double>>> channel; // Channel matrix
 	Channel channelObj[NUMBER_CHANNELS];
 	Hyper hyper[NUMBER_CHANNELS]; // Hyper-distributions
-
+	long double epsilon; // MODE_DP
+    long double delta; // MODE_DP
+    
 	string validCharacters;	// Used to check user input in textboxes
 	int error;		// Indicates if there is error with prior or channel
 	bool hyperReady[NUMBER_CHANNELS];  // Flag that indicates wheter a hyper distribution has been built.
@@ -61,6 +63,11 @@ public:
     // Methods
     //------------------------------------------------------------------------------------
 
+	
+	/* Given a probability in string format check if it is a valid decimal number or a valid fraction.
+	 * It returns -1 if the value is invalid or a long double value > 0 otherwise. */
+	long double checkProbText(char valueStr[CHAR_BUFFER_SIZE]);
+
 	/* Check if the numbers or fractions were typed correctly in the prior distribution.
 	 * If so, convert text to long double values and add them to this->prior.
 	 * Returns NO_ERROR or INVALID_VALUE */
@@ -70,6 +77,9 @@ public:
 	 * If so, conver text to long double values and add them to this->channel.
 	 * Returns NO_ERROR or INVALID_VALUE */
 	int checkChannelText(char channel_[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE], int channel, int numSecrets, int numOutputs);
+
+	/* Check text in epsilon and delta text boxes */
+	int checkEpsilonDeltaText(char epsilon_[CHAR_BUFFER_SIZE], char delta_[CHAR_BUFFER_SIZE]);
 
 	/* Calculate circle points and radius for prior. */
 	void buildPriorCircle(Vector2 TrianglePoints[3]);
