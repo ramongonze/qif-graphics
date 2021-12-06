@@ -19,8 +19,7 @@ using namespace std;
 #define INVALID_VALUE_CHANNEL_2 8 // i.e. "1/$2"
 #define INVALID_VALUE_CHANNEL_3 9 // i.e. "1/$2"
 #define INVALID_QIF_FILE 10
-#define INVALID_EPSILON 11
-#define INVALID_DELTA 12
+#define INVALID_EPSILON_OR_DELTA 11
 #define INVALID_PROBABILITY -1
 
 // Settings ------------------------------------------------------------------------------------

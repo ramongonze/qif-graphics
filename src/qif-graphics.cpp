@@ -178,9 +178,9 @@ void updateDrawFrame(void* vars_){
     
     if(*mode == MODE_DP){
         if(gui->checkEpsilonDeltaTextBoxPressed()){
+            gui->drawing = false;
             data->fileSaved = false;
-            data->compute[FLAG_CHANNEL_1] = true;
-            data->ready[FLAG_CHANNEL_1] = false;
+            data->resetAllExceptComputeChannel1();
             updateStatusBar(NO_ERROR, gui->visualization);
         }
     }else if(gui->checkChannelTextBoxPressed()){ // Check if a channel text box is being pressed
@@ -350,6 +350,9 @@ void updateStatusBar(int error, GuiVisualization &visualization){
         case INVALID_CHANNEL_2_R:
 			strcpy(visualization.TextBoxStatusText, "Some row in channel R is not a probability distribution");
 			break;
+        case INVALID_EPSILON_OR_DELTA:
+			strcpy(visualization.TextBoxStatusText, "Invalid epsilon or delta");
+			break;
 		case NO_ERROR:
 			strcpy(visualization.TextBoxStatusText, "Status");
 	}
@@ -443,7 +446,8 @@ void checkChannelsFlags(Gui &gui, Data &data){
     
     if(mode == MODE_DP){
         if(data.compute[FLAG_CHANNEL_1]){
-            if(data.checkEpsilonDeltaText(gui.channel.TextBoxEpsilonValue, gui.channel.TextBoxDeltaValue) == NO_ERROR){
+            int ret = data.checkEpsilonDeltaText(gui.channel.TextBoxEpsilonValue, gui.channel.TextBoxDeltaValue);
+            if(ret == NO_ERROR){
                 RR::random_response rr;
                 data.channel[CHANNEL_1] = rr.get_channel(3, log(data.epsilon), data.delta);
                 data.channelObj[CHANNEL_1] = Channel(data.priorObj, data.channel[CHANNEL_1]);
@@ -451,9 +455,14 @@ void checkChannelsFlags(Gui &gui, Data &data){
                 data.ready[FLAG_CHANNEL_1] = true;
                 data.compute[FLAG_HYPER_1] = true;
             }else{
+                data.error = ret;
                 gui.posteriors.resetPosterior(CHANNEL_1);
+                gui.channel.resetChannel(CHANNEL_1);
+                data.ready[FLAG_HYPER_1] = false;
             }
             data.compute[FLAG_CHANNEL_1] = false;
+        }else if(!data.ready[FLAG_CHANNEL_1]){
+            data.error = INVALID_EPSILON_OR_DELTA;
         }
     }else{
         for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
@@ -520,33 +529,21 @@ void checkHypersFlags(Gui &gui, Data &data){
     if(!data.ready[FLAG_PRIOR])
         return;
 
-    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
-
-    if(mode == MODE_DP){
-        if(data.ready[FLAG_CHANNEL_1] && data.compute[FLAG_HYPER_1]){
-            data.hyper[CHANNEL_1] = Hyper(data.channelObj[CHANNEL_1]);
-            gui.posteriors.numPosteriors[CHANNEL_1] = data.hyper[CHANNEL_1].num_post;
-            data.compute[FLAG_HYPER_1] = false;
-            data.ready[FLAG_HYPER_1] = true;
-            gui.updateHyperTextBoxes(data.hyper[CHANNEL_1], CHANNEL_1, data.ready[FLAG_HYPER_1]);
+    for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
+        // If channel is not ready, there is no reason to compute the hyper
+        if(!data.ready[FLAG_CHANNEL_1+channel]){
+            data.ready[FLAG_HYPER_1+channel] = false;
+            continue;
         }
-    }else{
-        for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
-            // If channel is not ready, there is no reason to compute the hyper
-            if(!data.ready[FLAG_CHANNEL_1+channel]){
-                data.ready[FLAG_HYPER_1+channel] = false;
-                continue;
-            }
 
-            if(data.compute[FLAG_HYPER_1+channel]){
-                data.hyper[channel] = Hyper(data.channelObj[channel]);
-                gui.posteriors.numPosteriors[channel] = data.hyper[channel].num_post;
-                data.ready[FLAG_HYPER_1+channel] = true;
-                data.compute[FLAG_HYPER_1+channel] = false;
-                
-                if(gui.channel.curChannel == channel)
-                    gui.updateHyperTextBoxes(data.hyper[channel], channel, data.ready[FLAG_HYPER_1+channel]);
-            }
+        if(data.compute[FLAG_HYPER_1+channel]){
+            data.hyper[channel] = Hyper(data.channelObj[channel]);
+            gui.posteriors.numPosteriors[channel] = data.hyper[channel].num_post;
+            data.ready[FLAG_HYPER_1+channel] = true;
+            data.compute[FLAG_HYPER_1+channel] = false;
+            
+            if(gui.channel.curChannel == channel)
+                gui.updateHyperTextBoxes(data.hyper[channel], channel, data.ready[FLAG_HYPER_1+channel]);
         }
     }
 }
@@ -1281,7 +1278,7 @@ void buttonRandomChannel(Gui &gui, Data &data){
 
 void buttonDraw(Gui &gui, Data &data){
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
-    if(mode == MODE_SINGLE){
+    if(mode == MODE_SINGLE || mode == MODE_DP){
         if(!data.ready[FLAG_HYPER_1]){
             updateStatusBar(data.error, gui.visualization);
             return;

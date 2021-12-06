@@ -15,7 +15,7 @@ GuiChannel::GuiChannel(){
 
     strcpy(panelChannelText, "Channel C");
     strcpy(LabelOutputsText, "Outputs");
-    strcpy(LabelEpsilonText, "Epsilon:");
+    strcpy(LabelEpsilonText, "Epsilon (ln):");
     strcpy(LabelDeltaText, "Delta:");
     strcpy(buttonRandomText, "Generate Random");
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
@@ -56,7 +56,7 @@ GuiChannel::GuiChannel(){
     recContent = (Rectangle){AnchorChannel.x, AnchorChannel.y + 20, 350, 265};
     recSpinner = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 30, 90, 25};
 
-    recTextBoxEpsilon = (Rectangle){AnchorChannel.x - 5, AnchorChannel.y + 30, 90, 25};
+    recTextBoxEpsilon = (Rectangle){AnchorChannel.x + 20, AnchorChannel.y + 30, 70, 25};
     recTextBoxDelta = (Rectangle){AnchorChannel.x + 170, AnchorChannel.y + 30, 90, 25};
 
     recScrollPanel = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};
