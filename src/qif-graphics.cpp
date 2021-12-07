@@ -177,6 +177,25 @@ void updateDrawFrame(void* vars_){
     }
     
     if(*mode == MODE_DP){
+        if(gui->drawing){
+            char buffer[CHAR_BUFFER_SIZE];
+            sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);            
+            if(gui->visualization.SpinnerEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.TextBoxDeltaValue)){
+                if(gui->visualization.SpinnerEpsilonValue < 0)
+                    gui->visualization.SpinnerEpsilonValue = 0;
+
+                // Update epsilon and delta text boxes
+                sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);
+                strcpy(gui->channel.TextBoxDeltaValue, buffer);
+                sprintf(buffer, "%d", gui->visualization.SpinnerEpsilonValue);
+                strcpy(gui->channel.TextBoxEpsilonValue, buffer);
+
+                gui->visualization.recomputeInners = true;
+                data->fileSaved = false;
+                data->resetAllExceptComputeChannel1();
+            }
+        }
+
         if(gui->checkEpsilonDeltaTextBoxPressed()){
             gui->drawing = false;
             data->fileSaved = false;
@@ -221,6 +240,7 @@ void updateDrawFrame(void* vars_){
         
         if(IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) data->mouseClickedOnPrior = false;
 
+        // User moving prior with mouse pointer
         if(data->mouseClickedOnPrior){
             data->fileSaved = false;
             data->updateHyper(gui->visualization.trianglePoints, *mode);
@@ -243,6 +263,14 @@ void updateDrawFrame(void* vars_){
             }
         }
 
+        // User has changed epsilon or delta value
+        if(gui->visualization.recomputeInners){
+            data->animation = UPDATE_CIRCLES_BY_EPSILON_OR_DELTA;
+            data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_1, *mode);
+            gui->updateRectangleInnersCircleLabel(CHANNEL_1, data->innersCircles[CHANNEL_1]);
+            gui->visualization.recomputeInners = false;
+        }
+        
         if(data->animationRunning){
             // I assume the prior circle was already built    
             data->buildInnerCircles(gui->visualization.trianglePoints, CHANNEL_1, *mode);
@@ -683,30 +711,30 @@ void drawGuiChannel(Gui &gui, Data &data){
     }
 
     if(mode == MODE_DP){
+        if(gui.drawing){
+            GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+            GuiSetStyle(LABEL, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+            GuiSetStyle(LABEL, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+        }
+        
         GuiLabel(gui.channel.recTextBoxEpsilon, gui.channel.LabelEpsilonText);
         GuiLabel(gui.channel.recTextBoxDelta, gui.channel.LabelDeltaText);
-        
-        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-        GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
-        GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-        GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-        GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
-        GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
-        GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
-        GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
 
         if(GuiTextBox((Rectangle){gui.channel.recTextBoxEpsilon.x + 80, gui.channel.recTextBoxEpsilon.y, gui.channel.recTextBoxEpsilon.width, gui.channel.recTextBoxEpsilon.height}, gui.channel.TextBoxEpsilonValue, gui.defaultFont.baseSize, gui.channel.TextBoxEpsilonEditMode)) gui.channel.TextBoxEpsilonEditMode = !gui.channel.TextBoxEpsilonEditMode;
         
         if(GuiTextBox((Rectangle){gui.channel.recTextBoxDelta.x + 80, gui.channel.recTextBoxDelta.y, gui.channel.recTextBoxDelta.width, gui.channel.recTextBoxDelta.height}, gui.channel.TextBoxDeltaValue, gui.defaultFont.baseSize, gui.channel.TextBoxDeltaEditMode)) gui.channel.TextBoxDeltaEditMode = !gui.channel.TextBoxDeltaEditMode;
 
-        GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
-        GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-        GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
-        GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
-        GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-        GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
-        GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-        GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        if(gui.drawing){
+            GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+            GuiSetStyle(LABEL, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+            GuiSetStyle(LABEL, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+        }
     }
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
@@ -830,14 +858,44 @@ void drawGuiVisualization(Gui &gui, Data &data){
         gui.showLabels = GuiCheckBox(gui.visualization.recCheckboxShowLabels, gui.visualization.LabelCheckboxShowLabel, gui.showLabels);
         gui.showConvexHull = GuiCheckBox(gui.visualization.recCheckboxShowConvexHull, gui.visualization.LabelCheckboxShowConvexHull, gui.showConvexHull);
 
+        int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+        
+        // Sliders
+        if(mode == MODE_DP){
+            GuiLabel((Rectangle){gui.visualization.recSpinnerEpsilon.x - gui.visualization.recSpinnerEpsilon.width- 5, gui.visualization.recSpinnerEpsilon.y, gui.visualization.recSpinnerEpsilon.width, gui.visualization.recSpinnerEpsilon.height}, "Epsilon (ln):");
+            
+            GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+            GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+            GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+            GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+            GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+            GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+            GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
+            GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+            if(GuiSpinner(gui.visualization.recSpinnerEpsilon, NULL, &(gui.visualization.SpinnerEpsilonValue), 0, 10000, gui.visualization.SpinnerEpsilonEditMode)) gui.visualization.SpinnerEpsilonEditMode = !gui.visualization.SpinnerEpsilonEditMode;
+            GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+            GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+            GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+            GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+            GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+            GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+
+            GuiLabel((Rectangle){gui.visualization.recSliderDelta.x - gui.visualization.recSliderDelta.width + 15, gui.visualization.recSliderDelta.y, gui.visualization.recSliderDelta.width, gui.visualization.recSliderDelta.height}, "Delta:");
+            GuiSetStyle(SLIDER, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_FOCUSED_TRANSP));
+            gui.visualization.SliderDeltaValue = GuiSlider(gui.visualization.recSliderDelta, NULL, NULL, gui.visualization.SliderDeltaValue, 0, 1);
+            char buffer[CHAR_BUFFER_SIZE];
+            sprintf(buffer, "%.6f", gui.visualization.SliderDeltaValue);
+            GuiLabel((Rectangle){gui.visualization.recSliderDelta.x, gui.visualization.recSliderDelta.y, gui.visualization.recSliderDelta.width, gui.visualization.recSliderDelta.height}, buffer);
+        }
+
         // Triangle
         DrawTriangle(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BG_BASE_COLOR_LIGHT2);
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
         for(int i = 0; i < NUMBER_SECRETS; i++){
             DrawTextEx(gui.defaultFontBig, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.recLabelTriangle[i].x, gui.visualization.recLabelTriangle[i].y}, 32, 0, BLACK);
         }
-        
-        int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
 
         // Circles
         drawCirclePrior(gui, data);
@@ -1294,6 +1352,9 @@ void buttonDraw(Gui &gui, Data &data){
 
         data.buildInnerCircles(gui.visualization.trianglePoints, CHANNEL_1, mode);
         gui.updateRectangleInnersCircleLabel(CHANNEL_1, data.innersCircles[CHANNEL_1]);
+
+        gui.visualization.SpinnerEpsilonValue = stoi(gui.channel.TextBoxEpsilonValue);
+        gui.visualization.SliderDeltaValue = stof(gui.channel.TextBoxDeltaValue);
     }else if(mode == MODE_TWO){
         if(!data.ready[FLAG_HYPER_1] || !data.ready[FLAG_HYPER_2]){
             updateStatusBar(data.error, gui.visualization);

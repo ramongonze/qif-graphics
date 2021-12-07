@@ -33,6 +33,10 @@ public:
     // Define controls variable
     bool TextBoxStatusEditMode;
     char TextBoxStatusText[CHAR_BUFFER_SIZE];
+    bool SpinnerEpsilonEditMode;
+    int SpinnerEpsilonValue;
+    float SliderDeltaValue;
+    bool recomputeInners; // Used to recompute inners circles if the user changed epsilon or delta value
 
     // Define controls rectangles
     Rectangle recTitle;
@@ -45,6 +49,8 @@ public:
     Rectangle recLabelTriangle[3];
     Rectangle recCheckboxShowLabels;
     Rectangle recCheckboxShowConvexHull;
+    Rectangle recSpinnerEpsilon;
+    Rectangle recSliderDelta;
 
     /* Triangle vertices
      *       v0

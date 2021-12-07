@@ -159,7 +159,7 @@ void Data::buildInnerCircles(Vector2 TrianglePoints[3], int channel, int mode){
         }
         animation--;
     }else if((animationRunning && animation == 0) || animation == UPDATE_CIRCLES_BY_MOUSE){
-        // The animation has finished or user moved the prior with the mouse
+        // The animation has finished or user moved the prior with the mouse or user changed epsilon or delta
         for(int i = 0; i < hyper[channel].num_post; i++){
             p = dist2Bary(hyper[channel].inners[0][i], hyper[channel].inners[1][i], hyper[channel].inners[2][i]);
             p = bary2Pixel(p.x, p.y, TrianglePoints);

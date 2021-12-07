@@ -11,6 +11,10 @@ GuiVisualization::GuiVisualization(){
     // Define controls variable
     TextBoxStatusEditMode = false;
     strcpy(TextBoxStatusText, "Status");
+    SpinnerEpsilonEditMode = false;
+    SpinnerEpsilonValue = 2;
+    SliderDeltaValue = 0;
+    recomputeInners = false;
 
     // Define controls rectangles
     recTitle = (Rectangle){AnchorVisualization.x, AnchorVisualization.y, 730, 20};
@@ -37,7 +41,10 @@ GuiVisualization::GuiVisualization(){
     for(int i = 0; i < 3; i++){
         LabelTriangleText[i] = "X" + to_string(i+1);
     }
-    recLabelTriangle[0] = (Rectangle){trianglePoints[0].x - 10, trianglePoints[0].y - 35, 40, 40};        
-    recLabelTriangle[1] = (Rectangle){trianglePoints[1].x - 35, trianglePoints[1].y -  2, 40, 40};        
+    recLabelTriangle[0] = (Rectangle){trianglePoints[0].x - 10, trianglePoints[0].y - 35, 40, 40};
+    recLabelTriangle[1] = (Rectangle){trianglePoints[1].x - 35, trianglePoints[1].y -  2, 40, 40};
     recLabelTriangle[2] = (Rectangle){trianglePoints[2].x +  5, trianglePoints[2].y -  2, 40, 40};
+    
+    recSpinnerEpsilon = (Rectangle){recPanelVisualization.x + recPanelVisualization.width - 120, recPanelVisualization.y + 10, 100, 20};
+    recSliderDelta = (Rectangle){recPanelVisualization.x + recPanelVisualization.width - 120, recPanelVisualization.y + 40, 100, 20};
 }

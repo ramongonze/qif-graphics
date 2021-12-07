@@ -13,6 +13,7 @@
 #define FPS 60
 #define STEPS (ANIMATION_DURATION*FPS)
 #define UPDATE_CIRCLES_BY_MOUSE -1
+#define UPDATE_CIRCLES_BY_EPSILON_OR_DELTA -1
 
 // Indexes to be used by attributes compute and ready
 #define FLAG_PRIOR 0
