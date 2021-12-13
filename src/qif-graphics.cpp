@@ -476,7 +476,7 @@ void checkChannelsFlags(Gui &gui, Data &data){
         if(data.compute[FLAG_CHANNEL_1]){
             int ret = data.checkEpsilonDeltaText(gui.channel.TextBoxEpsilonValue, gui.channel.TextBoxDeltaValue);
             if(ret == NO_ERROR){
-                RR::random_response rr;
+                random_response rr;
                 data.channel[CHANNEL_1] = rr.get_channel(3, log(data.epsilon), data.delta);
                 data.channelObj[CHANNEL_1] = Channel(data.priorObj, data.channel[CHANNEL_1]);
                 gui.updateChannelTextBoxes(data.channelObj[CHANNEL_1], CHANNEL_1);
