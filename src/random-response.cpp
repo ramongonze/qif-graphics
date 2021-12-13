@@ -1,17 +1,16 @@
 #include "random-response.h"
 
-using namespace RR;
-
 // Class random_response constructor.
 random_response::random_response(int size, long double epsilon, long double delta)
 {
     std::vector<std::vector<long double>> channel(size, std::vector<long double>(size, 0));
 
-    create_channel(channel, size, epsilon, delta);
+    random_response::create_channel(channel, size, epsilon, delta);
 
     try
     {
-        random_response::check_channel(channel, size, epsilon, delta);
+        check_channel check_channel(size);
+        check_channel.check(channel, size);
     }
     catch (const char* err)
     {
@@ -33,11 +32,12 @@ std::vector<std::vector<long double>> random_response::get_channel(int size, lon
 
     std::vector<std::vector<long double>> channel(size, std::vector<long double>(size, 0));
 
-    create_channel(channel, size, epsilon, delta);
+    random_response::create_channel(channel, size, epsilon, delta);
 
     try
     {
-        random_response::check_channel(channel, size, epsilon, delta);
+        check_channel check_channel(size);
+        check_channel.check(channel, size);
     }
     catch (const char* err)
     {
@@ -77,13 +77,13 @@ void random_response::check_parameters(int size, long double epsilon, long doubl
     // Secret domain size must be an integer.
     if (typeid(size) != typeid(int))
     {
-        throw "Secret domain size must be an integer.";
+        throw "Secret's domain size must be an integer.";
     }
 
     // Secret domain size must be greater than one.
     else if (size < 2)
     {
-        throw "Secret must have at least two values.";
+        throw "Secret's domain must have at least two values.";
     }
 
     // Both epsilon and delta must be real.
@@ -112,26 +112,5 @@ void random_response::check_parameters(int size, long double epsilon, long doubl
     else if (epsilon == 0 && delta == 0)
     {
         throw "Either epsilon or delta must be greater than zero.";
-    }
-}
-
-// Check resulting channel.
-void random_response::check_channel(std::vector<std::vector<long double>> channel, int size, long double epsilon, long double delta)
-{
-    // Check channel properties (e.g. each row sums to 1).
-    int i = 0, j = 0;
-    for (i = 0; i < size; i++)
-    {
-        long double row = 0;
-
-        for (j = 0; j < size; j++)
-        {
-            row = row + channel[i][j];
-        }
-
-        if (!(fabs(1 - row) < (size - 1) * LDBL_EPSILON * fabs(1 + row)) || !(fabs(1 - row) < LDBL_MIN))
-        {
-            throw "Channel rows must sum to one.";
-        }
     }
 }
