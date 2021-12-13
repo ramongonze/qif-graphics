@@ -181,8 +181,8 @@ void updateDrawFrame(void* vars_){
             char buffer[CHAR_BUFFER_SIZE];
             sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);            
             if(gui->visualization.SpinnerEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.TextBoxDeltaValue)){
-                if(gui->visualization.SpinnerEpsilonValue < 0)
-                    gui->visualization.SpinnerEpsilonValue = 0;
+                if(gui->visualization.SpinnerEpsilonValue <= 0)
+                    gui->visualization.SpinnerEpsilonValue = 1;
 
                 // Update epsilon and delta text boxes
                 sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);
@@ -872,7 +872,7 @@ void drawGuiVisualization(Gui &gui, Data &data){
             GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
             GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
             GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
-            if(GuiSpinner(gui.visualization.recSpinnerEpsilon, NULL, &(gui.visualization.SpinnerEpsilonValue), 0, 10000, gui.visualization.SpinnerEpsilonEditMode)) gui.visualization.SpinnerEpsilonEditMode = !gui.visualization.SpinnerEpsilonEditMode;
+            if(GuiSpinner(gui.visualization.recSpinnerEpsilon, NULL, &(gui.visualization.SpinnerEpsilonValue), 1, 10000, gui.visualization.SpinnerEpsilonEditMode)) gui.visualization.SpinnerEpsilonEditMode = !gui.visualization.SpinnerEpsilonEditMode;
             GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
             GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
             GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));

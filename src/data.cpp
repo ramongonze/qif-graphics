@@ -109,7 +109,7 @@ int Data::checkEpsilonDeltaText(char epsilon_[CHAR_BUFFER_SIZE], char delta_[CHA
     
     try{
         value = checkProbText(epsilon_);
-        if(value == INVALID_PROBABILITY)
+        if(value == INVALID_PROBABILITY || value <= 0)
             return INVALID_EPSILON_OR_DELTA;
         this->epsilon = value; // Update epsilon value
      
