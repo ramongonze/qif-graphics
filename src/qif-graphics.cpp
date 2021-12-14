@@ -32,7 +32,7 @@ typedef struct WebLoopVariables{
 } WebLoopVariables;
 
 #if defined(PLATFORM_WEB)
-    #include "/home/ramon/lib/emsdk/upstream/emscripten/system/include/emscripten.h"
+    #include "/home/ramon/opt/emsdk/upstream/emscripten/system/include/emscripten.h"
 #endif
 
 //----------------------------------------------------------------------------------
