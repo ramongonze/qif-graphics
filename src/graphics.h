@@ -1,7 +1,7 @@
 #ifndef _qif_graphics
 #define _qif_graphics
 
-#include "../libs/qif/qif.h"
+#include "../libs/qif/src/qif.h"
 #include "../libs/raylib/src/raylib.h"
 #include <string>
 

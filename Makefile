@@ -135,7 +135,7 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     EMSDK_PATH         ?= /home/ramon/opt/emsdk
     EMSCRIPTEN_PATH    ?= $(EMSDK_PATH)/upstream/emscripten
     CLANG_PATH          = $(EMSDK_PATH)/upstream/bin
-    PYTHON_PATH         = /bin
+    PYTHON_PATH         = /usr/bin
     NODE_PATH           = $(EMSDK_PATH)/node/12.18.1_64bit/bin
     export PATH         = $(shell printenv PATH):$(EMSDK_PATH):$(EMSCRIPTEN_PATH):$(CLANG_PATH):$(NODE_PATH):$(PYTHON_PATH)
 endif
@@ -387,8 +387,10 @@ ifeq ($(PLATFORM),PLATFORM_WEB)
     LDLIBS = $(RAYLIB_RELEASE_PATH)/libraylib.a
 endif
 
+LDLIBS += libs/qif/qif.a
+
 # Define all source files required
-PROJECT_SOURCE_FILES ?= src/*.cpp src/gui/*.cpp libs/qif/src/*.cpp
+PROJECT_SOURCE_FILES ?= src/*.cpp src/gui/*.cpp 
 
 # Define all object files from source files
 OBJS = $(patsubst %.c, %.o, $(PROJECT_SOURCE_FILES))
