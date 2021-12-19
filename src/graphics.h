@@ -27,7 +27,7 @@ using namespace std;
 #define WINDOWS_HEIGHT 630
 #define TEXTBOX_SIZE 50
 #define PROB_PRECISION 3 // Precision of float numbers (# digits after .)
-#define CHAR_BUFFER_SIZE 128
+#define CHAR_BUFFER_SIZE 256
 #define NUMBER_SECRETS 3
 #define MAX_CHANNEL_OUTPUTS 50
 
@@ -156,5 +156,11 @@ vector<string> getStrTruncatedDist(Distribution dist, int precision);
  * Returns: CR, the composition of channels C and R.
 */
 Channel composeChannels(Channel &C, Channel &R);
+
+/* Given a rectangle and 4 measures (coordinates x, y and width and height), 
+ * creates another rectangle summing the four values to the original rectangle
+ * Returns: Rectangle
+*/
+Rectangle sum2Rec(Rectangle rec, int x, int y, int w, int h);
 
 #endif

@@ -17,7 +17,15 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
 
     // Text
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
-    strcpy(buttonModeText, "Mode;#112#Single channel;#000#Two channels;#000#Refinement;#000#Differential privacy");
+    strcpy(buttonModeOptions[BUTTON_MODE_OPTION_MODE], "Mode");
+    strcpy(buttonModeOptions[BUTTON_MODE_OPTION_SINGLE], "Single channel");
+    strcpy(buttonModeOptions[BUTTON_MODE_OPTION_TWO], "Two channels");
+    strcpy(buttonModeOptions[BUTTON_MODE_OPTION_REF], "Refinement");
+    strcpy(buttonModeOptions[BUTTON_MODE_OPTION_DP_SINGLE], "Differential privacy - Single mechanism");
+    strcpy(buttonModeOptions[BUTTON_MODE_OPTION_DP_TWO], "Differential privacy - Two mechanisms");
+    strcpy(buttonModeOptions[BUTTON_MODE_OPTION_DP_POST_PROCESS], "Differential privacy - Post-processing");
+    updateButtonModeString(BUTTON_MODE_OPTION_SINGLE);
+    
     strcpy(buttonExamplesText, "Examples;Load channel that leaks everything;Load channel that leaks nothing");
     strcpy(buttonGuideText, "Guide");
     
@@ -25,27 +33,27 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     strcpy(fileName, "\0");
 
     // Define controls rectangles
-#if !defined(PLATFORM_WEB)
-    recButtons[BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
-    recButtons[BUTTON_MODE] = (Rectangle){51, 0, 50, 25};
-    recButtons[BUTTON_EXAMPLES] = (Rectangle){102, 0, 80, 25};
-    recButtons[BUTTON_GUIDE] = (Rectangle){183, 0, 60, 25};
-#else
-    recButtons[BUTTON_MODE] = (Rectangle){0, 0, 50, 25};
-    recButtons[BUTTON_EXAMPLES] = (Rectangle){51, 0, 80, 25};
-    recButtons[BUTTON_GUIDE] = (Rectangle){132, 0, 60, 25};
-#endif
+    #if !defined(PLATFORM_WEB)
+        recButtons[BUTTON_FILE] = (Rectangle){0, 0, 50, 25};
+        recButtons[BUTTON_MODE] = (Rectangle){51, 0, 50, 25};
+        recButtons[BUTTON_EXAMPLES] = (Rectangle){102, 0, 80, 25};
+        recButtons[BUTTON_GUIDE] = (Rectangle){183, 0, 60, 25};
+    #else
+        recButtons[BUTTON_MODE] = (Rectangle){0, 0, 50, 25};
+        recButtons[BUTTON_EXAMPLES] = (Rectangle){51, 0, 80, 25};
+        recButtons[BUTTON_GUIDE] = (Rectangle){132, 0, 60, 25};
+    #endif
     
+    int windowsStatusBarHeight = 22;
     recMenu = (Rectangle){0, 0, 1130, 25};
-    recGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
 
     // Getting started
     ScrollPanelScrollOffset = {0, 0};
     ScrollPanelBoundsOffset = {0, 0};
 
-    int windowsStatusBarHeight = 22;
-    recGettingStartedMenu = (Rectangle){(float)(recGettingStarted.x+10), (float)(recGettingStarted.y+10+windowsStatusBarHeight), (float)(recGettingStarted.width*0.2), (float)(recGettingStarted.height-windowsStatusBarHeight-20)};
-    recGettingStartedPanel = (Rectangle){(float)(recGettingStartedMenu.x+recGettingStartedMenu.width+10), (float)(recGettingStarted.y+10+windowsStatusBarHeight), (float)(recGettingStarted.width*0.8-30), (float)(recGettingStarted.height-windowsStatusBarHeight-20)};
+    recGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
+    recGettingStartedMenu = sum2Rec(recGettingStarted, 10, 10+windowsStatusBarHeight, -recGettingStarted.width*0.8, -windowsStatusBarHeight-20);
+    recGettingStartedPanel = sum2Rec(recGettingStarted, recGettingStartedMenu.width+10, 10+windowsStatusBarHeight, -(recGettingStarted.width*0.2)-30, -windowsStatusBarHeight-20);
     recScrollPanel = recGettingStartedPanel;
     ScrollPanelContent.y = recGettingStarted.height + gsOptionYOffset[GS_OPTION_QIF]; // Default value is GS_OPTION_QIF
     ScrollPanelContent.x = recScrollPanel.width - 20; 
@@ -61,7 +69,7 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
         gsOptionYOffset[option] = 460;
         gsContentHeight[option] = recGettingStartedPanel.height + 560;
     }
-    gsOptionYOffset[GS_OPTION_MODE_REF] =520;
+    gsOptionYOffset[GS_OPTION_MODE_REF] = 520;
     gsContentHeight[GS_OPTION_MODE_REF] = recGettingStartedPanel.height + 620;
 
     strcpy(gsMenuOptions, "QIF Graphics;Prior distribution;Channels;Hyper-distribution;Mode single channel;Mode two channels;Mode refinement");
@@ -158,6 +166,17 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     loadGSImages();
 }
 
+void GuiMenu::updateButtonModeString(int mode){
+    string newText = string(buttonModeOptions[BUTTON_MODE_OPTION_MODE]);
+    for(int i = 1; i < NUM_BUTTON_MODE; i++){
+        if(i == mode)
+            newText = newText + ";#112#" + string(buttonModeOptions[i]);
+        else
+            newText = newText + ";#000#" + string(buttonModeOptions[i]);
+    }
+    strcpy(buttonModeText, newText.c_str());
+}
+
 int GuiMenu::readQIFFile(
     char prior[NUMBER_SECRETS][CHAR_BUFFER_SIZE],
     char channel[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE],
@@ -187,102 +206,102 @@ int GuiMenu::readQIFFile(
     If there is no error, return the mode flag contained in file.
     */
 
-#if !defined(PLATFORM_WEB)
-    FILE *file = popen("zenity --file-selection --title=Open --file-filter=*.qifg", "r");
-    fgets(fileName, 2048, file);
-    fclose(file);
+    #if !defined(PLATFORM_WEB)
+        FILE *file = popen("zenity --file-selection --title=Open --file-filter=*.qifg", "r");
+        fgets(fileName, 2048, file);
+        fclose(file);
 
-    // Remove \n from the end
-    string newFileName = string(fileName);
-    newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
-    strcpy(fileName, newFileName.c_str());
+        // Remove \n from the end
+        string newFileName = string(fileName);
+        newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
+        strcpy(fileName, newFileName.c_str());
 
-    ifstream infile;
-    string buffer;
-    int mode, bufferInt;
-    int newNumberSecrets[NUMBER_CHANNELS];
-    int newNumberOutputs[NUMBER_CHANNELS];
-    char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
-    char newChannels[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
-    try{
-        infile.open(fileName); 
-        
-        // Find mode
-        infile >> buffer;
-        if(buffer != "mode") throw exception();
-        infile >> mode;
-        if(mode != MODE_SINGLE && mode != MODE_TWO && mode != MODE_REF) throw exception();
-
-        // Prior
-        infile >> buffer;
-        if(buffer != "prior") throw exception();
-        infile >> bufferInt;
-        if(bufferInt != NUMBER_SECRETS) throw exception();
-
-        for(int i = 0; i < bufferInt; i++){
+        ifstream infile;
+        string buffer;
+        int mode, bufferInt;
+        int newNumberSecrets[NUMBER_CHANNELS];
+        int newNumberOutputs[NUMBER_CHANNELS];
+        char newPrior[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
+        char newChannels[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+        try{
+            infile.open(fileName); 
+            
+            // Find mode
             infile >> buffer;
-            strcpy(newPrior[i], buffer.c_str());
-        }
+            if(buffer != "mode") throw exception();
+            infile >> mode;
+            if(mode != MODE_SINGLE && mode != MODE_TWO && mode != MODE_REF) throw exception();
 
-        // Channel 1
-        infile >> buffer;
-        if(buffer != "channel1") throw exception();
-        infile >> newNumberSecrets[CHANNEL_1];
-        if(newNumberSecrets[CHANNEL_1] != NUMBER_SECRETS) throw exception();
-        infile >> newNumberOutputs[CHANNEL_1];
-        if(newNumberOutputs[CHANNEL_1] < 0 || newNumberOutputs[CHANNEL_1] > 50) throw exception();
+            // Prior
+            infile >> buffer;
+            if(buffer != "prior") throw exception();
+            infile >> bufferInt;
+            if(bufferInt != NUMBER_SECRETS) throw exception();
 
-        for(int i = 0; i < newNumberSecrets[CHANNEL_1]; i++){
-            for(int j = 0; j < newNumberOutputs[CHANNEL_1]; j++){
+            for(int i = 0; i < bufferInt; i++){
                 infile >> buffer;
-                strcpy(newChannels[CHANNEL_1][i][j], buffer.c_str());
+                strcpy(newPrior[i], buffer.c_str());
             }
-        }
 
-        // Channel 2
-        if(mode == MODE_TWO || mode == MODE_REF){
+            // Channel 1
             infile >> buffer;
-            if(buffer != "channel2") throw exception();
-            infile >> newNumberSecrets[CHANNEL_2];
-            if(mode == MODE_TWO && newNumberSecrets[CHANNEL_2] != NUMBER_SECRETS) throw exception();
-            if(mode == MODE_REF && newNumberSecrets[CHANNEL_2] != newNumberOutputs[CHANNEL_1]) throw exception();
-            infile >> newNumberOutputs[CHANNEL_2];
-            if(newNumberOutputs[CHANNEL_2] < 0 || newNumberOutputs[CHANNEL_2] > 50) throw exception();
+            if(buffer != "channel1") throw exception();
+            infile >> newNumberSecrets[CHANNEL_1];
+            if(newNumberSecrets[CHANNEL_1] != NUMBER_SECRETS) throw exception();
+            infile >> newNumberOutputs[CHANNEL_1];
+            if(newNumberOutputs[CHANNEL_1] < 0 || newNumberOutputs[CHANNEL_1] > 50) throw exception();
 
-            for(int i = 0; i < newNumberSecrets[CHANNEL_2]; i++){
-                for(int j = 0; j < newNumberOutputs[CHANNEL_2]; j++){
+            for(int i = 0; i < newNumberSecrets[CHANNEL_1]; i++){
+                for(int j = 0; j < newNumberOutputs[CHANNEL_1]; j++){
                     infile >> buffer;
-                    strcpy(newChannels[CHANNEL_2][i][j], buffer.c_str());
+                    strcpy(newChannels[CHANNEL_1][i][j], buffer.c_str());
                 }
             }
+
+            // Channel 2
+            if(mode == MODE_TWO || mode == MODE_REF){
+                infile >> buffer;
+                if(buffer != "channel2") throw exception();
+                infile >> newNumberSecrets[CHANNEL_2];
+                if(mode == MODE_TWO && newNumberSecrets[CHANNEL_2] != NUMBER_SECRETS) throw exception();
+                if(mode == MODE_REF && newNumberSecrets[CHANNEL_2] != newNumberOutputs[CHANNEL_1]) throw exception();
+                infile >> newNumberOutputs[CHANNEL_2];
+                if(newNumberOutputs[CHANNEL_2] < 0 || newNumberOutputs[CHANNEL_2] > 50) throw exception();
+
+                for(int i = 0; i < newNumberSecrets[CHANNEL_2]; i++){
+                    for(int j = 0; j < newNumberOutputs[CHANNEL_2]; j++){
+                        infile >> buffer;
+                        strcpy(newChannels[CHANNEL_2][i][j], buffer.c_str());
+                    }
+                }
+            }
+
+            // If no exception was thrown until here, there was no error with the file
+            infile.close();
+
+            // Copy prior values
+            GuiPrior::copyPrior(newPrior, prior);
+
+            // Copy channel 1 values
+            numSecrets[CHANNEL_1] = newNumberSecrets[CHANNEL_1];
+            numOutputs[CHANNEL_1] = newNumberOutputs[CHANNEL_1];
+            GuiChannel::copyChannelText(newChannels[CHANNEL_1], channel[CHANNEL_1], numSecrets[CHANNEL_1], numOutputs[CHANNEL_1]);
+
+            // Copy channel 2 values
+            if(mode == MODE_TWO || mode == MODE_REF){
+                numSecrets[CHANNEL_2] = newNumberSecrets[CHANNEL_2];
+                numOutputs[CHANNEL_2] = newNumberOutputs[CHANNEL_2];
+                GuiChannel::copyChannelText(newChannels[CHANNEL_2], channel[CHANNEL_2], numSecrets[CHANNEL_2], numOutputs[CHANNEL_2]);
+            }
+            
+            return mode;
+        }catch(const exception& e){
+            infile.close();
+            return INVALID_QIF_FILE;
         }
-
-        // If no exception was thrown until here, there was no error with the file
-        infile.close();
-
-        // Copy prior values
-        GuiPrior::copyPrior(newPrior, prior);
-
-        // Copy channel 1 values
-        numSecrets[CHANNEL_1] = newNumberSecrets[CHANNEL_1];
-        numOutputs[CHANNEL_1] = newNumberOutputs[CHANNEL_1];
-        GuiChannel::copyChannelText(newChannels[CHANNEL_1], channel[CHANNEL_1], numSecrets[CHANNEL_1], numOutputs[CHANNEL_1]);
-
-        // Copy channel 2 values
-        if(mode == MODE_TWO || mode == MODE_REF){
-            numSecrets[CHANNEL_2] = newNumberSecrets[CHANNEL_2];
-            numOutputs[CHANNEL_2] = newNumberOutputs[CHANNEL_2];
-            GuiChannel::copyChannelText(newChannels[CHANNEL_2], channel[CHANNEL_2], numSecrets[CHANNEL_2], numOutputs[CHANNEL_2]);
-        }
-        
-        return mode;
-    }catch(const exception& e){
-        infile.close();
-        return INVALID_QIF_FILE;
-    }
-#else
-    return MODE_SINGLE;
-#endif
+    #else
+        return MODE_SINGLE;
+    #endif
 }
 
 void GuiMenu::saveQIFFile(
@@ -313,74 +332,74 @@ void GuiMenu::saveQIFFile(
 
     */
 
-#if !defined(PLATFORM_WEB)
-    if(createNewFile){
-        FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
-        fgets(fileName, 2048, file);
-        fclose(file);
+    #if !defined(PLATFORM_WEB)
+        if(createNewFile){
+            FILE *file = popen("zenity --file-selection --title=Save --save --filename=untitled.qifg --confirm-overwrite", "r");
+            fgets(fileName, 2048, file);
+            fclose(file);
+
+            if(strcmp(fileName, "\0")){
+                // Remove \n from the end
+                string newFileName = string(fileName);
+                newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
+                strcpy(fileName, newFileName.c_str());
+
+                // Fix file extension if it is not .qifg
+                string fn = string(fileName);
+                if(fn.find_last_of(".") == string::npos){
+                    string newFileName = fn + ".qifg";
+                    strcpy(fileName, newFileName.c_str());
+                }else if(fn.substr(fn.find_last_of(".") + 1) != "qifg"){
+                    string newFileName = fn.substr(0, fn.find_last_of(".")) + ".qifg";
+                    strcpy(fileName, newFileName.c_str());
+                }
+            }
+        }
 
         if(strcmp(fileName, "\0")){
-            // Remove \n from the end
-            string newFileName = string(fileName);
-            newFileName = newFileName.substr(0, newFileName.find_last_of("\n"));
-            strcpy(fileName, newFileName.c_str());
-
-            // Fix file extension if it is not .qifg
-            string fn = string(fileName);
-            if(fn.find_last_of(".") == string::npos){
-                string newFileName = fn + ".qifg";
-                strcpy(fileName, newFileName.c_str());
-            }else if(fn.substr(fn.find_last_of(".") + 1) != "qifg"){
-                string newFileName = fn.substr(0, fn.find_last_of(".")) + ".qifg";
-                strcpy(fileName, newFileName.c_str());
-            }
-        }
-    }
-
-    if(strcmp(fileName, "\0")){
-        // Channel 1
-        string output = "";
-        output = output + "mode " + to_string(mode) + "\n";
-        output = output + "prior 3\n" + prior[0] + " " + prior[1] + " " + prior[2] + "\n";
-        output = output + "channel1 " + to_string(numSecrets[CHANNEL_1]) + " " + to_string(numOutputs[CHANNEL_1]) + "\n";
-        for(int i = 0; i < numSecrets[CHANNEL_1]; i++){
-            int j = 0;
-            while(j < numOutputs[CHANNEL_1]-1){
-                output = output + channel[CHANNEL_1][i][j] + " ";
-                j++;
-            }
-            output = output + channel[CHANNEL_1][i][j] + "\n";
-        }
-
-        if(mode == MODE_TWO || mode == MODE_REF){
-            // Channel 2
-            output = output + "channel2 " + to_string(numSecrets[CHANNEL_2]) + " " + to_string(numOutputs[CHANNEL_2]) + "\n";
-            for(int i = 0; i < numSecrets[CHANNEL_2]; i++){
+            // Channel 1
+            string output = "";
+            output = output + "mode " + to_string(mode) + "\n";
+            output = output + "prior 3\n" + prior[0] + " " + prior[1] + " " + prior[2] + "\n";
+            output = output + "channel1 " + to_string(numSecrets[CHANNEL_1]) + " " + to_string(numOutputs[CHANNEL_1]) + "\n";
+            for(int i = 0; i < numSecrets[CHANNEL_1]; i++){
                 int j = 0;
-                while(j < numOutputs[CHANNEL_2]-1){
-                    output = output + channel[CHANNEL_2][i][j] + " ";
+                while(j < numOutputs[CHANNEL_1]-1){
+                    output = output + channel[CHANNEL_1][i][j] + " ";
                     j++;
                 }
-                output = output + channel[CHANNEL_2][i][j] + "\n";
+                output = output + channel[CHANNEL_1][i][j] + "\n";
             }
+
+            if(mode == MODE_TWO || mode == MODE_REF){
+                // Channel 2
+                output = output + "channel2 " + to_string(numSecrets[CHANNEL_2]) + " " + to_string(numOutputs[CHANNEL_2]) + "\n";
+                for(int i = 0; i < numSecrets[CHANNEL_2]; i++){
+                    int j = 0;
+                    while(j < numOutputs[CHANNEL_2]-1){
+                        output = output + channel[CHANNEL_2][i][j] + " ";
+                        j++;
+                    }
+                    output = output + channel[CHANNEL_2][i][j] + "\n";
+                }
+            }
+
+            ofstream outfile;
+            outfile.open(fileName);
+            outfile << output;
+            outfile.close();
         }
-
-        ofstream outfile;
-        outfile.open(fileName);
-        outfile << output;
-        outfile.close();
+    #endif
     }
-#endif
-}
 
-void GuiMenu::loadGSImages(){
-    for(int i = 0; i < 7; i++){
-        if(!strcmp(imagesSrc[i], ""))
-            continue;
+    void GuiMenu::loadGSImages(){
+        for(int i = 0; i < 7; i++){
+            if(!strcmp(imagesSrc[i], ""))
+                continue;
 
-        Image img = LoadImage(imagesSrc[i]);
-        ImageDrawTextEx(&img, GetFontDefault(), "", (Vector2){0,0}, (float)GetFontDefault().baseSize, 0.0f, BLACK);
-        gsImages[i] = LoadTextureFromImage(img);  // Image converted to texture, uploaded to GPU memory (VRAM)
-        UnloadImage(img);
-    }
+            Image img = LoadImage(imagesSrc[i]);
+            ImageDrawTextEx(&img, GetFontDefault(), "", (Vector2){0,0}, (float)GetFontDefault().baseSize, 0.0f, BLACK);
+            gsImages[i] = LoadTextureFromImage(img);  // Image converted to texture, uploaded to GPU memory (VRAM)
+            UnloadImage(img);
+        }
 }

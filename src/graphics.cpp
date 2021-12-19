@@ -126,3 +126,7 @@ Channel composeChannels(Channel &C, Channel &R){
 
 	return CR;
 }
+
+Rectangle sum2Rec(Rectangle rec, int x, int y, int w, int h){
+	return (Rectangle){rec.x + x, rec.y + y, rec.width + w, rec.height + h};
+}
