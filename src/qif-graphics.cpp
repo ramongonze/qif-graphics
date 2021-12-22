@@ -23,6 +23,7 @@
 #include "data.h"
 #include "chull.h"
 #include "random-response.h"
+#include "truncated-geometric.h"
 
 typedef struct WebLoopVariables{
     Gui gui;
@@ -60,6 +61,7 @@ void drawGettingStarted(Gui &gui);
 void drawCirclePrior(Gui &gui, Data &data);
 void drawCirclesInners(Gui &gui, Data &data, int channel);
 void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *title, Color contentColor, Font font);
+void drawContentDropBox(Gui &gui, Rectangle layoutTitle, Rectangle layoutContent, Color contentColor, Font font);
 void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding);
 void drawHelpMessage(Gui &gui, Rectangle rec, char message[CHAR_BUFFER_SIZE]);
 void drawTab(Gui &gui, int channel, bool active);        // If the tab is currently active
@@ -176,31 +178,62 @@ void updateDrawFrame(void* vars_){
         updateStatusBar(NO_ERROR, gui->visualization);
     }
     
-    if(*mode == MODE_DP){
-        if(gui->drawing){
-            char buffer[CHAR_BUFFER_SIZE];
-            sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);            
-            if(gui->visualization.SpinnerEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.TextBoxDeltaValue)){
-                if(gui->visualization.SpinnerEpsilonValue <= 0)
-                    gui->visualization.SpinnerEpsilonValue = 1;
-
-                // Update epsilon and delta text boxes
-                sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);
-                strcpy(gui->channel.TextBoxDeltaValue, buffer);
-                sprintf(buffer, "%d", gui->visualization.SpinnerEpsilonValue);
-                strcpy(gui->channel.TextBoxEpsilonValue, buffer);
-
-                gui->visualization.recomputeInners = true;
-                data->fileSaved = false;
-                data->resetAllExceptComputeChannel1();
-            }
-        }
-
-        if(gui->checkEpsilonDeltaTextBoxPressed()){
+    if(*mode == MODE_DP_SINGLE){
+        if(data->currentDPMechanism != gui->channel.dropdownBoxDPMechanismActive){
+            data->currentDPMechanism = gui->channel.dropdownBoxDPMechanismActive;
             gui->drawing = false;
+            gui->visualization.recomputeInners = true;
             data->fileSaved = false;
             data->resetAllExceptComputeChannel1();
-            updateStatusBar(NO_ERROR, gui->visualization);
+        }
+        
+        if(data->currentDPMechanism == MECH_KRR){
+            if(gui->drawing){
+                char buffer[CHAR_BUFFER_SIZE];
+                sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);            
+                if(gui->visualization.SpinnerEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.TextBoxDeltaValue)){
+                    if(gui->visualization.SpinnerEpsilonValue <= 0)
+                        gui->visualization.SpinnerEpsilonValue = 1;
+
+                    // Update epsilon and delta text boxes
+                    sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);
+                    strcpy(gui->channel.TextBoxDeltaValue, buffer);
+                    sprintf(buffer, "%d", gui->visualization.SpinnerEpsilonValue);
+                    strcpy(gui->channel.TextBoxEpsilonValue, buffer);
+
+                    gui->visualization.recomputeInners = true;
+                    data->fileSaved = false;
+                    data->resetAllExceptComputeChannel1();
+                }
+            }
+
+            if(gui->checkEpsilonDeltaTextBoxPressed()){
+                gui->drawing = false;
+                data->fileSaved = false;
+                data->resetAllExceptComputeChannel1();
+                updateStatusBar(NO_ERROR, gui->visualization);
+            }
+        }else if(data->currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
+            if(gui->drawing){
+                char buffer[CHAR_BUFFER_SIZE];
+                sprintf(buffer, "%.6f", gui->visualization.SliderAlphaValue);
+                if(gui->visualization.SliderAlphaValue != data->alpha){
+                    // Update Alpha text box
+                    sprintf(buffer, "%.6f", gui->visualization.SliderAlphaValue);
+                    strcpy(gui->channel.TextBoxAlphaValue, buffer);
+
+                    gui->visualization.recomputeInners = true;
+                    data->fileSaved = false;
+                    data->resetAllExceptComputeChannel1();
+                }
+            }
+
+            if(gui->checkAlphaTextBoxPressed()){
+                gui->drawing = false;
+                data->fileSaved = false;
+                data->resetAllExceptComputeChannel1();
+                updateStatusBar(NO_ERROR, gui->visualization);
+            }
         }
     }else if(gui->checkChannelTextBoxPressed()){ // Check if a channel text box is being pressed
         gui->drawing = false;
@@ -310,7 +343,8 @@ void updateDrawFrame(void* vars_){
         drawGuiPosteriors(*gui, *data);
         drawGuiVisualization(*gui, *data);
         drawGuiMenu(*gui, *data, closeWindow);
-        checkHelpMessagesActive(*gui, mousePosition);
+        if(*mode != MODE_DP_SINGLE && *mode != MODE_DP_TWO && *mode != MODE_DP_POST_PROCESS)
+            checkHelpMessagesActive(*gui, mousePosition);            
         if(gui->menu.windowGettingStartedActive) GuiUnlock();
         drawGettingStarted(*gui);
 
@@ -380,6 +414,9 @@ void updateStatusBar(int error, GuiVisualization &visualization){
 			break;
         case INVALID_EPSILON_OR_DELTA:
 			strcpy(visualization.TextBoxStatusText, "Invalid epsilon or delta");
+			break;
+        case INVALID_ALPHA:
+			strcpy(visualization.TextBoxStatusText, "Invalid alpha");
 			break;
 		case NO_ERROR:
 			strcpy(visualization.TextBoxStatusText, "Status");
@@ -472,12 +509,23 @@ void checkChannelsFlags(Gui &gui, Data &data){
 
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
     
-    if(mode == MODE_DP){
+    if(mode == MODE_DP_SINGLE){
         if(data.compute[FLAG_CHANNEL_1]){
-            int ret = data.checkEpsilonDeltaText(gui.channel.TextBoxEpsilonValue, gui.channel.TextBoxDeltaValue);
+            int ret = NO_ERROR;
+            if(data.currentDPMechanism == MECH_KRR)
+                ret = data.checkEpsilonDeltaText(gui.channel.TextBoxEpsilonValue, gui.channel.TextBoxDeltaValue);
+            else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED)
+                ret = data.checkAlphaText(gui.channel.TextBoxAlphaValue);
+
             if(ret == NO_ERROR){
-                random_response rr;
-                data.channel[CHANNEL_1] = rr.get_channel(3, log(data.epsilon), data.delta);
+                if(data.currentDPMechanism == MECH_KRR){
+                    random_response rr;
+                    data.channel[CHANNEL_1] = rr.get_channel(3, log(data.epsilon), data.delta);
+                }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
+                    truncated_geometric tg;
+                    data.channel[CHANNEL_1] = tg.get_channel(2, data.alpha);
+                }
+
                 data.channelObj[CHANNEL_1] = Channel(data.priorObj, data.channel[CHANNEL_1]);
                 gui.updateChannelTextBoxes(data.channelObj[CHANNEL_1], CHANNEL_1);
                 data.ready[FLAG_CHANNEL_1] = true;
@@ -490,7 +538,10 @@ void checkChannelsFlags(Gui &gui, Data &data){
             }
             data.compute[FLAG_CHANNEL_1] = false;
         }else if(!data.ready[FLAG_CHANNEL_1]){
-            data.error = INVALID_EPSILON_OR_DELTA;
+            if(data.currentDPMechanism == MECH_KRR)
+                data.error = INVALID_EPSILON_OR_DELTA;
+            else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED)
+                data.error = INVALID_ALPHA;
         }
     }else{
         for(int channel = 0; channel < NUMBER_CHANNELS; channel++){
@@ -635,11 +686,14 @@ void drawGuiChannel(Gui &gui, Data &data){
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
     int curChannel = gui.channel.curChannel;
     Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
-    
-    if(mode == MODE_SINGLE || mode == MODE_DP){
+
+    if(mode == MODE_SINGLE){
         strcpy(gui.channel.panelChannelText, "Channel C");
         if(gui.drawing) contentColor = INNERS1_COLOR_D1;
         drawContentPanel(gui.channel.recTitle, gui.channel.recContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
+    }else if(mode == MODE_DP_SINGLE || mode == MODE_DP_POST_PROCESS){
+        if(gui.drawing) contentColor = INNERS1_COLOR_D1;
+        DrawRectangleRec(gui.channel.recContent, contentColor);
     }else{
         strcpy(gui.channel.panelChannelText, "");
         if(mode == MODE_TWO){
@@ -660,13 +714,13 @@ void drawGuiChannel(Gui &gui, Data &data){
         initStyle();
     }
 
-    if(mode != MODE_DP && curChannel != CHANNEL_3){
+    if(mode != MODE_DP_SINGLE && curChannel != CHANNEL_3){
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
         if(GuiButton(gui.channel.recButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     }
 
-    if(mode != MODE_DP && curChannel != CHANNEL_3){
+    if(mode != MODE_DP_SINGLE && curChannel != CHANNEL_3){
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
@@ -696,7 +750,7 @@ void drawGuiChannel(Gui &gui, Data &data){
         GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
     }
 
-    if(mode == MODE_DP){
+    if(mode == MODE_DP_SINGLE){
         if(gui.drawing){
             GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
             GuiSetStyle(LABEL, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
@@ -706,14 +760,16 @@ void drawGuiChannel(Gui &gui, Data &data){
             GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
         }
         
-        GuiLabel(gui.channel.recTextBoxEpsilon, gui.channel.LabelEpsilonText);
-        GuiLabel(gui.channel.recTextBoxDelta, gui.channel.LabelDeltaText);
+        if(data.currentDPMechanism == MECH_KRR){
+            GuiLabel(gui.channel.recTextBoxEpsilon, gui.channel.LabelEpsilonText);
+            GuiLabel(gui.channel.recTextBoxDelta, gui.channel.LabelDeltaText);        
+            if(GuiTextBox(sum2Rec(gui.channel.recTextBoxEpsilon, 80, 0, 0, 0), gui.channel.TextBoxEpsilonValue, gui.defaultFont.baseSize, gui.channel.TextBoxEpsilonEditMode)) gui.channel.TextBoxEpsilonEditMode = !gui.channel.TextBoxEpsilonEditMode;
+            if(GuiTextBox(sum2Rec(gui.channel.recTextBoxDelta, 80, 0, 0, 0), gui.channel.TextBoxDeltaValue, gui.defaultFont.baseSize, gui.channel.TextBoxDeltaEditMode)) gui.channel.TextBoxDeltaEditMode = !gui.channel.TextBoxDeltaEditMode;
 
-        
-
-        if(GuiTextBox(sum2Rec(gui.channel.recTextBoxEpsilon, 80, 0, 0, 0), gui.channel.TextBoxEpsilonValue, gui.defaultFont.baseSize, gui.channel.TextBoxEpsilonEditMode)) gui.channel.TextBoxEpsilonEditMode = !gui.channel.TextBoxEpsilonEditMode;
-        
-        if(GuiTextBox(sum2Rec(gui.channel.recTextBoxDelta, 80, 0, 0, 0), gui.channel.TextBoxDeltaValue, gui.defaultFont.baseSize, gui.channel.TextBoxDeltaEditMode)) gui.channel.TextBoxDeltaEditMode = !gui.channel.TextBoxDeltaEditMode;
+        }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
+            GuiLabel(gui.channel.recTextBoxAlpha, gui.channel.LabelAlphaText);
+            if(GuiTextBox(sum2Rec(gui.channel.recTextBoxAlpha, 80, 0, 0, 0), gui.channel.TextBoxAlphaValue, gui.defaultFont.baseSize, gui.channel.TextBoxAlphaEditMode)) gui.channel.TextBoxAlphaEditMode = !gui.channel.TextBoxAlphaEditMode;
+        }
 
         if(gui.drawing){
             GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
@@ -734,7 +790,7 @@ void drawGuiChannel(Gui &gui, Data &data){
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScroll.x, viewScroll.y, viewScroll.width, viewScroll.height);
-        if(mode != MODE_DP)
+        if(mode != MODE_DP_SINGLE)
             GuiLabel(sum2Rec(gui.channel.recLabelOutputs, gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelOutputsText);
 
         // Secrets
@@ -746,9 +802,9 @@ void drawGuiChannel(Gui &gui, Data &data){
             }
 
             for(int j = 0; j < gui.channel.numOutputs[curChannel]; j++){
-                if(curChannel == CHANNEL_3 || mode == MODE_DP) GuiLock();
+                if(curChannel == CHANNEL_3 || mode == MODE_DP_SINGLE) GuiLock();
                 if(GuiTextBox(sum2Rec(gui.channel.recTextBoxChannel[i][j], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
-                if(curChannel == CHANNEL_3 || mode == MODE_DP) GuiUnlock();
+                if(curChannel == CHANNEL_3 || mode == MODE_DP_SINGLE) GuiUnlock();
             }
         }
 
@@ -764,6 +820,13 @@ void drawGuiChannel(Gui &gui, Data &data){
                 GuiLabel(sum2Rec(gui.channel.recLabelY[i], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelChannelYText[i].c_str());
         }
     EndScissorMode();
+
+    // DP mechanisms
+    if(mode == MODE_DP_SINGLE || mode == MODE_DP_POST_PROCESS){
+        strcpy(gui.channel.panelChannelText, "Channel C");
+        if(gui.drawing) contentColor = INNERS1_COLOR_D1;
+        drawContentDropBox(gui, gui.channel.recTitle, gui.channel.recContent, contentColor, gui.defaultFont);
+    }
 }
 
 void drawGuiPosteriors(Gui &gui, Data &data){
@@ -849,33 +912,42 @@ void drawGuiVisualization(Gui &gui, Data &data){
         int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
         
         // Sliders
-        if(mode == MODE_DP){
-            GuiLabel(sum2Rec(gui.visualization.recSpinnerEpsilon, -gui.visualization.recSpinnerEpsilon.width-5, 0, 0, 0), "Epsilon (ln):");
-            
-            GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-            GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
-            GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-            GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-            GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
-            GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
-            GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
-            GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
-            if(GuiSpinner(gui.visualization.recSpinnerEpsilon, NULL, &(gui.visualization.SpinnerEpsilonValue), 1, 10000, gui.visualization.SpinnerEpsilonEditMode)) gui.visualization.SpinnerEpsilonEditMode = !gui.visualization.SpinnerEpsilonEditMode;
-            GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
-            GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
-            GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
-            GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
-            GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
-            GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
-            GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-            GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+        if(mode == MODE_DP_SINGLE){
+            if(data.currentDPMechanism == MECH_KRR){
+                GuiLabel(sum2Rec(gui.visualization.recSpinnerEpsilon, -gui.visualization.recSpinnerEpsilon.width-5, 0, 0, 0), "Epsilon (ln):");
+                
+                GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+                GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+                GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+                GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+                GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+                GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+                GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
+                GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
+                if(GuiSpinner(gui.visualization.recSpinnerEpsilon, NULL, &(gui.visualization.SpinnerEpsilonValue), 1, 10000, gui.visualization.SpinnerEpsilonEditMode)) gui.visualization.SpinnerEpsilonEditMode = !gui.visualization.SpinnerEpsilonEditMode;
+                GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
+                GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
+                GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
+                GuiSetStyle(DEFAULT, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
+                GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
+                GuiSetStyle(TEXTBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
+                GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
+                GuiSetStyle(LABEL, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
 
-            GuiLabel(sum2Rec(gui.visualization.recSliderDelta, -gui.visualization.recSliderDelta.width+15, 0, 0, 0), "Delta:");
-            GuiSetStyle(SLIDER, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_FOCUSED_TRANSP));
-            gui.visualization.SliderDeltaValue = GuiSlider(gui.visualization.recSliderDelta, NULL, NULL, gui.visualization.SliderDeltaValue, 0, 1);
-            char buffer[CHAR_BUFFER_SIZE];
-            sprintf(buffer, "%.6f", gui.visualization.SliderDeltaValue);
-            GuiLabel(gui.visualization.recSliderDelta, buffer);
+                GuiLabel(sum2Rec(gui.visualization.recSliderDelta, -gui.visualization.recSliderDelta.width+15, 0, 0, 0), "Delta:");
+                GuiSetStyle(SLIDER, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_FOCUSED_TRANSP));
+                gui.visualization.SliderDeltaValue = GuiSlider(gui.visualization.recSliderDelta, NULL, NULL, gui.visualization.SliderDeltaValue, 0, 1);
+                char buffer[CHAR_BUFFER_SIZE];
+                sprintf(buffer, "%.6f", gui.visualization.SliderDeltaValue);
+                GuiLabel(gui.visualization.recSliderDelta, buffer);
+            }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
+                GuiLabel(sum2Rec(gui.visualization.recSliderAlpha, -gui.visualization.recSliderAlpha.width+15, 0, 0, 0), "Alpha:");
+                GuiSetStyle(SLIDER, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_FOCUSED_TRANSP));
+                gui.visualization.SliderAlphaValue = GuiSlider(gui.visualization.recSliderAlpha, NULL, NULL, gui.visualization.SliderAlphaValue, 0, 1);
+                char buffer[CHAR_BUFFER_SIZE];
+                sprintf(buffer, "%.6f", gui.visualization.SliderAlphaValue);
+                GuiLabel(gui.visualization.recSliderAlpha, buffer);
+            }
         }
 
         // Triangle
@@ -999,6 +1071,15 @@ void drawContentPanel(Rectangle layoutTitle, Rectangle layoutContent, char *titl
     DrawRectangleRec(layoutTitle, TITLES_BASE_COLOR);
     DrawRectangleRec(layoutContent, contentColor);
     DrawTextEx(font, title, (Vector2){layoutTitle.x + 10, layoutTitle.y}, font.baseSize, 1, GetColor(GuiGetStyle(DEFAULT, TEXT_COLOR_NORMAL)));
+}
+
+void drawContentDropBox(Gui &gui, Rectangle layoutTitle, Rectangle layoutContent, Color contentColor, Font font){
+    GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
+    GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
+    if(GuiDropdownBox(layoutTitle, layoutTitle.width, gui.channel.dropdownBoxDPMechanismText, &(gui.channel.dropdownBoxDPMechanismActive), gui.channel.dropdownBoxDPMechanismEditMode)) gui.channel.dropdownBoxDPMechanismEditMode = !gui.channel.dropdownBoxDPMechanismEditMode;
+    gui.channel.updateDropwdownDPMechanism();
+    initStyle();
 }
 
 void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
@@ -1211,7 +1292,7 @@ void buttonMode(Gui &gui, Data &data, int* prevMode){
 
         data.resetAllExceptComputeChannel1();
 
-        if(curMode == MODE_SINGLE || curMode == MODE_DP){
+        if(curMode == MODE_SINGLE || curMode == MODE_DP_SINGLE){
             gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x, gui.channel.AnchorChannel.y, 350, 20};
         }else if(curMode == MODE_TWO){
             gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x+112, gui.channel.AnchorChannel.y, 350-112, 20};
@@ -1330,7 +1411,7 @@ void buttonRandomChannel(Gui &gui, Data &data){
 
 void buttonDraw(Gui &gui, Data &data){
     int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
-    if(mode == MODE_SINGLE || mode == MODE_DP){
+    if(mode == MODE_SINGLE || mode == MODE_DP_SINGLE){
         if(!data.ready[FLAG_HYPER_1]){
             updateStatusBar(data.error, gui.visualization);
             return;
@@ -1347,8 +1428,12 @@ void buttonDraw(Gui &gui, Data &data){
         data.buildInnerCircles(gui.visualization.trianglePoints, CHANNEL_1, mode);
         gui.updateRectangleInnersCircleLabel(CHANNEL_1, data.innersCircles[CHANNEL_1]);
 
-        gui.visualization.SpinnerEpsilonValue = stoi(gui.channel.TextBoxEpsilonValue);
-        gui.visualization.SliderDeltaValue = stof(gui.channel.TextBoxDeltaValue);
+        if(data.currentDPMechanism == MECH_KRR){
+            gui.visualization.SpinnerEpsilonValue = stoi(gui.channel.TextBoxEpsilonValue);
+            gui.visualization.SliderDeltaValue = stof(gui.channel.TextBoxDeltaValue);
+        }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
+            gui.visualization.SliderAlphaValue = stof(gui.channel.TextBoxAlphaValue);
+        }
     }else if(mode == MODE_TWO){
         if(!data.ready[FLAG_HYPER_1] || !data.ready[FLAG_HYPER_2]){
             updateStatusBar(data.error, gui.visualization);

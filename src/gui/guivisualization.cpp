@@ -14,6 +14,7 @@ GuiVisualization::GuiVisualization(){
     SpinnerEpsilonEditMode = false;
     SpinnerEpsilonValue = 2;
     SliderDeltaValue = 0;
+    SliderAlphaValue = 0.5;
     recomputeInners = false;
 
     // Define controls rectangles
@@ -46,5 +47,6 @@ GuiVisualization::GuiVisualization(){
     recLabelTriangle[2] = (Rectangle){trianglePoints[2].x +  5, trianglePoints[2].y -  2, 40, 40};
     
     recSpinnerEpsilon = (Rectangle){recPanelVisualization.x + recPanelVisualization.width - 120, recPanelVisualization.y + 10, 100, 20};
-    recSliderDelta = (Rectangle){recPanelVisualization.x + recPanelVisualization.width - 120, recPanelVisualization.y + 40, 100, 20};
+    recSliderDelta = sum2Rec(recSpinnerEpsilon, 0, 30, 0, 0);
+    recSliderAlpha = recSpinnerEpsilon;
 }

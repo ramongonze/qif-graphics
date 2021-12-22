@@ -56,6 +56,10 @@ bool Gui::checkEpsilonDeltaTextBoxPressed(){
     return channel.TextBoxEpsilonEditMode || channel.TextBoxDeltaEditMode;
 }
 
+bool Gui::checkAlphaTextBoxPressed(){
+    return channel.TextBoxAlphaEditMode;
+}
+
 void Gui::moveAmongPriorTextBoxes(){
     for(int i = 0; i < NUMBER_SECRETS; i++){
         if(prior.TextBoxPriorEditMode[i] == true){

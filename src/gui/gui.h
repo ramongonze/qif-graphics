@@ -61,6 +61,10 @@ public:
     /* Chechk whether delta or epsilon textbox (of MODE_DP) was pressed.
      * Returns true if yes or false otherwise. */
     bool checkEpsilonDeltaTextBoxPressed();
+    
+    /* Chechk whether alpha textbox was pressed.
+     * Returns true if yes or false otherwise. */
+    bool checkAlphaTextBoxPressed();
 
     /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move the pressed TextBox in prior. */
     void moveAmongPriorTextBoxes();

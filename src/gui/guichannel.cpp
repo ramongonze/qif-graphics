@@ -17,6 +17,7 @@ GuiChannel::GuiChannel(){
     strcpy(LabelOutputsText, "Outputs");
     strcpy(LabelEpsilonText, "Epsilon (ln):");
     strcpy(LabelDeltaText, "Delta:");
+    strcpy(LabelAlphaText, "Alpha:");
     strcpy(buttonRandomText, "Generate Random");
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
         LabelChannelXText[i] = "X" + to_string(i+1);
@@ -32,12 +33,14 @@ GuiChannel::GuiChannel(){
     SpinnerChannelEditMode = false;
     TextBoxEpsilonEditMode = false;
     TextBoxDeltaEditMode = false;
+    TextBoxAlphaEditMode = false;
     
     for(int i = 0; i < NUMBER_CHANNELS; i++)
         SpinnerChannelValue[i] = numOutputs[i];
     
     strcpy(TextBoxEpsilonValue, "2");
     strcpy(TextBoxDeltaValue, "0.2");
+    strcpy(TextBoxAlphaValue, "0.5");
 
     ScrollPanelScrollOffset = {0, 0};
     ScrollPanelBoundsOffset = {0, 0};
@@ -50,6 +53,12 @@ GuiChannel::GuiChannel(){
             }
         }
     }
+
+    dropdownBoxDPMechanismActive = MECH_KRR;
+    dropdownBoxDPMechanismEditMode = false;
+    strcpy(dropdownBoxDPMechanismOptions[MECH], "Mechanism: ");
+    strcpy(dropdownBoxDPMechanismOptions[MECH_KRR], "k-RR");
+    strcpy(dropdownBoxDPMechanismOptions[MECH_GEOMETRIC_TRUNCATED], "Geometric truncated");
     
     // Define control rectangles
     recTitle = (Rectangle){AnchorChannel.x, AnchorChannel.y, 350, 20};
@@ -58,6 +67,7 @@ GuiChannel::GuiChannel(){
 
     recTextBoxEpsilon = (Rectangle){AnchorChannel.x + 20, AnchorChannel.y + 30, 70, 25};
     recTextBoxDelta = (Rectangle){AnchorChannel.x + 170, AnchorChannel.y + 30, 90, 25};
+    recTextBoxAlpha = recTextBoxEpsilon;
 
     recScrollPanel = (Rectangle){AnchorChannel.x + 10, AnchorChannel.y + 65, 330, 210};
     ScrollPanelContent.y = recScrollPanel.height - 20;
@@ -151,7 +161,7 @@ void GuiChannel::checkModeAndSizes(int mode){
     }else if(mode == MODE_REF){
         updateChannelBySpinner(CHANNEL_1, mode);
         updateChannelBySpinner(CHANNEL_2, mode);
-    }else if(mode == MODE_DP){
+    }else if(mode == MODE_DP_SINGLE){
         numSecrets[CHANNEL_1] = 3;
     }
 }
@@ -165,4 +175,12 @@ void GuiChannel::resetChannel(int channel){
     for(int i = 0; i < numSecrets[channel]; i++)
         for(int j = 0; j < numOutputs[channel]; j++)
             strcpy(TextBoxChannelText[channel][i][j], "0");
+}
+
+void GuiChannel::updateDropwdownDPMechanism(){
+    string newText = string(dropdownBoxDPMechanismOptions[MECH]);
+    newText = newText + " " + string(dropdownBoxDPMechanismOptions[dropdownBoxDPMechanismActive]);
+    for(int i = 1; i < NUM_MECH+1; i++)
+        newText = newText + ";" + dropdownBoxDPMechanismOptions[i];
+    strcpy(dropdownBoxDPMechanismText, newText.c_str());
 }

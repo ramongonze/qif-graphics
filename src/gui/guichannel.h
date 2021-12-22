@@ -29,6 +29,7 @@ public:
     char LabelOutputsText[CHAR_BUFFER_SIZE];
     char LabelEpsilonText[CHAR_BUFFER_SIZE];
     char LabelDeltaText[CHAR_BUFFER_SIZE];
+    char LabelAlphaText[CHAR_BUFFER_SIZE];
     char buttonRandomText[CHAR_BUFFER_SIZE];
     string LabelChannelXText[MAX_CHANNEL_OUTPUTS];
     string LabelChannelYText[MAX_CHANNEL_OUTPUTS];
@@ -49,8 +50,14 @@ public:
     char TextBoxEpsilonValue[CHAR_BUFFER_SIZE];
     bool TextBoxDeltaEditMode;
     char TextBoxDeltaValue[CHAR_BUFFER_SIZE];
+    bool TextBoxAlphaEditMode;
+    char TextBoxAlphaValue[CHAR_BUFFER_SIZE];
     bool TextBoxChannelEditMode[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
     char TextBoxChannelText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    int dropdownBoxDPMechanismActive;
+	bool dropdownBoxDPMechanismEditMode;
+	char dropdownBoxDPMechanismText[CHAR_BUFFER_SIZE];
+    char dropdownBoxDPMechanismOptions[NUM_MECH+1][CHAR_BUFFER_SIZE];
 
     // Define control rectangles
     Rectangle recTitle;
@@ -58,6 +65,7 @@ public:
     Rectangle recSpinner;
     Rectangle recTextBoxEpsilon;
     Rectangle recTextBoxDelta;
+    Rectangle recTextBoxAlpha;
     Rectangle recScrollPanel;
     Rectangle recLabelOutputs;
     Rectangle recButtonRandom;
@@ -110,6 +118,8 @@ public:
 
     // Set all values for the given channel to zero
     void resetChannel(int channel);
+
+    void updateDropwdownDPMechanism();
 };
 
 #endif

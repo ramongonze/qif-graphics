@@ -36,6 +36,7 @@ public:
     bool SpinnerEpsilonEditMode;
     int SpinnerEpsilonValue;
     float SliderDeltaValue;
+    float SliderAlphaValue;
     bool recomputeInners; // Used to recompute inners circles if the user changed epsilon or delta value
 
     // Define controls rectangles
@@ -51,6 +52,7 @@ public:
     Rectangle recCheckboxShowConvexHull;
     Rectangle recSpinnerEpsilon;
     Rectangle recSliderDelta;
+    Rectangle recSliderAlpha;
 
     /* Triangle vertices
      *       v0

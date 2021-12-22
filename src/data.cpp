@@ -15,6 +15,8 @@ Data::Data(){
 
     epsilon = log(2);
     delta = 0.2;
+    alpha = 0.5;
+    currentDPMechanism = MECH_KRR;
 
     validCharacters = string("0123456789./");
     error = NO_ERROR;
@@ -124,6 +126,21 @@ int Data::checkEpsilonDeltaText(char epsilon_[CHAR_BUFFER_SIZE], char delta_[CHA
     return NO_ERROR;
 }
 
+int Data::checkAlphaText(char alpha_[CHAR_BUFFER_SIZE]){
+    long double value;
+    
+    try{
+        value = checkProbText(alpha_);
+        if(value == INVALID_PROBABILITY || value < 0 || value > 1)
+            return INVALID_ALPHA;
+        this->alpha = value; // Update epsilon value
+    }catch(exception& e){
+        return INVALID_ALPHA;
+    }
+
+    return NO_ERROR;
+}
+
 void Data::buildPriorCircle(Vector2 TrianglePoints[3]){
     Point p;
     p = dist2Bary(priorObj);
@@ -135,7 +152,7 @@ void Data::buildPriorCircle(Vector2 TrianglePoints[3]){
 void Data::buildInnerCircles(Vector2 TrianglePoints[3], int channel, int mode){
     Point p;
 
-    if(animationRunning && (((mode == MODE_SINGLE || mode == MODE_DP) && animation == STEPS) || (mode != MODE_SINGLE && animation >= 2*STEPS))){
+    if(animationRunning && (((mode == MODE_SINGLE || mode == MODE_DP_SINGLE) && animation == STEPS) || (mode != MODE_SINGLE && animation >= 2*STEPS))){
         // First draw of the animation
         for(int i = 0; i < hyper[channel].num_post; i++){
             p = dist2Bary(hyper[channel].inners[0][i], hyper[channel].inners[1][i], hyper[channel].inners[2][i]);

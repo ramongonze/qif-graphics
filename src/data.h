@@ -38,8 +38,12 @@ public:
 	vector<vector<vector<long double>>> channel; // Channel matrix
 	Channel channelObj[NUMBER_CHANNELS];
 	Hyper hyper[NUMBER_CHANNELS]; // Hyper-distributions
-	long double epsilon; // MODE_DP
-    long double delta; // MODE_DP
+	
+	// DP Mechanisms
+	long double epsilon; // k-RR mechanism
+    long double delta; // k-RR mechanism
+	long double alpha; // Geometric truncated mechanism
+	int currentDPMechanism;
     
 	string validCharacters;	// Used to check user input in textboxes
 	int error;		// Indicates if there is error with prior or channel
@@ -81,6 +85,9 @@ public:
 
 	/* Check text in epsilon and delta text boxes */
 	int checkEpsilonDeltaText(char epsilon_[CHAR_BUFFER_SIZE], char delta_[CHAR_BUFFER_SIZE]);
+
+	/* Check text in alpha text box */
+	int checkAlphaText(char alpha_[CHAR_BUFFER_SIZE]);
 
 	/* Calculate circle points and radius for prior. */
 	void buildPriorCircle(Vector2 TrianglePoints[3]);

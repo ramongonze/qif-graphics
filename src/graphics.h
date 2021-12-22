@@ -20,6 +20,7 @@ using namespace std;
 #define INVALID_VALUE_CHANNEL_3 9 // i.e. "1/$2"
 #define INVALID_QIF_FILE 10
 #define INVALID_EPSILON_OR_DELTA 11
+#define INVALID_ALPHA 12
 #define INVALID_PROBABILITY -1
 
 // Settings ------------------------------------------------------------------------------------
@@ -40,7 +41,15 @@ using namespace std;
 #define MODE_SINGLE 1
 #define MODE_TWO 2
 #define MODE_REF 3
-#define MODE_DP 4
+#define MODE_DP_SINGLE 4
+#define MODE_DP_TWO 5
+#define MODE_DP_POST_PROCESS 6
+
+// Differential privacy mechanisms
+#define MECH 0
+#define MECH_KRR 1
+#define MECH_GEOMETRIC_TRUNCATED 2
+#define NUM_MECH 2
 
 // Color scheme ------------------------------------------------------------------------------------
 // GUI
