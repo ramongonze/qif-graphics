@@ -23,34 +23,34 @@ public:
     //------------------------------------------------------------------------------------
 
     // Const text
-    char GroupBoxVisualizationText[CHAR_BUFFER_SIZE];
-    char ButtonDrawText[CHAR_BUFFER_SIZE];
-    char LabelPriorCircleText[CHAR_BUFFER_SIZE];
+    char gBoxVisTxt[CHAR_BUFFER_SIZE];
+    char buttonDrawTxt[CHAR_BUFFER_SIZE];
+    char labelPriorCircTxt[CHAR_BUFFER_SIZE];
     
     // Define anchors
-    Vector2 AnchorVisualization;
+    Vector2 anchorVis;
     
     // Define controls variable
-    bool TextBoxStatusEditMode;
-    char TextBoxStatusText[CHAR_BUFFER_SIZE];
-    bool SpinnerEpsilonEditMode;
-    int SpinnerEpsilonValue;
-    float SliderDeltaValue;
-    float SliderAlphaValue;
+    bool tBoxStatusEdit;
+    char tBoxStatusTxt[CHAR_BUFFER_SIZE];
+    bool spinEpsilonEdit;
+    int spinEpsilonValue;
+    float sliderDeltaValue;
+    float sliderAlphaValue;
     bool recomputeInners; // Used to recompute inners circles if the user changed epsilon or delta value
 
     // Define controls rectangles
     Rectangle recTitle;
     Rectangle recContent;
     Rectangle recButtonDraw;
-    Rectangle recTextBoxStatus;
-    Rectangle recPanelVisualization;
-    Rectangle recLabelPriorCircle;
-    Rectangle recLabelInnersCircles[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
+    Rectangle recTBoxStatus;
+    Rectangle recPanVis;
+    Rectangle recLabelPriorCirc;
+    Rectangle recLabelInnersCirc[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
     Rectangle recLabelTriangle[3];
-    Rectangle recCheckboxShowLabels;
-    Rectangle recCheckboxShowConvexHull;
-    Rectangle recSpinnerEpsilon;
+    Rectangle recCBoxShowLabels;
+    Rectangle recCBoxShowCHull;
+    Rectangle recSpinEpsilon;
     Rectangle recSliderDelta;
     Rectangle recSliderAlpha;
 
@@ -61,9 +61,9 @@ public:
     Vector2 trianglePoints[3];
 
     // Triangle vertex labels
-    string LabelTriangleText[3];
-    char LabelCheckboxShowLabel[CHAR_BUFFER_SIZE];
-    char LabelCheckboxShowConvexHull[CHAR_BUFFER_SIZE];
+    string labelTriangleTxt[3];
+    char labelCBoxShowLabel[CHAR_BUFFER_SIZE];
+    char labelCBoxShowCHull[CHAR_BUFFER_SIZE];
 };
 
 #endif

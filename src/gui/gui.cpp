@@ -189,7 +189,7 @@ void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
 }
 
 void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
-    visualization.recLabelPriorCircle = (Rectangle) {
+    visualization.recLabelPriorCirc = (Rectangle) {
         (float) priorCircle.center.x - 8,
         (float) priorCircle.center.y - 15,
         30,
@@ -200,7 +200,7 @@ void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
 void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
     // Update circle labels and rectangles
     for(int i = 0; i < posteriors.numPost[channel]; i++){
-        visualization.recLabelInnersCircles[channel][i] = (Rectangle){
+        visualization.recLabelInnersCirc[channel][i] = (Rectangle){
             (float) innersCircles[i].center.x - 8,
             (float) innersCircles[i].center.y - 11,
             20,

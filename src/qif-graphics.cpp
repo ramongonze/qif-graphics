@@ -190,15 +190,15 @@ void updateDrawFrame(void* vars_){
         if(data->currentDPMechanism == MECH_KRR){
             if(gui->drawing){
                 char buffer[CHAR_BUFFER_SIZE];
-                sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);            
-                if(gui->visualization.SpinnerEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.tBoxDeltaValue)){
-                    if(gui->visualization.SpinnerEpsilonValue <= 0)
-                        gui->visualization.SpinnerEpsilonValue = 1;
+                sprintf(buffer, "%.6f", gui->visualization.sliderDeltaValue);            
+                if(gui->visualization.spinEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.tBoxDeltaValue)){
+                    if(gui->visualization.spinEpsilonValue <= 0)
+                        gui->visualization.spinEpsilonValue = 1;
 
                     // Update epsilon and delta text boxes
-                    sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);
+                    sprintf(buffer, "%.6f", gui->visualization.sliderDeltaValue);
                     strcpy(gui->channel.tBoxDeltaValue, buffer);
-                    sprintf(buffer, "%d", gui->visualization.SpinnerEpsilonValue);
+                    sprintf(buffer, "%d", gui->visualization.spinEpsilonValue);
                     strcpy(gui->channel.tBoxEpsilonValue, buffer);
 
                     gui->visualization.recomputeInners = true;
@@ -216,10 +216,10 @@ void updateDrawFrame(void* vars_){
         }else if(data->currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
             if(gui->drawing){
                 char buffer[CHAR_BUFFER_SIZE];
-                sprintf(buffer, "%.6f", gui->visualization.SliderAlphaValue);
-                if(gui->visualization.SliderAlphaValue != data->alpha){
+                sprintf(buffer, "%.6f", gui->visualization.sliderAlphaValue);
+                if(gui->visualization.sliderAlphaValue != data->alpha){
                     // Update Alpha text box
-                    sprintf(buffer, "%.6f", gui->visualization.SliderAlphaValue);
+                    sprintf(buffer, "%.6f", gui->visualization.sliderAlphaValue);
                     strcpy(gui->channel.tBoxAlphaValue, buffer);
 
                     gui->visualization.recomputeInners = true;
@@ -392,34 +392,34 @@ void initStyle(){
 void updateStatusBar(int error, GuiVisualization &visualization){
 	switch(error){
 		case INVALID_VALUE_PRIOR:
-			strcpy(visualization.TextBoxStatusText, "Some character in prior distribution is not valid");
+			strcpy(visualization.tBoxStatusTxt, "Some character in prior distribution is not valid");
 			break;
         case INVALID_VALUE_CHANNEL_1:
-			strcpy(visualization.TextBoxStatusText, "Some character in channel C is not valid");
+			strcpy(visualization.tBoxStatusTxt, "Some character in channel C is not valid");
 			break;
         case INVALID_VALUE_CHANNEL_2:
-			strcpy(visualization.TextBoxStatusText, "Some character in channel R is not valid");
+			strcpy(visualization.tBoxStatusTxt, "Some character in channel R is not valid");
 			break;
 		case INVALID_PRIOR:
-			strcpy(visualization.TextBoxStatusText, "The values in prior distribution do not make up a probability distribution");
+			strcpy(visualization.tBoxStatusTxt, "The values in prior distribution do not make up a probability distribution");
 			break;
 		case INVALID_CHANNEL_1:
-			strcpy(visualization.TextBoxStatusText, "Some row in channel C is not a probability distribution");
+			strcpy(visualization.tBoxStatusTxt, "Some row in channel C is not a probability distribution");
 			break;
         case INVALID_CHANNEL_2_D:
-			strcpy(visualization.TextBoxStatusText, "Some row in channel D is not a probability distribution");
+			strcpy(visualization.tBoxStatusTxt, "Some row in channel D is not a probability distribution");
             break;
         case INVALID_CHANNEL_2_R:
-			strcpy(visualization.TextBoxStatusText, "Some row in channel R is not a probability distribution");
+			strcpy(visualization.tBoxStatusTxt, "Some row in channel R is not a probability distribution");
 			break;
         case INVALID_EPSILON_OR_DELTA:
-			strcpy(visualization.TextBoxStatusText, "Invalid epsilon or delta");
+			strcpy(visualization.tBoxStatusTxt, "Invalid epsilon or delta");
 			break;
         case INVALID_ALPHA:
-			strcpy(visualization.TextBoxStatusText, "Invalid alpha");
+			strcpy(visualization.tBoxStatusTxt, "Invalid alpha");
 			break;
 		case NO_ERROR:
-			strcpy(visualization.TextBoxStatusText, "Status");
+			strcpy(visualization.tBoxStatusTxt, "Status");
 	}
 }
 
@@ -881,22 +881,22 @@ void drawGuiPosteriors(Gui &gui, Data &data){
 }
 
 void drawGuiVisualization(Gui &gui, Data &data){
-    drawContentPanel(gui.visualization.recTitle, gui.visualization.recContent, gui.visualization.GroupBoxVisualizationText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
-    if(GuiButton(gui.visualization.recButtonDraw, gui.visualization.ButtonDrawText)) buttonDraw(gui, data);
+    drawContentPanel(gui.visualization.recTitle, gui.visualization.recContent, gui.visualization.gBoxVisTxt, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
+    if(GuiButton(gui.visualization.recButtonDraw, gui.visualization.buttonDrawTxt)) buttonDraw(gui, data);
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 4);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.recTextBoxStatus, WHITE);
-    DrawRectangleRec(gui.visualization.recTextBoxStatus, WHITE);
+    if(data.error != NO_ERROR) DrawRectangleRec(gui.visualization.recTBoxStatus, WHITE);
+    DrawRectangleRec(gui.visualization.recTBoxStatus, WHITE);
     
-    if(strcmp(gui.visualization.TextBoxStatusText, "Status")) GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RED));
-    GuiTextBox(gui.visualization.recTextBoxStatus, gui.visualization.TextBoxStatusText, CHAR_BUFFER_SIZE, gui.visualization.TextBoxStatusEditMode);
+    if(strcmp(gui.visualization.tBoxStatusTxt, "Status")) GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(RED));
+    GuiTextBox(gui.visualization.recTBoxStatus, gui.visualization.tBoxStatusTxt, CHAR_BUFFER_SIZE, gui.visualization.tBoxStatusEdit);
     GuiSetStyle(TEXTBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
     
     GuiSetStyle(TEXTBOX, TEXT_PADDING, 0);
     GuiSetStyle(DEFAULT, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_CENTER);
     
-    GuiPanel(gui.visualization.recPanelVisualization);
+    GuiPanel(gui.visualization.recPanVis);
 
     if(gui.drawing){
         // Checkboxes
@@ -906,15 +906,15 @@ void drawGuiVisualization(Gui &gui, Data &data){
         GuiSetStyle(CHECKBOX, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(CHECKBOX, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(CHECKBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-        gui.showLabels = GuiCheckBox(gui.visualization.recCheckboxShowLabels, gui.visualization.LabelCheckboxShowLabel, gui.showLabels);
-        gui.showConvexHull = GuiCheckBox(gui.visualization.recCheckboxShowConvexHull, gui.visualization.LabelCheckboxShowConvexHull, gui.showConvexHull);
+        gui.showLabels = GuiCheckBox(gui.visualization.recCBoxShowLabels, gui.visualization.labelCBoxShowLabel, gui.showLabels);
+        gui.showConvexHull = GuiCheckBox(gui.visualization.recCBoxShowCHull, gui.visualization.labelCBoxShowCHull, gui.showConvexHull);
 
         int mode = gui.menu.ddActive[BUTTON_MODE];
         
         // Sliders
         if(mode == MODE_DP_SINGLE){
             if(data.currentDPMechanism == MECH_KRR){
-                GuiLabel(sum2Rec(gui.visualization.recSpinnerEpsilon, -gui.visualization.recSpinnerEpsilon.width-5, 0, 0, 0), "Epsilon (ln):");
+                GuiLabel(sum2Rec(gui.visualization.recSpinEpsilon, -gui.visualization.recSpinEpsilon.width-5, 0, 0, 0), "Epsilon (ln):");
                 
                 GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
                 GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
@@ -924,7 +924,7 @@ void drawGuiVisualization(Gui &gui, Data &data){
                 GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
                 GuiSetStyle(BUTTON, BORDER_WIDTH, 1);
                 GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
-                if(GuiSpinner(gui.visualization.recSpinnerEpsilon, NULL, &(gui.visualization.SpinnerEpsilonValue), 1, 10000, gui.visualization.SpinnerEpsilonEditMode)) gui.visualization.SpinnerEpsilonEditMode = !gui.visualization.SpinnerEpsilonEditMode;
+                if(GuiSpinner(gui.visualization.recSpinEpsilon, NULL, &(gui.visualization.spinEpsilonValue), 1, 10000, gui.visualization.spinEpsilonEdit)) gui.visualization.spinEpsilonEdit = !gui.visualization.spinEpsilonEdit;
                 GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
                 GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
                 GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
@@ -936,16 +936,16 @@ void drawGuiVisualization(Gui &gui, Data &data){
 
                 GuiLabel(sum2Rec(gui.visualization.recSliderDelta, -gui.visualization.recSliderDelta.width+15, 0, 0, 0), "Delta:");
                 GuiSetStyle(SLIDER, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_FOCUSED_TRANSP));
-                gui.visualization.SliderDeltaValue = GuiSlider(gui.visualization.recSliderDelta, NULL, NULL, gui.visualization.SliderDeltaValue, 0, 1);
+                gui.visualization.sliderDeltaValue = GuiSlider(gui.visualization.recSliderDelta, NULL, NULL, gui.visualization.sliderDeltaValue, 0, 1);
                 char buffer[CHAR_BUFFER_SIZE];
-                sprintf(buffer, "%.6f", gui.visualization.SliderDeltaValue);
+                sprintf(buffer, "%.6f", gui.visualization.sliderDeltaValue);
                 GuiLabel(gui.visualization.recSliderDelta, buffer);
             }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
                 GuiLabel(sum2Rec(gui.visualization.recSliderAlpha, -gui.visualization.recSliderAlpha.width+15, 0, 0, 0), "Alpha:");
                 GuiSetStyle(SLIDER, BASE_COLOR_PRESSED, ColorToInt(MENU_BASE_COLOR_FOCUSED_TRANSP));
-                gui.visualization.SliderAlphaValue = GuiSlider(gui.visualization.recSliderAlpha, NULL, NULL, gui.visualization.SliderAlphaValue, 0, 1);
+                gui.visualization.sliderAlphaValue = GuiSlider(gui.visualization.recSliderAlpha, NULL, NULL, gui.visualization.sliderAlphaValue, 0, 1);
                 char buffer[CHAR_BUFFER_SIZE];
-                sprintf(buffer, "%.6f", gui.visualization.SliderAlphaValue);
+                sprintf(buffer, "%.6f", gui.visualization.sliderAlphaValue);
                 GuiLabel(gui.visualization.recSliderAlpha, buffer);
             }
         }
@@ -954,7 +954,7 @@ void drawGuiVisualization(Gui &gui, Data &data){
         DrawTriangle(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BG_BASE_COLOR_LIGHT2);
         DrawTriangleLines(gui.visualization.trianglePoints[0], gui.visualization.trianglePoints[1], gui.visualization.trianglePoints[2], BLACK);
         for(int i = 0; i < NUMBER_SECRETS; i++){
-            DrawTextEx(gui.defaultFontBig, &(gui.visualization.LabelTriangleText[i][0]), (Vector2){gui.visualization.recLabelTriangle[i].x, gui.visualization.recLabelTriangle[i].y}, 32, 0, BLACK);
+            DrawTextEx(gui.defaultFontBig, &(gui.visualization.labelTriangleTxt[i][0]), (Vector2){gui.visualization.recLabelTriangle[i].x, gui.visualization.recLabelTriangle[i].y}, 32, 0, BLACK);
         }
 
         // Circles
@@ -996,7 +996,7 @@ void drawGettingStarted(Gui &gui){
 void drawCirclePrior(Gui &gui, Data &data){
     DrawCircle(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR);
     DrawCircleLines(data.priorCircle.center.x, data.priorCircle.center.y, data.priorCircle.radius, PRIOR_COLOR_LINES);
-    if(gui.showLabels) DrawTextEx(gui.defaultFontBig, gui.visualization.LabelPriorCircleText, (Vector2) {gui.visualization.recLabelPriorCircle.x, gui.visualization.recLabelPriorCircle.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
+    if(gui.showLabels) DrawTextEx(gui.defaultFontBig, gui.visualization.labelPriorCircTxt, (Vector2) {gui.visualization.recLabelPriorCirc.x, gui.visualization.recLabelPriorCirc.y}, gui.defaultFontBig.baseSize, 1.0, BLACK);
 }
 
 void drawCirclesInners(Gui &gui, Data &data, int channel){
@@ -1022,9 +1022,9 @@ void drawCirclesInners(Gui &gui, Data &data, int channel){
         
         if(gui.showLabels){
             if(data.hyper[channel].outer.prob[i] < threshold)
-                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.labelPostTxt[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-25, gui.visualization.recLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.labelPostTxt[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCirc[channel][i].x-25, gui.visualization.recLabelInnersCirc[channel][i].y-25}, 26, 1.0, BLACK);
             else
-                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.labelPostTxt[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-5, gui.visualization.recLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.labelPostTxt[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCirc[channel][i].x-5, gui.visualization.recLabelInnersCirc[channel][i].y-5}, 26, 1.0, BLACK);
         }
 
         if(gui.showConvexHull){
@@ -1429,10 +1429,10 @@ void buttonDraw(Gui &gui, Data &data){
         gui.updateRectangleInnersCircleLabel(CHANNEL_1, data.innersCircles[CHANNEL_1]);
 
         if(data.currentDPMechanism == MECH_KRR){
-            gui.visualization.SpinnerEpsilonValue = stoi(gui.channel.tBoxEpsilonValue);
-            gui.visualization.SliderDeltaValue = stof(gui.channel.tBoxDeltaValue);
+            gui.visualization.spinEpsilonValue = stoi(gui.channel.tBoxEpsilonValue);
+            gui.visualization.sliderDeltaValue = stof(gui.channel.tBoxDeltaValue);
         }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
-            gui.visualization.SliderAlphaValue = stof(gui.channel.tBoxAlphaValue);
+            gui.visualization.sliderAlphaValue = stof(gui.channel.tBoxAlphaValue);
         }
     }else if(mode == MODE_TWO){
         if(!data.ready[FLAG_HYPER_1] || !data.ready[FLAG_HYPER_2]){

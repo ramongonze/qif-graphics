@@ -2,51 +2,51 @@
 
 GuiVisualization::GuiVisualization(){
     // Const text
-    strcpy(GroupBoxVisualizationText, "Visualization");
-    strcpy(ButtonDrawText, "Draw");
+    strcpy(gBoxVisTxt, "Visualization");
+    strcpy(buttonDrawTxt, "Draw");
     
     // Define anchors
-    AnchorVisualization = {370, 35};
+    anchorVis = {370, 35};
     
     // Define controls variable
-    TextBoxStatusEditMode = false;
-    strcpy(TextBoxStatusText, "Status");
-    SpinnerEpsilonEditMode = false;
-    SpinnerEpsilonValue = 2;
-    SliderDeltaValue = 0;
-    SliderAlphaValue = 0.5;
+    tBoxStatusEdit = false;
+    strcpy(tBoxStatusTxt, "Status");
+    spinEpsilonEdit = false;
+    spinEpsilonValue = 2;
+    sliderDeltaValue = 0;
+    sliderAlphaValue = 0.5;
     recomputeInners = false;
 
     // Define controls rectangles
-    recTitle = (Rectangle){AnchorVisualization.x, AnchorVisualization.y, 730, 20};
-    recContent = (Rectangle){AnchorVisualization.x, AnchorVisualization.y + 20, 730, 730};
-    recButtonDraw = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 35, 80, 32};
-    recTextBoxStatus = (Rectangle){AnchorVisualization.x + 105, AnchorVisualization.y + 35, 615, 32};
-    recPanelVisualization = (Rectangle){AnchorVisualization.x + 10, AnchorVisualization.y + 82, 710, 658};
-    recCheckboxShowLabels = (Rectangle){recPanelVisualization.x + 10, recPanelVisualization.y + 10, 20, 20};
-    recCheckboxShowConvexHull = (Rectangle){recCheckboxShowLabels.x, recCheckboxShowLabels.y + 30, 20, 20};
+    recTitle = (Rectangle){anchorVis.x, anchorVis.y, 730, 20};
+    recContent = (Rectangle){anchorVis.x, anchorVis.y + 20, 730, 730};
+    recButtonDraw = (Rectangle){anchorVis.x + 10, anchorVis.y + 35, 80, 32};
+    recTBoxStatus = (Rectangle){anchorVis.x + 105, anchorVis.y + 35, 615, 32};
+    recPanVis = (Rectangle){anchorVis.x + 10, anchorVis.y + 82, 710, 658};
+    recCBoxShowLabels = (Rectangle){recPanVis.x + 10, recPanVis.y + 10, 20, 20};
+    recCBoxShowCHull = (Rectangle){recCBoxShowLabels.x, recCBoxShowLabels.y + 30, 20, 20};
 
     float trianglePaddingX = 40;        // PanelVisualization padding in x axis
-    float triangleSide = recPanelVisualization.width - 2*trianglePaddingX;
+    float triangleSide = recPanVis.width - 2*trianglePaddingX;
     int triangleHeight = (int) sqrt(pow(triangleSide,2)-pow(triangleSide/2,2));
-    int trianglePaddingY = (recPanelVisualization.height - triangleHeight)/2;        // PanelVisualization padding in y axis
+    int trianglePaddingY = (recPanVis.height - triangleHeight)/2;        // PanelVisualization padding in y axis
     
-    trianglePoints[0] = (Vector2) {recPanelVisualization.x + recPanelVisualization.width/2, recPanelVisualization.y + trianglePaddingY};
-    trianglePoints[1] = (Vector2) {recPanelVisualization.x + trianglePaddingX, recPanelVisualization.y + recPanelVisualization.height - trianglePaddingY};
-    trianglePoints[2] = (Vector2) {recPanelVisualization.x + recPanelVisualization.width - trianglePaddingX, recPanelVisualization.y + recPanelVisualization.height - trianglePaddingY};
+    trianglePoints[0] = (Vector2) {recPanVis.x + recPanVis.width/2, recPanVis.y + trianglePaddingY};
+    trianglePoints[1] = (Vector2) {recPanVis.x + trianglePaddingX, recPanVis.y + recPanVis.height - trianglePaddingY};
+    trianglePoints[2] = (Vector2) {recPanVis.x + recPanVis.width - trianglePaddingX, recPanVis.y + recPanVis.height - trianglePaddingY};
 
-    strcpy(LabelPriorCircleText, "\u03C0"); // pi symbol &#x3c0;   \u3c0 
-    strcpy(LabelCheckboxShowLabel, "Show labels");
-    strcpy(LabelCheckboxShowConvexHull, "Show convex hull");
+    strcpy(labelPriorCircTxt, "\u03C0"); // pi symbol &#x3c0;   \u3c0 
+    strcpy(labelCBoxShowLabel, "Show labels");
+    strcpy(labelCBoxShowCHull, "Show convex hull");
 
     for(int i = 0; i < 3; i++){
-        LabelTriangleText[i] = "X" + to_string(i+1);
+        labelTriangleTxt[i] = "X" + to_string(i+1);
     }
     recLabelTriangle[0] = (Rectangle){trianglePoints[0].x - 10, trianglePoints[0].y - 35, 40, 40};
     recLabelTriangle[1] = (Rectangle){trianglePoints[1].x - 35, trianglePoints[1].y -  2, 40, 40};
     recLabelTriangle[2] = (Rectangle){trianglePoints[2].x +  5, trianglePoints[2].y -  2, 40, 40};
     
-    recSpinnerEpsilon = (Rectangle){recPanelVisualization.x + recPanelVisualization.width - 120, recPanelVisualization.y + 10, 100, 20};
-    recSliderDelta = sum2Rec(recSpinnerEpsilon, 0, 30, 0, 0);
-    recSliderAlpha = recSpinnerEpsilon;
+    recSpinEpsilon = (Rectangle){recPanVis.x + recPanVis.width - 120, recPanVis.y + 10, 100, 20};
+    recSliderDelta = sum2Rec(recSpinEpsilon, 0, 30, 0, 0);
+    recSliderAlpha = recSpinEpsilon;
 }
