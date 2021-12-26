@@ -149,7 +149,7 @@ Point pixel2Bary(double x, double y, Vector2 TrianglePoints[3]);
  *
  * Return: A 'Point' structure containing a barycentric coordinate.
  */
-Point bary2Pixel(double x, double y, Vector2 TrianglePoints[3]);
+Point bary2Pixel(double x, double y, Vector2 trianglePoints[3]);
 
 /* Truncate a probability distribution to a given precision.
    The truncation can increase or decrease the probability of the last element.

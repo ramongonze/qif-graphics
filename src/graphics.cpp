@@ -51,26 +51,26 @@ long double euclidianDistance(Point a, Vector2 b){
 	return sqrt((b.x-a.x)*(b.x-a.x) + (b.y-a.y)*(b.y-a.y));
 }
 
-Point pixel2Bary(double x, double y, Vector2 TrianglePoints[3]){
+Point pixel2Bary(double x, double y, Vector2 trianglePoints[3]){
 	Point p;
 
-	long double triangleEdge = TrianglePoints[2].x - TrianglePoints[1].x;
-	long double triangleHeight = TrianglePoints[1].y - TrianglePoints[0].y;
+	long double triangleEdge = trianglePoints[2].x - trianglePoints[1].x;
+	long double triangleHeight = trianglePoints[1].y - trianglePoints[0].y;
 
-	p.x = (x - TrianglePoints[1].x) / triangleEdge;
-	p.y = 1 - ((y - TrianglePoints[0].y) / triangleHeight);
+	p.x = (x - trianglePoints[1].x) / triangleEdge;
+	p.y = 1 - ((y - trianglePoints[0].y) / triangleHeight);
 
 	return p;
 }
 
-Point bary2Pixel(double x, double y, Vector2 TrianglePoints[3]){
+Point bary2Pixel(double x, double y, Vector2 trianglePoints[3]){
 	Point p;
 	
-	long double triangleEdge = TrianglePoints[2].x - TrianglePoints[1].x;
-	long double triangleHeight = TrianglePoints[1].y - TrianglePoints[0].y;
+	long double triangleEdge = trianglePoints[2].x - trianglePoints[1].x;
+	long double triangleHeight = trianglePoints[1].y - trianglePoints[0].y;
 
-	p.x = TrianglePoints[1].x + (x * triangleEdge);
-	p.y = TrianglePoints[1].y - (y * triangleHeight);
+	p.x = trianglePoints[1].x + (x * triangleEdge);
+	p.y = trianglePoints[1].y - (y * triangleHeight);
 
 	return p;
 }
