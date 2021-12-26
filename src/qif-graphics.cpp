@@ -179,8 +179,8 @@ void updateDrawFrame(void* vars_){
     }
     
     if(*mode == MODE_DP_SINGLE){
-        if(data->currentDPMechanism != gui->channel.dropdownBoxDPMechanismActive){
-            data->currentDPMechanism = gui->channel.dropdownBoxDPMechanismActive;
+        if(data->currentDPMechanism != gui->channel.ddDPActive){
+            data->currentDPMechanism = gui->channel.ddDPActive;
             gui->drawing = false;
             gui->visualization.recomputeInners = true;
             data->fileSaved = false;
@@ -191,15 +191,15 @@ void updateDrawFrame(void* vars_){
             if(gui->drawing){
                 char buffer[CHAR_BUFFER_SIZE];
                 sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);            
-                if(gui->visualization.SpinnerEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.TextBoxDeltaValue)){
+                if(gui->visualization.SpinnerEpsilonValue != data->epsilon || strcmp(buffer, gui->channel.tBoxDeltaValue)){
                     if(gui->visualization.SpinnerEpsilonValue <= 0)
                         gui->visualization.SpinnerEpsilonValue = 1;
 
                     // Update epsilon and delta text boxes
                     sprintf(buffer, "%.6f", gui->visualization.SliderDeltaValue);
-                    strcpy(gui->channel.TextBoxDeltaValue, buffer);
+                    strcpy(gui->channel.tBoxDeltaValue, buffer);
                     sprintf(buffer, "%d", gui->visualization.SpinnerEpsilonValue);
-                    strcpy(gui->channel.TextBoxEpsilonValue, buffer);
+                    strcpy(gui->channel.tBoxEpsilonValue, buffer);
 
                     gui->visualization.recomputeInners = true;
                     data->fileSaved = false;
@@ -220,7 +220,7 @@ void updateDrawFrame(void* vars_){
                 if(gui->visualization.SliderAlphaValue != data->alpha){
                     // Update Alpha text box
                     sprintf(buffer, "%.6f", gui->visualization.SliderAlphaValue);
-                    strcpy(gui->channel.TextBoxAlphaValue, buffer);
+                    strcpy(gui->channel.tBoxAlphaValue, buffer);
 
                     gui->visualization.recomputeInners = true;
                     data->fileSaved = false;
@@ -513,9 +513,9 @@ void checkChannelsFlags(Gui &gui, Data &data){
         if(data.compute[FLAG_CHANNEL_1]){
             int ret = NO_ERROR;
             if(data.currentDPMechanism == MECH_KRR)
-                ret = data.checkEpsilonDeltaText(gui.channel.TextBoxEpsilonValue, gui.channel.TextBoxDeltaValue);
+                ret = data.checkEpsilonDeltaText(gui.channel.tBoxEpsilonValue, gui.channel.tBoxDeltaValue);
             else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED)
-                ret = data.checkAlphaText(gui.channel.TextBoxAlphaValue);
+                ret = data.checkAlphaText(gui.channel.tBoxAlphaValue);
 
             if(ret == NO_ERROR){
                 if(data.currentDPMechanism == MECH_KRR){
@@ -553,7 +553,7 @@ void checkChannelsFlags(Gui &gui, Data &data){
                     gui.updateChannelTextBoxes(data.channelObj[CHANNEL_3], CHANNEL_3);
                     data.ready[FLAG_CHANNEL_3] = true;
                     data.compute[FLAG_HYPER_3] = true; // Set hyper to be computed
-                }else if(data.checkChannelText(gui.channel.TextBoxChannelText[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
+                }else if(data.checkChannelText(gui.channel.tBoxChannelTxt[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
                     if(Channel::isChannel(data.channel[channel])){
                         if(channel == CHANNEL_2 && gui.menu.ddActive[BUTTON_MODE] == MODE_REF){
                             data.fakePrior = Distribution(gui.channel.numSecrets[CHANNEL_2], "uniform");
@@ -688,25 +688,25 @@ void drawGuiChannel(Gui &gui, Data &data){
     Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
 
     if(mode == MODE_SINGLE){
-        strcpy(gui.channel.panelChannelText, "Channel C");
+        strcpy(gui.channel.panChannelTxt, "Channel C");
         if(gui.drawing) contentColor = INNERS1_COLOR_D1;
-        drawContentPanel(gui.channel.recTitle, gui.channel.recContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
+        drawContentPanel(gui.channel.recTitle, gui.channel.recContent, gui.channel.panChannelTxt, contentColor, gui.defaultFont);
     }else if(mode == MODE_DP_SINGLE || mode == MODE_DP_POST_PROCESS){
         if(gui.drawing) contentColor = INNERS1_COLOR_D1;
         DrawRectangleRec(gui.channel.recContent, contentColor);
     }else{
-        strcpy(gui.channel.panelChannelText, "");
+        strcpy(gui.channel.panChannelTxt, "");
         if(mode == MODE_TWO){
-            strcpy(gui.channel.LabelChannelTabs[CHANNEL_2], "Ch D");
+            strcpy(gui.channel.labelChannelTabs[CHANNEL_2], "Ch D");
         }else if(mode == MODE_REF){
-            strcpy(gui.channel.LabelChannelTabs[CHANNEL_2], "Ch R");
+            strcpy(gui.channel.labelChannelTabs[CHANNEL_2], "Ch R");
         }
         
         if(gui.drawing){
             if(curChannel == CHANNEL_1) contentColor = INNERS1_COLOR_D1;
             else if(curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode == MODE_TWO)) contentColor = INNERS2_COLOR;
         }
-        drawContentPanel(gui.channel.recTitle, gui.channel.recContent, gui.channel.panelChannelText, contentColor, gui.defaultFont);
+        drawContentPanel(gui.channel.recTitle, gui.channel.recContent, gui.channel.panChannelTxt, contentColor, gui.defaultFont);
 
         for(int i = 0; i < NUMBER_CHANNELS - (mode == MODE_TWO ? 1 : 0); i++)
             drawTab(gui, i, curChannel == i);
@@ -716,7 +716,7 @@ void drawGuiChannel(Gui &gui, Data &data){
 
     if(mode != MODE_DP_SINGLE && curChannel != CHANNEL_3){
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
-        if(GuiButton(gui.channel.recButtonRandom, gui.channel.buttonRandomText)) buttonRandomChannel(gui, data); 
+        if(GuiButton(gui.channel.recButtonRand, gui.channel.buttonRandTxt)) buttonRandomChannel(gui, data); 
         GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     }
 
@@ -739,7 +739,7 @@ void drawGuiChannel(Gui &gui, Data &data){
             GuiSetStyle(VALUEBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
         }
 
-        if(GuiSpinner(gui.channel.recSpinner, gui.channel.LabelOutputsText, &(gui.channel.SpinnerChannelValue[curChannel]), 0, 50, gui.channel.SpinnerChannelEditMode)) gui.channel.SpinnerChannelEditMode = !gui.channel.SpinnerChannelEditMode;
+        if(GuiSpinner(gui.channel.recSpinner, gui.channel.labelOutTxt, &(gui.channel.spinChannelValue[curChannel]), 0, 50, gui.channel.spinChannelEdit)) gui.channel.spinChannelEdit = !gui.channel.spinChannelEdit;
         GuiSetStyle(BUTTON, BORDER_WIDTH, 0);
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
         GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
@@ -761,14 +761,14 @@ void drawGuiChannel(Gui &gui, Data &data){
         }
         
         if(data.currentDPMechanism == MECH_KRR){
-            GuiLabel(gui.channel.recTextBoxEpsilon, gui.channel.LabelEpsilonText);
-            GuiLabel(gui.channel.recTextBoxDelta, gui.channel.LabelDeltaText);        
-            if(GuiTextBox(sum2Rec(gui.channel.recTextBoxEpsilon, 80, 0, 0, 0), gui.channel.TextBoxEpsilonValue, gui.defaultFont.baseSize, gui.channel.TextBoxEpsilonEditMode)) gui.channel.TextBoxEpsilonEditMode = !gui.channel.TextBoxEpsilonEditMode;
-            if(GuiTextBox(sum2Rec(gui.channel.recTextBoxDelta, 80, 0, 0, 0), gui.channel.TextBoxDeltaValue, gui.defaultFont.baseSize, gui.channel.TextBoxDeltaEditMode)) gui.channel.TextBoxDeltaEditMode = !gui.channel.TextBoxDeltaEditMode;
+            GuiLabel(gui.channel.recTBoxEpsilon, gui.channel.labelEpsilonTxt);
+            GuiLabel(gui.channel.recTBoxDelta, gui.channel.labelDeltaTxt);        
+            if(GuiTextBox(sum2Rec(gui.channel.recTBoxEpsilon, 80, 0, 0, 0), gui.channel.tBoxEpsilonValue, gui.defaultFont.baseSize, gui.channel.tBoxEpsilonEdit)) gui.channel.tBoxEpsilonEdit = !gui.channel.tBoxEpsilonEdit;
+            if(GuiTextBox(sum2Rec(gui.channel.recTBoxDelta, 80, 0, 0, 0), gui.channel.tBoxDeltaValue, gui.defaultFont.baseSize, gui.channel.tBoxDeltaEdit)) gui.channel.tBoxDeltaEdit = !gui.channel.tBoxDeltaEdit;
 
         }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
-            GuiLabel(gui.channel.recTextBoxAlpha, gui.channel.LabelAlphaText);
-            if(GuiTextBox(sum2Rec(gui.channel.recTextBoxAlpha, 80, 0, 0, 0), gui.channel.TextBoxAlphaValue, gui.defaultFont.baseSize, gui.channel.TextBoxAlphaEditMode)) gui.channel.TextBoxAlphaEditMode = !gui.channel.TextBoxAlphaEditMode;
+            GuiLabel(gui.channel.recTBoxAlpha, gui.channel.labelAlphaTxt);
+            if(GuiTextBox(sum2Rec(gui.channel.recTBoxAlpha, 80, 0, 0, 0), gui.channel.tBoxAlphaValue, gui.defaultFont.baseSize, gui.channel.tBoxAlphaEdit)) gui.channel.tBoxAlphaEdit = !gui.channel.tBoxAlphaEdit;
         }
 
         if(gui.drawing){
@@ -783,27 +783,27 @@ void drawGuiChannel(Gui &gui, Data &data){
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScroll = GuiScrollPanel(
-        sum2Rec(gui.channel.recScrollPanel, 0, 0, -gui.channel.ScrollPanelBoundsOffset.x, -gui.channel.ScrollPanelBoundsOffset.y),
-        (Rectangle){gui.channel.recScrollPanel.x, gui.channel.recScrollPanel.y, gui.channel.ScrollPanelContent.x, gui.channel.ScrollPanelContent.y},
-        &(gui.channel.ScrollPanelScrollOffset)
+        sum2Rec(gui.channel.recScrPan, 0, 0, -gui.channel.scrPanBOffset.x, -gui.channel.scrPanBOffset.y),
+        (Rectangle){gui.channel.recScrPan.x, gui.channel.recScrPan.y, gui.channel.scrPanContent.x, gui.channel.scrPanContent.y},
+        &(gui.channel.scrPanOffset)
     );
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScroll.x, viewScroll.y, viewScroll.width, viewScroll.height);
         if(mode != MODE_DP_SINGLE)
-            GuiLabel(sum2Rec(gui.channel.recLabelOutputs, gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelOutputsText);
+            GuiLabel(sum2Rec(gui.channel.recLabelOut, gui.channel.scrPanOffset.x, gui.channel.scrPanOffset.y, 0, 0), gui.channel.labelOutTxt);
 
         // Secrets
         for(int i = 0; i < gui.channel.numSecrets[curChannel]; i++){
             if(mode == MODE_SINGLE || mode == MODE_TWO || curChannel == CHANNEL_1 || curChannel == CHANNEL_3){
-                GuiLabel(sum2Rec(gui.channel.recLabelX[i], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelChannelXText[i].c_str());
+                GuiLabel(sum2Rec(gui.channel.recLabelX[i], gui.channel.scrPanOffset.x, gui.channel.scrPanOffset.y, 0, 0), gui.channel.labelChannelXTxt[i].c_str());
             }else{
-                GuiLabel(sum2Rec(gui.channel.recLabelX[i], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelChannelYText[i].c_str());
+                GuiLabel(sum2Rec(gui.channel.recLabelX[i], gui.channel.scrPanOffset.x, gui.channel.scrPanOffset.y, 0, 0), gui.channel.labelChannelYTxt[i].c_str());
             }
 
             for(int j = 0; j < gui.channel.numOutputs[curChannel]; j++){
                 if(curChannel == CHANNEL_3 || mode == MODE_DP_SINGLE) GuiLock();
-                if(GuiTextBox(sum2Rec(gui.channel.recTextBoxChannel[i][j], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.TextBoxChannelText[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.TextBoxChannelEditMode[i][j])) gui.channel.TextBoxChannelEditMode[i][j] = !gui.channel.TextBoxChannelEditMode[i][j];
+                if(GuiTextBox(sum2Rec(gui.channel.recTBoxChannel[i][j], gui.channel.scrPanOffset.x, gui.channel.scrPanOffset.y, 0, 0), gui.channel.tBoxChannelTxt[curChannel][i][j], CHAR_BUFFER_SIZE, gui.channel.tBoxChannelEdit[i][j])) gui.channel.tBoxChannelEdit[i][j] = !gui.channel.tBoxChannelEdit[i][j];
                 if(curChannel == CHANNEL_3 || mode == MODE_DP_SINGLE) GuiUnlock();
             }
         }
@@ -811,19 +811,19 @@ void drawGuiChannel(Gui &gui, Data &data){
         // Outputs labels
         if(curChannel == CHANNEL_1 || curChannel == CHANNEL_3){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
-                GuiLabel(sum2Rec(gui.channel.recLabelY[i], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelChannelYText[i].c_str());
+                GuiLabel(sum2Rec(gui.channel.recLabelY[i], gui.channel.scrPanOffset.x, gui.channel.scrPanOffset.y, 0, 0), gui.channel.labelChannelYTxt[i].c_str());
         }else if(curChannel == CHANNEL_2 && mode == MODE_TWO){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
-                GuiLabel(sum2Rec(gui.channel.recLabelY[i], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelChannelYPText[i].c_str());
+                GuiLabel(sum2Rec(gui.channel.recLabelY[i], gui.channel.scrPanOffset.x, gui.channel.scrPanOffset.y, 0, 0), gui.channel.labelChannelYPTxt[i].c_str());
         }else if(curChannel == CHANNEL_2 && mode == MODE_REF){
             for(int i = 0; i < gui.channel.numOutputs[curChannel]; i++)
-                GuiLabel(sum2Rec(gui.channel.recLabelY[i], gui.channel.ScrollPanelScrollOffset.x, gui.channel.ScrollPanelScrollOffset.y, 0, 0), gui.channel.LabelChannelYText[i].c_str());
+                GuiLabel(sum2Rec(gui.channel.recLabelY[i], gui.channel.scrPanOffset.x, gui.channel.scrPanOffset.y, 0, 0), gui.channel.labelChannelYTxt[i].c_str());
         }
     EndScissorMode();
 
     // DP mechanisms
     if(mode == MODE_DP_SINGLE || mode == MODE_DP_POST_PROCESS){
-        strcpy(gui.channel.panelChannelText, "Channel C");
+        strcpy(gui.channel.panChannelTxt, "Channel C");
         if(gui.drawing) contentColor = INNERS1_COLOR_D1;
         drawContentDropBox(gui, gui.channel.recTitle, gui.channel.recContent, contentColor, gui.defaultFont);
     }
@@ -1077,8 +1077,8 @@ void drawContentDropBox(Gui &gui, Rectangle layoutTitle, Rectangle layoutContent
     GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(DEFAULT, BASE_COLOR_DISABLED, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(DROPDOWNBOX, TEXT_ALIGNMENT, GUI_TEXT_ALIGN_LEFT);
-    if(GuiDropdownBox(layoutTitle, layoutTitle.width, gui.channel.dropdownBoxDPMechanismText, &(gui.channel.dropdownBoxDPMechanismActive), gui.channel.dropdownBoxDPMechanismEditMode)) gui.channel.dropdownBoxDPMechanismEditMode = !gui.channel.dropdownBoxDPMechanismEditMode;
-    gui.channel.updateDropwdownDPMechanism();
+    if(GuiDropdownBox(layoutTitle, layoutTitle.width, gui.channel.ddDPTxt, &(gui.channel.ddDPActive), gui.channel.ddDPEdit)) gui.channel.ddDPEdit = !gui.channel.ddDPEdit;
+    gui.channel.updateDDDP();
     initStyle();
 }
 
@@ -1179,7 +1179,7 @@ void drawTab(Gui &gui, int channel, bool active){
     
     if(active) GuiSetState(GUI_STATE_PRESSED);
 
-    if(GuiButton(gui.channel.recTabs[channel], gui.channel.LabelChannelTabs[channel])) buttonsTabs(gui, channel);
+    if(GuiButton(gui.channel.recTabs[channel], gui.channel.labelChannelTabs[channel])) buttonsTabs(gui, channel);
     GuiSetState(oldState);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
@@ -1196,15 +1196,15 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
 
     if(option == BUTTON_FILE_OPTION_OPEN){
         gui.drawing = false;
-        int retRead = gui.menu.readQIFFile(gui.prior.TextBoxPriorText, gui.channel.TextBoxChannelText, gui.channel.numSecrets, gui.channel.numOutputs);
+        int retRead = gui.menu.readQIFFile(gui.prior.TextBoxPriorText, gui.channel.tBoxChannelTxt, gui.channel.numSecrets, gui.channel.numOutputs);
 
         if(retRead == INVALID_QIF_FILE){
             // Open a dialog error
             system("zenity --error --no-wrap --text=\"Invalid QIF graphics file\"");
         }else{
             // Update channels spinners
-            gui.channel.SpinnerChannelValue[CHANNEL_1] = gui.channel.numOutputs[CHANNEL_1];
-            gui.channel.SpinnerChannelValue[CHANNEL_2] = gui.channel.numOutputs[CHANNEL_2];
+            gui.channel.spinChannelValue[CHANNEL_1] = gui.channel.numOutputs[CHANNEL_1];
+            gui.channel.spinChannelValue[CHANNEL_2] = gui.channel.numOutputs[CHANNEL_2];
             
             // Reset prior
             data.ready[FLAG_PRIOR] = false;
@@ -1227,7 +1227,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
     }else if(option == BUTTON_FILE_OPTION_SAVE){
         gui.menu.saveQIFFile(
             gui.prior.TextBoxPriorText,
-            gui.channel.TextBoxChannelText,
+            gui.channel.tBoxChannelTxt,
             gui.channel.numSecrets,
             gui.channel.numOutputs,
             gui.menu.ddActive[BUTTON_MODE],
@@ -1237,7 +1237,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
     }else if(option == BUTTON_FILE_OPTION_SAVEAS){
         gui.menu.saveQIFFile(
             gui.prior.TextBoxPriorText,
-            gui.channel.TextBoxChannelText,
+            gui.channel.tBoxChannelTxt,
             gui.channel.numSecrets,
             gui.channel.numOutputs,
             gui.menu.ddActive[BUTTON_MODE],
@@ -1256,7 +1256,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
                 // Yes
                 gui.menu.saveQIFFile(
                     gui.prior.TextBoxPriorText,
-                    gui.channel.TextBoxChannelText,
+                    gui.channel.tBoxChannelTxt,
                     gui.channel.numSecrets,
                     gui.channel.numOutputs,
                     gui.menu.ddActive[BUTTON_MODE],
@@ -1293,12 +1293,12 @@ void buttonMode(Gui &gui, Data &data, int* prevMode){
         data.resetAllExceptComputeChannel1();
 
         if(curMode == MODE_SINGLE || curMode == MODE_DP_SINGLE){
-            gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x, gui.channel.AnchorChannel.y, 350, 20};
+            gui.channel.recTitle = (Rectangle){gui.channel.anchorChannel.x, gui.channel.anchorChannel.y, 350, 20};
         }else if(curMode == MODE_TWO){
-            gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x+112, gui.channel.AnchorChannel.y, 350-112, 20};
+            gui.channel.recTitle = (Rectangle){gui.channel.anchorChannel.x+112, gui.channel.anchorChannel.y, 350-112, 20};
             data.compute[FLAG_CHANNEL_2] = true;
         }else if(curMode == MODE_REF){
-            gui.channel.recTitle = (Rectangle){gui.channel.AnchorChannel.x+168, gui.channel.AnchorChannel.y, 350-168, 20};
+            gui.channel.recTitle = (Rectangle){gui.channel.anchorChannel.x+168, gui.channel.anchorChannel.y, 350-168, 20};
         }
     }
 
@@ -1320,7 +1320,7 @@ void buttonExamples(Gui &gui, Data &data){
 
     char newChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
-    gui.channel.SpinnerChannelValue[curChannel] = (example == BUTTON_EXAMPLES_OPTION_CH_0) ? gui.channel.numSecrets[curChannel] : 1;    
+    gui.channel.spinChannelValue[curChannel] = (example == BUTTON_EXAMPLES_OPTION_CH_0) ? gui.channel.numSecrets[curChannel] : 1;    
     gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.ddActive[BUTTON_MODE]);
 
     if(example == BUTTON_EXAMPLES_OPTION_CH_0){
@@ -1340,7 +1340,7 @@ void buttonExamples(Gui &gui, Data &data){
         }
     }
 
-    GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[curChannel], gui.channel.numSecrets[curChannel], gui.channel.numOutputs[curChannel]);
+    GuiChannel::copyChannelText(newChannel, gui.channel.tBoxChannelTxt[curChannel], gui.channel.numSecrets[curChannel], gui.channel.numOutputs[curChannel]);
     if(gui.menu.ddActive[BUTTON_MODE] == MODE_REF){
         data.resetAllExceptComputeChannel1();
     }else{
@@ -1429,10 +1429,10 @@ void buttonDraw(Gui &gui, Data &data){
         gui.updateRectangleInnersCircleLabel(CHANNEL_1, data.innersCircles[CHANNEL_1]);
 
         if(data.currentDPMechanism == MECH_KRR){
-            gui.visualization.SpinnerEpsilonValue = stoi(gui.channel.TextBoxEpsilonValue);
-            gui.visualization.SliderDeltaValue = stof(gui.channel.TextBoxDeltaValue);
+            gui.visualization.SpinnerEpsilonValue = stoi(gui.channel.tBoxEpsilonValue);
+            gui.visualization.SliderDeltaValue = stof(gui.channel.tBoxDeltaValue);
         }else if(data.currentDPMechanism == MECH_GEOMETRIC_TRUNCATED){
-            gui.visualization.SliderAlphaValue = stof(gui.channel.TextBoxAlphaValue);
+            gui.visualization.SliderAlphaValue = stof(gui.channel.tBoxAlphaValue);
         }
     }else if(mode == MODE_TWO){
         if(!data.ready[FLAG_HYPER_1] || !data.ready[FLAG_HYPER_2]){

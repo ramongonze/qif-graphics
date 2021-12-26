@@ -25,56 +25,56 @@ public:
     int numOutputs[NUMBER_CHANNELS];
 
     // Text
-    char panelChannelText[CHAR_BUFFER_SIZE];
-    char LabelOutputsText[CHAR_BUFFER_SIZE];
-    char LabelEpsilonText[CHAR_BUFFER_SIZE];
-    char LabelDeltaText[CHAR_BUFFER_SIZE];
-    char LabelAlphaText[CHAR_BUFFER_SIZE];
-    char buttonRandomText[CHAR_BUFFER_SIZE];
-    string LabelChannelXText[MAX_CHANNEL_OUTPUTS];
-    string LabelChannelYText[MAX_CHANNEL_OUTPUTS];
-    string LabelChannelYPText[MAX_CHANNEL_OUTPUTS];
-    string LabelChannelZText[MAX_CHANNEL_OUTPUTS];
-    char LabelChannelTabs[NUMBER_CHANNELS][CHAR_BUFFER_SIZE];
+    char panChannelTxt[CHAR_BUFFER_SIZE];
+    char labelOutTxt[CHAR_BUFFER_SIZE];
+    char labelEpsilonTxt[CHAR_BUFFER_SIZE];
+    char labelDeltaTxt[CHAR_BUFFER_SIZE];
+    char labelAlphaTxt[CHAR_BUFFER_SIZE];
+    char buttonRandTxt[CHAR_BUFFER_SIZE];
+    string labelChannelXTxt[MAX_CHANNEL_OUTPUTS];
+    string labelChannelYTxt[MAX_CHANNEL_OUTPUTS];
+    string labelChannelYPTxt[MAX_CHANNEL_OUTPUTS];
+    string labelChannelZTxt[MAX_CHANNEL_OUTPUTS];
+    char labelChannelTabs[NUMBER_CHANNELS][CHAR_BUFFER_SIZE];
 
     // Define anchors
-    Vector2 AnchorChannel;
+    Vector2 anchorChannel;
 
     // Define controls variables
-    bool SpinnerChannelEditMode;
-    int SpinnerChannelValue[NUMBER_CHANNELS];
-    Vector2 ScrollPanelScrollOffset;
-    Vector2 ScrollPanelBoundsOffset;
-    Vector2 ScrollPanelContent;
-    bool TextBoxEpsilonEditMode;
-    char TextBoxEpsilonValue[CHAR_BUFFER_SIZE];
-    bool TextBoxDeltaEditMode;
-    char TextBoxDeltaValue[CHAR_BUFFER_SIZE];
-    bool TextBoxAlphaEditMode;
-    char TextBoxAlphaValue[CHAR_BUFFER_SIZE];
-    bool TextBoxChannelEditMode[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
-    char TextBoxChannelText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
-    int dropdownBoxDPMechanismActive;
-	bool dropdownBoxDPMechanismEditMode;
-	char dropdownBoxDPMechanismText[CHAR_BUFFER_SIZE];
-    char dropdownBoxDPMechanismOptions[NUM_MECH+1][CHAR_BUFFER_SIZE];
+    bool spinChannelEdit;
+    int spinChannelValue[NUMBER_CHANNELS];
+    Vector2 scrPanOffset;
+    Vector2 scrPanBOffset;
+    Vector2 scrPanContent;
+    bool tBoxEpsilonEdit;
+    char tBoxEpsilonValue[CHAR_BUFFER_SIZE];
+    bool tBoxDeltaEdit;
+    char tBoxDeltaValue[CHAR_BUFFER_SIZE];
+    bool tBoxAlphaEdit;
+    char tBoxAlphaValue[CHAR_BUFFER_SIZE];
+    bool tBoxChannelEdit[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
+    char tBoxChannelTxt[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    int ddDPActive;
+	bool ddDPEdit;
+	char ddDPTxt[CHAR_BUFFER_SIZE];
+    char ddDPOptions[NUM_MECH+1][CHAR_BUFFER_SIZE];
 
     // Define control rectangles
     Rectangle recTitle;
     Rectangle recContent;
     Rectangle recSpinner;
-    Rectangle recTextBoxEpsilon;
-    Rectangle recTextBoxDelta;
-    Rectangle recTextBoxAlpha;
-    Rectangle recScrollPanel;
-    Rectangle recLabelOutputs;
-    Rectangle recButtonRandom;
+    Rectangle recTBoxEpsilon;
+    Rectangle recTBoxDelta;
+    Rectangle recTBoxAlpha;
+    Rectangle recScrPan;
+    Rectangle recLabelOut;
+    Rectangle recButtonRand;
     Rectangle recLabelX[MAX_CHANNEL_OUTPUTS];
     Rectangle recLabelY[MAX_CHANNEL_OUTPUTS];
     Rectangle recTabs[NUMBER_CHANNELS];
     
     // Important: The matrix is indexed by columns x rows
-    Rectangle recTextBoxChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
+    Rectangle recTBoxChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS];
 
     //------------------------------------------------------------------------------------
     // Methods
@@ -119,7 +119,7 @@ public:
     // Set all values for the given channel to zero
     void resetChannel(int channel);
 
-    void updateDropwdownDPMechanism();
+    void updateDDDP();
 };
 
 #endif

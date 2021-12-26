@@ -46,18 +46,18 @@ bool Gui::checkPriorTextBoxPressed(){
 bool Gui::checkChannelTextBoxPressed(){
     for(int i = 0; i < channel.numSecrets[channel.curChannel]; i++)
         for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
-            if(channel.TextBoxChannelEditMode[i][j] == true)
+            if(channel.tBoxChannelEdit[i][j] == true)
                 return true;
 
     return false;
 }
 
 bool Gui::checkEpsilonDeltaTextBoxPressed(){
-    return channel.TextBoxEpsilonEditMode || channel.TextBoxDeltaEditMode;
+    return channel.tBoxEpsilonEdit || channel.tBoxDeltaEdit;
 }
 
 bool Gui::checkAlphaTextBoxPressed(){
-    return channel.TextBoxAlphaEditMode;
+    return channel.tBoxAlphaEdit;
 }
 
 void Gui::moveAmongPriorTextBoxes(){
@@ -97,36 +97,36 @@ void Gui::moveAmongChannelTextBoxes(){
 
     for(int i = 0; i < nRows; i++){
         for(int j = 0; j < nColumns; j++){
-            if(channel.TextBoxChannelEditMode[i][j] == true){
-                channel.TextBoxChannelEditMode[i][j] = false;
+            if(channel.tBoxChannelEdit[i][j] == true){
+                channel.tBoxChannelEdit[i][j] = false;
                 if(IsKeyPressed(KEY_TAB)){
                     if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
                         if(j > 0){
-                            channel.TextBoxChannelEditMode[i][j-1] = true;
+                            channel.tBoxChannelEdit[i][j-1] = true;
                         }else if(i > 0){
-                            channel.TextBoxChannelEditMode[i-1][nColumns-1] = true;
+                            channel.tBoxChannelEdit[i-1][nColumns-1] = true;
                         }else{
-                            channel.TextBoxChannelEditMode[nRows-1][nColumns-1] = true;
+                            channel.tBoxChannelEdit[nRows-1][nColumns-1] = true;
                         }
                     }else{
                         if(j < nColumns-1){
-                            channel.TextBoxChannelEditMode[i][j+1] = true;
+                            channel.tBoxChannelEdit[i][j+1] = true;
                         }else if(i < nRows-1){
-                            channel.TextBoxChannelEditMode[i+1][0] = true;
+                            channel.tBoxChannelEdit[i+1][0] = true;
                         }else{
-                            channel.TextBoxChannelEditMode[0][0] = true;
+                            channel.tBoxChannelEdit[0][0] = true;
                         }
                     }
                 }else if(IsKeyPressed(KEY_UP) && i > 0){
-                    channel.TextBoxChannelEditMode[i-1][j] = true;
+                    channel.tBoxChannelEdit[i-1][j] = true;
                 }else if(IsKeyPressed(KEY_DOWN) && i < nRows-1){
-                    channel.TextBoxChannelEditMode[i+1][j] = true;   
+                    channel.tBoxChannelEdit[i+1][j] = true;   
                 }else if(IsKeyPressed(KEY_LEFT) && j > 0){
-                    channel.TextBoxChannelEditMode[i][j-1] = true;
+                    channel.tBoxChannelEdit[i][j-1] = true;
                 }else if(IsKeyPressed(KEY_RIGHT) && j < nColumns-1){
-                    channel.TextBoxChannelEditMode[i][j+1] = true;
+                    channel.tBoxChannelEdit[i][j+1] = true;
                 }else{
-                    channel.TextBoxChannelEditMode[i][j] = true;
+                    channel.tBoxChannelEdit[i][j] = true;
                 }
                 return;
             }
@@ -150,7 +150,7 @@ void Gui::updateChannelTextBoxes(Channel &channel_, int channelIdx){
         Distribution rowDist = Distribution(row);
         vector<string> truncDist = getStrTruncatedDist(rowDist, PROB_PRECISION);
         for(int j = 0; j < channel_.num_out; j++){
-            strcpy(channel.TextBoxChannelText[channelIdx][i][j], truncDist[j].c_str());
+            strcpy(channel.tBoxChannelTxt[channelIdx][i][j], truncDist[j].c_str());
         }
     }
 }
@@ -211,6 +211,6 @@ void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX
 
 void Gui::checkMouseHover(Vector2 mousePosition){
     helpMessagesActive[HELP_MSG_BUTTON_PRIOR] = CheckCollisionPointRec(mousePosition, prior.recButtonRandom);
-    helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = (channel.curChannel != CHANNEL_3 && CheckCollisionPointRec(mousePosition, channel.recButtonRandom));
+    helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = (channel.curChannel != CHANNEL_3 && CheckCollisionPointRec(mousePosition, channel.recButtonRand));
     helpMessagesActive[HELP_MSG_BUTTON_DRAW] = CheckCollisionPointRec(mousePosition, visualization.recButtonDraw);
 }
