@@ -19,36 +19,36 @@ public:
     //------------------------------------------------------------------------------------
 
     // Data
-    int numPosteriors[NUMBER_CHANNELS];
+    int numPost[NUMBER_CHANNELS];
 
     // Const text
-    char GroupBoxPosteriorsText[CHAR_BUFFER_SIZE];
-    char LabelOuterText[CHAR_BUFFER_SIZE];
-    string LabelPosteriorsText[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
-    string LabelPosteriorsXText[NUMBER_SECRETS];
+    char gBoxPostTxt[CHAR_BUFFER_SIZE];
+    char labelOuterTxt[CHAR_BUFFER_SIZE];
+    string labelPostTxt[NUMBER_CHANNELS][MAX_CHANNEL_OUTPUTS];
+    string labelPostXTxt[NUMBER_SECRETS];
 
     // Define anchors
-    Vector2 AnchorPosterior;
+    Vector2 anchorPost;
 
     // Define controls variable
-    Vector2 ScrollPanelPosteriorsScrollOffset;
-    Vector2 ScrollPanelPosteriorsBoundsOffset;
-    Vector2 ScrollPanelPosteriorsContent;
-    bool TextBoxOuterEditMode[MAX_CHANNEL_OUTPUTS];
-    char TextBoxOuterText[MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    Vector2 scrPanPostOffset;
+    Vector2 scrPanPostBOffset;
+    Vector2 scrPanPostContent;
+    bool tBoxOuterEdit[MAX_CHANNEL_OUTPUTS];
+    char tBoxOuterTxt[MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
-    bool TextBoxInnersEditMode[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
-    char TextBoxInnersText[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
+    bool tBoxInnersEdit[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
+    char tBoxInnersTxt[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
     // Define controls rectangles
     Rectangle recTitle;
     Rectangle recContent;
-    Rectangle recScrollPanel;
+    Rectangle recScrPan;
     Rectangle recLabelOuter;
-    Rectangle recLabelPosteriors[MAX_CHANNEL_OUTPUTS];
-    Rectangle recTextBoxOuter[MAX_CHANNEL_OUTPUTS];
+    Rectangle recLabelPost[MAX_CHANNEL_OUTPUTS];
+    Rectangle recTBoxOuter[MAX_CHANNEL_OUTPUTS];
     Rectangle recLabelX[NUMBER_SECRETS];
-    Rectangle recTextBoxInners[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
+    Rectangle recTBoxInners[NUMBER_SECRETS][MAX_CHANNEL_OUTPUTS];
 
     //------------------------------------------------------------------------------------
     // Methods

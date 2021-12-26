@@ -159,9 +159,9 @@ void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
     // If hyper is not ready, fill textboxes with zeros
     if(!ready){
         for(int i = 0; i < NUMBER_SECRETS; i++){
-            strcpy(posteriors.TextBoxOuterText[i], "0");    
+            strcpy(posteriors.tBoxOuterTxt[i], "0");    
             for(int j = 0; j < NUMBER_SECRETS; j++){
-                strcpy(posteriors.TextBoxInnersText[j][i], "0");
+                strcpy(posteriors.tBoxInnersTxt[j][i], "0");
             }
         }
         return;
@@ -171,7 +171,7 @@ void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
     // Outer
     vector<string> truncDist = getStrTruncatedDist(hyper.outer, PROB_PRECISION);
     for(int i = 0; i < hyper.num_post; i++){
-        strcpy(posteriors.TextBoxOuterText[i], truncDist[i].c_str());
+        strcpy(posteriors.tBoxOuterTxt[i], truncDist[i].c_str());
     }
 
     // Inners
@@ -183,7 +183,7 @@ void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
         Distribution innerDist = Distribution(inner);
         vector<string> truncDist = getStrTruncatedDist(innerDist, PROB_PRECISION);
         for(int j = 0; j < NUMBER_SECRETS; j++){
-            strcpy(posteriors.TextBoxInnersText[j][i], truncDist[j].c_str());
+            strcpy(posteriors.tBoxInnersTxt[j][i], truncDist[j].c_str());
         }
     }
 }
@@ -199,7 +199,7 @@ void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
 
 void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
     // Update circle labels and rectangles
-    for(int i = 0; i < posteriors.numPosteriors[channel]; i++){
+    for(int i = 0; i < posteriors.numPost[channel]; i++){
         visualization.recLabelInnersCircles[channel][i] = (Rectangle){
             (float) innersCircles[i].center.x - 8,
             (float) innersCircles[i].center.y - 11,

@@ -278,7 +278,7 @@ void updateDrawFrame(void* vars_){
             data->fileSaved = false;
             data->updateHyper(gui->visualization.trianglePoints, *mode);
             for(int i = 0; i < NUMBER_CHANNELS; i++)
-                gui->posteriors.numPosteriors[i] = data->hyper[i].num_post;
+                gui->posteriors.numPost[i] = data->hyper[i].num_post;
             data->animation = UPDATE_CIRCLES_BY_MOUSE;
             
             data->buildPriorCircle(gui->visualization.trianglePoints);
@@ -617,7 +617,7 @@ void checkHypersFlags(Gui &gui, Data &data){
 
         if(data.compute[FLAG_HYPER_1+channel]){
             data.hyper[channel] = Hyper(data.channelObj[channel]);
-            gui.posteriors.numPosteriors[channel] = data.hyper[channel].num_post;
+            gui.posteriors.numPost[channel] = data.hyper[channel].num_post;
             data.ready[FLAG_HYPER_1+channel] = true;
             data.compute[FLAG_HYPER_1+channel] = false;
             
@@ -834,15 +834,15 @@ void drawGuiPosteriors(Gui &gui, Data &data){
     int curChannel = gui.channel.curChannel;
 
     if(curChannel == CHANNEL_1){
-        strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AC]");
+        strcpy(gui.posteriors.gBoxPostTxt, "Hyper-distribution [\u03C0\u203AC]");
     }else if(curChannel == CHANNEL_2){
         if(mode == MODE_REF){
-            strcpy(gui.posteriors.GroupBoxPosteriorsText, "");
+            strcpy(gui.posteriors.gBoxPostTxt, "");
         }else{
-            strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AD]");
+            strcpy(gui.posteriors.gBoxPostTxt, "Hyper-distribution [\u03C0\u203AD]");
         }
     }else if(curChannel == CHANNEL_3){
-        strcpy(gui.posteriors.GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203ACR]");
+        strcpy(gui.posteriors.gBoxPostTxt, "Hyper-distribution [\u03C0\u203ACR]");
     }
     
     Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
@@ -850,30 +850,30 @@ void drawGuiPosteriors(Gui &gui, Data &data){
         if(curChannel == CHANNEL_1) contentColor = INNERS1_COLOR_D1;
         else if(curChannel == CHANNEL_3 || (curChannel == CHANNEL_2 && mode == MODE_TWO)) contentColor = INNERS2_COLOR;
     }
-    drawContentPanel(gui.posteriors.recTitle, gui.posteriors.recContent, gui.posteriors.GroupBoxPosteriorsText, contentColor, gui.defaultFont);
+    drawContentPanel(gui.posteriors.recTitle, gui.posteriors.recContent, gui.posteriors.gBoxPostTxt, contentColor, gui.defaultFont);
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_FOCUSED));
     Rectangle viewScrollPosteriors = GuiScrollPanel(
-        sum2Rec(gui.posteriors.recScrollPanel, 0, 0, - gui.posteriors.ScrollPanelPosteriorsBoundsOffset.x, -gui.posteriors.ScrollPanelPosteriorsBoundsOffset.y),
-        (Rectangle){gui.posteriors.recScrollPanel.x, gui.posteriors.recScrollPanel.y, gui.posteriors.ScrollPanelPosteriorsContent.x, gui.posteriors.ScrollPanelPosteriorsContent.y},
-        &(gui.posteriors.ScrollPanelPosteriorsScrollOffset)
+        sum2Rec(gui.posteriors.recScrPan, 0, 0, - gui.posteriors.scrPanPostBOffset.x, -gui.posteriors.scrPanPostBOffset.y),
+        (Rectangle){gui.posteriors.recScrPan.x, gui.posteriors.recScrPan.y, gui.posteriors.scrPanPostContent.x, gui.posteriors.scrPanPostContent.y},
+        &(gui.posteriors.scrPanPostOffset)
     );
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
 
     BeginScissorMode(viewScrollPosteriors.x, viewScrollPosteriors.y, viewScrollPosteriors.width, viewScrollPosteriors.height);
         if(mode != MODE_REF || curChannel != CHANNEL_2){
             GuiSetStyle(DEFAULT, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
-            GuiLabel(sum2Rec(gui.posteriors.recLabelOuter, gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, 0, 0), gui.posteriors.LabelOuterText);
+            GuiLabel(sum2Rec(gui.posteriors.recLabelOuter, gui.posteriors.scrPanPostOffset.x, gui.posteriors.scrPanPostOffset.y, 0, 0), gui.posteriors.labelOuterTxt);
 
-            for(int i = 0; i < gui.posteriors.numPosteriors[curChannel]; i++){
-                GuiLabel(sum2Rec(gui.posteriors.recLabelPosteriors[i], gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, 0, 0), gui.posteriors.LabelPosteriorsText[curChannel][i].c_str());
-                GuiTextBox(sum2Rec(gui.posteriors.recTextBoxOuter[i], gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, 0, 0), gui.posteriors.TextBoxOuterText[i], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxOuterEditMode[i]);
+            for(int i = 0; i < gui.posteriors.numPost[curChannel]; i++){
+                GuiLabel(sum2Rec(gui.posteriors.recLabelPost[i], gui.posteriors.scrPanPostOffset.x, gui.posteriors.scrPanPostOffset.y, 0, 0), gui.posteriors.labelPostTxt[curChannel][i].c_str());
+                GuiTextBox(sum2Rec(gui.posteriors.recTBoxOuter[i], gui.posteriors.scrPanPostOffset.x, gui.posteriors.scrPanPostOffset.y, 0, 0), gui.posteriors.tBoxOuterTxt[i], CHAR_BUFFER_SIZE, gui.posteriors.tBoxOuterEdit[i]);
             }
 
             for(int i = 0; i < NUMBER_SECRETS; i++){
-                GuiLabel(sum2Rec(gui.posteriors.recLabelX[i], gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, 0, 0), gui.posteriors.LabelPosteriorsXText[i].c_str());
-                for(int j = 0; j < gui.posteriors.numPosteriors[curChannel]; j++){
-                    GuiTextBox(sum2Rec(gui.posteriors.recTextBoxInners[i][j], gui.posteriors.ScrollPanelPosteriorsScrollOffset.x, gui.posteriors.ScrollPanelPosteriorsScrollOffset.y, 0, 0), gui.posteriors.TextBoxInnersText[i][j], CHAR_BUFFER_SIZE, gui.posteriors.TextBoxInnersEditMode[i][j]);
+                GuiLabel(sum2Rec(gui.posteriors.recLabelX[i], gui.posteriors.scrPanPostOffset.x, gui.posteriors.scrPanPostOffset.y, 0, 0), gui.posteriors.labelPostXTxt[i].c_str());
+                for(int j = 0; j < gui.posteriors.numPost[curChannel]; j++){
+                    GuiTextBox(sum2Rec(gui.posteriors.recTBoxInners[i][j], gui.posteriors.scrPanPostOffset.x, gui.posteriors.scrPanPostOffset.y, 0, 0), gui.posteriors.tBoxInnersTxt[i][j], CHAR_BUFFER_SIZE, gui.posteriors.tBoxInnersEdit[i][j]);
                 }
             }
         }
@@ -1022,15 +1022,15 @@ void drawCirclesInners(Gui &gui, Data &data, int channel){
         
         if(gui.showLabels){
             if(data.hyper[channel].outer.prob[i] < threshold)
-                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-25, gui.visualization.recLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.labelPostTxt[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-25, gui.visualization.recLabelInnersCircles[channel][i].y-25}, 26, 1.0, BLACK);
             else
-                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.LabelPosteriorsText[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-5, gui.visualization.recLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
+                DrawTextEx(gui.defaultFontBig, &(gui.posteriors.labelPostTxt[channel][i][0]), (Vector2) {gui.visualization.recLabelInnersCircles[channel][i].x-5, gui.visualization.recLabelInnersCircles[channel][i].y-5}, 26, 1.0, BLACK);
         }
 
         if(gui.showConvexHull){
             // Find convex hull using inners circles
-            vector<pt> points = vector<pt>(gui.posteriors.numPosteriors[channel]);
-            for(int i = 0; i < gui.posteriors.numPosteriors[channel]; i++){
+            vector<pt> points = vector<pt>(gui.posteriors.numPost[channel]);
+            for(int i = 0; i < gui.posteriors.numPost[channel]; i++){
                 points[i].x = data.innersCircles[channel][i].center.x;
                 points[i].y = data.innersCircles[channel][i].center.y;
             }

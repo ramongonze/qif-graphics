@@ -3,76 +3,76 @@
 GuiPosteriors::GuiPosteriors(){
     // Data
     for(int i = 0; i < NUMBER_CHANNELS; i++)
-        numPosteriors[i] = 3;
+        numPost[i] = 3;
     
     // Const text
-    strcpy(GroupBoxPosteriorsText, "Hyper-distribution [\u03C0\u203AC]");
-    strcpy(LabelOuterText, "Outer");
+    strcpy(gBoxPostTxt, "Hyper-distribution [\u03C0\u203AC]");
+    strcpy(labelOuterTxt, "Outer");
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        LabelPosteriorsXText[i] = "X" + to_string(i+1);
+        labelPostXTxt[i] = "X" + to_string(i+1);
     }
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        LabelPosteriorsText[CHANNEL_1][i] = "\u03B4" + to_string(i+1);
-        LabelPosteriorsText[CHANNEL_2][i] = "\u03B4\'" + to_string(i+1);
-        LabelPosteriorsText[CHANNEL_3][i] = "\u03B4\'" + to_string(i+1);
+        labelPostTxt[CHANNEL_1][i] = "\u03B4" + to_string(i+1);
+        labelPostTxt[CHANNEL_2][i] = "\u03B4\'" + to_string(i+1);
+        labelPostTxt[CHANNEL_3][i] = "\u03B4\'" + to_string(i+1);
     }
 
     // Define anchors
-    AnchorPosterior = {10, 480};
+    anchorPost = {10, 480};
 
     // Define controls variable
-    ScrollPanelPosteriorsScrollOffset = {0, 0};
-    ScrollPanelPosteriorsBoundsOffset = {0, 0};
+    scrPanPostOffset = {0, 0};
+    scrPanPostBOffset = {0, 0};
 
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        TextBoxOuterEditMode[i] = false;
-        strcpy(TextBoxOuterText[i], "0");
+        tBoxOuterEdit[i] = false;
+        strcpy(tBoxOuterTxt[i], "0");
     }
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
         for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
-            TextBoxInnersEditMode[i][j] = false;
-            strcpy(TextBoxInnersText[i][j], "0");
+            tBoxInnersEdit[i][j] = false;
+            strcpy(tBoxInnersTxt[i][j], "0");
         }
     }
 
     // Define controls rectangles
-    recTitle = (Rectangle){AnchorPosterior.x, AnchorPosterior.y, 350, 20};
-    recContent = (Rectangle){AnchorPosterior.x, AnchorPosterior.y + 20, 350, 285};
-    recScrollPanel = (Rectangle){AnchorPosterior.x + 10, AnchorPosterior.y + 30, 330, 265};
-    ScrollPanelPosteriorsContent.y = recScrollPanel.height - 20;
-    recLabelOuter = (Rectangle){AnchorPosterior.x + 10, AnchorPosterior.y + 65, TEXTBOX_SIZE, TEXTBOX_SIZE};
+    recTitle = (Rectangle){anchorPost.x, anchorPost.y, 350, 20};
+    recContent = (Rectangle){anchorPost.x, anchorPost.y + 20, 350, 285};
+    recScrPan = (Rectangle){anchorPost.x + 10, anchorPost.y + 30, 330, 265};
+    scrPanPostContent.y = recScrPan.height - 20;
+    recLabelOuter = (Rectangle){anchorPost.x + 10, anchorPost.y + 65, TEXTBOX_SIZE, TEXTBOX_SIZE};
     
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        recLabelX[i] = (Rectangle){AnchorPosterior.x + 40, AnchorPosterior.y + 125 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
+        recLabelX[i] = (Rectangle){anchorPost.x + 40, anchorPost.y + 125 + i*TEXTBOX_SIZE, 20, TEXTBOX_SIZE};
     }
     
     for(int i = 0; i < MAX_CHANNEL_OUTPUTS; i++){
-        recLabelPosteriors[i] = (Rectangle){AnchorPosterior.x + 75 + i*TEXTBOX_SIZE, AnchorPosterior.y + 45, 20, 20};
-        recTextBoxOuter[i] = (Rectangle){AnchorPosterior.x + 65 + i*TEXTBOX_SIZE, AnchorPosterior.y + 65, TEXTBOX_SIZE, TEXTBOX_SIZE};
+        recLabelPost[i] = (Rectangle){anchorPost.x + 75 + i*TEXTBOX_SIZE, anchorPost.y + 45, 20, 20};
+        recTBoxOuter[i] = (Rectangle){anchorPost.x + 65 + i*TEXTBOX_SIZE, anchorPost.y + 65, TEXTBOX_SIZE, TEXTBOX_SIZE};
     }
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
         for(int j = 0; j < MAX_CHANNEL_OUTPUTS; j++){
-            recTextBoxInners[i][j] = (Rectangle){AnchorPosterior.x + 65 + j*TEXTBOX_SIZE, AnchorPosterior.y + 125 + i*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};
+            recTBoxInners[i][j] = (Rectangle){anchorPost.x + 65 + j*TEXTBOX_SIZE, anchorPost.y + 125 + i*TEXTBOX_SIZE, TEXTBOX_SIZE, TEXTBOX_SIZE};
         }
     }
 
-    ScrollPanelPosteriorsContent.x = recTextBoxInners[0][2].x + TEXTBOX_SIZE;
+    scrPanPostContent.x = recTBoxInners[0][2].x + TEXTBOX_SIZE;
 }
 
 void GuiPosteriors::resetPosterior(int channel){
-    numPosteriors[channel] = NUMBER_SECRETS;
+    numPost[channel] = NUMBER_SECRETS;
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        strcpy(TextBoxOuterText[i], "0");
-        for(int j = 0; j < numPosteriors[channel]; j++){
-            strcpy(TextBoxInnersText[i][j], "0");
+        strcpy(tBoxOuterTxt[i], "0");
+        for(int j = 0; j < numPost[channel]; j++){
+            strcpy(tBoxInnersTxt[i][j], "0");
         }
     }
 }
 
 void GuiPosteriors::setScrollContent(int channel){
-    ScrollPanelPosteriorsContent.x = recTextBoxInners[0][numPosteriors[channel]-1].x - 10 + TEXTBOX_SIZE;
+    scrPanPostContent.x = recTBoxInners[0][numPost[channel]-1].x - 10 + TEXTBOX_SIZE;
 }
