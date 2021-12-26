@@ -20,24 +20,24 @@ public:
     //------------------------------------------------------------------------------------
 
     // Const text
-    char panelPriorText[CHAR_BUFFER_SIZE];
-    char buttonRandomText[CHAR_BUFFER_SIZE];
-    string LabelPriorText[NUMBER_SECRETS];
+    char panPriorTxt[CHAR_BUFFER_SIZE];
+    char buttonRandTxt[CHAR_BUFFER_SIZE];
+    string labelPriorTxt[NUMBER_SECRETS];
 
     // Define anchors
-    Vector2 AnchorPrior;
+    Vector2 anchorPrior;
 
     // Define controls variables
-    bool TextBoxPriorEditMode[NUMBER_SECRETS];
-    char TextBoxPriorText[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
+    bool tBoxPriorEdit[NUMBER_SECRETS];
+    char tBoxPriorTxt[NUMBER_SECRETS][CHAR_BUFFER_SIZE];
 
     // Define controls rectangles
-    Rectangle recPanel;
+    Rectangle recPan;
     Rectangle recTitle;
     Rectangle recContent;
-    Rectangle recButtonRandom;
+    Rectangle recButtonRand;
     Rectangle recLabel[NUMBER_SECRETS];
-    Rectangle recTextBox[NUMBER_SECRETS];
+    Rectangle recTBox[NUMBER_SECRETS];
 
     //------------------------------------------------------------------------------------
     // Methods

@@ -471,7 +471,7 @@ void checkHelpMessagesActive(Gui &gui, Vector2 mousePosition){
 
 void checkPriorFlags(Gui &gui, Data &data){
     if(data.compute[FLAG_PRIOR]){
-        if(data.checkPriorText(gui.prior.TextBoxPriorText) == NO_ERROR){
+        if(data.checkPriorText(gui.prior.tBoxPriorTxt) == NO_ERROR){
             if(Distribution::isDistribution(data.prior)){
                 data.priorObj = Distribution(data.prior);
                 data.ready[FLAG_PRIOR] = true;
@@ -661,15 +661,15 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
 void drawGuiPrior(Gui &gui, Data &data){
     // if(gui.drawing && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE)
     if(gui.drawing)
-        drawContentPanel(gui.prior.recTitle, gui.prior.recContent, gui.prior.panelPriorText, PRIOR_COLOR_L1, gui.defaultFont);
+        drawContentPanel(gui.prior.recTitle, gui.prior.recContent, gui.prior.panPriorTxt, PRIOR_COLOR_L1, gui.defaultFont);
     else
-        drawContentPanel(gui.prior.recTitle, gui.prior.recContent, gui.prior.panelPriorText, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
+        drawContentPanel(gui.prior.recTitle, gui.prior.recContent, gui.prior.panPriorTxt, GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL)), gui.defaultFont);
 
-    DrawRectangleRec(gui.prior.recPanel, WHITE);
-    DrawRectangleLinesEx(gui.prior.recPanel, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
+    DrawRectangleRec(gui.prior.recPan, WHITE);
+    DrawRectangleLinesEx(gui.prior.recPan, 1, GetColor(GuiGetStyle(DEFAULT, LINE_COLOR)));
 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(TITLES_BASE_COLOR_DARKER));
-    if(GuiButton(gui.prior.recButtonRandom, gui.prior.buttonRandomText)) buttonRandomPrior(gui, data); 
+    if(GuiButton(gui.prior.recButtonRand, gui.prior.buttonRandTxt)) buttonRandomPrior(gui, data); 
     GuiSetStyle(BUTTON, BASE_COLOR_NORMAL, ColorToInt(MENU_BASE_COLOR_NORMAL));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_FOCUSED, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, BORDER_COLOR_PRESSED, ColorToInt(BLACK));
@@ -677,8 +677,8 @@ void drawGuiPrior(Gui &gui, Data &data){
     GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
 
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        GuiLabel(gui.prior.recLabel[i], gui.prior.LabelPriorText[i].c_str());
-        if(GuiTextBox(gui.prior.recTextBox[i], gui.prior.TextBoxPriorText[i], CHAR_BUFFER_SIZE, gui.prior.TextBoxPriorEditMode[i])) gui.prior.TextBoxPriorEditMode[i] = !gui.prior.TextBoxPriorEditMode[i];
+        GuiLabel(gui.prior.recLabel[i], gui.prior.labelPriorTxt[i].c_str());
+        if(GuiTextBox(gui.prior.recTBox[i], gui.prior.tBoxPriorTxt[i], CHAR_BUFFER_SIZE, gui.prior.tBoxPriorEdit[i])) gui.prior.tBoxPriorEdit[i] = !gui.prior.tBoxPriorEdit[i];
     }
 }
 
@@ -1196,7 +1196,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
 
     if(option == BUTTON_FILE_OPTION_OPEN){
         gui.drawing = false;
-        int retRead = gui.menu.readQIFFile(gui.prior.TextBoxPriorText, gui.channel.tBoxChannelTxt, gui.channel.numSecrets, gui.channel.numOutputs);
+        int retRead = gui.menu.readQIFFile(gui.prior.tBoxPriorTxt, gui.channel.tBoxChannelTxt, gui.channel.numSecrets, gui.channel.numOutputs);
 
         if(retRead == INVALID_QIF_FILE){
             // Open a dialog error
@@ -1226,7 +1226,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
         }
     }else if(option == BUTTON_FILE_OPTION_SAVE){
         gui.menu.saveQIFFile(
-            gui.prior.TextBoxPriorText,
+            gui.prior.tBoxPriorTxt,
             gui.channel.tBoxChannelTxt,
             gui.channel.numSecrets,
             gui.channel.numOutputs,
@@ -1236,7 +1236,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
         if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
     }else if(option == BUTTON_FILE_OPTION_SAVEAS){
         gui.menu.saveQIFFile(
-            gui.prior.TextBoxPriorText,
+            gui.prior.tBoxPriorTxt,
             gui.channel.tBoxChannelTxt,
             gui.channel.numSecrets,
             gui.channel.numOutputs,
@@ -1255,7 +1255,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
             if(ret == 0){
                 // Yes
                 gui.menu.saveQIFFile(
-                    gui.prior.TextBoxPriorText,
+                    gui.prior.tBoxPriorTxt,
                     gui.channel.tBoxChannelTxt,
                     gui.channel.numSecrets,
                     gui.channel.numOutputs,

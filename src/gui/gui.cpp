@@ -37,7 +37,7 @@ void Gui::readFonts(){
 
 bool Gui::checkPriorTextBoxPressed(){
     for(int i = 0; i < NUMBER_SECRETS; i++)
-        if(prior.TextBoxPriorEditMode[i] == true)
+        if(prior.tBoxPriorEdit[i] == true)
             return true;
 
     return false;
@@ -62,29 +62,29 @@ bool Gui::checkAlphaTextBoxPressed(){
 
 void Gui::moveAmongPriorTextBoxes(){
     for(int i = 0; i < NUMBER_SECRETS; i++){
-        if(prior.TextBoxPriorEditMode[i] == true){
+        if(prior.tBoxPriorEdit[i] == true){
             if(IsKeyPressed(KEY_TAB)){
-                prior.TextBoxPriorEditMode[i] = false;
+                prior.tBoxPriorEdit[i] = false;
                 if(IsKeyDown(KEY_LEFT_SHIFT) || IsKeyDown(KEY_RIGHT_SHIFT)){
-                    prior.TextBoxPriorEditMode[i] = false;
-                    if(i == 0) prior.TextBoxPriorEditMode[2] = true;
-                    else if(i == 1) prior.TextBoxPriorEditMode[0] = true;
-                    else prior.TextBoxPriorEditMode[1] = true;
+                    prior.tBoxPriorEdit[i] = false;
+                    if(i == 0) prior.tBoxPriorEdit[2] = true;
+                    else if(i == 1) prior.tBoxPriorEdit[0] = true;
+                    else prior.tBoxPriorEdit[1] = true;
                 }else{
-                    if(i == 0) prior.TextBoxPriorEditMode[1] = true;
-                    else if(i == 1) prior.TextBoxPriorEditMode[2] = true;
-                    else prior.TextBoxPriorEditMode[0] = true;
+                    if(i == 0) prior.tBoxPriorEdit[1] = true;
+                    else if(i == 1) prior.tBoxPriorEdit[2] = true;
+                    else prior.tBoxPriorEdit[0] = true;
                 }
             }else if(IsKeyPressed(KEY_LEFT)){
-                prior.TextBoxPriorEditMode[i] = false;
-                if(i == 0) prior.TextBoxPriorEditMode[2] = true;
-                else if(i == 1) prior.TextBoxPriorEditMode[0] = true;
-                else prior.TextBoxPriorEditMode[1] = true;
+                prior.tBoxPriorEdit[i] = false;
+                if(i == 0) prior.tBoxPriorEdit[2] = true;
+                else if(i == 1) prior.tBoxPriorEdit[0] = true;
+                else prior.tBoxPriorEdit[1] = true;
             }else if(IsKeyPressed(KEY_RIGHT)){
-                prior.TextBoxPriorEditMode[i] = false;
-                if(i == 0) prior.TextBoxPriorEditMode[1] = true;
-                else if(i == 1) prior.TextBoxPriorEditMode[2] = true;
-                else prior.TextBoxPriorEditMode[0] = true;
+                prior.tBoxPriorEdit[i] = false;
+                if(i == 0) prior.tBoxPriorEdit[1] = true;
+                else if(i == 1) prior.tBoxPriorEdit[2] = true;
+                else prior.tBoxPriorEdit[0] = true;
             }
             return;
         }
@@ -137,7 +137,7 @@ void Gui::moveAmongChannelTextBoxes(){
 void Gui::updatePriorTextBoxes(Distribution &prior_){
     vector<string> truncPrior = getStrTruncatedDist(prior_, PROB_PRECISION);
     for(int i = 0; i < prior_.num_el; i++){
-        strcpy(prior.TextBoxPriorText[i], truncPrior[i].c_str());
+        strcpy(prior.tBoxPriorTxt[i], truncPrior[i].c_str());
     }
 }
 
@@ -210,7 +210,7 @@ void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX
 }
 
 void Gui::checkMouseHover(Vector2 mousePosition){
-    helpMessagesActive[HELP_MSG_BUTTON_PRIOR] = CheckCollisionPointRec(mousePosition, prior.recButtonRandom);
+    helpMessagesActive[HELP_MSG_BUTTON_PRIOR] = CheckCollisionPointRec(mousePosition, prior.recButtonRand);
     helpMessagesActive[HELP_MSG_BUTTON_CHANNEL] = (channel.curChannel != CHANNEL_3 && CheckCollisionPointRec(mousePosition, channel.recButtonRand));
     helpMessagesActive[HELP_MSG_BUTTON_DRAW] = CheckCollisionPointRec(mousePosition, visualization.recButtonDraw);
 }
