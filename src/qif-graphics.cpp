@@ -133,7 +133,7 @@ void updateDrawFrame(void* vars_){
     }
     
     // If getting started window is active, nothing can be changed until the window closes
-    if(!gui->menu.windowGettingStartedActive){
+    if(!gui->menu.windowGSActive){
 
     // Menu
     //----------------------------------------------------------------------------------
@@ -337,7 +337,7 @@ void updateDrawFrame(void* vars_){
     BeginDrawing();
         ClearBackground(BG_BASE_COLOR_DARK); 
 
-        if(gui->menu.windowGettingStartedActive) GuiLock();
+        if(gui->menu.windowGSActive) GuiLock();
         drawGuiPrior(*gui, *data);
         drawGuiChannel(*gui, *data);
         drawGuiPosteriors(*gui, *data);
@@ -345,7 +345,7 @@ void updateDrawFrame(void* vars_){
         drawGuiMenu(*gui, *data, closeWindow);
         if(*mode != MODE_DP_SINGLE && *mode != MODE_DP_TWO && *mode != MODE_DP_POST_PROCESS)
             checkHelpMessagesActive(*gui, mousePosition);            
-        if(gui->menu.windowGettingStartedActive) GuiUnlock();
+        if(gui->menu.windowGSActive) GuiUnlock();
         drawGettingStarted(*gui);
 
     EndDrawing();
@@ -429,7 +429,7 @@ void checkButtonsMouseCollision(Gui &gui){
     Vector2 mousePoint = GetMousePosition();
 
 #if !defined(PLATFORM_WEB)
-    if((gui.menu.dropdownEditMode[BUTTON_FILE] || gui.menu.dropdownEditMode[BUTTON_MODE] || gui.menu.dropdownEditMode[BUTTON_EXAMPLES])
+    if((gui.menu.ddEdit[BUTTON_FILE] || gui.menu.ddEdit[BUTTON_MODE] || gui.menu.ddEdit[BUTTON_EXAMPLES])
         &&
         (CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_FILE]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_MODE]) ||
          CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_EXAMPLES]) || CheckCollisionPointRec(mousePoint, gui.menu.recButtons[BUTTON_GUIDE]))){
@@ -446,12 +446,12 @@ void checkButtonsMouseCollision(Gui &gui){
     if(i >= 0){
         for(; i < 3; i++){
             if(i != BUTTON_MODE)
-                gui.menu.dropdownBoxActive[i] = 0;
+                gui.menu.ddActive[i] = 0;
                 
             if(CheckCollisionPointRec(mousePoint, gui.menu.recButtons[i]))
-                gui.menu.dropdownEditMode[i] = true;
+                gui.menu.ddEdit[i] = true;
             else
-                gui.menu.dropdownEditMode[i] = false;
+                gui.menu.ddEdit[i] = false;
         }
     }
 }
@@ -507,7 +507,7 @@ void checkChannelsFlags(Gui &gui, Data &data){
     if(!data.ready[FLAG_PRIOR])
         return;
 
-    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    int mode = gui.menu.ddActive[BUTTON_MODE];
     
     if(mode == MODE_DP_SINGLE){
         if(data.compute[FLAG_CHANNEL_1]){
@@ -555,7 +555,7 @@ void checkChannelsFlags(Gui &gui, Data &data){
                     data.compute[FLAG_HYPER_3] = true; // Set hyper to be computed
                 }else if(data.checkChannelText(gui.channel.TextBoxChannelText[channel], channel, gui.channel.numSecrets[channel], gui.channel.numOutputs[channel]) == NO_ERROR){    
                     if(Channel::isChannel(data.channel[channel])){
-                        if(channel == CHANNEL_2 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
+                        if(channel == CHANNEL_2 && gui.menu.ddActive[BUTTON_MODE] == MODE_REF){
                             data.fakePrior = Distribution(gui.channel.numSecrets[CHANNEL_2], "uniform");
                             data.channelObj[CHANNEL_2] = Channel(data.fakePrior, data.channel[CHANNEL_2]);
                             if(data.ready[FLAG_CHANNEL_1])
@@ -563,7 +563,7 @@ void checkChannelsFlags(Gui &gui, Data &data){
                         }else{
                             data.channelObj[channel] = Channel(data.priorObj, data.channel[channel]);
                             data.compute[FLAG_HYPER_1+channel] = true; // Set hyper to be computed
-                            if(channel == CHANNEL_1 && gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF)
+                            if(channel == CHANNEL_1 && gui.menu.ddActive[BUTTON_MODE] == MODE_REF)
                                 data.compute[FLAG_CHANNEL_2] = true;
                         }
                         data.ready[FLAG_CHANNEL_1+channel] = true;
@@ -594,8 +594,8 @@ void checkChannelsFlags(Gui &gui, Data &data){
             }else{
                 if(channel == CHANNEL_1 && !data.ready[FLAG_CHANNEL_1]){
                     data.error = INVALID_CHANNEL_1;
-                }else if(channel == CHANNEL_2 && data.ready[FLAG_CHANNEL_1] && !data.ready[FLAG_CHANNEL_2] && gui.menu.dropdownBoxActive[BUTTON_MODE] != MODE_SINGLE){
-                    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_TWO) data.error = INVALID_CHANNEL_2_D;
+                }else if(channel == CHANNEL_2 && data.ready[FLAG_CHANNEL_1] && !data.ready[FLAG_CHANNEL_2] && gui.menu.ddActive[BUTTON_MODE] != MODE_SINGLE){
+                    if(gui.menu.ddActive[BUTTON_MODE] == MODE_TWO) data.error = INVALID_CHANNEL_2_D;
                     else data.error = INVALID_CHANNEL_2_R;                
                 }
             }
@@ -639,18 +639,18 @@ void drawGuiMenu(Gui &gui, Data &data, bool* closeWindow){
 
 #if !defined(PLATFORM_WEB)
     // Button File
-    if(!gui.menu.dropdownEditMode[BUTTON_FILE]) gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;        // Reset selection
-    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.dropdownBoxActive[BUTTON_FILE]), gui.menu.dropdownEditMode[BUTTON_FILE])) gui.menu.dropdownEditMode[BUTTON_FILE] = !gui.menu.dropdownEditMode[BUTTON_FILE];
+    if(!gui.menu.ddEdit[BUTTON_FILE]) gui.menu.ddActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;        // Reset selection
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_FILE], 120, gui.menu.buttonFileText, &(gui.menu.ddActive[BUTTON_FILE]), gui.menu.ddEdit[BUTTON_FILE])) gui.menu.ddEdit[BUTTON_FILE] = !gui.menu.ddEdit[BUTTON_FILE];
 #endif
 
     // Button Mode
-    gui.menu.updateButtonModeString(gui.menu.dropdownBoxActive[BUTTON_MODE]);
+    gui.menu.updateButtonModeString(gui.menu.ddActive[BUTTON_MODE]);
     
-    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_MODE], 330, gui.menu.buttonModeText, &(gui.menu.dropdownBoxActive[BUTTON_MODE]), gui.menu.dropdownEditMode[BUTTON_MODE])) gui.menu.dropdownEditMode[BUTTON_MODE] = !gui.menu.dropdownEditMode[BUTTON_MODE];
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_MODE], 330, gui.menu.buttonModeText, &(gui.menu.ddActive[BUTTON_MODE]), gui.menu.ddEdit[BUTTON_MODE])) gui.menu.ddEdit[BUTTON_MODE] = !gui.menu.ddEdit[BUTTON_MODE];
 
     // Button Examples
-    if(!gui.menu.dropdownEditMode[BUTTON_EXAMPLES]) gui.menu.dropdownBoxActive[BUTTON_EXAMPLES] = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection
-    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.dropdownBoxActive[BUTTON_EXAMPLES]), gui.menu.dropdownEditMode[BUTTON_EXAMPLES])) gui.menu.dropdownEditMode[BUTTON_EXAMPLES] = !gui.menu.dropdownEditMode[BUTTON_EXAMPLES];
+    if(!gui.menu.ddEdit[BUTTON_EXAMPLES]) gui.menu.ddActive[BUTTON_EXAMPLES] = BUTTON_EXAMPLES_OPTION_EXAMPLES;        // Reset selection
+    if(GuiDropdownBox(gui.menu.recButtons[BUTTON_EXAMPLES], 320, gui.menu.buttonExamplesText, &(gui.menu.ddActive[BUTTON_EXAMPLES]), gui.menu.ddEdit[BUTTON_EXAMPLES])) gui.menu.ddEdit[BUTTON_EXAMPLES] = !gui.menu.ddEdit[BUTTON_EXAMPLES];
     
     // Button Guide
     if(GuiButton(gui.menu.recButtons[BUTTON_GUIDE], gui.menu.buttonGuideText)) buttonGuide(gui);
@@ -683,7 +683,7 @@ void drawGuiPrior(Gui &gui, Data &data){
 }
 
 void drawGuiChannel(Gui &gui, Data &data){
-    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    int mode = gui.menu.ddActive[BUTTON_MODE];
     int curChannel = gui.channel.curChannel;
     Color contentColor = GetColor(GuiGetStyle(DEFAULT, BASE_COLOR_NORMAL));
 
@@ -830,7 +830,7 @@ void drawGuiChannel(Gui &gui, Data &data){
 }
 
 void drawGuiPosteriors(Gui &gui, Data &data){
-    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    int mode = gui.menu.ddActive[BUTTON_MODE];
     int curChannel = gui.channel.curChannel;
 
     if(curChannel == CHANNEL_1){
@@ -909,7 +909,7 @@ void drawGuiVisualization(Gui &gui, Data &data){
         gui.showLabels = GuiCheckBox(gui.visualization.recCheckboxShowLabels, gui.visualization.LabelCheckboxShowLabel, gui.showLabels);
         gui.showConvexHull = GuiCheckBox(gui.visualization.recCheckboxShowConvexHull, gui.visualization.LabelCheckboxShowConvexHull, gui.showConvexHull);
 
-        int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+        int mode = gui.menu.ddActive[BUTTON_MODE];
         
         // Sliders
         if(mode == MODE_DP_SINGLE){
@@ -969,26 +969,26 @@ void drawGuiVisualization(Gui &gui, Data &data){
 }
 
 void drawGettingStarted(Gui &gui){
-    if(gui.menu.windowGettingStartedActive){
+    if(gui.menu.windowGSActive){
         GuiSetStyle(DEFAULT, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(BUTTON, TEXT_COLOR_NORMAL, ColorToInt(WHITE));
         GuiSetStyle(BUTTON, TEXT_COLOR_FOCUSED, ColorToInt(WHITE));
         GuiSetStyle(BUTTON, TEXT_COLOR_PRESSED, ColorToInt(WHITE));
         GuiSetStyle(DEFAULT, BACKGROUND_COLOR, ColorToInt(BG_BASE_COLOR_DARK));
         GuiSetStyle(DEFAULT, LINE_COLOR, ColorToInt(BLACK));
-        gui.menu.windowGettingStartedActive = !GuiWindowBox(gui.menu.recGettingStarted, "Getting started");
+        gui.menu.windowGSActive = !GuiWindowBox(gui.menu.recGS, "Getting started");
         initStyle();
 
         // List of options
         GuiSetStyle(LISTVIEW, TEXT_COLOR_NORMAL, ColorToInt(BLACK));
         GuiSetStyle(LISTVIEW, TEXT_COLOR_FOCUSED, ColorToInt(BLACK));
         GuiSetStyle(LISTVIEW, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
-        gui.menu.gsMenuActive = GuiListView(gui.menu.recGettingStartedMenu, gui.menu.gsMenuOptions, &gui.menu.gsMenuScrollIndex, gui.menu.gsMenuActive);
+        gui.menu.gsMenuActive = GuiListView(gui.menu.recGSMenu, gui.menu.gsMenuOptions, &gui.menu.gsMenuScrollIndex, gui.menu.gsMenuActive);
 
         // Visualization panel
-        DrawRectangleRec(gui.menu.recGettingStartedPanel, WHITE);
+        DrawRectangleRec(gui.menu.recGSPanel, WHITE);
         if(gui.menu.gsMenuActive > -1){
-            drawGSContent(gui, gui.menu.recGettingStartedPanel, gui.menu.gsMenuActive, gui.menu.imgPadding[gui.menu.gsMenuActive]);
+            drawGSContent(gui, gui.menu.recGSPanel, gui.menu.gsMenuActive, gui.menu.imgPadding[gui.menu.gsMenuActive]);
         }
     }
 }
@@ -1098,17 +1098,17 @@ void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
     GuiSetStyle(TEXTBOX, TEXT_COLOR_PRESSED, ColorToInt(BLACK));
     GuiSetStyle(TEXTBOX, TEXT_INNER_PADDING, 0);
     
-    gui.menu.ScrollPanelContent.y = gui.menu.recGettingStarted.height + gui.menu.gsOptionYOffset[option];
+    gui.menu.scrPanContent.y = gui.menu.recGS.height + gui.menu.gsOptionYOffset[option];
 
     Rectangle viewScroll = GuiScrollPanel(
-        sum2Rec(gui.menu.recScrollPanel, 0, 0, -gui.menu.ScrollPanelBoundsOffset.x, -gui.menu.ScrollPanelBoundsOffset.y),
-        (Rectangle){gui.menu.recScrollPanel.x, gui.menu.recScrollPanel.y, gui.menu.ScrollPanelContent.x, gui.menu.ScrollPanelContent.y},
-        &(gui.menu.ScrollPanelScrollOffset)
+        sum2Rec(gui.menu.recScrPan, 0, 0, -gui.menu.scrPanBOffset.x, -gui.menu.scrPanBOffset.y),
+        (Rectangle){gui.menu.recScrPan.x, gui.menu.recScrPan.y, gui.menu.scrPanContent.x, gui.menu.scrPanContent.y},
+        &(gui.menu.scrPanOffset)
     );
     
     BeginScissorMode(viewScroll.x, viewScroll.y, viewScroll.width, viewScroll.height);
         GuiTextBoxMulti(
-            (Rectangle){panel.x+10+gui.menu.ScrollPanelScrollOffset.x, panel.y+10+gui.menu.ScrollPanelScrollOffset.y, panel.width-30, (float)gui.menu.gsContentHeight[option]},
+            (Rectangle){panel.x+10+gui.menu.scrPanOffset.x, panel.y+10+gui.menu.scrPanOffset.y, panel.width-30, (float)gui.menu.gsContentHeight[option]},
             gui.menu.gsDescriptionTexts[option],
             gui.defaultFont.baseSize,
             false
@@ -1116,7 +1116,7 @@ void drawGSContent(Gui &gui, Rectangle panel, int option, int imgPadding){
         
         // Image
         if(strcmp(gui.menu.imagesSrc[option], "")){
-            DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10+gui.menu.ScrollPanelScrollOffset.x, panel.y+imgPadding+gui.menu.ScrollPanelScrollOffset.y}, 0.0f, 0.43f, WHITE);
+            DrawTextureEx(gui.menu.gsImages[option], (Vector2){panel.x+10+gui.menu.scrPanOffset.x, panel.y+imgPadding+gui.menu.scrPanOffset.y}, 0.0f, 0.43f, WHITE);
         }
     EndScissorMode();
 
@@ -1137,7 +1137,7 @@ void drawHelpMessage(Gui &gui, Rectangle rec, char message[CHAR_BUFFER_SIZE]){
 
 void drawTab(Gui &gui, int channel, bool active){
     int oldState = GuiGetState();
-    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE]; // Mode can be only MODE_TWO and MODE_REF
+    int mode = gui.menu.ddActive[BUTTON_MODE]; // Mode can be only MODE_TWO and MODE_REF
 
     if(gui.drawing){
         // Text color
@@ -1192,7 +1192,7 @@ void drawTab(Gui &gui, int channel, bool active){
 //------------------------------------------------------------------------------------
 void buttonFile(Gui &gui, Data &data, bool* closeWindow){
 #if !defined(PLATFORM_WEB)
-    int option = gui.menu.dropdownBoxActive[BUTTON_FILE];
+    int option = gui.menu.ddActive[BUTTON_FILE];
 
     if(option == BUTTON_FILE_OPTION_OPEN){
         gui.drawing = false;
@@ -1218,7 +1218,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
 
             // Update current mode
             gui.channel.checkModeAndSizes(retRead);
-            gui.menu.dropdownBoxActive[BUTTON_MODE] = retRead;
+            gui.menu.ddActive[BUTTON_MODE] = retRead;
 
             if(retRead == MODE_TWO) data.compute[FLAG_CHANNEL_2] = true;
 
@@ -1230,7 +1230,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
             gui.channel.TextBoxChannelText,
             gui.channel.numSecrets,
             gui.channel.numOutputs,
-            gui.menu.dropdownBoxActive[BUTTON_MODE],
+            gui.menu.ddActive[BUTTON_MODE],
             strcmp(gui.menu.fileName, "\0") == 0 ? true : false
         );
         if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;   
@@ -1240,7 +1240,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
             gui.channel.TextBoxChannelText,
             gui.channel.numSecrets,
             gui.channel.numOutputs,
-            gui.menu.dropdownBoxActive[BUTTON_MODE],
+            gui.menu.ddActive[BUTTON_MODE],
             true
         );
         if(strcmp(gui.menu.fileName, "\0")) data.fileSaved = true;
@@ -1259,7 +1259,7 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
                     gui.channel.TextBoxChannelText,
                     gui.channel.numSecrets,
                     gui.channel.numOutputs,
-                    gui.menu.dropdownBoxActive[BUTTON_MODE],
+                    gui.menu.ddActive[BUTTON_MODE],
                     strcmp(gui.menu.fileName, "\0") == 0 ? true : false
                 );
                 if(strcmp(gui.menu.fileName, "\0")){
@@ -1273,11 +1273,11 @@ void buttonFile(Gui &gui, Data &data, bool* closeWindow){
         }
     }
 #endif
-    gui.menu.dropdownBoxActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;
+    gui.menu.ddActive[BUTTON_FILE] = BUTTON_FILE_OPTION_FILE;
 }
 
 void buttonMode(Gui &gui, Data &data, int* prevMode){
-    int curMode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    int curMode = gui.menu.ddActive[BUTTON_MODE];
 
     if(*prevMode != curMode){
         gui.channel.checkModeAndSizes(curMode);
@@ -1306,7 +1306,7 @@ void buttonMode(Gui &gui, Data &data, int* prevMode){
 }
 
 void buttonExamples(Gui &gui, Data &data){
-    int example = gui.menu.dropdownBoxActive[BUTTON_EXAMPLES];
+    int example = gui.menu.ddActive[BUTTON_EXAMPLES];
     
     // If none of the options were seleted, skip.
     if(example != BUTTON_EXAMPLES_OPTION_CH_0 && example != BUTTON_EXAMPLES_OPTION_CH_1)
@@ -1315,13 +1315,13 @@ void buttonExamples(Gui &gui, Data &data){
     int curChannel = gui.channel.curChannel;
 
     // If some option was selected when the current channel is CR, skip.
-    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF && curChannel == CHANNEL_3)
+    if(gui.menu.ddActive[BUTTON_MODE] == MODE_REF && curChannel == CHANNEL_3)
         return;
 
     char newChannel[MAX_CHANNEL_OUTPUTS][MAX_CHANNEL_OUTPUTS][CHAR_BUFFER_SIZE];
 
     gui.channel.SpinnerChannelValue[curChannel] = (example == BUTTON_EXAMPLES_OPTION_CH_0) ? gui.channel.numSecrets[curChannel] : 1;    
-    gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.dropdownBoxActive[BUTTON_MODE]);
+    gui.channel.updateChannelBySpinner(gui.channel.curChannel, gui.menu.ddActive[BUTTON_MODE]);
 
     if(example == BUTTON_EXAMPLES_OPTION_CH_0){
         // Set identity matrix
@@ -1341,7 +1341,7 @@ void buttonExamples(Gui &gui, Data &data){
     }
 
     GuiChannel::copyChannelText(newChannel, gui.channel.TextBoxChannelText[curChannel], gui.channel.numSecrets[curChannel], gui.channel.numOutputs[curChannel]);
-    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
+    if(gui.menu.ddActive[BUTTON_MODE] == MODE_REF){
         data.resetAllExceptComputeChannel1();
     }else{
         data.compute[FLAG_CHANNEL_1+curChannel] = true;
@@ -1351,7 +1351,7 @@ void buttonExamples(Gui &gui, Data &data){
 }
 
 void buttonGuide(Gui &gui){
-    gui.menu.windowGettingStartedActive = true;
+    gui.menu.windowGSActive = true;
 }
 
 void buttonRandomPrior(Gui &gui, Data &data){
@@ -1362,7 +1362,7 @@ void buttonRandomPrior(Gui &gui, Data &data){
     data.ready[FLAG_PRIOR] = true;
     gui.updatePriorTextBoxes(data.priorObj);
     
-    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    int mode = gui.menu.ddActive[BUTTON_MODE];
     
     // Reset channel 1 and set it to be computed
     data.ready[FLAG_CHANNEL_1] = false;
@@ -1401,7 +1401,7 @@ void buttonRandomChannel(Gui &gui, Data &data){
     data.fileSaved = false;
     gui.channel.updateChannelTextBoxes(data.channel[gui.channel.curChannel]);
 
-    if(gui.menu.dropdownBoxActive[BUTTON_MODE] == MODE_REF){
+    if(gui.menu.ddActive[BUTTON_MODE] == MODE_REF){
         data.resetAllExceptComputeChannel1();
     }else{
         data.compute[FLAG_CHANNEL_1+gui.channel.curChannel] = true;
@@ -1410,7 +1410,7 @@ void buttonRandomChannel(Gui &gui, Data &data){
 }
 
 void buttonDraw(Gui &gui, Data &data){
-    int mode = gui.menu.dropdownBoxActive[BUTTON_MODE];
+    int mode = gui.menu.ddActive[BUTTON_MODE];
     if(mode == MODE_SINGLE || mode == MODE_DP_SINGLE){
         if(!data.ready[FLAG_HYPER_1]){
             updateStatusBar(data.error, gui.visualization);

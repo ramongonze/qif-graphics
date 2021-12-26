@@ -9,11 +9,11 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     this->windowWidth = windowWidth;
     this->windowHeight = windowHeight;
     for(int i = 0; i < 4; i++){
-        dropdownBoxActive[i] = 0;
-        dropdownEditMode[i] = false;
+        ddActive[i] = 0;
+        ddEdit[i] = false;
     }
-    dropdownBoxActive[BUTTON_MODE] = BUTTON_MODE_OPTION_SINGLE;
-    windowGettingStartedActive = false;
+    ddActive[BUTTON_MODE] = BUTTON_MODE_OPTION_SINGLE;
+    windowGSActive = false;
 
     // Text
     strcpy(buttonFileText, "File;Open file;Save;Save as...;Exit");
@@ -48,29 +48,29 @@ GuiMenu::GuiMenu(int windowWidth, int windowHeight){
     recMenu = (Rectangle){0, 0, 1130, 25};
 
     // Getting started
-    ScrollPanelScrollOffset = {0, 0};
-    ScrollPanelBoundsOffset = {0, 0};
+    scrPanOffset = {0, 0};
+    scrPanBOffset = {0, 0};
 
-    recGettingStarted = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
-    recGettingStartedMenu = sum2Rec(recGettingStarted, 10, 10+windowsStatusBarHeight, -recGettingStarted.width*0.8, -windowsStatusBarHeight-20);
-    recGettingStartedPanel = sum2Rec(recGettingStarted, recGettingStartedMenu.width+10, 10+windowsStatusBarHeight, -(recGettingStarted.width*0.2)-30, -windowsStatusBarHeight-20);
-    recScrollPanel = recGettingStartedPanel;
-    ScrollPanelContent.y = recGettingStarted.height + gsOptionYOffset[GS_OPTION_QIF]; // Default value is GS_OPTION_QIF
-    ScrollPanelContent.x = recScrollPanel.width - 20; 
+    recGS = (Rectangle){(float)(windowWidth*0.1), (float)(windowHeight*0.1), (float)(windowWidth*0.8), (float)(windowHeight*0.8)};
+    recGSMenu = sum2Rec(recGS, 10, 10+windowsStatusBarHeight, -recGS.width*0.8, -windowsStatusBarHeight-20);
+    recGSPanel = sum2Rec(recGS, recGSMenu.width+10, 10+windowsStatusBarHeight, -(recGS.width*0.2)-30, -windowsStatusBarHeight-20);
+    recScrPan = recGSPanel;
+    scrPanContent.y = recGS.height + gsOptionYOffset[GS_OPTION_QIF]; // Default value is GS_OPTION_QIF
+    scrPanContent.x = recScrPan.width - 20; 
 
     gsOptionYOffset[GS_OPTION_QIF] = 300;
-    gsContentHeight[GS_OPTION_QIF] = recGettingStartedPanel.height + 400;
+    gsContentHeight[GS_OPTION_QIF] = recGSPanel.height + 400;
     for(int option = GS_OPTION_PRIOR; option <= GS_OPTION_HYPER; option++){
         gsOptionYOffset[option] = -60;
-        gsContentHeight[option] = recGettingStartedPanel.height;
+        gsContentHeight[option] = recGSPanel.height;
     }
 
     for(int option = GS_OPTION_MODE_SINGLE; option <= GS_OPTION_MODE_TWO; option++){
         gsOptionYOffset[option] = 460;
-        gsContentHeight[option] = recGettingStartedPanel.height + 560;
+        gsContentHeight[option] = recGSPanel.height + 560;
     }
     gsOptionYOffset[GS_OPTION_MODE_REF] = 520;
-    gsContentHeight[GS_OPTION_MODE_REF] = recGettingStartedPanel.height + 620;
+    gsContentHeight[GS_OPTION_MODE_REF] = recGSPanel.height + 620;
 
     strcpy(gsMenuOptions, "QIF Graphics;Prior distribution;Channels;Hyper-distribution;Mode single channel;Mode two channels;Mode refinement");
     gsMenuScrollIndex = 0;

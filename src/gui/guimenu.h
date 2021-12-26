@@ -65,9 +65,9 @@ public:
     int windowWidth;
     int windowHeight;
     char buttonModeOptions[NUM_BUTTON_MODE][CHAR_BUFFER_SIZE];
-    int dropdownBoxActive[NUM_BUTTON_MODE];
-    bool dropdownEditMode[NUM_BUTTON_MODE];
-    bool windowGettingStartedActive;
+    int ddActive[NUM_BUTTON_MODE];
+    bool ddEdit[NUM_BUTTON_MODE];
+    bool windowGSActive;
 
     // Text
     char buttonFileText[CHAR_BUFFER_SIZE];
@@ -79,15 +79,15 @@ public:
     // Define controls rectangles
     Rectangle recButtons[4];
     Rectangle recMenu;
-    Rectangle recGettingStarted;
-    Rectangle recGettingStartedMenu;
-    Rectangle recGettingStartedPanel;
+    Rectangle recGS;
+    Rectangle recGSMenu;
+    Rectangle recGSPanel;
     
     // Getting started widgets
-    Rectangle recScrollPanel;
-    Vector2 ScrollPanelScrollOffset;
-    Vector2 ScrollPanelBoundsOffset;
-    Vector2 ScrollPanelContent;
+    Rectangle recScrPan;
+    Vector2 scrPanOffset;
+    Vector2 scrPanBOffset;
+    Vector2 scrPanContent;
     int gsOptionYOffset[7]; // Used to define Scroll Panel bounds
     int gsContentHeight[7]; // Used to set Panel Multibox height
 
