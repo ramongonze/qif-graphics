@@ -8,7 +8,7 @@ Gui::Gui(){
     visualization = GuiVisualization();
     drawing = false;
     showLabels = true;
-    showConvexHull = false;
+    showCHull = false;
     readFonts();
 
     for(int i = 0; i < 3; i++)
@@ -35,7 +35,7 @@ void Gui::readFonts(){
     defaultFontBig = LoadFontEx("fonts/OpenSans-Regular.ttf", 32, chars, 260); // Used to get pi symbol
 }
 
-bool Gui::checkPriorTextBoxPressed(){
+bool Gui::checkPriorTBoxPressed(){
     for(int i = 0; i < NUMBER_SECRETS; i++)
         if(prior.tBoxPriorEdit[i] == true)
             return true;
@@ -43,7 +43,7 @@ bool Gui::checkPriorTextBoxPressed(){
     return false;
 }
 
-bool Gui::checkChannelTextBoxPressed(){
+bool Gui::checkChannelTBoxPressed(){
     for(int i = 0; i < channel.numSecrets[channel.curChannel]; i++)
         for(int j = 0; j < channel.numOutputs[channel.curChannel]; j++)
             if(channel.tBoxChannelEdit[i][j] == true)
@@ -52,15 +52,15 @@ bool Gui::checkChannelTextBoxPressed(){
     return false;
 }
 
-bool Gui::checkEpsilonDeltaTextBoxPressed(){
+bool Gui::checkEpDeltaTBoxPressed(){
     return channel.tBoxEpsilonEdit || channel.tBoxDeltaEdit;
 }
 
-bool Gui::checkAlphaTextBoxPressed(){
+bool Gui::checkAlphaTBoxPressed(){
     return channel.tBoxAlphaEdit;
 }
 
-void Gui::moveAmongPriorTextBoxes(){
+void Gui::movePriorTBoxes(){
     for(int i = 0; i < NUMBER_SECRETS; i++){
         if(prior.tBoxPriorEdit[i] == true){
             if(IsKeyPressed(KEY_TAB)){
@@ -91,7 +91,7 @@ void Gui::moveAmongPriorTextBoxes(){
     }
 }
 
-void Gui::moveAmongChannelTextBoxes(){
+void Gui::moveChannelTBoxes(){
     int nRows = channel.numSecrets[channel.curChannel];
     int nColumns = channel.numOutputs[channel.curChannel];
 
@@ -134,14 +134,14 @@ void Gui::moveAmongChannelTextBoxes(){
     }
 }
 
-void Gui::updatePriorTextBoxes(Distribution &prior_){
+void Gui::updatePriorTBoxes(Distribution &prior_){
     vector<string> truncPrior = getStrTruncatedDist(prior_, PROB_PRECISION);
     for(int i = 0; i < prior_.num_el; i++){
         strcpy(prior.tBoxPriorTxt[i], truncPrior[i].c_str());
     }
 }
 
-void Gui::updateChannelTextBoxes(Channel &channel_, int channelIdx){
+void Gui::updateChannelTBoxes(Channel &channel_, int channelIdx){
     for(int i = 0; i < channel_.prior.num_el; i++){
         vector<long double> row = vector<long double>(channel_.num_out);
         for(int j = 0; j < channel_.num_out; j++){
@@ -155,7 +155,7 @@ void Gui::updateChannelTextBoxes(Channel &channel_, int channelIdx){
     }
 }
 
-void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
+void Gui::updateHyperTBoxes(Hyper &hyper, int channel, bool ready){
     // If hyper is not ready, fill textboxes with zeros
     if(!ready){
         for(int i = 0; i < NUMBER_SECRETS; i++){
@@ -188,7 +188,7 @@ void Gui::updateHyperTextBoxes(Hyper &hyper, int channel, bool ready){
     }
 }
 
-void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
+void Gui::updateRecPriorCircLabel(Circle &priorCircle){
     visualization.recLabelPriorCirc = (Rectangle) {
         (float) priorCircle.center.x - 8,
         (float) priorCircle.center.y - 15,
@@ -197,7 +197,7 @@ void Gui::updateRectanglePriorCircleLabel(Circle &priorCircle){
     };
 }
 
-void Gui::updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
+void Gui::updateRecInnersCircLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]){
     // Update circle labels and rectangles
     for(int i = 0; i < posteriors.numPost[channel]; i++){
         visualization.recLabelInnersCirc[channel][i] = (Rectangle){

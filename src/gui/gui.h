@@ -39,7 +39,7 @@ public:
     bool drawing; // Flag that indicates wheter the triangle is being drawn.
     bool helpMessagesActive[3]; // Flags used to show help messages
     bool showLabels; // Flag used in visualization to show or not circles labels
-    bool showConvexHull; // Flag used in visualization to show or convex hull of inners
+    bool showCHull; // Flag used in visualization to show or convex hull of inners
 
     char helpMessages[3][CHAR_BUFFER_SIZE*2];
 
@@ -52,40 +52,40 @@ public:
 
     /* Check whether a textbox in prior was pressed.
 	 * Returns true if yes or false otherwise. */
-    bool checkPriorTextBoxPressed();
+    bool checkPriorTBoxPressed();
 
     /* Check wheter a textbox in the current channel was pressed.
 	 * Returns true if yes or false otherwise. */
-    bool checkChannelTextBoxPressed();
+    bool checkChannelTBoxPressed();
 
     /* Chechk whether delta or epsilon textbox (of MODE_DP) was pressed.
      * Returns true if yes or false otherwise. */
-    bool checkEpsilonDeltaTextBoxPressed();
+    bool checkEpDeltaTBoxPressed();
     
     /* Chechk whether alpha textbox was pressed.
      * Returns true if yes or false otherwise. */
-    bool checkAlphaTextBoxPressed();
+    bool checkAlphaTBoxPressed();
 
     /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move the pressed TextBox in prior. */
-    void moveAmongPriorTextBoxes();
+    void movePriorTBoxes();
 
     /* If the user press KEY_TAB, KEY_UP, KEY_DOWN, KEY_LEFT or KEY_RIGHT, move the pressed TextBox in the current channel. */
-    void moveAmongChannelTextBoxes();
+    void moveChannelTBoxes();
     
     /* Update TextBoxes of prior distribution. */
-	void updatePriorTextBoxes(Distribution &prior_);
+	void updatePriorTBoxes(Distribution &prior_);
 
     /* If Update channel textboxes for a given channel. */
-	void updateChannelTextBoxes(Channel &channel_, int channelIdx);
+	void updateChannelTBoxes(Channel &channel_, int channelIdx);
     
     /* If a hyper-distributin has been built, update outer and inners TextBoxes;. */
-	void updateHyperTextBoxes(Hyper &hyper, int channel, bool ready);
+	void updateHyperTBoxes(Hyper &hyper, int channel, bool ready);
 
     /* Update rectangle of prior circle label. */
-    void updateRectanglePriorCircleLabel(Circle &priorCircle);
+    void updateRecPriorCircLabel(Circle &priorCircle);
 
     /* Update rectangles of inners circle labels. */
-    void updateRectangleInnersCircleLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
+    void updateRecInnersCircLabel(int channel, Circle innersCircles[MAX_CHANNEL_OUTPUTS]);
 
     // Check mouse position and manage help messages
     void checkMouseHover(Vector2 mousePosition);
