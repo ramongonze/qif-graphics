@@ -7,3 +7,6 @@
 [submodule "libs/raygui"]
 	path = libs/raygui
 	url = https://github.com/ramongonze/raygui
+[submodule "libs/emsdk"]
+	path = libs/emsdk
+	url = https://github.com/emscripten-core/emsdk.git
